@@ -1,0 +1,119 @@
+<?php
+namespace layouts\reserveViewTemplates;
+
+
+class address extends \DGZ_library\DGZ_HtmlView
+{
+
+
+function show()
+{ ?>
+	
+    <!-- ==========================
+    	SCROLL TOP - START 
+    =========================== -->
+    <div id="scrolltop" class="hidden-xs"><i class="fa fa-angle-up"></i></div>
+    <!-- ==========================
+    	SCROLL TOP - END 
+    =========================== -->
+    
+
+    
+    <div id="page-wrapper"> <!-- PAGE - START -->
+    
+    <!-- ==========================
+    	BREADCRUMB - START 
+    =========================== -->
+    <section class="breadcrumb-wrapper">
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-6">
+                    <h2>My Account</h2>
+                    <p>Address</p>
+                </div>
+                <div class="col-xs-6">
+                    <ol class="breadcrumb">
+                        <li><a href="index.phtml">Home</a></li>
+                        <li><a href="myAccount.phtml">My Account</a></li>
+                        <li class="active">Address</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </section>
+	<!-- ==========================
+    	BREADCRUMB - END 
+    =========================== -->
+    
+    <!-- ==========================
+    	MY ACCOUNT - START 
+    =========================== -->
+    <section class="content account">
+        <div class="container">
+            <div class="row">
+            	<div class="col-sm-3">
+                	<aside class="sidebar">
+                    	
+                        <!-- WIDGET:CATEGORIES - START -->
+                        <div class="widget widget-navigation">
+                            <ul class="nav nav-pills nav-stacked">
+                                <li><a href="myAccount.phtml">Account Dashboard</a></li>
+                                <li><a href="profile.phtml">Personal Infromation</a></li>
+                                <li class="active"><a href="address.phtml">My Address</a></li>
+                                <li><a href="orders.phtml">My Orders</a></li>
+                                <li><a href="warranty-claims.phtml">Warranty Claims</a></li>
+                            	<li><a href="wishlist.phtml">Wishlist</a></li>
+                                <li><a href="products.phtml">Back to Shop</a></li>
+                            </ul>
+                        </div>
+                        <!-- WIDGET:CATEGORIES - END -->
+                        
+                    </aside>
+                </div>
+                <div class="col-sm-9">
+                    <article class="account-content">
+                        <h3>My Addresses</h3>
+                        <div class="table-responsive border">
+                            <table class="table table-bordered">
+                                <tr>
+                                    <th>Company</th>
+                                    <th>Name</th>
+                                    <th>Address</th>
+                                    <th>Country</th>
+                                    <th>Phone</th>
+                                    <th></th>
+                                </tr>
+                                <tr>
+                                    <td>Apple Inc.</td>
+                                    <td>John Doe</td>
+                                    <td>16, Main street 2nd floor 75002 Paris</td>
+                                    <td>France</td>
+                                    <td>+420 123 456 789</td>
+                                    <td><a class="btn btn-primary btn-sm"><i class="fa fa-pencil"></i></a><a class="btn btn-primary btn-sm"><i class="fa fa-times"></i></a></td>
+                                </tr>
+                                <tr>
+                                    <td>Microsoft Corporation</td>
+                                    <td>John Doe</td>
+                                    <td>16, Main street 2nd floor 33133 Miami</td>
+                                    <td>United States</td>
+                                    <td>+420 123 456 789</td>
+                                    <td><a class="btn btn-primary btn-sm"><i class="fa fa-pencil"></i></a><a class="btn btn-primary btn-sm"><i class="fa fa-times"></i></a></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <a href="add-address.phtml" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Add New Address</a>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- ==========================
+    	MY ACCOUNT - END 
+    =========================== -->
+
+    
+    </div> <!-- PAGE - END -->
+
+<?php }
+}
+?>

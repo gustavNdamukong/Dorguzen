@@ -1,0 +1,14 @@
+{
+    "name": "nolimitmedia/dorguzen",
+    "description": "A PHP Development Framework - Your Rapid Web Development Toolkit",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Gustav Ndamukong",
+            "email": "gustavfn@yahoo.co.uk"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}

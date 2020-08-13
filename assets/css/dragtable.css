@@ -1,0 +1,29 @@
+/* 
+ * dragtable
+ *
+ * @Version 2.0.14
+ *
+ * default css
+ *
+ */
+/*##### the dragtable stuff #####*/
+.dragtable-sortable { 
+    list-style-type:none; 
+	margin:0; 
+	padding:0; 
+	-moz-user-select:none;
+}
+.dragtable-sortable li {
+    margin:0; 
+	padding:0; 
+	float:left; 
+	background:transparent; 
+}
+
+.ui-sortable-placeholder { 
+    visibility: visible !important;
+}
+
+.ui-sortable-placeholder * { 
+    opacity: 0.0; visibility: hidden; 
+}

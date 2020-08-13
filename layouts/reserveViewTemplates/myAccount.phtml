@@ -1,0 +1,156 @@
+<?php
+namespace layouts\reserveViewTemplates;
+
+
+class myAccount extends \DGZ_library\DGZ_HtmlView
+{
+
+
+    function show()
+    { ?>
+
+        <!-- ==========================
+            SCROLL TOP - START
+        =========================== -->
+        <div id="scrolltop" class="hidden-xs"><i class="fa fa-angle-up"></i></div>
+        <!-- ==========================
+            SCROLL TOP - END
+        =========================== -->
+
+
+        <div id="page-wrapper"> <!-- PAGE - START -->
+
+            <!-- ==========================
+                BREADCRUMB - START
+            =========================== -->
+            <section class="breadcrumb-wrapper">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <h2>My Account</h2>
+                            <p>Account Dashboard</p>
+                        </div>
+                        <div class="col-xs-6">
+                            <ol class="breadcrumb">
+                                <li><a href="index.phtml">Home</a></li>
+                                <li><a href="myAccount.phtml">My Account</a></li>
+                                <li class="active">Account Dashboard</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- ==========================
+                BREADCRUMB - END
+            =========================== -->
+
+            <!-- ==========================
+                MY ACCOUNT - START
+            =========================== -->
+            <section class="content account">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <aside class="sidebar">
+
+                                <!-- WIDGET:CATEGORIES - START -->
+                                <div class="widget widget-navigation">
+                                    <ul class="nav nav-pills nav-stacked">
+                                        <li class="active"><a href="myAccount.phtml">Account Dashboard</a></li>
+                                        <li><a href="profile.phtml">Personal Infromation</a></li>
+                                        <li><a href="address.phtml">My Address</a></li>
+                                        <li><a href="orders.phtml">My Orders</a></li>
+                                        <li><a href="warranty-claims.phtml">Warranty Claims</a></li>
+                                        <li><a href="wishlist.phtml">Wishlist</a></li>
+                                        <li><a href="products.phtml">Back to Shop</a></li>
+                                    </ul>
+                                </div>
+                                <!-- WIDGET:CATEGORIES - END -->
+
+                            </aside>
+                        </div>
+                        <div class="col-sm-9">
+                            <article class="account-content">
+                                <div class="alert alert-warning alert-dismissible" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><i
+                                            class="fa fa-times"></i></button>
+                                    <strong>Warning!</strong> You have one unpaid order.
+                                </div>
+                                <?php
+                                /*echo '<pre>';
+                                die(print_r($_SESSION)); */
+                                ?>
+
+                                <h3>Welcome <span>YourName Here</span></h3>
+                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut feugiat mauris eget magna
+                                    egestas porta. Curabitur sagittis sagittis neque rutrum congue. Donec lobortis dui
+                                    sagittis, ultrices nunc ornare, ultricies elit.</p>
+                                <div class="icon-nav row">
+                                    <div class="col-xs-6 col-md-3"><a href="address.phtml"><i
+                                                class="fa fa-map-marker"></i> My Address</a></div>
+                                    <div class="col-xs-6 col-md-3"><a href="orders.phtml"><i class="fa fa-tasks"></i> My
+                                            Orders</a></div>
+                                    <div class="col-xs-6 col-md-3"><a href="wishlist.phtml"><i class="fa fa-heart"></i>
+                                            Wishlist</a></div>
+                                    <div class="col-xs-6 col-md-3"><a href="profile.phtml"><i class="fa fa-user"></i>
+                                            Profile</a></div>
+                                    <div class="col-xs-6"><a href="add-address.phtml"><i class="fa fa-plus-circle"></i>
+                                            New Address</a></div>
+                                    <div class="col-xs-6"><a href="add-claim.phtml"><i class="fa fa-plus-circle"></i>
+                                            New Warranty Claim</a></div>
+                                </div>
+                                <h4>Unpaid Orders</h4>
+                                <div class="table-responsive border">
+                                    <table class="table table-bordered">
+                                        <tr>
+                                            <th class="col-xs-3">Order ID</th>
+                                            <th class="col-xs-3">Date</th>
+                                            <th class="col-sm-2 hidden-xs">Items</th>
+                                            <th class="col-xs-3">Total Price</th>
+                                            <th class="col-xs-1"></th>
+                                        </tr>
+                                        <tr>
+                                            <td><a href="single-order.html">#124321</a></td>
+                                            <td>12th July 2015</td>
+                                            <td class="hidden-xs">3</td>
+                                            <td>$265</td>
+                                            <td><a href="single-order.phtml" class="btn btn-primary btn-sm">Pay</a></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <h4>Pending Warranty Claims</h4>
+                                <div class="table-responsive border">
+                                    <table class="table table-bordered">
+                                        <tr>
+                                            <th class="col-xs-2">Claim ID</th>
+                                            <th class="col-xs-2">Date</th>
+                                            <th class="col-xs-2">Product Code</th>
+                                            <th class="col-xs-5">Product Name</th>
+                                            <th class="col-xs-1"></th>
+                                        </tr>
+                                        <tr>
+                                            <td><a href="single-order.phtml">#5712</a></td>
+                                            <td>12th July 2015</td>
+                                            <td>U-187423</td>
+                                            <td>Fusce Aliquam <span class="grey">(M, Black, Esprit)</span></td>
+                                            <td><a href="single-claim.phtml" class="btn btn-primary btn-sm">View</a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </article>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- ==========================
+                MY ACCOUNT - END
+            =========================== -->
+
+
+
+        </div> <!-- PAGE - END -->
+
+    <?php }
+}
+?>

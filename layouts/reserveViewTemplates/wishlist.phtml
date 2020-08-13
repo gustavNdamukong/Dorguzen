@@ -1,0 +1,126 @@
+<?php
+namespace layouts\reserveViewTemplates;
+
+
+class wishlist extends \DGZ_library\DGZ_HtmlView
+{
+
+
+function show()
+{ ?>
+	
+    <!-- ==========================
+    	SCROLL TOP - START 
+    =========================== -->
+    <div id="scrolltop" class="hidden-xs"><i class="fa fa-angle-up"></i></div>
+    <!-- ==========================
+    	SCROLL TOP - END 
+    =========================== -->
+
+    
+    <div id="page-wrapper"> <!-- PAGE - START -->
+    
+    <!-- ==========================
+    	BREADCRUMB - START 
+    =========================== -->
+    <section class="breadcrumb-wrapper">
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-6">
+                    <h2>My Account</h2>
+                    <p>Wishlist</p>
+                </div>
+                <div class="col-xs-6">
+                    <ol class="breadcrumb">
+                        <li><a href="index.phtml">Home</a></li>
+                        <li><a href="myAccount.phtml">My Account</a></li>
+                        <li class="active">Wishlist</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </section>
+	<!-- ==========================
+    	BREADCRUMB - END 
+    =========================== -->
+    
+    <!-- ==========================
+    	MY ACCOUNT - START 
+    =========================== -->
+    <section class="content account">
+        <div class="container">
+            <div class="row">
+            	<div class="col-sm-3">
+                	<aside class="sidebar">
+                    	
+                        <!-- WIDGET:CATEGORIES - START -->
+                        <div class="widget widget-navigation">
+                            <ul class="nav nav-pills nav-stacked">
+                                <li><a href="myAccount.phtml">Account Dashboard</a></li>
+                                <li><a href="profile.phtml">Personal Infromation</a></li>
+                                <li><a href="address.phtml">My Address</a></li>
+                                <li><a href="orders.phtml">My Orders</a></li>
+                                <li><a href="warranty-claims.phtml">Warranty Claims</a></li>
+                            	<li class="active"><a href="wishlist.phtml">Wishlist</a></li>
+                                <li><a href="products.phtml">Back to Shop</a></li>
+                            </ul>
+                        </div>
+                        <!-- WIDGET:CATEGORIES - END -->
+                        
+                    </aside>
+                </div>
+                <div class="col-sm-9">
+                    <article class="account-content">
+                        <h3>Wishlist</h3>
+                        <div class="table-responsive">
+                            <table class="table table-products">
+                                <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>Product</th>
+                                            <th>Quantity</th>
+                                            <th>Subtotal</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="col-xs-1"><img src="assets/images/products/product-1.jpg" alt="" class="img-responsive"></td>
+                                        <td class="col-xs-4 col-md-5"><h4><a href="single-product.html">Fusce Aliquam</a><small>M, Black, Esprit</small></h4></td>
+                                        <td class="col-xs-2 col-md-1 text-center"><span><b>1 items</b></span></td>
+                                        <td class="col-xs-2 text-center"><span><b>$60</b></span></td>
+                                        <td class="col-xs-2 text-center"><a href="" class="btn btn-primary"><i class="fa fa-shopping-cart"></i></a><a href="" class="btn btn-primary"><i class="fa fa-times"></i></a></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="col-xs-1"><img src="assets/images/products/product-2.jpg" alt="" class="img-responsive"></td>
+                                        <td class="col-xs-4 col-md-5"><h4><a href="single-product.html">Fusce Aliquam</a><small>M, Black, Esprit</small></h4></td>
+                                        <td class="col-xs-2 col-md-1 text-center"><span><b>1 items</b></span></td>
+                                        <td class="col-xs-2 text-center"><span><b>$60</b></span></td>
+                                        <td class="col-xs-2 text-center"><a href="" class="btn btn-primary"><i class="fa fa-shopping-cart"></i></a><a href="" class="btn btn-primary"><i class="fa fa-times"></i></a></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="col-xs-1"><img src="assets/images/products/product-3.jpg" alt="" class="img-responsive"></td>
+                                        <td class="col-xs-4 col-md-5"><h4><a href="single-product.html">Fusce Aliquam</a><small>M, Black, Esprit</small></h4></td>
+                                        <td class="col-xs-2 col-md-1 text-center"><span><b>1 items</b></span></td>
+                                        <td class="col-xs-2 text-center"><span><b>$60</b></span></td>
+                                        <td class="col-xs-2 text-center"><a href="" class="btn btn-primary"><i class="fa fa-shopping-cart"></i></a><a href="" class="btn btn-primary"><i class="fa fa-times"></i></a></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <a href="" class="btn btn-primary">Clear All</a>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- ==========================
+    	MY ACCOUNT - END 
+    =========================== -->
+
+    
+    </div> <!-- PAGE - END -->
+
+<?php }
+}
+?>

@@ -1,0 +1,78 @@
+
+RewriteEngine on
+#!-d means ignore dirs
+RewriteCond %{REQUEST_FILENAME} !-d
+
+#-f means match any file that goes like "something.php"
+RewriteCond %{REQUEST_FILENAME}\.php -f
+
+
+#------------------------------- GENERAL RULES AT PLAY HERE
+        # The following are a few guidelines on how the Dorguzen route matching is done from what is passed in the URL request string
+        # The pattern to be matched starts from '^' and ends at '$' where every character inbetween is matched against the URL parameters
+        # When we match URL string parameters, we are referring to values passed after your app name followed by a trailing slash. So if the
+            # request URL is 'http://ww.yourAppName/' we consider that as a blank http request to your APP. Take note of this. In fact, let us
+            # refer to such a request as your app URL.
+        # Note that all the routes below are mapped to index.php (the site root file). This is because it's from the index.php that the framework's
+            #router is activated. The role of the patterns in this file is therefore just to route you to the outer file via index.php depending
+            # on what the visitor types into the URL. The router file then takes over and does the real routing from there. This file (.htaccess)
+            # and the router file therefore work in close collaboration-one could not do without the other.
+        # Note that the '+" after the pattern inside the [] means any of the xters inside the pattern may be repeated
+        # RewriteRule ^$ anything ##maps anything typed after your app folder (and a trailing slash) to a controller called 'anythingControllerName'
+
+
+#------------------------------- RULE 1
+        # This rule specifies that everything that comes after your app URL ('www.yourAppName/)' until the first forward slash  or all of it if there
+            # there are no further slashes, will be directed to the homeController which ultimately redirects to the site home page.
+        # So, basically this rule routes the request to the HomeController. Therefore your app must have a HomeController
+        # Anyway your app URL (with or without a trailing slash, and nothing after that) will be referred to the HomeController via the index.php page
+
+RewriteRule ^$ index.php
+#-------------------------------
+
+
+
+#------------------------------- RULE 2
+        # maps any characters typed after your app URL (www.yourAppName/) that matches the pattern, to the index page. The request is
+            # routed to a 'HomeController' (the default controller which your app must have).
+        # Therefore 'yourAppNAme/somepage' will WORK. The second rule below complements the first one and makes sure the 'somepage' also works if it
+            # comes with a trailing slash like so: 'yourAppNAme/somepage/'.
+        # It is worth mentioning that the Dorguzen routing kicks when we start passing parameters after your app URL. The characters typed in are used
+            # by DGZ_Router to check for the existance of such a controller. As per the rule below, the URL parameters here are only those characters
+            # up until a forward slash is encountered, or all of it if no forward slash is in the request.
+
+RewriteRule ^([a-zA-Z0-9_-]+)$ index.php
+RewriteRule ^([a-zA-Z0-9_-]+)/$ index.php
+#-------------------------------
+
+
+
+
+#------------------------------- RULE 3
+        # After your app URL, the rule below matches the 2 set of characters that come before and after the first forward slash is encountered. It then
+        # maps to a controller and its method the characters on the left and right of the slash respectively like so:
+        # yourAppName/'controller'/'methodName'.
+        # The second line just complements the first one and makes sure a trailing slash after the second set of characters is allowed
+
+RewriteRule ^([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)$ index.php
+RewriteRule ^([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)/$ index.php
+#-------------------------------
+
+
+
+
+#------------------------------- RULE 4
+        # match 3 sets of characters separated by slashes e.g. yourAppName/products/show/50?gallery/images will be matched and referred to
+            # the productsController, and the show() method of productsController, just like with rule 3 above. The rest are ignored and you can pass
+            # whatever GET parameters you want as query strings, as long as you place a question mark character after that method parameter.
+        # This is a typical URL example for this rule: 'http://localhost/yourAppName/gallery/showImages?id=10&pos=2'
+RewriteRule ^([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)$ index.php
+RewriteRule ^([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)/$ index.php
+#-------------------------------
+
+#increase the PHP max file upload size and max post size to enable the uploading of bigger files
+<IfModule mod_php7.c>
+   php_value upload_max_filesize 2G
+   php_value post_max_size 2G
+   php_value memory_limit 900M
+</IfModule>

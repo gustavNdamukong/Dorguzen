@@ -1,0 +1,149 @@
+/*------------------------------
+ * Copyright 2016 Pixelized
+ * http://www.pixelized.cz
+ *
+ * umarket theme v1.1
+------------------------------*/
+
+/*------------------------------
+	LIGHT GREEN
+------------------------------*/
+
+.color,
+a,
+.btn-default.active, 
+.btn-default:active,
+.btn-default.active:hover,
+.btn-default.active:focus,
+.btn-default:active:hover,
+.btn-default:active:focus,
+.form-control:focus,
+.breadcrumb > li > a:hover,
+.breadcrumb > li > a:focus,
+.pagination > li.active > a,
+.pagination > li.active > a:hover,
+.pagination > li.active > a:focus,
+.top-header .contacts li i,
+.vertical-menu-bottom .contacts li i,
+.top-header .links a:hover,
+header.navbar .navbar-brand,
+header.navbar .navbar-brand:hover span,
+header.navbar .navbar-nav > li > a:hover,
+header.navbar .navbar-nav > li > a:focus,
+header.navbar .navbar-nav > li.dropdown.open > a,
+header.navbar .dropdown-menu > li > a:hover,
+header.navbar .dropdown-menu > li > a:focus,
+header.navbar .dropdown-menu > li > a:hover:before,
+header.navbar .megamenu .dropdown-menu li ul li a:hover,
+header.navbar .megamenu .dropdown-menu li ul li a:focus,
+header.navbar li.navbar-cart .dropdown-menu a.remove:hover,
+.tabs.vertical-tabs .nav-tabs > li.active > a, 
+.tabs.vertical-tabs .nav-tabs > li.active > a:focus, 
+.tabs.vertical-tabs .nav-tabs > li.active > a:hover,
+.widget-categories .widget-body > ul > li > a,
+.widget-categories .widget-body > ul > li > ul > li.active > a,
+.widget-post-categories ul li a:hover,
+article.product-item .price del + ins,
+.small-product li .price del + ins,
+article.product-item.product-single .product-info li,
+article.product-item.product-single .product-links a i,
+.account-content h3 span,
+.account-content .products-order.shipping-method .shipping-method-description p,
+.error-wrapper .error-text h1,
+.jumbotron a.btn-default:hover,
+.grid-products .product-item h3 a:hover,
+.services .service:hover h3,
+.recent-blog-posts .post h3 a:hover,
+.recent-blog-posts .post span.date,
+.our-stores .store h3,
+.small-product li h3:hover,
+.blog article.post h3 a:hover,
+.blog article.post .post-left .author span.name,
+.blog article.post .meta .date,
+.blog article.post .meta .category,
+.eshop ul li i,
+.text-primary,
+.downloads .table i {
+	color:#43E8AC;
+}
+
+.btn-primary,
+.checkbox > input[type=checkbox]:checked + label:before,
+.radio > input[type=radio]:checked + label:before,
+.table > thead > tr > th,
+.table > tbody > tr > th,
+.panel-primary > .panel-heading,
+.tags span.label:hover,
+.tabs .nav-tabs > li.active > a, 
+.tabs .nav-tabs > li.active > a:focus, 
+.tabs .nav-tabs > li.active > a:hover,
+.modal .modal-header .close:hover,
+.owl-theme.nav-inside .owl-controls .owl-nav div:hover,
+.owl-theme .owl-controls .owl-dot.active,
+#scrolltop:hover,
+.separator-newsletter .newsletter-badge,
+.icon-nav a:hover,
+.sidebar .widget h3,
+.widget-price .widget-body .ui-slider .ui-slider-range,
+.widget-post-categories ul li a .badge,
+.tabs.product-tabs .nav-tabs > li,
+.sidebar .nav-pills > li.active > a,
+.account-content .checkout-step.active .number,
+.account-content .checkout-progress .progress-bar,
+.brands .item a:before {
+	background-color:#43E8AC;
+}
+
+.btn-default.active, 
+.btn-default:active,
+.btn-default.active:hover,
+.btn-default.active:focus,
+.btn-default:active:hover,
+.btn-default:active:focus,
+.form-control:focus,
+.tabs .nav-tabs,
+.pagination > li.active > a,
+.pagination > li.active > a:hover,
+.pagination > li.active > a:focus,
+.top-header .contacts li i,
+.vertical-menu-bottom .contacts li i,
+.widget-price .widget-body .ui-slider .ui-slider-handle,
+.account-content .checkout-step.active:after,
+.jumbotron a.btn-default:hover,
+.recent-blog-posts .post span.date,
+.blog article.post .meta .date,
+.blog article.post .meta .category,
+.store .store-body ul li i {
+	border-color:#43E8AC;
+}
+
+.tabs.vertical-tabs .nav-tabs > li.active > a, 
+.tabs.vertical-tabs .nav-tabs > li.active > a:focus, 
+.tabs.vertical-tabs .nav-tabs > li.active > a:hover {
+	border-left-color:#43E8AC;
+}
+
+.tabs.product-tabs .nav-tabs > li.active > a, 
+.tabs.product-tabs .nav-tabs > li.active > a:focus, 
+.tabs.product-tabs .nav-tabs > li.active > a:hover {
+	border-top-color:#43E8AC;
+}
+
+.jumbotron .color-background {
+	background-color:rgba(67,232,172,0.65);
+}
+
+#map-tooltip,
+.store .store-opening-hours {
+	background-color:rgba(67,232,172,0.8);
+}
+
+@media (max-width:767px) {
+	header.navbar .navbar-toggle {
+		color:#43E8AC;
+	}
+	
+	header.navbar .navbar-collapse {
+		border-bottom-color:#43E8AC;
+	}
+}

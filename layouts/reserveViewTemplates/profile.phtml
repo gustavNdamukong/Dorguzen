@@ -1,0 +1,148 @@
+<?php
+namespace layouts\reserveViewTemplates;
+
+
+class profile extends \DGZ_library\DGZ_HtmlView
+{
+
+
+function show()
+{ ?>
+	
+    <!-- ==========================
+    	SCROLL TOP - START 
+    =========================== -->
+    <div id="scrolltop" class="hidden-xs"><i class="fa fa-angle-up"></i></div>
+    <!-- ==========================
+    	SCROLL TOP - END 
+    =========================== -->
+    
+
+    
+    <div id="page-wrapper"> <!-- PAGE - START -->
+    
+    <!-- ==========================
+    	BREADCRUMB - START 
+    =========================== -->
+    <section class="breadcrumb-wrapper">
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-6">
+                    <h2></h2>
+                    <p></p>
+                </div>
+                <div class="col-xs-6">
+                    <ol class="breadcrumb">
+                        <li><a href="index.phtml">Home</a></li>
+                        <li><a href="myAccount.phtml">My Account</a></li>
+                        <li class="active">Personal Infromation</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </section>
+	<!-- ==========================
+    	BREADCRUMB - END 
+    =========================== -->
+    
+    <!-- ==========================
+    	MY ACCOUNT - START 
+    =========================== -->
+    <section class="content account">
+        <div class="container">
+            <div class="row">
+            	<div class="col-sm-3">
+                	<aside class="sidebar">
+                    	
+                        <!-- WIDGET:CATEGORIES - START -->
+                        <div class="widget widget-navigation">
+                            <ul class="nav nav-pills nav-stacked">
+                                <li><a href="myAccount.phtml">Account Dashboard</a></li>
+                                <li class="active"><a href="profile.phtml">Personal Infromation</a></li>
+                                <li><a href="address.phtml">My Address</a></li>
+                                <li><a href="orders.phtml">My Orders</a></li>
+                                <li><a href="warranty-claims.phtml">Warranty Claims</a></li>
+                            	<li><a href="wishlist.phtml">Wishlist</a></li>
+                                <li><a href="products.phtml">Back to Shop</a></li>
+                            </ul>
+                        </div>
+                        <!-- WIDGET:CATEGORIES - END -->
+                        
+                    </aside>
+                </div>
+                <div class="col-sm-9">
+                    <article class="account-content">
+                    	
+                        <div class="account-profile-top">
+                            <div><img src="assets/images/default-avatar.png" alt=""></div>
+                            <div><h3>John Doe <small>johndoe@umarket.com</small></h3></div>
+                            <div class="button"><a href="#" class="btn btn-primary">Change Avatar</a></div>
+                        </div>
+                        
+                        <form class="form-horizontal">
+                            <div class="form-group">
+                                <label class="col-md-4 col-lg-3 control-label">First Name<span class="required">*</span></label>
+                                <div class="col-md-8 col-lg-6">
+                                    <input type="text" class="form-control" placeholder="">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-4 col-lg-3 control-label">Last Name<span class="required">*</span></label>
+                                <div class="col-md-8 col-lg-6">
+                                    <input type="text" class="form-control" placeholder="">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-4 col-lg-3 control-label">Email<span class="required">*</span></label>
+                                <div class="col-md-8 col-lg-9">
+                                    <input type="email" class="form-control" placeholder="">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-4 col-lg-3 control-label">Phone<span class="required">*</span></label>
+                                <div class="col-md-8 col-lg-9">
+                                    <input type="text" class="form-control" placeholder="">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-4 col-lg-3 control-label">Password<span class="required">*</span></label>
+                                <div class="col-md-8 col-lg-9">
+                                    <input type="password" class="form-control" placeholder="">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-4 col-lg-3 control-label">New Password<span class="required">*</span></label>
+                                <div class="col-md-8 col-lg-9">
+                                    <input type="password" class="form-control" placeholder="">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-4 col-lg-3 control-label">Confirm New Password<span class="required">*</span></label>
+                                <div class="col-md-8 col-lg-9">
+                                    <input type="password" class="form-control" placeholder="">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-offset-4 col-md-8 col-lg-offset-3 col-lg-9">
+                                    <button type="submit" class="btn btn-primary">Update</button>
+                                </div>
+                            </div>
+                        </form>
+                        
+                    </article>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- ==========================
+    	MY ACCOUNT - END 
+    =========================== -->
+
+    
+    </div> <!-- PAGE - END -->
+
+<?php }
+}
+?>
