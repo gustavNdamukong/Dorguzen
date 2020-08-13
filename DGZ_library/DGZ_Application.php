@@ -24,7 +24,7 @@ class DGZ_Application {
 
 
 	public function __construct($useFullLayout = true, $appName = null, $layout = null) {
-		$config = new settings();
+		$config = new Settings();
 
 		//set default app settings for this specific app
 		if(is_null($appName)) {

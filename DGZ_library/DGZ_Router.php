@@ -274,9 +274,6 @@ class DGZ_Router {
 		}
 		catch (\Exception $e)
 		{
-			// If you have problems with the script never ending (or timing out after 30/300 seconds then
-			//die($e->getMessage() . ' in ' . $e->getFile() . ' line ' . $e->getLine());
-
 			/**
 			 * WARNING!
 			 *
@@ -300,6 +297,7 @@ class DGZ_Router {
 			if(!isset($_REQUEST['format']) || $_REQUEST['format'] == 'html')
 			{
 				$settings = new \DGZ_library\DGZ_Application();
+
 				$layout = \DGZ_library\DGZ_Layout::getLayout($settings->getUseFullLayoutSetting(), $settings->getAppName(), $settings->getDefaultLayoutDirectory(), $settings->getDefaultLayout());
 
 				$layout->setPageTitle('Error: ');
