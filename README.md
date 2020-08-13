@@ -1,4 +1,3 @@
-![downloads](https://img.shields.io/github/downloads/gustavNdamukong/Dorguzen)
 ![issues](https://img.shields.io/github/issues/gustavNdamukong/Dorguzen)
 ![forks](https://img.shields.io/github/forks/gustavNdamukong/Dorguzen)
 ![stars](https://img.shields.io/github/stars/gustavNdamukong/Dorguzen)
