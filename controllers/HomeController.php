@@ -34,8 +34,8 @@ class HomeController extends \DGZ_library\DGZ_Controller  {
         //if you set a default layout folder (like so: $this->setDefaultLayoutDirectory('CoolPersonalWebsite');), make sure you also set the
         // layout file to be used in that dir
         $view = \DGZ_library\DGZ_View::getView('home', $this, 'html');
-
         $this->setPageTitle('The Dorguzen framework');
+        $this->setImageSlider(true);
         $view->show();
     }
 
