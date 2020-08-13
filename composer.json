@@ -9,6 +9,6 @@
             "email": "gustavfn@yahoo.co.uk"
         }
     ],
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "require": {}
 }
