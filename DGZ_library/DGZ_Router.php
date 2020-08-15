@@ -33,6 +33,7 @@ class DGZ_Router {
 		// refer them to the HomeController which will show the home page
 
 		//check if we are on local or live environment
+		$rootPath = false;
 		$config = new Settings();
 
 		//if we are in the local environment
@@ -50,6 +51,7 @@ class DGZ_Router {
 			else {
 				//If they just visit the root of the app, show them the home page
 				$get_input = 'Home';
+				$rootPath = true;
 			}
 
 
@@ -91,6 +93,7 @@ class DGZ_Router {
 			{
 				//If they just visit the root of the app, show them the home page
 				$get_input = 'Home';
+				$rootPath = true;
 			}
 
 			//there may not be a method specified (2nd slash level) eg when a user visits the home page, so check if there's one
@@ -135,10 +138,28 @@ class DGZ_Router {
 		//Instantiate the controller class
 		$object = $classReflector->newInstance();
 
-		//note that if no method is defined, $object->getDefaultAction() below will be run and will exit this execution, esp coz the defaultAction() has
-		// no arguments so there's nothing further to resolve. All controllers must therefore have a getDefaultAction() method
+		// note that if no method is defined, $object->getDefaultAction() below will be run and will exit this execution, esp coz the defaultAction() has
+		// no arguments so there's nothing further to resolve. All controllers must therefore have a getDefaultAction() method that takes no arguments.
+		// But before we get the default controller, we check if there's a method on the controller that happens to match the spelling of the controller
+		// parameter passed in the URL ($get_input) and use that if its found; otherwise, we get the default method. This will prevent us needing to pass
+		// URL parameters for methods that have the same spelling as the controller parameter, which will neither look sensible visually, nor be good for
+		// search engines. This basically means we would end up having neat URLs that look like: 'http://appName/news' instead of 'http://appName/news/news'.
 		if(empty($method)) {
-			$method = $object->getDefaultAction();
+			//we make an exception for the HomeController-if no controller & no method parameter are given in the URL, go straight to its defaultAction() method.
+			if (strtoupper($get_input) == 'HOME') {
+				if ($rootPath == true) {
+					$method = $object->getDefaultAction();
+				} else { $method = $get_input; }
+			}
+			else
+			{
+				if (\DGZ_library\DGZ_Controller::controllerMethodExists($controller, $get_input)) {
+					$method = $get_input;
+				}
+				else {
+					$method = $object->getDefaultAction();
+				}
+			}
 		}
 
 
@@ -274,6 +295,9 @@ class DGZ_Router {
 		}
 		catch (\Exception $e)
 		{
+			// If you have problems with the script never ending (or timing out after 30/300 seconds then
+			//die($e->getMessage() . ' in ' . $e->getFile() . ' line ' . $e->getLine());
+
 			/**
 			 * WARNING!
 			 *
@@ -297,7 +321,6 @@ class DGZ_Router {
 			if(!isset($_REQUEST['format']) || $_REQUEST['format'] == 'html')
 			{
 				$settings = new \DGZ_library\DGZ_Application();
-
 				$layout = \DGZ_library\DGZ_Layout::getLayout($settings->getUseFullLayoutSetting(), $settings->getAppName(), $settings->getDefaultLayoutDirectory(), $settings->getDefaultLayout());
 
 				$layout->setPageTitle('Error: ');

@@ -714,29 +714,30 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 		return false;
 		
 	}
-	
-	
+
+
+
 	/**
 	 * Returns whether the given controller and method actually exists inside the project
-	 * 
+	 *
 	 * @param string $controller The name of the page/controller which would be loaded
-	 * @param string $action The name of the action in the controller which would be ran
+	 * @param string $method The name of the method in the controller which would be ran
 	 * @return bool Whether the controller/method exists or not.
 	 */
 	public static function controllerMethodExists($controller, $method = null) {
-		
+
 		if(class_exists($controller, true)) {
-			
+
 			$reflection = new \ReflectionClass($controller);
-			
-			// If no action has been provided then work out what the default action is.
+
+			// If no method has been provided then work out what the default action is.
 			// To do this, we need to instantiate the class and call it's getDefaultAction method.
 			if(empty($method)) {
 				$controllerInstance = new $controller();
 				$method = $controllerInstance->getDefaultAction();
 			}
-			
-			// Now we should have an action, whether one was passed in or not.
+
+			// Now we should have a method, whether one was passed in or not.
 			// We can now see if that method exists within the class.
 			try {
 				$reflection->getMethod($method);
@@ -745,12 +746,12 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 				// If the method does not exist then ReflectionClass throws an exception, just return false.
 				return false;
 			}
-	
+
 		} else {
 			// The class cannot be found, so return false.
 			return false;
 		}
-		
+
 	}
 
 

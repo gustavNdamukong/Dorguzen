@@ -29,18 +29,6 @@ class BlankLayout extends \DGZ_library\DGZ_Layout {
 			<!--<meta name="viewport" content="width=device-width">-->
 			<title><?php echo self::$appName."-".$this->pageTitle; ?></title>
 
-
-			<?php /* <link rel="stylesheet" type="text/css" href="css/jquery-ui-1.8.16.custom.css"/>
-
-			<link href='http://fonts.googleapis.com/css?family=Lobster|Terminal+Dosis' rel='stylesheet' type='text/css'> */ ?>
-
-			<!--<link rel="icon" href="../../favicon.ico">--><!--COME BACK AND PUT BACK THIS FAVICON IN TO SET UP FAVICON, CHECK YOUR HTML NOTES ON THIS-->
-			<!--<link rel="stylesheet" type="text/css" href="css/bootstrap.css">-->
-
-			<!--<link rel="stylesheet" type="text/css" href="css/normalize.min.css">
-			<link rel="stylesheet" href="css/normalize.min.css">
-			<link href="css/superfish.css" rel="stylesheet" type="text/css" />-->
-
 			<!-- Custom styles as defined by the application. These can override those set above -->
 			<?= $this->getCssHtml()  ?>
 
@@ -79,8 +67,7 @@ class BlankLayout extends \DGZ_library\DGZ_Layout {
 			<header class="navbar navbar-transparent navbar-fixed-top">
 				<div class="container">
 					<div class="navbar-header">
-						<!--<a href="<?=$this->settings->getFileRootPath()?>home/home" class="navbar-brand"><span>Nolimit</span>Media</a>-->
-						<a href="<?=$this->settings->getHomePage()?>home/home" class="navbar-brand"><img width="150" height="50" src="<?=$this->settings->getFileRootPath()?>assets/images/logos/final_p3.svg" class="img-responsive center-block" alt="Nolimit Media Logo" /></a>
+						<a href="<?=$this->settings->getFileRootPath()?>home" class="navbar-brand"><span>Dor</span>Guzen</a>
 						<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse"><i class="fa fa-bars"></i></button>
 					</div>
 					<div class="navbar-collapse collapse">
@@ -92,10 +79,7 @@ class BlankLayout extends \DGZ_library\DGZ_Layout {
                 HEADER - END
             =========================== -->
 
-			<?php ##################### END OF HEADER ##################################### ?>
-
 			<?php
-
 			if(!empty($this->exceptions)):
 				?>
 				<div class="exceptions">
@@ -136,31 +120,15 @@ class BlankLayout extends \DGZ_library\DGZ_Layout {
 
 
 
-
-
 		<?= $this->content ?>
-
-
-
-
-
 
 
 
 
 		<section>
 			<div class="well">
-				<?php ################### START OF INCLUDED PART OF FIRST FOOTER ######################?>
 
-				<!-- ==========================
-					  FOOTER - START
-				  =========================== -->
-				<?php //////include('footer.inc.php');  //include the 1st footer here ################### END OF INCLUDED PART OF FIRST FOOTER ###################### ?>
-				<!-- ==========================
-					FOOTER - END
-				=========================== -->
 
-				<?php /*<div class="clearer" id="firstfooterdivclear"></div> */ ?><!--NOTE THAT THIS IS THE LAST DIV (THING) INSIDE well of THE first_footer-->
 			</div><!--END OF THE WELL DIV INSIDE THE first_footer SECTION-->
 		</section><!--End of first footer section-->
 
@@ -169,33 +137,10 @@ class BlankLayout extends \DGZ_library\DGZ_Layout {
 
 		</div> <!-- PAGE - END -->
 
+		<?php include('html_dependencies_bottom.inc.php'); ?>
 
 
-		<?php /*  <article><!--HERE'S THE START OF THE SECOND FOOTER; IT'S ENCLOSED IN THIS PAIR OF <article></article> tags ided
-						'footer'-->*/ ?>
-		<?php include('html_dependencies_bottom.inc.php');  //include the 2nd footer here ?>
-		<?php /* 		<div class="clearer"></div><!--to make this empty div work n keep everything before it above it; that's why it's the last
-							thing (div) inside the second-footer part of the website (enclosed in a pair of <article tags>. You also need
-							to make sure the footer element has no height rule-->
-		</article>
 
-
-		</section><!--END OF THE MAINWRAPPER N CONTAINER SECTION THAT CONTAINS EVERYTHING--> */ ?>
-
-
-		<?php /*
-		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
-
-		<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
-
-		<!--SCRIPTS FOR THE SLIDER-->
-
-		<script src="js/sliderengine/jquery.js"></script>
-
-		<script src="js/sliderengine/amazingslider.js"></script>
-
-		<script src="js/sliderengine/initslider-1.js"></script>
- 		*/ ?>
 
 		<!-- Include scripts required by Bootstrap -->
 		<?= $this->getJavascriptHtml() ?>

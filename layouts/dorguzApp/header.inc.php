@@ -3,7 +3,7 @@
     <header class="navbar navbar-transparent navbar-fixed-top">
     	<div class="container">
             <div class="navbar-header">
-                <a href="<?=$this->settings->getHomePage()?>home/home" class="navbar-brand"><span>Dor</span>Guzen</a>
+                <a href="<?=$this->settings->getHomePage()?>home" class="navbar-brand"><span>Dor</span>Guzen</a>
                 <?php /*<a href="<?=$this->settings->getHomePage()?>home/home" class="navbar-brand"><img width="200" height="100" src="<?=$this->settings->getFileRootPath()?>assets/images/logos/final_p3.png" class="img-responsive center-block" alt="Your App Logo Here" /></a>*/?>
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse"><i class="fa fa-bars"></i></button>
 
