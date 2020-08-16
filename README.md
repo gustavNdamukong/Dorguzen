@@ -13,7 +13,12 @@
     run the following command:
         ```composer create-project nolimitmedia/dorguzen```
         It will create a folder called 'dorguzen' and install the Dorguzen framework for you in it.
-    -The name of the application that it has started you off with is called Dorguzen, so you need to change the name to the name
+
+#   Clone or download from GitHub
+    -Alternatively you can download or clone the framework code directly from GitHub onto your your server root folder and have all the code at your disposal,
+      reigns in your hands, ready to fire away and start building your stunning new application :)
+
+    -The name of the application that it has started you off with is called Dorguzen, so you need to change that to the name
         of the app you are building.
     -To do so, follow the following steps:
         i) Start by changing the name of the root folder from 'dorguzen' to yourAppName
