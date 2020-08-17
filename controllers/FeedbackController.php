@@ -4,8 +4,6 @@ namespace controllers;
 
 use DGZ_library\DGZ_Validate;
 use DGZ_library\DGZ_Messenger;
-use DGZ_library\DGZ_Uploader\DGZ_Uploader;
-use Testimonials;
 use ContactFormMessage;
 
 class FeedbackController extends \DGZ_library\DGZ_Controller
@@ -65,7 +63,6 @@ class FeedbackController extends \DGZ_library\DGZ_Controller
 
     public function processContact()
     {
-        //echo '<pre>'; var_dump($_POST); die();
 
         if ((isset($_POST['name'])) && ($_POST['name'] != ''))
         {

@@ -3,7 +3,7 @@
 /*
  * Call this class like so
  * $data = new DGZ_Paginator($array);
- * $data->pagination($array);
+ * $data->paginate($array);
  *
  * It takes an array as first param and a page number as 2nd param
  */
@@ -51,18 +51,20 @@ class DGZ_Paginator
 
         $this->_totalCount = count($display_array);
 
-            //The number of pages can already be determined from the total items count
+        //The number of pages can already be determined from the total items count
         $this->_numPages = ceil($this->_totalCount / $this->_numPerPage);
 
     }
 
 
 
-    /*
-     * We pass it $page numbers as navigated to by the user
-     * We pass it the offset as the numberPerPage incremented by 1 in case of next
-     *  or decreased by 1 (in case of prev) as the user navigates the data
-     *  Note that the length (end of the items) displayed is then worked out from this offset
+    /**
+     * This is the method that is called with each page navigated to while paging through the records.
+     *
+     * We pass it $page numbers as navigated to by the user eg 1, 2, etc
+     * We pass it the offset as the numberPerPage incremented by 1 to make the start record number in the next page in case of next
+     *  or decreased by 1 to make the last record on the previous page in case of prev, as the user navigates the data.
+     *  Note that the length (end of the items) displayed per page is then worked out from this offset
      *
      */
     public function paginate($page, $offset)
@@ -83,7 +85,7 @@ class DGZ_Paginator
 
 
         $this->_offset = $offset;
-        
+
         //Note that arrays start from 0 so array_slice() will grab from 0 which means the numPerPage figure must be decreased by 1
         //to get the accurate number per page. These numbers will not look right to humans, so we create a separate pair of offset n end
         // wh we call humanOffset and humanEnd respectively just for displaying on screen.

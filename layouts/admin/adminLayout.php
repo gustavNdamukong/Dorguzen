@@ -3,7 +3,6 @@
 namespace layouts\admin;
 
 /**
- * Description of BootstrapLayout
  *
  * @author Gustav
  */
@@ -76,9 +75,6 @@ class adminLayout extends \DGZ_library\DGZ_Layout {
                       HEADER - END
                   =========================== -->
 
-				  <?php ##################### END OF HEADER ##################################### ?>
-
-
 
 				  <?php
 
@@ -122,22 +118,13 @@ class adminLayout extends \DGZ_library\DGZ_Layout {
 
 
 
-
-
-
 				  <?php echo $this->content;  ?>
 
 
 
 
-
-				  <?php  ############################## END OF YOUR SITE MAIN CONTENT ########################################	?>
-
-
-
 				<section>
 					<div class="well">
-						<?php ################### START OF INCLUDED PART OF FIRST FOOTER ######################?>
 
 						<!-- ==========================
 							  FOOTER - START

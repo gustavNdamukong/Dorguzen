@@ -44,7 +44,7 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
 
     public function adminHome()
     {
-        $view = \DGZ_library\DGZ_View::getView('adminHome', $this, 'html');
+        $view = \DGZ_library\DGZ_View::getAdminView('adminHome', $this, 'html');
         $this->setPageTitle('Admin');
 
         $this->setLayoutDirectory('admin');
@@ -191,7 +191,7 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
                 //if ((strtotime($resetDetails['password_reset_date']) < strtotime('1 day ago'))) {
                 if ($resetDetails[0]['password_reset_date'] <= strtotime('-2 hours'))
                 {
-                    $view = \DGZ_library\DGZ_View::getView('resetPw', $this, 'html');
+                    $view = \DGZ_library\DGZ_View::getAdminView('resetPw', $this, 'html');
                     $view->show($resetDetails[0]['password_reset_users_id'], $resetDetails[0]['password_reset_email']);
                 }
                 else{
@@ -267,7 +267,7 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
         {
             //validation of the form failed
             $this->addErrors($fail);
-            $view = \DGZ_library\DGZ_View::getView('resetPw', $this, 'html');
+            $view = \DGZ_library\DGZ_View::getAdminView('resetPw', $this, 'html');
             $view->show($reset_user_id, $reset_email);
         }
     }
@@ -363,7 +363,7 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
 
     public function manageUsers()
     {
-        $view = \DGZ_library\DGZ_View::getView('manageUsers', $this, 'html');
+        $view = \DGZ_library\DGZ_View::getAdminView('manageUsers', $this, 'html');
         $this->setLayoutDirectory('admin');
         $this->setLayoutView('adminLayout');
         $view->show();
@@ -375,7 +375,7 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
 
     public function createUser()
     {
-        $view = \DGZ_library\DGZ_View::getView('createUser', $this, 'html');
+        $view = \DGZ_library\DGZ_View::getAdminView('createUser', $this, 'html');
         $this->setLayoutDirectory('admin');
         $this->setLayoutView('adminLayout');
         $view->show();
@@ -479,7 +479,7 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
             $user = new \Users();
             $userForEdit = $user->getUserById($userId);
 
-            $view = \DGZ_library\DGZ_View::getView('editUser', $this, 'html');
+            $view = \DGZ_library\DGZ_View::getAdminView('editUser', $this, 'html');
             $this->setLayoutDirectory('admin');
             $this->setLayoutView('adminLayout');
             $view->show($userForEdit, $userId);
@@ -593,7 +593,7 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
             {
                 //validation of the form failed
                 $this->addErrors($fail);
-                $view = \DGZ_library\DGZ_View::getView('editUser', $this, 'html');
+                $view = \DGZ_library\DGZ_View::getAdminView('editUser', $this, 'html');
                 $view->show($userForEdit, $userId);
             }
         }
@@ -618,7 +618,7 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
             // decrypt their password using MySQL's AES_DECRYPT() func
             $userForEdit = $user->getUserById($userId);
 
-            $view = \DGZ_library\DGZ_View::getView('adminUserChangePw', $this, 'html');
+            $view = \DGZ_library\DGZ_View::getAdminView('adminUserChangePw', $this, 'html');
             $this->setLayoutDirectory('admin');
             $this->setLayoutView('adminLayout');
             $view->show($userForEdit, $userId);
@@ -746,7 +746,7 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
         $settings= new \ContactFormMessage();
         $contactMessages = $settings->getAll('contactformmessage_date DESC');
 
-        $view = \DGZ_library\DGZ_View::getView('manageContactMessages', $this, 'html');
+        $view = \DGZ_library\DGZ_View::getAdminView('manageContactMessages', $this, 'html');
         $this->setLayoutDirectory('admin');
         $this->setLayoutView('adminLayout');
         $view->show($contactMessages);
@@ -787,7 +787,7 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
             $settings= new \BaseSettings();
             $baseSettings = $settings->getAll();
 
-            $view = \DGZ_library\DGZ_View::getView('baseSettings', $this, 'html');
+            $view = \DGZ_library\DGZ_View::getAdminView('manageSettings', $this, 'html');
             $this->setLayoutDirectory('admin');
             $this->setLayoutView('adminLayout');
             $view->show($baseSettings);

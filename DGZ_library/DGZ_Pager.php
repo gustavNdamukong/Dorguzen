@@ -267,12 +267,18 @@ class DGZ_Pager
     public function getTable($tableTemplateClassName, $sortLinkTarget = '', $limit = 20, $page = 1 ) {
 
 
+        //grab table views placed either inside the views folder or the views\admin sub-folder
         $fileNameBase = 'views/' . $tableTemplateClassName . '.php';
+        $adminFileNameBase = 'views/admin/' . $tableTemplateClassName . '.php';
         if(file_exists($fileNameBase)) {
             include_once($fileNameBase);
             $viewClass = 'views\\'. $tableTemplateClassName;
         }
-
+        elseif(file_exists($adminFileNameBase)) {
+            include_once($adminFileNameBase);
+            $viewClass = 'views\admin\\'. $tableTemplateClassName;
+        }
+        
         $view = new $viewClass;
 
         //get the table view template

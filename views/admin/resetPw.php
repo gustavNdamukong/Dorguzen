@@ -1,6 +1,6 @@
 <?php
 
-namespace views;
+namespace views\admin;
 
 
 
@@ -10,10 +10,7 @@ class resetPw extends \DGZ_library\DGZ_HtmlView
 
 
      function show($userId, $userEmail)
-     { ?>
-         <!--<script src="http://code.jquery.com/jquery-latest.min.js"></script>
-        <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>-->
-    <?php
+     {
 
          //Pull in the PHP file that has the JS validation codes
          $jsValidation = \DGZ_library\DGZ_View::getView('jsValidationPartial', $this->controller);

@@ -10,24 +10,24 @@ use settings\Settings;
  * @author Gustav
  */
 abstract class DGZ_Controller implements DGZ_Displayable {
-	
+
 	/**
-	 * @var string The default action of this page if one isn't specified in the URL. 
+	 * @var string The default action of this page if one isn't specified in the URL.
 	 */
 	protected $defaultAction;
-	
+
 	/**
-	 * @var string The page format, e.g. 'html', 'json', 'xml' 
+	 * @var string The page format, e.g. 'html', 'json', 'xml'
 	 */
 	protected $format;
 
 
-	
+
 	/**
-	 * @var string The page title for every view file. 
+	 * @var string The page title for every view file.
 	 */
 	protected $pageTitle = '';
-	
+
 
 	/**
 	 * @var whether or not to show an image slider for every view file.
@@ -37,7 +37,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
 
 	/**
-	 * @var string The name of the application 
+	 * @var string The name of the application
 	 */
 	protected $appName;
 
@@ -59,27 +59,27 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 	protected $useFullLayout = true;
 
 
-	
+
 	/**
-	 * @var array An array of custom CSS stylesheets which need to be included on this page. 
+	 * @var array An array of custom CSS stylesheets which need to be included on this page.
 	 */
 	protected $styles;
-	
+
 	/**
 	 * @var array An array of custom Javascript files which need to be included on this page.
 	 */
 	protected $scripts;
-	
+
 	/**
 	 * @var array An array of information messages to be shown to the user
 	 */
 	protected $notices;
-	
+
 	/**
 	 * @var array An array of success messages to be shown to the user
 	 */
 	protected $success;
-	
+
 	/**
 	 * @var array An array of warning messages to be shown to the user
 	 */
@@ -92,26 +92,26 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 	protected $errors;
 
 
-	
+
 	/**
 	 * @var array An array of exception messages to be shown to the user
 	 */
 	protected $exceptions;
-	
+
 	/**
 	 * @var \DGZ_library\DGZ_Application An object which holds the detail of this application's configuration
 	 */
 	protected $application;
-	
-	
+
+
 	/**
 	 * Contains the time when the page was loaded.
 	 */
 	protected $startTime;
-	
-	
+
+
 	/**
-	 * @var string Contains the current redirection URL to be set when the action completes. 
+	 * @var string Contains the current redirection URL to be set when the action completes.
 	 */
 	protected $redirectToUrl;
 
@@ -122,8 +122,8 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 	public $settings;
 
 
-	
-	
+
+
 	/**
 	 * Constructor. Initialise the various elements of a page controller.
 	 */
@@ -140,7 +140,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 		$this->defaultLayout = $this->getDefaultLayout();
 
 		$this->format = isset($_REQUEST['format']) ? $_REQUEST['format'] : 'html';
-		
+
 		$this->styles = [];
 		$this->scripts = [];
 		$this->exceptions = [];
@@ -151,8 +151,8 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 	}
 
 
-	
-	
+
+
 	/**
 	 * Gets the name of the application. It gets this from the application (Settings) class
 	 * If you want your page to use a different one, override this function to return a different name.
@@ -176,9 +176,9 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 		$app = new \DGZ_library\DGZ_Application();
 		return $app->getDefaultLayoutDirectory();
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Gets the default layout for all pages. It gets this from the application (Settings) class
 	 * If you want your page to use a different one, override this function to return a different name.
@@ -219,7 +219,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
 
 
-	
+
 
 	/**
 	 * This method tells the controller thsat for the view file being about to be invoked, we do not need a full layout file as all
@@ -321,16 +321,16 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 	}
 
 
-	
+
 	/**
 	 * Adds a custom javascript file to be included on this page.
-	 * 
+	 *
 	 * Note 1: This file must be located in the "htdocs/js" folder of your project. Subdirectories within htdocs/js are not supported.
-	 * Note 2: There is no need to manually include scripts needed by any framework (such as jQuery or Bootstrap), these are defined explicitly in the relevant layout. 
-	 * 
+	 * Note 2: There is no need to manually include scripts needed by any framework (such as jQuery or Bootstrap), these are defined explicitly in the relevant layout.
+	 *
 	 * @param string $jsFileName The filename of the Javascript file to load.
 	 * @example $page->addScript('myPageEventHandlers.js');
-	 * 
+	 *
 	 */
 	public function addScript($jsFileName) {
 		if(!in_array($jsFileName, $this->scripts)) {
@@ -338,12 +338,12 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 		}
 	}
 
-	
-	
+
+
 	/**
 	 * Add a warning message with an optional title to the warnings list.
 	 * These are displayed between the menu and the content (at least in the default layouts anyway)
-	 * 
+	 *
 	 * @param string $message The message to display to the user
 	 * @param string $title An optional title. This is displayed in bold at the beginning of the message
 	 */
@@ -353,7 +353,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 		} else {
 			$this->warnings[] = $message;
 		}
-		
+
 		$_SESSION['_warnings'] = $this->warnings;
 	}
 
@@ -379,11 +379,11 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 	}
 
 
-	
+
 	/**
 	 * Add a information message with an optional title to the information message list.
 	 * These are displayed between the menu and the content (at least in the default layouts anyway)
-	 * 
+	 *
 	 * @param string $message The message to display to the user
 	 * @param string $title An optional title. This is displayed in bold at the beginning of the message
 	 */
@@ -393,16 +393,16 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 		} else {
 			$this->notices[] = $message;
 		}
-		
+
 		$_SESSION['_notices'] = $this->notices;
 
 	}
-	
-	
+
+
 	/**
 	 * Add a success message with an optional title to the success message list.
 	 * These are displayed between the menu and the content (at least in the default layouts anyway)
-	 * 
+	 *
 	 * @param string $message The message to display to the user
 	 * @param string $title An optional title. This is displayed in bold at the beginning of the message
 	 */
@@ -412,16 +412,16 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 		} else {
 			$this->success[] = $message;
 		}
-		
+
 		$_SESSION['_success'] = $this->success;
-		
+
 	}
 
 
 
 
 
-	
+
 	/**
 	 * Add a thrown exception to an internal array so that it can be displayed nicely in the layout.
 	 */
@@ -441,17 +441,17 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 	 * @param array $inputParameters A numerically-indexed array to be passed in as arguments to the function.
 	 */
 	public function display($method, array $inputParameters) {
-		
+
 		try {
-	
+
 			if(empty($method)) {
 				$method = $this->defaultAction;
 			}
-			
+
 			try {
 				// Run the controller method. That method can override most of the attributes of this DGZ_Controller class.
 				ob_start();
-				
+
 				list($controller, $method) = \DGZ_Router::getControllerAndMethod();
 
 
@@ -465,89 +465,89 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 				}
 			} catch (\DGZ_library\DGZException $e) {
 				$this->addException($e);
-					
+
 			} catch (\Exception $e) {
 				$this->addException($e);
 			}
-			
+
 			// For HTML formatted output, we use a Layout and a Menu to complete the response.
 			// For NON-HTML formatted output, we just allow the output buffer to be sent as it is (PHP automatically outputs any open buffers when the script finishes)
 
-				$contentHtml = trim(ob_get_clean());
-				
-				if(
-					empty($contentHtml)
-					&& !$this->redirectPending() 
-					&& count($this->exceptions) == 0 
-					&& count($this->warnings) == 0
-					&& count($this->errors) == 0
-					&& count($this->notices) == 0
-					&& count($this->success) == 0	
-				) {
-					$this->addNotice(
-						'This page has not sent anything to display, and is not trying to redirect you to another page.' . PHP_EOL 
-							. 'If you were not expecting this then it might indicate a hidden error somewhere.', 
-						'For Your Information'
-					);
+			$contentHtml = trim(ob_get_clean());
+
+			if(
+				empty($contentHtml)
+				&& !$this->redirectPending()
+				&& count($this->exceptions) == 0
+				&& count($this->warnings) == 0
+				&& count($this->errors) == 0
+				&& count($this->notices) == 0
+				&& count($this->success) == 0
+			) {
+				$this->addNotice(
+					'This page has not sent anything to display, and is not trying to redirect you to another page.' . PHP_EOL
+					. 'If you were not expecting this then it might indicate a hidden error somewhere.',
+					'For Your Information'
+				);
+			}
+
+
+			//Now load the page layout based on value in $this->layout -- which can be altered by the controller above.
+			$layout = \DGZ_library\DGZ_Layout::getLayout($this->useFullLayout, $this->appName, $this->defaultLayoutDirectory, $this->defaultLayout);
+
+
+
+
+			// Have there been any messages stored in the session?
+			// This can happen when a page has done some work in the database and has been redirected.
+			if(isset($_SESSION['_warnings']) && is_array($_SESSION['_warnings']) && count($_SESSION['_warnings']) > 0) {
+				$this->warnings += $_SESSION['_warnings'];
+			}
+
+			if(isset($_SESSION['_errors']) && is_array($_SESSION['_errors']) && count($_SESSION['_errors']) > 0) {
+				$this->errors += $_SESSION['_errors'];
+			}
+
+
+			if(isset($_SESSION['_success']) && is_array($_SESSION['_success']) && count($_SESSION['_success']) > 0) {
+				///////die('There is a SUCCESS msg: '.print_r($_SESSION['_success']));/////////////////////////
+				$this->success += $_SESSION['_success'];
+			}
+			if(isset($_SESSION['_notices']) && is_array($_SESSION['_notices']) && count($_SESSION['_notices']) > 0) {
+				$this->notices += $_SESSION['_notices'];
+			}
+			if(isset($_SESSION['_exceptions']) && is_array($_SESSION['_exceptions']) && count($_SESSION['_exceptions']) > 0) {
+				$this->exceptions += $_SESSION['_exceptions'];
+			}
+
+			// Are we about to redirect? If not (i.e. this page and therefore these messages are going to be shown)
+			// then we can clear out the stored messages in the session sent from the last page
+			//This is the bit that ensures that we do not show session msgs of a previous view when we go to a diff view
+			if(!$this->redirectPending()) {
+				if(isset($_SESSION['_warnings'])) {
+					unset($_SESSION['_warnings']);
 				}
 
-
-				//Now load the page layout based on value in $this->layout -- which can be altered by the controller above.
-				$layout = \DGZ_library\DGZ_Layout::getLayout($this->useFullLayout, $this->appName, $this->defaultLayoutDirectory, $this->defaultLayout);
-
-
-
-				
-				// Have there been any messages stored in the session?
-				// This can happen when a page has done some work in the database and has been redirected.
-				if(isset($_SESSION['_warnings']) && is_array($_SESSION['_warnings']) && count($_SESSION['_warnings']) > 0) {
-					$this->warnings += $_SESSION['_warnings'];
+				if(isset($_SESSION['_errors'])) {
+					unset($_SESSION['_errors']);
 				}
 
-				if(isset($_SESSION['_errors']) && is_array($_SESSION['_errors']) && count($_SESSION['_errors']) > 0) {
-					$this->errors += $_SESSION['_errors'];
+				if(isset($_SESSION['_success'])) {
+					unset($_SESSION['_success']);
 				}
 
-
-				if(isset($_SESSION['_success']) && is_array($_SESSION['_success']) && count($_SESSION['_success']) > 0) {
-					///////die('There is a SUCCESS msg: '.print_r($_SESSION['_success']));/////////////////////////
-					$this->success += $_SESSION['_success'];
+				if(isset($_SESSION['_notices'])) {
+					unset($_SESSION['_notices']);
 				}
-				if(isset($_SESSION['_notices']) && is_array($_SESSION['_notices']) && count($_SESSION['_notices']) > 0) {
-					$this->notices += $_SESSION['_notices'];
+
+				if(isset($_SESSION['_exceptions'])) {
+					unset($_SESSION['_exceptions']);
 				}
-				if(isset($_SESSION['_exceptions']) && is_array($_SESSION['_exceptions']) && count($_SESSION['_exceptions']) > 0) {
-					$this->exceptions += $_SESSION['_exceptions'];
-				}
-				
-				// Are we about to redirect? If not (i.e. this page and therefore these messages are going to be shown) 
-				// then we can clear out the stored messages in the session sent from the last page
-				//This is the bit that ensures that we do not show session msgs of a previous view when we go to a diff view
-				if(!$this->redirectPending()) {
-					if(isset($_SESSION['_warnings'])) {
-						unset($_SESSION['_warnings']);
-					}
-
-					if(isset($_SESSION['_errors'])) {
-						unset($_SESSION['_errors']);
-					}
-
-					if(isset($_SESSION['_success'])) {
-						unset($_SESSION['_success']);
-					}
-
-					if(isset($_SESSION['_notices'])) {						
-						unset($_SESSION['_notices']);
-					}
-
-					if(isset($_SESSION['_exceptions'])) {		
-						unset($_SESSION['_exceptions']);
-					}
-				} else {
-					// If we are about to do a header redirect then save the session so that it is not lost.
-					// This can happen on redirected form submissions.
-					session_write_close();
-				}
+			} else {
+				// If we are about to do a header redirect then save the session so that it is not lost.
+				// This can happen on redirected form submissions.
+				session_write_close();
+			}
 
 			// If there have been any warnings generated, get a view to render them
 			if(count($this->warnings) > 0) {
@@ -567,7 +567,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 				$layout->setErrorsHtml($errorsHtml);
 			}
 
-				
+
 			// If there have been any exceptions generated, get a view to render them
 			if(count($this->exceptions) > 0) {
 				$exceptionView = DGZ_View::getView('ExceptionListView', $this);
@@ -603,8 +603,8 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
 			//Set the HTML title tag value for the specific view file about to be displayed
 			$layout->setPageTitle($this->pageTitle);
-			
-			
+
+
 			$layout->setPageTitle($this->pageTitle);
 
 
@@ -613,7 +613,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
 			$layout->display();
 
-			
+
 		} catch (\DGZ_library\DGZ_Exception $e) {
 
 			/*
@@ -624,7 +624,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 			}
 
 			*/
-			
+
 		} catch (\Exception $e) {
 
 			/*if($this->format == 'html') {
@@ -651,25 +651,25 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 				throw $e;
 			}
 			*/
-			
+
 		}
 
-		
+
 	}
 
 
 
-	
-	
-	
+
+
+
 	/**
 	 * Silently redirects the user to another page (within the same application).
-	 * 
+	 *
 	 * Ideal when calling an action which has done some work on the database and you don't want to risk
 	 * the user refreshing/resubmitting the data.
-	 * 
+	 *
 	 * You can call this function more than once, the last given URL is the one that is sent to the user.
-	 * 
+	 *
 	 * @param string $controller The name of the controller to target
 	 * @param string $action The action (method) of the controller to run. Leave blank to run the default action of the controller
 	 * @param array $arguments [Optional] Any extra URL parameters. Omit to pass none.
@@ -693,18 +693,18 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 		exit();
 
 	}
-	
-	
-	
-	
-	
+
+
+
+
+
 	/**
 	 * Returns whether a redirect header (i.e. header('Location: [new-url]') has been sent or not.
-	 * 
+	 *
 	 * @return boolean TRUE if the page is about to redirect or FALSE if not.
 	 */
 	public function redirectPending() {
-		
+
 		$headers = headers_list();
 		foreach($headers as $header) {
 			if(stripos($header, 'location:') !== false) {
@@ -712,9 +712,8 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 			}
 		}
 		return false;
-		
-	}
 
+	}
 
 
 	/**
@@ -845,8 +844,8 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
 		return trim($activationCode);
 	}
-	
-	
-	
+
+
+
 }
 ?>

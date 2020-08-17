@@ -35,7 +35,7 @@ class ComponentsController extends \DGZ_library\DGZ_Controller  {
         //If you set no layout view, the default layout will be used
         //if you set   a layout (like so: setLayoutView('EmailLayout');) make sure that layout file (class) is in the default layout directory
         //if you set a default layout folder (like so: $this->setDefaultLayoutDirectory('CoolPersonalWebsite');), make sure you also set the layout file to be used in that dir
-        $view = \DGZ_library\DGZ_View::getView('components', $this, 'html');
+        $view = \DGZ_library\DGZ_View::getAdminView('components', $this, 'html');
         $this->setPageTitle('components');
         $view->show();
     }
@@ -50,7 +50,7 @@ class ComponentsController extends \DGZ_library\DGZ_Controller  {
      */
     public function components()
     {
-        $view = \DGZ_library\DGZ_View::getView('components', $this, 'html');
+        $view = \DGZ_library\DGZ_View::getAdminView('components', $this, 'html');
         $view->show();
     }
 

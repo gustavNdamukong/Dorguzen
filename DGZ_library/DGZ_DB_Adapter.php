@@ -3,137 +3,10 @@
 use settings\Settings;
 
 
-//$usertype is the value that the connection script will pass to dbConnect(). This idea is David power's brilliant idea based on fact that you'd have created at least two users for ur db with diff privileges, 
-//and u'll connect to the db everytime with a diff user depending on what the connections script needs to do-u'll then pass to dbConnect() the name of the user type at any time u're connecting. 
-//This script will then translate the user type to the real user rightfully created for the database behind the scenes, and connect with the database. Basically, you sort of agree to pass to this 
-//script the a value with the term '$usertype' and this script will know you want to use the $user attribute specified here to connect to the database. The $usertype value is sort of an alias. 
-//In this case of the database is called 'sweeteaze', there's just one user 'allteaze' that we have actually created for this database, which we will use for every connection. 
-//Note that this means that 'allteaze' is not registered anywhere, it's just a sort of nickname or alias wh this connection script recognizes and transates to 'teazer' 
-//(the real user authorized to connect to the database with an issued password) in the back ground. 
-
-
-/*function dbConnect($usertype, $connectionType = 'mysqli') 
-{
-    $host = 'localhost';
-    $db = 'sweeteaze';
-    
-    if ($usertype  == 'allteaze') 
-    {
-	$user = 'teazer';
-	$pwd = 'BullBull123';
-    } 
-    else 
-    {
-	exit('Unrecognized connection type');
-    }
-    
-    if ($connectionType == 'mysqli') 
-    {
-        $conn = new mysqli($host, $user, $pwd, $db);
-    
-        if ($conn->connect_error) 
-        { 
-            die('cannot open database');
-        }   
-  
-        return $conn;
-    } 
- }
- */
-
-
-
-############### IN-BUILT MYSQLI CLASS (for reference) ####################
-// The Mysqli class's constructor accepts 4 params mysqli($h, $u, $p, $d). This is synonymous to the DB connector
-
-// PREPARED STATEMENTS
-// 
-// example a mysqli prepared statement
-        /*
-         * $sql = "SELECT * FROM  
-                  users WHERE email = ? AND pass = AES_ENCRYPT(?, ?)
-                          AND emailverified = 'yes'"; //Get only recs who's email addresses have been verified via the email activation codes. 
-
-          $stmt = $conn->stmt_init();
-          $stmt->prepare($sql);
-          $stmt->bind_param('sss', $email, $password, $key);
-          $stmt->bind_result($custo_id, $type, $email, $pass, $first_name, $last_name, $custo_status, $emailverified, $updated, $created, $eactivationcode);
-          $stmt->execute();
-          $stmt->store_result();
-          $stmt->fetch(); 
-
-          if ($stmt->num_rows ) 
-          { 
-                // THE SELECT QUERY WAS SUCCESSFUL, SO DO SOMETHING HERE
-            }
-         */
-
-
-
-// PROPERTIES
-// connect_error--failed to connect to the DB, n it will contain the ref error code
-// $stmt->affected_rows is called on the prepared obj immediately after calling execute(), as it will contain the boolean 'true' or 'false' if the insert query was successful or not, respectively
-// $stmt->num_rows called on the prepared obj immed after running execute(), it will return the number of results returned from a select query, synonymous to true if successful, or false if not successful
-// 
-//
-// METHODS
-// prepare() is run on the connector n takes the SQL to be run which it declares with placeholders---prepare("INSERT INTO {$table} ({$fields}) VALUES ({$placeholders})");
-// bind_param() is run on the prepared statement obj n takes the values you will like to bind to the placeholder characters
-// $stmt->bind_result() is run on the prepared stmt obj to assoc custom vars to the bound params above wh can then be directly used in ur script after retrieving the results
-// execute() is run on the prepared obj with its values bound already
-// get_result() is called on the prepared obj immediately after running execute() on it, to get the results of a select statement---$stmt->get_result();
-// fetch_object() is used to create an object fron results returned from a select query after fetching them with the get_result() method---
-            // eg $result = $stmt->get_result();
-                // Create a results object
-            // while ($row = $result->fetch_object()) {$results[] = $row;}
-// store_results() called immed after execute() on the prepared obj will ensure that the fetched results are stored in the class for subsequent use
-            // eg $stmt->execute();
-            // $stmt->store_result();
-            // $stmt->fetch();--you can now use results
-
-
-
-
-
-// NON-PREPARED STATEMENTS
-// PROPERTIES
-//
-//
-// METHODS
-// 
-// 
-// query($query) -------called on the connector n takes the SQL string to be run
-// insert() -------------
-// update
-//
-
-
-
-############### METHODS OF THIS CLASS ####################
-// __construct($connect_details = '')                      -----------sets up the DB connection so that all models inheriting from it will get that auto
-// connect()                                               -----------connects to the DB
-// getConnected()                                          ------actually calls connect() internally to esto connection with the DB as connect() is a protected method
-// getSalt()                                               -----------returns the pwd encryption key
-// loadORM($query)                                         -----------transforms our models into ORM-empowered entities
-// query($query)                                           -------called on the connector n takes the SQL string to be run
-// selectWhere($table, $columns = array(), $where = array(), $dataTypes = '')    ---------- handles all select queries, whether user is selecting all fields, or just a given few
-// insert($table, $data, $datatypes, $where)
-// update($table, $data, $dataTypes, $where)               -------handles all update queries
-// delete($table, $where = array(), $dataTypes = '')       ---- finished, but still to be tested, not used yet
-// insert_update_prep_query($data, $type='insert')         ---------prepares the prepared stmt query to be ran by insert()
-// ref_values($array)                                      --------further prepares query prepared stmt by setting up the submitted values (by user) to be bound to the placeholders
-//                                                                  created by ...prep_query() methods
-//
-//
-//
-
-
-
-
 /**
  * This class is meant for
- * -1) esto connection to the DB, and
- * -2) ochestrating DB connections that dont directly relate to a model
+ * -1) establishing a connection to the DB, and
+ * -2) orchestrating DB connections that don't directly relate to models
  *
  *The 4 mysqli_stmt_bind_param() type specification characters:
  *          dibs (double e.g for percentages, integer, blob, string)
@@ -172,13 +45,8 @@ use settings\Settings;
     //public function __construct($credentials, $connect_details = '')
     public function __construct()
     {
-        //All models extend from this class and share its awesome methods. For it to be of use to them, it needs to know which model called it
-        //Then any method in this class (parent) that is shared by all models MUST first of all get n instantiate the active model before carrying on so
-        // that they can call their own members in things that relate specifically to them whilst operating inside of this (parent) class like so:
-        // $model = new $this->whoCalledMe;
         $classThatCalled = get_class($this);
         $this->whoCalledMe = $classThatCalled;
-        ##########################
 
         $settingsClass = new Settings();
 
@@ -192,9 +60,6 @@ use settings\Settings;
         {
             $credentials = $this->settings->getSettings()['liveDBcredentials'];
         }
-
-        //echo '<pre>';
-        //var_dump($credentials); die();
 
         $this->username = $credentials['username'];
         $this->pwd = $credentials['pwd'];
@@ -315,15 +180,12 @@ use settings\Settings;
                  }
              }
          }
-
-         //--------IT SHOULD NEVER COME TO THIS ELSE BLOCK, SINCE A 'DESCRIBE' QUERY ONLY SELECTS-------//
          else {
              //check result if Updating/inserting/deleting
              if ((isset($result->affected_rows)) && ($result->affected_rows > 0)) {
                  return true;
              }
          }
-         //---------------------------------------------------------------------------------------------//
      }
 
 
@@ -402,7 +264,6 @@ use settings\Settings;
          $data = array();
          $datatypes = array();
 
-         //echo '<pre>'; die(print_r(get_object_vars($model)));
          foreach (get_object_vars($this) as $property => $value) {
              //filter out any properties that are not in ur columns array
              if (array_key_exists($property, $model->_columns)) {
@@ -700,7 +561,6 @@ use settings\Settings;
              //All the other params are empty too, so this is a quick one, we'll just grab everything
              $sql = "SELECT * FROM $table";
 
-
              $result = $this->query($sql);
 
              //when selecting we return an array of the selected values
@@ -721,27 +581,12 @@ use settings\Settings;
              $where = (array) $where;
              $dataTypes = (string) $dataTypes;
 
-             //Lets define a couple of terms
-             //$placeholders are the '?' xters that will be created to match the where values
-             //what i call $dataTypes are the datatype xters that will be bind_params() meth which is invoked after the query has been built. bind_param() does 2 things;
-             // -1) uses the $dataTypes string as its first param to rep the fields (columns)
-             // -2) uses additional params (vars) as there are placeholders (the ? xters) used in the query string
-
-             //$where_fields will be like 'albums_name',
-             //$placeholders will be like '?'
-             //$where_values will be like 'Gustav'
-
-
-             // Prepend the $dataTypes string onto the $values array (The bind_param() meth needs it like this-1st param is string of datatype xters to rep the fields,
-             // followed by as many params (vars) as there are values to rep the placeholders (? xters))
-
              //Format where clause
              $where_placeholders = '';
-             /////$where_values = '';
              $where_values = [];
              $count = 0;
 
-             foreach ( $where as $field => $value ) { //albums_name => 'Gustav'
+             foreach ( $where as $field => $value ) {
                  if ( $count > 0 ) {
                      $where_placeholders .= ' AND ';
                  }
@@ -754,27 +599,15 @@ use settings\Settings;
 
 
              // Prepend $format onto $values
-             //$where_values now becomes this: ['s', 'Gustav'] (for bind_param())
              array_unshift($where_values, $dataTypes);
 
 
              //convert $columns to a string for use in a query
              $columns_as_string = implode(',', $columns);
 
-             //echo '<pre>'; die(print_r($where_values));
-
-             //die("SELECT {$columns_as_string} FROM {$table} WHERE {$where_placeholders}");
-
-             //The fact that we're in this conditional block means that the where clause is not empty,
-             // as we'd have been grabbing everything above otherwise
              $stmt = $db->prepare("SELECT {$columns_as_string} FROM {$table} WHERE {$where_placeholders}");
 
-
-             // Dynamically bind values. It takes an array that's an exact copy (a reference) of the original where_values array
-             //This calls $stmt obj's bind_param() meth passing the result of ref_values() as its args
              call_user_func_array( array( $stmt, 'bind_param'), $this->ref_values($where_values));
-             //this code above does the equiv of this line below:
-             //$stmt->bind_param('ssiis', $user_type, $firstname, $custo_status, $emailverified, $finalwords);
 
              // Execute the query
              $stmt->execute();
@@ -855,14 +688,10 @@ use settings\Settings;
 
         list( $fields, $placeholders, $values ) = $this->insert_update_prep_query($data);
 
-        // Prepend the $dataTypes string onto the $values array (The bind_param() meth needs it like this-1st param is string of datatype xters to rep the fields,
-        // followed by as many params (vars) as there are values to rep the placeholders (? xters))
         array_unshift($values, $dataTypes);
 
 
         $stmt = $db->stmt_init();
-
-        //echo '<pre>'; die("INSERT INTO {$table} ({$fields}) VALUES ({$placeholders})".' RefValues: '.print_r($this->ref_values($values)));
 
         // Prepare our query for binding
         $stmt->prepare("INSERT INTO {$table} ({$fields}) VALUES ({$placeholders})");
@@ -870,8 +699,6 @@ use settings\Settings;
 
         // Dynamically bind values
         call_user_func_array( array( $stmt, 'bind_param'), $this->ref_values($values));
-        //this code above does the equiv of this line below:
-        //$stmt->bind_param('ssssssiis', $user_type, $firstname, $surname, $email, $password, $key, $custo_status, $emailverified, $finalwords);
 
         // Execute the query
         $stmt->execute();
@@ -977,23 +804,13 @@ use settings\Settings;
             $count++;
         }
 
-
         // Prepend $format onto $values
         array_unshift($values, $dataTypes);
         $values = array_merge($values, $where_values);
 
-        //echo '<pre>'; die("UPDATE {$table} SET {$placeholders} WHERE {$where_clause}".' RefValues: '.print_r($this->ref_values($values)));
-
         $stmt = $db->prepare("UPDATE {$table} SET {$placeholders} WHERE {$where_clause}");
 
         // Dynamically bind values
-        //This calls $stmt obj's bind_param() meth passing the result of ref_values() as its args
-
-        //--------------------------
-        //This one is for testing purposes. It should return 1 (BOOL-TRUE) if the query has no faults in it
-        //var_dump(call_user_func_array( array( $stmt, 'bind_param'), $this->ref_values($values))); die();///////
-        //---------------------------
-
         call_user_func_array( array( $stmt, 'bind_param'), $this->ref_values($values));
 
         // Execute the query
@@ -1026,7 +843,7 @@ use settings\Settings;
         $db = $this->connect();
 
         if (empty($where)) {
-            //They haven't spec a column, so we'll just delete everything in the table
+            //They haven't specified a column, so we'll just delete everything in the table
             $sql = $db->prepare("DELETE FROM {$table}");
 
             $result = $this->query($sql);
@@ -1061,10 +878,7 @@ use settings\Settings;
             }
 
             // Prepend $format onto $values
-            //$where_values now becomes this: ['s', 'Gustav'] (for bind_param())
             array_unshift($where_values, $dataTypes);
-
-            //die("DELETE FROM {$table} WHERE {$where_placeholders}");
 
             $stmt = $db->prepare("DELETE FROM {$table} WHERE {$where_placeholders}");
 
@@ -1077,8 +891,7 @@ use settings\Settings;
             if ($stmt->affected_rows) {
                 return true;
             }
-            //if there was no record in the DB no msg will be returned,
-            // but we need some kinda msg to come back n give us a sign, so we put another return line here below
+
             return true;
         }
 
@@ -1300,7 +1113,6 @@ use settings\Settings;
 
         $result = $this->query($query);
 
-        // if ($result != 'failed') (we have changed it to return true as below)
         if ($result)
         {
             return $result[0][$table.'_name'];
@@ -1359,14 +1171,10 @@ use settings\Settings;
         $table = $model->getTable();
         $query = "SELECT ".$table."_id FROM $table WHERE ".$table."_name = '$name'";
 
-        ///die($query);////////////////////////
-
         $result = $this->query($query);
 
-        //if ($result != 'failed') (we have changed it to return true as below)
         if ($result)
         {
-            //die('The response is: '.print_r($result));////
             return $result[0][$table.'_id'];
         }
     }
@@ -1539,11 +1347,7 @@ use settings\Settings;
      {
          $model = new $this->whoCalledMe;
 
-         //There might be more or nothing, or an array in $columns, so lets filter it
-         //we'll also prepare the datatype xters while we're at it
-
          $datatypes = '';
-         //$criterion = array();
          if (!empty($columns)) {
              foreach ($columns as $column) {
                  //securely check that that field exists n DB table
@@ -1644,7 +1448,6 @@ use settings\Settings;
          }
 
      }
- ############################################## END OF ADDITIONAL METHODS SHARED BY ALL MODELS ##########################################################
 
 
 

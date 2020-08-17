@@ -1,10 +1,10 @@
 <?php
 
-namespace views;
+namespace views\admin;
 
 
 
-class baseSettings extends \DGZ_library\DGZ_HtmlView
+class manageSettings extends \DGZ_library\DGZ_HtmlView
 {
 
 
