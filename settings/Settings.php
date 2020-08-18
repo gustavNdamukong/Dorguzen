@@ -185,7 +185,7 @@ namespace settings;
 
 				'emailImageDir' => 'assets/images/email_images/',
 
-				'audioUploadDir' => 'docs/audio/',
+				'audioUploadDir' => 'docs/audios/',
 
 				'videoUploadDir' => 'docs/videos/',
 

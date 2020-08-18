@@ -2,11 +2,7 @@
 
 namespace DGZ_library\DGZ_views;
 
-/**
- * Description of SuccessListView
- *
- * @author brittaind
- */
+
 class SuccessListView extends \DGZ_library\DGZ_View {
 	
 	/**

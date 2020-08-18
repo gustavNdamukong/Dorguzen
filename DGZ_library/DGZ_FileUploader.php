@@ -4,7 +4,7 @@
 
 
 	/**
-	 * Use this class for uploading big files like audio and video files
+	 * Use this class for uploading big files like audios and video files
 	 *
 	 * Class DGZ_FileUploader
 	 * @package DGZ_library

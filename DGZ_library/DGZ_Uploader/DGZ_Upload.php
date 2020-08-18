@@ -96,7 +96,7 @@ class DGZ_Upload {
 	 * Upload the file
 	 * @param String $modify has 3 options
 	 * 		i) 'original' to upload the file as is with check for file type but no check for file size
-	 * 		iii) 'original-allow' to upload a file without checking if its size or type is permitted. This will allow you upload audio and video files. You probably
+	 * 		iii) 'original-allow' to upload a file without checking if its size or type is permitted. This will allow you upload audios and video files. You probably
 	 * 			want to use this only in sections of your application used by authenticated admin users.
 	 * 		iii) 'resize' to resize the file upon upload according to the specified file upload size, and also check if the file type is allowed.
 	 * 	By default, 'original' is used.  This means that your files are uploaded as they are with no resizing, and the file type is checked against the list of allowed file

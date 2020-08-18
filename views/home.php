@@ -13,11 +13,6 @@ class home extends \DGZ_library\DGZ_HtmlView
 
      function show()
      { ?>
-
-
-
-
-
          <!-- ==========================
     	BREADCRUMB - START
 		=========================== -->
