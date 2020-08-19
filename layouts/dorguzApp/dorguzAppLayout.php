@@ -34,7 +34,7 @@ class dorguzAppLayout extends \DGZ_library\DGZ_Layout {
 			<link rel="shortcut icon" href="../../favicon.ico" type="image/x-icon">
 			<link rel="icon" href="../../favicon.ico" type="image/x-icon">
 
-			<!-- Custom styles as defined by the application. These can override those set above -->
+			<!-- Include custom styles meant for individual views. These can override those set above -->
 			 <?= $this->getCssHtml()  ?>
 
 
@@ -284,7 +284,7 @@ class dorguzAppLayout extends \DGZ_library\DGZ_Layout {
 			<?php include('html_dependencies_bottom.inc.php');  //include the 2nd footer here ?>
 
 
-		<!-- Include scripts required by Bootstrap -->
+		<!-- Include custom scripts meant for individual views -->
 		<?= $this->getJavascriptHtml() ?>
 
 		</body>

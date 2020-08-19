@@ -23,7 +23,7 @@
                             <li class="col-sm-4 col-md-3">
                             	<ul class="list-unstyled">
                                 	<li class="title">Who Are We <span class="label label-danger pull-right">HOT</span></li>
-                                    <li><a href="<?=$this->settings->getHomePage()?>home/home">Home page</a></li>
+                                    <li><a href="<?=$this->settings->getFileRootPath()?>home/home">Home page</a></li>
                                     <li><a>Something here</a></li>
                                     <li><a>Something here</a></li>
                                     <li><a>Something here</a></li>
