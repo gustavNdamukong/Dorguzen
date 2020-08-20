@@ -26,7 +26,6 @@ class BlankLayout extends \DGZ_library\DGZ_Layout {
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
 			<meta name="description" content="">
 			<meta name="author" content="">
-			<!--<meta name="viewport" content="width=device-width">-->
 			<title><?php echo self::$appName."-".$this->pageTitle; ?></title>
 
 			<!-- Custom styles as defined by the application. These can override those set above -->
@@ -71,7 +70,7 @@ class BlankLayout extends \DGZ_library\DGZ_Layout {
 						<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse"><i class="fa fa-bars"></i></button>
 					</div>
 					<div class="navbar-collapse collapse">
-						<p class="navbar-text hidden-xs hidden-sm">RELIABLE SOFTWARE DEVELOPMENT</p>
+						<p class="navbar-text hidden-xs hidden-sm">Your Rapid Web Development Toolkit</p>
 					</div>
 				</div>
 			</header>

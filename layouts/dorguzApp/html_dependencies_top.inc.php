@@ -17,6 +17,7 @@
     <link href="<?=$this->settings->getFileRootPath()?>assets/css/animate.css" rel="stylesheet" type="text/css">
     <link href="<?=$this->settings->getFileRootPath()?>assets/css/color-switcher.css" rel="stylesheet" type="text/css">
     <link href="<?=$this->settings->getFileRootPath()?>assets/css/custom.css" rel="stylesheet" type="text/css">
+    <link href="<?=$this->settings->getFileRootPath()?>assets/css/carousel_slider.css" rel="stylesheet" type="text/css">
 
     
     <?php 

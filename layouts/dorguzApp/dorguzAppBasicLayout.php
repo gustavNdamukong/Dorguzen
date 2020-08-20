@@ -3,7 +3,6 @@
 namespace layouts\dorguzApp;
 
 /**
- * Description of BootstrapLayout
  *
  * @author Gustav
  */
@@ -27,7 +26,6 @@ class dorguzAppBasicLayout extends \DGZ_library\DGZ_Layout {
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
 			<meta name="description" content="">
 			<meta name="author" content="">
-			<!--<meta name="viewport" content="width=device-width">-->
 			<title><?php echo self::$appName."-".$this->pageTitle; ?></title>
 
 
@@ -70,7 +68,7 @@ class dorguzAppBasicLayout extends \DGZ_library\DGZ_Layout {
 
 
 
-		  <?php // THIS JUMBOTRON HOLDS THE SITE'S AWESOME SLIDER
+		  <?php
 
 		  if ($this->showImageSlider) { ?>
 
@@ -158,8 +156,6 @@ class dorguzAppBasicLayout extends \DGZ_library\DGZ_Layout {
 				  <?php /*<h1>WELCOME TO THE DEFAULT ALL IN ONE THEME</h1> */?>
 				  <?php echo $this->content;  ?>
 				  <?php /*  ############################## END OF YOUR SITE MAIN CONTENT ######################################## */ ?>
-			<!--</div><!--END OF THE WELL DIV INSIDE THE first_footer SECTION-->
-		<!--</section><!--End of first footer section-->
 
 
 

@@ -122,10 +122,19 @@ class dorguzAppLayout extends \DGZ_library\DGZ_Layout {
 				  {
 					  if ($this->settings->getSettings()['sliderType'] == 'slider')
 					  { ?>
-
-						  <!-- ==========================
-                        SLIDER JUMBOTRON - START
-                    =========================== -->
+						  	<!--
+               This jumbotron holds the site's carousel slider. We currently have 5 divs having the classes 'slide-1', 'slide-2' 'slide-3' etc but u can add
+               more/remove the divs for as many slides as u want). Note that you can get images to display in the browser as a background to the slides by using CSS 
+               ('background-image' property). A stylesheet is already prepared for you for this purpose, and it is called 'slider_carousel.css' located at
+               assets/css/slider_carousel.css. To activate it, just do two things;
+               	i) go into the carousel_slider.css file and replace all instances of the text 'YOURIMAGE' with the images you want displayed as background for each slide.
+               	ii) Make sure you create the directory 'assets/images/carousel_slider_images' (or go into it) and put the images you referred to in slider_carousel.css
+               		in there.
+               	Now you will see your images appearing nicely as backgrounds to the slides. For best results, respect or tweak the image sizes specified in the stylesheet.
+              				-->
+							<!-- ==========================
+							SLIDER JUMBOTRON - START
+							=========================== -->
 						  <section class="content jumbotron jumbotron-full-height" id="slider-jumbo">
 							  <div id="homepage-2-carousel" class="nav-inside">
 

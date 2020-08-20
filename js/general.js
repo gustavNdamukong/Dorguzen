@@ -174,7 +174,7 @@ $(document).ready(function() {
     });
 
 
-    //handle audio uploads
+    //handle audios uploads
     $(document).on('click', '#uploadAudio', function (e) {
         e.preventDefault();
 
@@ -303,7 +303,7 @@ $(document).on('change','input[name="video_source"]',function() {
 
 
 
-//To display or to hide the audio reference text field (audio module)
+//To display or to hide the audios reference text field (audios module)
 $(document).on('change','input[name="audio_source"]',function() {
     if ($(this).val() == 'soundcloud')
     {

@@ -1,0 +1,150 @@
+
+
+/* #CAROUSEL .SLIDE-1 */
+
+#homepage-2-carousel .slide-1 {
+    background-image:url(../images/carousel_slider_images/YOURIMAGE);
+    background-size: 1920px 1280px;
+    text-align:center;
+}
+
+#homepage-2-carousel .slide-1 .slide-mask {
+    background-color:rgba(0,0,0,0.35);
+}
+
+#homepage-2-carousel .slide-1 h1 {
+    font-weight:300;
+    font-size:40px;
+    margin:300px 0 0;
+}
+
+#homepage-2-carousel .slide-1 h2 {
+    font-size:70px;
+    line-height:90px;
+    margin:50px 0;
+}
+
+
+
+
+/* #CAROUSEL .SLIDE-2 */
+
+#homepage-2-carousel .slide-2 {
+    background-image:url(../images/carousel_slider_images/YOURIMAGE);
+    background-size: 1920px 1280px;
+}
+
+#homepage-2-carousel .slide-2 .slide-mask {
+    background-color:rgba(0,0,0,0.35);
+}
+
+#homepage-2-carousel .slide-2 h1 {
+    font-weight:300;
+    font-size:50px;
+    margin:250px 0 0;
+}
+
+#homepage-2-carousel .slide-2 h2 {
+    font-weight:300;
+    font-size:32px;
+    margin:0 0 30px;
+}
+
+#homepage-2-carousel .slide-2 ul li {
+    font-size:32px;
+}
+
+#homepage-2-carousel .slide-2 ul li i {
+    margin-right:10px;
+    color:#DDDDDD;
+}
+
+
+
+
+/* #CAROUSEL .SLIDE-3 */
+
+#homepage-2-carousel .slide-3 {
+    background-image:url(../images/carousel_slider_images/YOURIMAGE);
+    background-size: 1920px 1280px;
+}
+
+#homepage-2-carousel .slide-3 .slide-mask {
+    background-color:rgba(0,0,0,0.35);
+}
+
+#homepage-2-carousel .slide-3 h1 {
+    font-weight:300;
+    font-size:50px;
+    margin:250px 0 0;
+}
+
+#homepage-2-carousel .slide-3 h2 {
+    font-weight:300;
+    font-size:32px;
+    margin:0 0 30px;
+}
+
+#homepage-2-carousel .slide-3 ul li {
+    font-size:32px;
+}
+
+#homepage-2-carousel .slide-3 ul li i {
+    margin-right:10px;
+    color:#DDDDDD;
+}
+
+
+
+
+/* #CAROUSEL .SLIDE-4 */
+
+#homepage-2-carousel .slide-4 {
+    background-image:url(../images/carousel_slider_images/YOURIMAGE);
+    background-size: 1920px 1280px;
+    text-align:center;
+}
+
+#homepage-2-carousel .slide-4 .slide-mask {
+    background-color:rgba(0,0,0,0.35);
+}
+
+#homepage-2-carousel .slide-4 h1 {
+    font-weight:300;
+    font-size:40px;
+    margin:300px 0 0;
+}
+
+#homepage-2-carousel .slide-4 h2 {
+    font-size:70px;
+    line-height:90px;
+    margin:50px 0;
+}
+
+
+
+
+
+/* #CAROUSEL .SLIDE-5 */
+
+#homepage-2-carousel .slide-5 {
+    background-image:url(../images/carousel_slider_images/YOURIMAGE);
+    background-size: 1920px 1280px;
+    text-align:center;
+}
+
+#homepage-2-carousel .slide-5 .slide-mask {
+    background-color:rgba(0,0,0,0.35);
+}
+
+#homepage-2-carousel .slide-5 h1 {
+    font-weight:300;
+    font-size:40px;
+    margin:300px 0 0;
+}
+
+#homepage-2-carousel .slide-5 h2 {
+    font-size:70px;
+    line-height:90px;
+    margin:50px 0;
+}
