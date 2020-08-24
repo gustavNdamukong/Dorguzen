@@ -61,6 +61,11 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
 
 	/**
+	 * @var array An array of meta tags containing meta data of a specific view that will be included on this page.
+	 */
+	protected $metadata;
+
+	/**
 	 * @var array An array of custom CSS stylesheets which need to be included on this page.
 	 */
 	protected $styles;
@@ -141,6 +146,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
 		$this->format = isset($_REQUEST['format']) ? $_REQUEST['format'] : 'html';
 
+		$this->metadata = [];
 		$this->styles = [];
 		$this->scripts = [];
 		$this->exceptions = [];
@@ -305,6 +311,30 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
 
 	/**
+	 * Adds meta tags for a specific view be injected directly into the head tag of the layout page.
+	 * Other generic meta data have been preset in the layout file and are applied to all pages with the exception of the following:
+	 *		-description
+	 *		-keywords
+	 * You can add as many more as you see need. This is very handy for the SEO of specific views
+	 *
+	 * @param array $metadataTagsArray. An array containing strings of fully formed meta tags
+	 * @example $page->addMetadata(
+	 *					[
+	 * 						'<meta name="description" content="Free Web tutorials">',
+	'<meta name="keywords" content="HTML, CSS, JavaScript">',
+	'<meta name="author" content="John Doe">'
+	 *
+	 * 					]);
+	 *
+	 */
+	public function addMetadata($metadataTagsArray) {
+		$this->metadata = $metadataTagsArray;
+	}
+
+
+
+
+	/**
 	 * Adds a custom stylesheet to be included on this page.
 	 *
 	 * Note 1: This file must be located in the "htdocs/css" folder of your project. Subdirectories within htdocs/css are not supported.
@@ -436,9 +466,9 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
 
 	/**
-	 * Calls the function as requested by $action with the given parameters
-	 * @param string $action The name of the function to call
-	 * @param array $inputParameters A numerically-indexed array to be passed in as arguments to the function.
+	 * Calls the function as requested by $method with the given parameters
+	 * @param string $method. The name of the function to call
+	 * @param array $inputParameters. A numerically-indexed array to be passed in as arguments to the method.
 	 */
 	public function display($method, array $inputParameters) {
 
@@ -597,7 +627,8 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
 			$layout->setContentHtml($contentHtml);
 
-			//set any CSS or JS files that the programmer has used on the specific view file
+			//set any META TAGS, CSS or JS files that the programmer has used on the specific view file
+			$layout->setMetadata($this->metadata);
 			$layout->setCssFiles($this->styles);
 			$layout->setJavascriptFiles($this->scripts);
 
@@ -628,7 +659,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 		} catch (\Exception $e) {
 
 			/*if($this->format == 'html') {
-			
+
 				$layout = \DGZ_library\DGZ_Layout::getLayout('DefaultLayout');
 				//$layout = \DGZ_library\DGZ_Layout::getLayout($this->appName, $this->defaultLayoutDirectory, $this->defaultLayout);
 				//var_dump($layout);
@@ -645,9 +676,9 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
 
 				$layout->display();
-				
+
 			} else {
-				
+
 				throw $e;
 			}
 			*/

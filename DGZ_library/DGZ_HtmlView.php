@@ -5,8 +5,8 @@ namespace DGZ_library;
 /**
  * Specialisation of the DGZ_View class for views which return HTML.
  *
- * This allows Html based Views to inject CSS and Javascripts which they require
- * into the parent page class which the view will be going into.
+ * This allows Html based Views to inject meta tags, CSS and Javascripts which they require
+ * into the parent controller class which the view will be going into.
  *
  * XML, JSON and other views naturally don't have this need.
  *
@@ -25,7 +25,7 @@ abstract class DGZ_HtmlView extends \DGZ_library\DGZ_View {
 	 * @var \DGZ_library\DGZ_Controller $page A reference to the page this view is going into.
 	 */
 	protected $controller;
-	
+
 
 
 
@@ -33,6 +33,32 @@ abstract class DGZ_HtmlView extends \DGZ_library\DGZ_View {
 	public function setContext(\DGZ_library\DGZ_Controller &$pageController) {
 		$this->controller = $pageController;
 	}
+
+
+
+
+	/**
+	 * Add meta tags unique to the current view in the parent controller to be injected later into the layout.
+	 * Other generic meta data have been preset in the layout file and are applied to all pages with the exception of the following:
+	 *		-description
+	 *		-keywords
+	 * You can add as many more as you see need. This is very handy for the SEO of specific views
+	 *
+	 * @param array $metadataTagsArray. An array containing strings of fully formed meta tags
+	 *
+	 */
+	protected function addMetadata($metadataTagsArray) {
+		$encodedTags = [];
+		foreach($metadataTagsArray as $data)
+		{
+			$encodedTags[] = htmlentities($data);
+		}
+		$this->controller->addMetadata($encodedTags);
+	}
+
+
+
+
 
 	/**
 	 * Add a style sheet to the parent page
@@ -43,6 +69,11 @@ abstract class DGZ_HtmlView extends \DGZ_library\DGZ_View {
 	protected function addStyle($cssFileName) {
 		$this->controller->addStyle($cssFileName);
 	}
+
+
+
+
+
 
 	/**
 	 * Add a javascript file to the parent page

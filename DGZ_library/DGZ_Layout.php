@@ -21,7 +21,7 @@ abstract class DGZ_Layout
 	 * @var string The page title for every view file.
 	 */
 	protected $pageTitle = '';
-	
+
 
 
 	/**
@@ -84,6 +84,14 @@ abstract class DGZ_Layout
 	 */
 	protected $successes;
 
+
+	/**
+	 * @var array An array of meta tags containing meta data of a specific view that will be included on this page.
+	 */
+	protected $metadata;
+
+
+
 	/**
 	 * @var array An array of extra javascript files (within the application's htdocs/js directory) to be loaded.
 	 */
@@ -113,6 +121,7 @@ abstract class DGZ_Layout
 
 	public function __construct()
 	{
+		$this->metadata = array();
 		$this->jsFiles = array();
 		$this->cssFiles = array();
 		$this->settings = new Settings();
@@ -159,8 +168,8 @@ abstract class DGZ_Layout
 	 * method, DGZ_Layout's (which represents the layout instance to be used by the view file being generated) setImageSlider() is called and the value of the
 	 * controller's own $showImageSlider field is passed to it (which is why $showImageSlider is false by default on both DGZ_Controller and DGZ_Layout classes).
 	 *
-			//Determine whether or not to show an image slider in the specific view file about to be displayed
-			$layout->setImageSlider($this->showImageSlider);
+	//Determine whether or not to show an image slider in the specific view file about to be displayed
+	$layout->setImageSlider($this->showImageSlider);
 	 *
 	 * This is so because, in case the programmer had not explicitly specified that an image slider is shown in the view they're about to show,
 	 *
@@ -285,6 +294,30 @@ abstract class DGZ_Layout
 
 
 
+	/**
+	 * Adds meta tags for a specific view be injected directly into the head tag of the layout page.
+	 * Other generic meta data have been preset in the layout file and are applied to all pages with the exception of the following:
+	 *		-description
+	 *		-keywords
+	 * You can add as many more as you see need. This is very handy for the SEO of specific views
+	 *
+	 * @param array $metadataTagsArray. An array containing strings of fully formed meta tags
+	 * @example $page->addMetadata(
+	 *					[
+	 * 						'<meta name="description" content="Free Web tutorials">',
+	'<meta name="keywords" content="HTML, CSS, JavaScript">',
+	'<meta name="author" content="John Doe">'
+	 *
+	 * 					]);
+	 *
+	 */
+	public function setMetadata(array $metadataTagsArray)
+	{
+		$this->metadata = $metadataTagsArray;
+	}
+
+
+
 
 	/**
 	 * Sets the list of custom CSS files (from the applications htdocs/css folder)
@@ -298,6 +331,21 @@ abstract class DGZ_Layout
 	}
 
 
+
+
+	/**
+	 * Returns a block of <meta html tags to be injected amongst the layout's already existing meta tags
+	 *
+	 * @return string A set of meta tags with break tags at the end of each one, ready for inserting into the layout's head tag.
+	 */
+	public function getMetadata()
+	{
+		$metatagHtml = '';
+		foreach ($this->metadata as $data) {
+			$metatagHtml .= html_entity_decode($data) . PHP_EOL;
+		}
+		return $metatagHtml;
+	}
 
 
 
@@ -353,7 +401,7 @@ abstract class DGZ_Layout
 	 * @param string $appName The name of this app so it knows how to scale the folder system for the right layout file
 	 * @param string $layoutFolder The name of the folder to find the layout in
 	 * @param string $layoutName The name of the layout to find
-	 * @return \Layout The named layout if found
+	 * @return \layouts\Layout The named layout if found
 	 * @throws \Exception If the layout cannot be found
 	 */
 	public static function getLayout($useFullLayout, $appName, $layoutFolder, $layoutName)
@@ -369,15 +417,15 @@ abstract class DGZ_Layout
 		if ($layoutSettings->getSettings()['live'] == false) {
 			if ($useFullLayout) {
 				$layoutFileName = $_SERVER['DOCUMENT_ROOT'] . '/' . $appName . '/layouts/' . $layoutFolder . '/' . $layoutName . '.php';
-				//die($layoutFileName);
-				//on live (Godaddy) $layoutFilename is: /home/i3v8zo1vaw30/public_html/dorguzApp/layouts/dorguzApp/dorguzAppLayout.php
+				/////die($layoutFileName);
+				//on live (Godaddy) $layoutFilename is: /home/i3v8zo1vaw30/public_html/nolimitmedia/layouts/nolimitmedia/nolimitmediaLayout.php
 
 				//so document root is: /home/i3v8zo1vaw30/public_html/public_html/
 				/*
-				 * LAYOUT FILE IS: /home/i3v8zo1vaw30/public_html/dorguzApp/layouts/dorguzApp/dorguzAppLayout.php
-				 * LayoutFolder is: dorguzApp
-				 * Layout name: dorguzAppLayout
-				 * appName is: dorguzApp
+				 * LAYOUT FILE IS: /home/i3v8zo1vaw30/public_html/nolimitmedia/layouts/nolimitmedia/nolimitmediaLayout.php
+				 * LayoutFolder is: nolimitmedia
+				 * Layout name: nolimitmediaLayout
+				 * appName is: nolimitmedia
 				*/
 				$layoutClass = '\layouts\\' . $layoutFolder . '\\' . $layoutName;
 			}
@@ -408,6 +456,7 @@ abstract class DGZ_Layout
 			//Now require the file so you can instantiate its class
 			require_once($layoutFileName);
 
+			/////$class = new $layoutClass();
 			return new $layoutClass();
 		}
 
