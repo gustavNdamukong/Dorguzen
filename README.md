@@ -61,7 +61,9 @@
         -Finally, you can test to see the Dorguzen welcome page in the browser by typing in your browser the URI of that folder on your server. Mine looks something
             like this:
 
-                    ```localhost:8888/myAppName/```
+                    ```
+                    localhost:8888/myAppName/
+                    ```
 
             -Remember you can change your database credentials to whatever you want and enter the new ones into Settings.php
 
