@@ -64,7 +64,7 @@
             -Remember you can change your database credentials to whatever you want and enter the new ones into Settings.php
 
 
- # ADMIN AUTHENTICATION (Login)
+ # Admin authentication (login)
     -Dorguzen comes with a login feature and one super-admin user set up for you with the following login details:
 
                     Username: 'dorguzen@dorguzen.com'
@@ -78,7 +78,7 @@
     -As a logged in user, you are also able to request to reset your password in case you forgot it.
 
 
- # DORGUZEN DOCUMENTATION
+ # Full documentation
 
     Here is the official documentation link [Nolimit Media](http://nolimitmedia.co.uk/dorguzen/docs)
     Bear in mind that this is a work in progress, and as such, the documentation is still being compiled. It is being updated weekly, but if you have any queries, feel free to reach us via the site contact form. 
