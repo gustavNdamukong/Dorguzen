@@ -44,8 +44,10 @@
             -In the Settings.php change the value of the 'layoutDirectory' key to 'yourAppName' and the value of 'defaultLayout' to something like 'yourAppNameLayout'.
              It will look like so:
 
-                    ```'layoutDirectory' => 'yourAppName',```
-                     ```'defaultLayout' => 'yourAppNameLayout',```
+                    ```
+                    'layoutDirectory' => 'yourAppName',
+                     'defaultLayout' => 'yourAppNameLayout',
+                    ```
 
              -Go into layouts and change the name of the directory 'dorguzApp' to 'yourAppName'
              -Go into the directory and also change the name of the layout file 'dorguzAppLayout.php' to 'yourAppNameLayout.php'.
