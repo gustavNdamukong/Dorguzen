@@ -3,10 +3,10 @@
 ![stars](https://img.shields.io/github/stars/gustavNdamukong/Dorguzen)
 ![license](https://img.shields.io/github/license/gustavNdamukong/Dorguzen)
 
-##  DORGUZEN
+#  DORGUZEN
  A PHP MVC development framework. Your Rapid Web Development Toolkit
 
-## INSTALLATION AND USAGE
+# INSTALLATION AND USAGE
 #   Using Composer
     Get your first 'Hello world' page up in Dorguzen in minutes. Here is how:
     -Go via the terminal into your server root where you have all your web projects and after initialising Composer in that folder (composer init)
