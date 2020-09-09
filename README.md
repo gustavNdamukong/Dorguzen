@@ -6,15 +6,15 @@
 #  DORGUZEN
  A PHP MVC development framework. Your Rapid Web Development Toolkit
 
-# INSTALLATION AND USAGE
-#   Using Composer
+## INSTALLATION AND USAGE
+###   Using Composer
     Get your first 'Hello world' page up in Dorguzen in minutes. Here is how:
     -Go via the terminal into your server root where you have all your web projects and after initialising Composer in that folder (composer init)
     run the following command:
         ```composer create-project nolimitmedia/dorguzen```
         It will create a folder called 'dorguzen' and install the Dorguzen framework for you in it.
 
-#   Clone or download from GitHub
+###   Clone or download from GitHub
     -Alternatively you can download or clone the framework code directly from GitHub onto your your server root folder and have all the code at your disposal,
       reigns in your hands, ready to fire away and start building your stunning new application :)
 
@@ -64,7 +64,7 @@
             -Remember you can change your database credentials to whatever you want and enter the new ones into Settings.php
 
 
- # Admin authentication (login)
+ ## Admin authentication (login)
     -Dorguzen comes with a login feature and one super-admin user set up for you with the following login details:
 
                     Username: 'dorguzen@dorguzen.com'
@@ -78,8 +78,8 @@
     -As a logged in user, you are also able to request to reset your password in case you forgot it.
 
 
- # Full documentation
+ ## Full documentation
 
-    Here is the official documentation link [Nolimit Media](http://nolimitmedia.co.uk/dorguzen/docs)
+    Here is the official documentation link [Dorguzen documentation](http://nolimitmedia.co.uk/dorguzen/docs)
     Bear in mind that this is a work in progress, and as such, the documentation is still being compiled. It is being updated weekly, but if you have any queries, feel free to reach us via the site contact form. 
     Please bare with me. In the mean time if you have any questions, reach out to me here on here and i will get right back at you.
