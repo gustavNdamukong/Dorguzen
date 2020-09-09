@@ -43,11 +43,9 @@
 
             -In the Settings.php change the value of the 'layoutDirectory' key to 'yourAppName' and the value of 'defaultLayout' to something like 'yourAppNameLayout'.
              It will look like so:
-
-                    ```
+             
                     'layoutDirectory' => 'yourAppName',
                      'defaultLayout' => 'yourAppNameLayout',
-                    ```
 
              -Go into layouts and change the name of the directory 'dorguzApp' to 'yourAppName'
              -Go into the directory and also change the name of the layout file 'dorguzAppLayout.php' to 'yourAppNameLayout.php'.
@@ -61,9 +59,7 @@
         -Finally, you can test to see the Dorguzen welcome page in the browser by typing in your browser the URI of that folder on your server. Mine looks something
             like this:
 
-                    ```
                     localhost:8888/myAppName/
-                    ```
 
             -Remember you can change your database credentials to whatever you want and enter the new ones into Settings.php
 
