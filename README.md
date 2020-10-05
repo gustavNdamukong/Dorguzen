@@ -3,18 +3,18 @@
 ![stars](https://img.shields.io/github/stars/gustavNdamukong/Dorguzen)
 ![license](https://img.shields.io/github/license/gustavNdamukong/Dorguzen)
 
-##  DORGUZEN
+#  DORGUZEN
  A PHP MVC development framework. Your Rapid Web Development Toolkit
 
 ## INSTALLATION AND USAGE
-#   Using Composer
+###   Using Composer
     Get your first 'Hello world' page up in Dorguzen in minutes. Here is how:
     -Go via the terminal into your server root where you have all your web projects and after initialising Composer in that folder (composer init)
     run the following command:
         ```composer create-project nolimitmedia/dorguzen```
         It will create a folder called 'dorguzen' and install the Dorguzen framework for you in it.
 
-#   Clone or download from GitHub
+###   Clone or download from GitHub
     -Alternatively you can download or clone the framework code directly from GitHub onto your your server root folder and have all the code at your disposal,
       reigns in your hands, ready to fire away and start building your stunning new application :)
 
@@ -43,9 +43,9 @@
 
             -In the Settings.php change the value of the 'layoutDirectory' key to 'yourAppName' and the value of 'defaultLayout' to something like 'yourAppNameLayout'.
              It will look like so:
-
-                    ```'layoutDirectory' => 'yourAppName',```
-                     ```'defaultLayout' => 'yourAppNameLayout',```
+             
+                    'layoutDirectory' => 'yourAppName',
+                     'defaultLayout' => 'yourAppNameLayout',
 
              -Go into layouts and change the name of the directory 'dorguzApp' to 'yourAppName'
              -Go into the directory and also change the name of the layout file 'dorguzAppLayout.php' to 'yourAppNameLayout.php'.
@@ -59,12 +59,12 @@
         -Finally, you can test to see the Dorguzen welcome page in the browser by typing in your browser the URI of that folder on your server. Mine looks something
             like this:
 
-                    ```localhost:8888/myAppName/```
+                    localhost:8888/myAppName/
 
             -Remember you can change your database credentials to whatever you want and enter the new ones into Settings.php
 
 
- # ADMIN AUTHENTICATION (Login)
+ ## Admin authentication (login)
     -Dorguzen comes with a login feature and one super-admin user set up for you with the following login details:
 
                     Username: 'dorguzen@dorguzen.com'
@@ -78,7 +78,8 @@
     -As a logged in user, you are also able to request to reset your password in case you forgot it.
 
 
- # DORGUZEN DOCUMENTATION
+ ## Full documentation
 
-    A more official and thorough documentation is being compiled and will soon be made available on the parent platform Nolimit Media, and also here on GitHub.
+    Here is the official documentation link [Dorguzen documentation](http://nolimitmedia.co.uk/dorguzen/docs)
+    Bear in mind that this is a work in progress, and as such, the documentation is still being compiled. It is being updated weekly, but if you have any queries, feel free to reach us via the site contact form. 
     Please bare with me. In the mean time if you have any questions, reach out to me here on here and i will get right back at you.
