@@ -65,12 +65,20 @@ class DGZ_Router {
 				$method = [];
 			}
 
-			//there may be a 4th slash level eg when we pass an ID to a class
+			//there may be a 4th slash level and we will use this for situations when we want to call another method to work in collaboration with the method
+			//in $urlString[3]. In this case we will have Dorguzen ignore the method in $urlString[3] and use the method in $urlString[4]
+			//This is good for readability and SEO as we will end up with a URL like
+			// http://yourSite/dorguzen/documentation or http://yourSite/dorguzen/documentation/databases
+			//These URLs in Dorguzen read as follows; the DorguzenController/documentation() method or the DorguzenController/databases() method. It is then
+			// obvious by looking at the URL that we are looking to get to the databases documentation (http://yourSite/dorguzen/documentation/databases)
+			// even though in reality, the databases() method is a different method from the documentation() method.
 			if (isset($urlString[4])) {
-				$itemId = $urlString[4];
+				//Extract the method name by splitting the rest of the string by the '?' character if any
+				$filterUrl2 = explode('?', $urlString[4]);
+				$method2 = $filterUrl2[0];
 			}
 			else {
-				$itemId = [];
+				$method2 = [];
 			}
 
 		}
@@ -108,14 +116,22 @@ class DGZ_Router {
 				$method = [];
 			}
 
-			//there may be a 3rd slash level eg when we pass an ID to a class
+			//there may be a 4th slash level and we will use this for situations when we want to call another method to work in collaboration with the method
+			//in $urlString[2]. In this case we will have Dorguzen ignore the method in $urlString[2] and use the method in $urlString[3]
+			//This is good for readability and SEO as we will end up with a URL like
+			// http://yourSite/dorguzen/documentation or http://yourSite/dorguzen/documentation/databases
+			//These URLs in Dorguzen read as follows; the DorguzenController/documentation() method or the DorguzenController/databases() method. It is then
+			// obvious by looking at the URL that we are looking to get to the databases documentation (http://yourSite/dorguzen/documentation/databases)
+			// even though in reality, the databases() method is a different method from the documentation() method.
 			if (isset($urlString[3]))
 			{
-				$itemId = $urlString[3];
+				//Extract the method name by splitting the rest of the string by the '?' character if any
+				$filterUrl2 = explode('?', $urlString[3]);
+				$method2 = $filterUrl2[0];
 			}
 			else
 			{
-				$itemId = [];
+				$method2 = [];
 			}
 		}
 
@@ -163,7 +179,37 @@ class DGZ_Router {
 		}
 
 
-		//when we we got the classReflector on this page above, it was just to see if the controller exists
+		//when we got the classReflector on this page above, it was just to see if the controller exists
+		//If $method2 exists, it replaces $method, else we use the $method
+		if ($method2)
+		{
+			$method = $method2;
+		}
+
+
+
+		//Do the developer a service here and either convert any hyphens in the method URL param to underscores or replace them with camel-casing names
+		//---------------------------------------------------------------------------------------------------------------------------------//
+		if (preg_match('/-/', $method))
+		{
+			$methodPieces = explode('-', $method);
+			$method_underscored = implode('_', $methodPieces);
+
+			$newMethodPieces = array_map('ucfirst', $methodPieces);
+			$method_camelCased = implode($newMethodPieces);
+
+			if (method_exists($object, $method_underscored))
+			{
+				//override the method
+				$method = $method_underscored;
+			}
+			elseif (method_exists($object, $method_camelCased))
+			{
+				//override the method
+				$method = $method_camelCased;
+			}
+		}
+		//---------------------------------------------------------------------------------------------------------------------------------//
 		return [$controller, $method];
 
 	}
@@ -244,20 +290,16 @@ class DGZ_Router {
 
 				//note that if no action is defined in the URL, getControllerAndMethod() above on setting the default action will automatically run it, which will cause the script to exit execution at this point,
 				// esp coz the defaultAction() has no arguments n there's nothing further to resolve. But weirdly, the script still gets to this point where we run getMethod() below on the reflection class
-				//It then fails to find the method getDefaultAction() probly coz it's run in and thus no longer has it in memory. So we get to see the page we intended to show using getDefaultAction()
+				//It then fails to find the method getDefaultAction() probably coz it's run in and thus no longer has it in memory. So we get to see the page we intended to show using getDefaultAction()
 				// (meaning it works fine), but then still throws an exception with the msg 'No method to handle this request' below. However, if an action was passed in the URL, then it all works fine
 				//To prevent this, we will modify where we set the options default parameter in filter_input() to getDefaultAction(), n make it a string, so rather than 'default' => $object->getDefaultAction(),
 				// we will say 'default' => 'getDefaultAction()'. Making it a string prevents it from being automatically ran, then right here below, we will now check if $method equals the
 				// string 'getDefaultAction()' then run that method n exit the script, else if not, we run whatever method is given in the URL
 
 				$methodReflector = $classReflector->getMethod($method);
-			} catch (\ReflectionException $e) {
-				throw new \DGZ_library\DGZ_Exception(
-					'No method to handle this request',
-					\DGZ_library\DGZ_Exception::MISSING_HANDLER_FOR_ACTION,
-					'There is no method in your Controller class to handle handle "' . $method . '". ' . PHP_EOL
-					. 'Check that the method name passed through is correct, and if required create a public function called "' . $method . '" in your ' . $controller . ' class.'
-				);
+			}
+			catch (\ReflectionException $e) {
+				throw new \DGZ_library\DGZ_Exception('No method to handle this request', \DGZ_library\DGZ_Exception::MISSING_HANDLER_FOR_ACTION, 'There is no method in your Controller class to handle handle "' . $method . '". ' . PHP_EOL . 'Check that the method name passed through is correct, and if required create a public function called "' . $method . '" in your ' . $controller . ' class.');
 			}
 
 
