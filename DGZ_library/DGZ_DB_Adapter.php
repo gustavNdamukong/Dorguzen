@@ -833,9 +833,9 @@ use settings\Settings;
         
         
      /**
-      * a meth in your model prepares the args for this meth n calls it
+      * a method in your model prepares the args for this method n calls it
       *
-      * @return string which will either be 'deleted' or 'failed'
+      * @return bool
       */
     public function delete($table, $where = array(), $dataTypes = '')
     {
