@@ -41,7 +41,8 @@ CREATE TABLE `baseSettings` (
 INSERT INTO `baseSettings` (`settings_id`, `settings_name`, `settings_value`) VALUES
 (1, 'show_brand_slider', 'true'),
 (2, 'brand_slider_source', 'gallery'),
-(3, 'default_language', 'french');
+(3, 'default_language', 'french'),
+(4, 'app_color_theme', 'dark-blue');
 
 -- --------------------------------------------------------
 
@@ -75,8 +76,7 @@ INSERT INTO `contactformmessage` (`contactformmessage_id`, `contactformmessage_n
 (37, 'Gustav Ndamukong', 'gustavdd@yahoo.co.uk', '07507897969', 'ff33fefefefefefef', '2020-07-16 20:21:29'),
 (38, 'Gustav der Damme', 'gustavdd@yahoo.co.uk', '07507897969', 'wdddffffwfwwf', '2020-07-16 20:36:23'),
 (39, 'Gustav Ndamukong', 'gustavdd@yahoo.co.uk', '07507897969', 'dwdffwfwwfw', '2020-07-16 20:56:02'),
-(40, 'Jimmy gawn', 'gustavdd@yahoo.co.uk', '07507897969', 'Testing if contact form saves on generic save method', '2020-07-27 12:30:18'),
-(41, 'Gustav Ndamukong', 'gustavdd@yahoo.co.uk', '07507897969', 'beat the shit out of this code and now it is working hahahahaha', '2020-07-28 08:20:59');
+(40, 'Jimmy gawn', 'gustavdd@yahoo.co.uk', '07507897969', 'Testing if contact form saves on generic save method', '2020-07-27 12:30:18');
 
 -- --------------------------------------------------------
 
@@ -116,7 +116,7 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`users_id`, `users_type`, `users_email`, `users_pass`, `users_first_name`, `users_last_name`, `users_updated`, `users_created`) VALUES
 (60, 'admin_gen', 'dorguzen@dorguzen.com', 0xdfc6ba98e0f3778c407e0333d32e2fa4, 'Dorguzen', 'Dorguzen', '2020-07-29 20:56:37', '2019-07-26 10:55:56'),
-(62, 'admin', 'john@colon.com', 0xd9c05f47acf76e1d30be210f557ce92a, 'Johnn', 'Colon', '2020-07-26 20:44:53', '2020-07-26 20:22:34');
+(62, 'admin', 'john@colon.com', 0xd9c05f47acf76e1d30be210f557ce92a, 'John', 'Colon', '2020-07-26 20:44:53', '2020-07-26 20:22:34');
 
 --
 -- Indexen voor geëxporteerde tabellen
