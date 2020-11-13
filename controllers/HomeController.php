@@ -4,13 +4,14 @@ namespace controllers;
 
 
 
+use settings\Settings;
+
 class HomeController extends \DGZ_library\DGZ_Controller  {
 
 
 
     public function __construct()
     {
-        //die('we in aboutUsController constructor dawg!!! haha');
         parent::__construct();
     }
 

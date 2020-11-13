@@ -42,7 +42,6 @@ use settings\Settings;
 
 
 
-    //public function __construct($credentials, $connect_details = '')
     public function __construct()
     {
         $classThatCalled = get_class($this);

@@ -117,6 +117,54 @@ class manageSettings extends \DGZ_library\DGZ_HtmlView
                                                              <hr/>
                                                              <?php
                                                          }
+
+                                                         if ($val['settings_name'] == 'app_color_theme') { ?>
+                                                             <label for="app_color_theme">Choose your app's color theme</label>
+                                                             <select id="app_color_theme" name="app_color_theme" class="form-control">
+                                                                 <option
+                                                                     value="blue" <?= $val['settings_value'] == 'blue' ? 'selected="true"' : '' ?>>
+                                                                     Blue
+                                                                 </option>
+                                                                 <option
+                                                                     value="brown" <?= $val['settings_value'] == 'brown' ? 'selected="true"' : '' ?>>
+                                                                     Brown
+                                                                 </option>
+                                                                 <option
+                                                                     value="dark-blue" <?= $val['settings_value'] == 'dark-blue' ? 'selected="true"' : '' ?>>
+                                                                     Dark-blue
+                                                                 </option>
+                                                                 <option
+                                                                     value="dark-red" <?= $val['settings_value'] == 'dark-red' ? 'selected="true"' : '' ?>>
+                                                                     Dark-red
+                                                                 </option>
+                                                                 <option
+                                                                     value="green" <?= $val['settings_value'] == 'green' ? 'selected="true"' : '' ?>>
+                                                                     Green
+                                                                 </option>
+                                                                 <option
+                                                                     value="light-green" <?= $val['settings_value'] == 'light-green' ? 'selected="true"' : '' ?>>
+                                                                     Light-green
+                                                                 </option>
+                                                                 <option
+                                                                     value="orange" <?= $val['settings_value'] == 'orange' ? 'selected="true"' : '' ?>>
+                                                                     Orange
+                                                                 </option>
+                                                                 <option
+                                                                     value="purple" <?= $val['settings_value'] == 'purple' ? 'selected="true"' : '' ?>>
+                                                                     Purple
+                                                                 </option>
+                                                                 <option
+                                                                     value="red" <?= $val['settings_value'] == 'red' ? 'selected="true"' : '' ?>>
+                                                                     Red
+                                                                 </option>
+                                                                 <option
+                                                                     value="yellow" <?= $val['settings_value'] == 'yellow' ? 'selected="true"' : '' ?>>
+                                                                     Yellow
+                                                                 </option>
+                                                             </select>
+                                                             <hr/>
+                                                             <?php
+                                                         }
                                                      }
                                                  } ?>
                                          </div><!--END OF BODY OF PANEL HOLDING REGIS FORM-->

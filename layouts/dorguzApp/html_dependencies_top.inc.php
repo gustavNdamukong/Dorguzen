@@ -20,16 +20,16 @@
     <link href="<?=$this->settings->getFileRootPath()?>assets/css/carousel_slider.css" rel="stylesheet" type="text/css">
 
     
-    <?php 
-        //SET THE SITE THEME DYNAMICALLY
-    if (isset($site_theme))
+    <?php
+    //Site the site theme dynamically
+    if ($this->settings->getAppColorTheme())
     { ?>
-        <link href="<?=$this->settings->getFileRootPath()?>assets/css/color/<?=$site_theme?>.css" id="main-color" rel="stylesheet" type="text/css">
+        <link href="<?=$this->settings->getFileRootPath()?>assets/css/color/<?=$this->settings->getAppColorTheme()?>.css" rel="stylesheet" type="text/css">
     <?php
     } 
     else
     { 
-        //SET A DEFAULT SITE THEME JUST IN CASE ?>
+        //Set the default site theme just in case ?>
         <link href="<?=$this->settings->getFileRootPath()?>assets/css/color/red.css" id="main-color" rel="stylesheet" type="text/css">
     <?php    
     } ?>

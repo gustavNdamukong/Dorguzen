@@ -2,7 +2,7 @@
 namespace settings;
 
 
-
+use BaseSettings;
 
 	######################### THE IDEA IS TO MAKE THIS CLASS TAKE OVER THE RESPONSIBILITY OF MANAGING SITE-WIDE SETTINGS ##########################
 	/*
@@ -13,11 +13,15 @@ namespace settings;
 	 * The advantage of course is that all these app-wide settings can be configured from one location - this settings class file.
 	 *
 	 * Take note that Dorguzen ships with a settings DB table 'baseSettings' which you may prefer to use for these app-wide settings.
-	 * whichever you use is entirely up to your preference.
+	 * whichever you use is entirely up to your preference. We have provided this Settings class with a getBaseSettings() method-similar to the AdminController's
+	 * getBaseSettings() method, which pulls in all the DB settings to merger these file-based settings. This way, you have all your app settings in one place.
 	 *
 	 */
 	class Settings
 	{
+		private $baseSettings = [];
+
+
 
 		public function getSettings()
 		{
@@ -50,6 +54,30 @@ namespace settings;
 				'layoutDirectory' => 'dorguzApp',
 
 				'defaultLayout' => 'dorguzAppLayout',
+
+
+
+
+
+				/**
+				 |------------------------------------------------------------------------------
+				 | Application color theme
+				 |------------------------------------------------------------------------------
+				 |
+				 | This will be the color theme of your application. You can set it anywhere on
+				 | this file or save it in the baseSettings table in the DB. We have gone ahead
+				 | and made it easy for you by saving various thems in the baseSettings DB table
+				 | and pulled it into this file for you so that you can use it in any of your
+				 | layouts like so:
+				 |
+				 |
+				 */
+
+
+
+
+
+
 
 
 
@@ -276,6 +304,61 @@ namespace settings;
 
 
 			];
+		}
+
+
+
+
+		/**
+		 * This method gets the DB settings from the baseSettings table and stores them in this class's
+		 * private property $baseSettings. This ensures that you now have all your application settings
+		 * file-driven (in this Settings class), and database-driven, all in one place, this class.
+		 *
+		 */
+		private function setBaseSettings()
+		{
+			$dbSettings = new BaseSettings();
+			$rawSettings = $dbSettings->getAll('settings_id');
+			foreach ($rawSettings as $raw)
+			{
+				$this->baseSettings[$raw['settings_name']] = $raw['settings_value'];
+			}
+		}
+
+
+		/**
+		 * Returns the database-driven settings stored in this class's private property $baseSettings.
+		 * If that member has not yet received the database-driven settings, it loads that data from the DB
+		 * into that $baseSettings property before returning its contents
+		 *
+		 * @return array
+		 */
+		public function getBaseSettings()
+		{
+			if ($this->baseSettings)
+			{
+				return $this->baseSettings;
+			}
+			else
+			{
+				$this->setBaseSettings();
+				return $this->baseSettings;
+			}
+		}
+
+
+
+		/**
+		 * This will specifically grab and return from the baseSettings, only the color theme of your application.
+		 * The baseSettings DB table has various color themes you can choose from. Whatever color you have set as
+		 * the color theme for your application will be pulled by this method for you to use anywhere in your app,
+		 * for example your layouts
+		 *
+		 */
+		public function getAppColorTheme()
+		{
+			$colorTheme = $this->getBaseSettings()['app_color_theme'];
+			return $colorTheme;
 		}
 
 

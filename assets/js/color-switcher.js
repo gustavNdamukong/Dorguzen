@@ -30,7 +30,7 @@ $(document).ready(function() {
 	
 	$('#color-switcher > ul > li').click(function() {
 		var color = $(this).attr("id");
-		$("#main-color").attr("href","/nolimitmedia/assets/css/color/" + color + ".css");
+		$("#main-color").attr("href","/dorguzApp/assets/css/color/" + color + ".css");
 	});
 	
 	$('#page-boxed-toggle').click(function() {
@@ -43,7 +43,7 @@ $(document).ready(function() {
 
 
 	//Set the site-wide colour theme
-	var color = 'blue';
+	var color = 'green';
 	$("#main-color").attr("href","/dorguzApp/assets/css/color/" + color + ".css");
 });
 
