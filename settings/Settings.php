@@ -59,28 +59,6 @@ use BaseSettings;
 
 
 
-				/**
-				 |------------------------------------------------------------------------------
-				 | Application color theme
-				 |------------------------------------------------------------------------------
-				 |
-				 | This will be the color theme of your application. You can set it anywhere on
-				 | this file or save it in the baseSettings table in the DB. We have gone ahead
-				 | and made it easy for you by saving various thems in the baseSettings DB table
-				 | and pulled it into this file for you so that you can use it in any of your
-				 | layouts like so:
-				 |
-				 |
-				 */
-
-
-
-
-
-
-
-
-
 
 				/**
 				|--------------------------------------------------------------------------
