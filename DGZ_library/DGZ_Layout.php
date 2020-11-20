@@ -25,6 +25,13 @@ abstract class DGZ_Layout
 
 
 	/**
+	 * @var string The name for the specific view file.
+	 */
+	protected $viewName = '';
+
+
+
+	/**
 	 * @var string The name of your application which MUST have been set in settings/config.inc.php.
 	 */
 	protected static $appName;
@@ -108,7 +115,7 @@ abstract class DGZ_Layout
 	/**
 	 * @var object contains the settings of the site, as the view files that will be managed by controllers need to be able to call on it
 	 */
-	public $settings;
+	protected $settings;
 
 
 
@@ -128,17 +135,26 @@ abstract class DGZ_Layout
 	}
 
 
+
 	/**
-	 *Every page will have a different name n title so we need to empower the programmer to set the HTML title tag value of every view file they display, if they wish
-	 * They will do so by calling setPageTitle() of this class from the page controller passing a string, if not the page will have no title
+	 *Every page will have a different name & title so we need to empower the programmer to set the HTML title tag value of
+	 * every view file they display if they wish.
+	 * They will do so by calling the setPageTitle() method of the DGZ_Controller class from the page controller when
+	 * generating the view.
+	 * They need to pass in a string argument for the view title.
 	 *
-	 * It is tricky how the title will then be set in the layout. Once we grab the layout (getLayout()), we this class (DGZ_Controller) then proceeds to set the title
-	 * by calling the DGZ_Layout's own class setPageTitle() passing it the value of the $pageTitle member of this class (which is why we have made it a blank string by default)
-	 * so that in case the programmer hadn't explicitly set a title for this view they're about to show, then there will be no title for the page in question
+	 * This title will then be passed over to this layout class so that it knows to set the title for every view file.
+	 * This relay happens in DGZ_Controller class's display() method when we grab this
+	 * layout class to be used in displaying the view and call this setPageTitle() method, passing
+	 * it the value of its (DGZ_Controller's own) pageTitle property.
 	 *
-	 * Therefore note that the DGZ_Layout and the DGZ_Controller both have pageTitle properties, and also setPageTitle() methods alike-do not confuse them
-	 * One (DGZ_Controller's setPageTitle()) is called by the programmer optionally and the other DGZ_Layout's setPageTitle() is auto called by the system to relay the
-	 * page title change through to which ever view file is about to be shown.
+	 * Therefore note that the DGZ_Controller and the DGZ_Layout classes both have a pageTitle property, and a setPageTitle()
+	 * method alike. Do not confuse the two.
+	 * One (DGZ_Controller's setPageTitle()) is called by the programmer optionally, and the other DGZ_Layout's setPageTitle()
+	 * is auto called by the system to relay the page title change through to whatever view file is about to be shown.
+	 *
+	 * If you fail to set a page title explicitly, the nme of the file will be used by default. It is recommended to
+	 * set your a view titles explicitly so that you can make them SEO friendly.
 	 */
 	public function setPageTitle($title)
 	{
@@ -148,6 +164,27 @@ abstract class DGZ_Layout
 		}
 
 		$this->pageTitle = ucwords($title);
+	}
+
+
+
+
+
+	/**
+	 * Every time we display a view through a controller, we set the name of the view file here automatically.
+	 * This name will be passed over from this controller to DGZ_Layout so that the layouts also know the name of the view
+	 * they are working with. This relay happens in DGZ_Controller class's display() method when we grab this
+	 * layout class to be used in displaying the view and call this setViewName() method, passing
+	 * it the value of its (DGZ_Controller's own) viewName property.
+	 *
+	 * Therefore note that the DGZ_Controller and the DGZ_Layout classes both have a viewName property and a setViewName()
+	 * method alike. Do not confuse the two. You do not have to set these. They are set for you automatically.
+	 *
+	 * @param $fileName
+	 */
+	public function setViewName($fileName)
+	{
+		$this->viewName = $fileName;
 	}
 
 
@@ -192,8 +229,6 @@ abstract class DGZ_Layout
 	{
 		$this->showImageSlider = $trueOrFalse;
 	}
-
-
 
 
 
@@ -417,7 +452,6 @@ abstract class DGZ_Layout
 		if ($layoutSettings->getSettings()['live'] == false) {
 			if ($useFullLayout) {
 				$layoutFileName = $_SERVER['DOCUMENT_ROOT'] . '/' . $appName . '/layouts/' . $layoutFolder . '/' . $layoutName . '.php';
-				/////die($layoutFileName);
 				//on live (Godaddy) $layoutFilename is: /home/i3v8zo1vaw30/public_html/nolimitmedia/layouts/nolimitmedia/nolimitmediaLayout.php
 
 				//so document root is: /home/i3v8zo1vaw30/public_html/public_html/
@@ -456,7 +490,6 @@ abstract class DGZ_Layout
 			//Now require the file so you can instantiate its class
 			require_once($layoutFileName);
 
-			/////$class = new $layoutClass();
 			return new $layoutClass();
 		}
 

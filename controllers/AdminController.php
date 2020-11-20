@@ -59,15 +59,11 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
                                 
     public function login()
     {
-        //if (isset($_POST['login_email'])) { echo '<pre>'; die(print_r($_POST)); }
         $password = $email = $rem_me = false;
         $fail = "";
-        //$errors = array();
 
         $val = new \DGZ_library\DGZ_Validate();
 
-        //if they clicked the forgotten pw button then we ignore everything else abt the form n send em a new pw
-        //otherwise we'll just process the submission
         if ((isset($_POST['login_email'])) && (($_POST['forgotstatus']) == 'no'))
         {
             if(isset($_POST['login_email']))
@@ -98,13 +94,13 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
                 $authenticated = $this->authenticate($email, $password, $rem_me);
 
             }
-        } //END OF CHECKING IF FORM IS SUBMITTED
+        }
 
 
 
 
 
-        //THE BEGINNING OF HANDLING THE CASE OF FORGOTTEN PASSWORD
+        //Case of forgotten password
         elseif ((isset($_POST['forgotstatus'])) && (($_POST['forgotstatus']) == 'yes'))
         {
             //validate the email they provided to be sent their pw to
@@ -125,8 +121,6 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
                         //store reset verification details to the reset DB table
                         $resetCode = $this->generateCode();
                         $resetModel = new Password_reset();
-
-                        $tm_model = new \Testimonials();
 
                         $query = "INSERT INTO password_reset (password_reset_users_id, password_reset_firstname, password_reset_email, password_reset_date, password_reset_reset_code)
                                   VALUES ($found[userId], '$found[firstname]', '$found[email]', '".date('Y-m-d H:i:s')."', '$resetCode')";
@@ -149,9 +143,9 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
                         $this->addErrors($fail);
                         $this->redirect('admin');
                     }
-                } // END OF CHECKING IF EMAIL VALIDATION PASSED
-            } // END OF CHECKING IF USER PROVIDED EMAIL TO SEND FORGOTTON PW TO
-        } // END OF PROCESSING FORGOTTON-PW-FORM SUBMISSION
+                }
+            }
+        }
     }
 
 
@@ -614,8 +608,6 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
         {
             $userId = $_GET['userId'];
             $user = new \Users();
-            //though we are dealing here with the currently logged in user, we still query DB coz we need to
-            // decrypt their password using MySQL's AES_DECRYPT() func
             $userForEdit = $user->getUserById($userId);
 
             $view = \DGZ_library\DGZ_View::getAdminView('adminUserChangePw', $this, 'html');
@@ -655,7 +647,7 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
 
                 $table = $user->getTable();
 
-                $data = [//'users_type' =>  'admin_gen',
+                $data = [
                     'users_email' => $email, 'users_pass' => $password, 'key' => $key,];
 
                 $dataTypes = '';
@@ -801,8 +793,6 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
             {
                 //echo $field.' '.$value.'<br />';
                 $sql = "UPDATE ".$table." SET settings_value = '$value' WHERE settings_name = '$field'";
-                //echo $sql;
-                //die();
                 $settings->query($sql);
             }
 

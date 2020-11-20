@@ -29,6 +29,14 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 	protected $pageTitle = '';
 
 
+
+
+	/**
+	 * @var string The name for the specific view file.
+	 */
+	protected $viewName = '';
+
+
 	/**
 	 * @var whether or not to show an image slider for every view file.
 	 */
@@ -243,17 +251,23 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
 
 	/**
-	 *Every page will have a different name n title so we need to empower the programmer to set the HTML title tag value of every view file they display if they wish
-	 * They will do so by calling setPageTitle() of this class from the page controller passing a string, if not the page will have no title
+	 *Every page will have a different name & title so we need to empower the programmer to set the HTML title tag value of
+	 * every view file they display if they wish.
+	 * They will do so by calling the setPageTitle() method of this class from the page controller when generating the view.
+	 * They need to pass as a string argument for the view title.
 	 *
-	 * It is tricky how the title will then be set in the layout. Once this class's display() method (called in DGZ_Router class's Route() method) grabs the
-	 * applicaple layout (getLayout()), this class (DGZ_Controller) then proceeds to set the title by calling the DGZ_Layout's own class setPageTitle() passing
-	 * it the value of its $pageTitle member (which is why we have made it a blank string by default)
-	 * so that in case the programmer hadn't explicitly set a title for this view they're about to show, there will be no title for the page in question
+	 * This title will then be passed over to the layout class so that it knows to set the title for every view file.
+	 * This transfer to the layout class happens below in the display() method of this controller class after we grab the
+	 * applicable layout file to be used with the view and call that layout class's own setPageTitle() method passing
+	 * it the value of the pageTitle property of this class.
 	 *
-	 * Therefore note that the DGZ_Layout and the DGZ_Controller both have pageTitle properties, as well as setPageTitle() methods alike-do not confuse them
-	 * One (DGZ_Controller's setPageTitle()) is called by the programmer optionally and the other DGZ_Layout's setPageTitle() is auto called by the system to relay the
-	 * page title change through to which ever view file is about to be shown.
+	 * Therefore note that the DGZ_Controller and the DGZ_Layout classes both have a pageTitle property, and a setPageTitle()
+	 * method alike. Do not confuse the two.
+	 * One (DGZ_Controller's setPageTitle()) is called by the programmer optionally, and the other DGZ_Layout's setPageTitle()
+	 * is auto called by the system to relay the page title change through to whatever view file is about to be shown.
+	 *
+	 * If you fail to set a page title explicitly, the nme of the file will be used by default. It is recommended to
+	 * set your a view titles explicitly so that you can make them SEO friendly.
 	 */
 	public function setPageTitle($title)
 	{
@@ -263,6 +277,24 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 		}
 
 		$this->pageTitle = ucwords($title);
+	}
+
+
+	/**
+	 * Every time we display a view through a controller, we set the name of the view file here automatically.
+	 * This name will be passed over from this controller to DGZ_Layout so that the layouts also know the name of the view
+	 * they are working with. This relay happens below in this controller class's display() method when we grab the
+	 * applicable layout file to be used with the view and call that layout class's own setViewName() method and passing
+	 * it the value of the viewName property of this class.
+	 *
+	 * Therefore note that the DGZ_Controller and the DGZ_Layout classes both have a viewName property and a setViewName()
+	 * method alike. Do not confuse the two. You do not have to set these. They are set for you automatically.
+	 *
+	 * @param $fileName
+	 */
+	public function setViewName($fileName)
+	{
+		$this->viewName = $fileName;
 	}
 
 
@@ -490,7 +522,6 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 					$method = $this->defaultAction();
 				}
 				else {
-					//die('Theres a given action, so we are about to call it');
 					call_user_func_array(array($this, $method), $inputParameters);
 				}
 			} catch (\DGZ_library\DGZException $e) {
@@ -540,7 +571,6 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
 
 			if(isset($_SESSION['_success']) && is_array($_SESSION['_success']) && count($_SESSION['_success']) > 0) {
-				///////die('There is a SUCCESS msg: '.print_r($_SESSION['_success']));/////////////////////////
 				$this->success += $_SESSION['_success'];
 			}
 			if(isset($_SESSION['_notices']) && is_array($_SESSION['_notices']) && count($_SESSION['_notices']) > 0) {
@@ -635,8 +665,8 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 			//Set the HTML title tag value for the specific view file about to be displayed
 			$layout->setPageTitle($this->pageTitle);
 
-
-			$layout->setPageTitle($this->pageTitle);
+			//Set the view file name of the specific view file about to be displayed
+			$layout->setViewName($this->viewName);
 
 
 			//Determine whether or not to show an image slider in the specific view file about to be displayed
@@ -662,8 +692,6 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
 				$layout = \DGZ_library\DGZ_Layout::getLayout('DefaultLayout');
 				//$layout = \DGZ_library\DGZ_Layout::getLayout($this->appName, $this->defaultLayoutDirectory, $this->defaultLayout);
-				//var_dump($layout);
-				//exit();/////////////////////
 
 
 				$view = DGZ_View::getView('ExceptionView', $this);
@@ -815,7 +843,6 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 		$words = [
 			'chokochohilarious',
 			'jammijamjim',
-			'kingboykingsley',
 			'tolambomanulo',
 			'kilabakula',
 			'jamborayla',

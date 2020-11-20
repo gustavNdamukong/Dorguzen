@@ -4,8 +4,6 @@ namespace controllers;
 
 
 
-use settings\Settings;
-
 class HomeController extends \DGZ_library\DGZ_Controller  {
 
 

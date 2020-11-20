@@ -14,7 +14,7 @@ use BaseSettings;
 	 *
 	 * Take note that Dorguzen ships with a settings DB table 'baseSettings' which you may prefer to use for these app-wide settings.
 	 * whichever you use is entirely up to your preference. We have provided this Settings class with a getBaseSettings() method-similar to the AdminController's
-	 * getBaseSettings() method, which pulls in all the DB settings to merger these file-based settings. This way, you have all your app settings in one place.
+	 * getBaseSettings() method, which pulls in all the DB settings to merge with the file-based settings here. This way, you have all your app settings in one place.
 	 *
 	 */
 	class Settings

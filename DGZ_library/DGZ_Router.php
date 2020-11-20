@@ -1,6 +1,7 @@
 <?php
 
 use settings\Settings;
+use DGZ_library\DGZ_Application;
 
 /**
  * Description of DGZ_Router
@@ -34,13 +35,13 @@ class DGZ_Router {
 
 		//check if we are on local or live environment
 		$rootPath = false;
-		$config = new Settings();
+		$settings = new Settings();
 
 		//if we are in the local environment
-		if ($config->getSettings()['live'] == false) {
+		if ($settings->getSettings()['live'] == false) {
 			if (!empty($urlString[2])) {
-				//For their convenience; if they only enter 'index', or 'index.phtml', we should show them the home page too
-				if ($urlString[2] == 'index' || $urlString[2] == 'index.phtml') {
+				//For their convenience; if they only enter 'index', or 'index.php', we should show them the home page too
+				if ($urlString[2] == 'index' || $urlString[2] == 'index.php') {
 					//send them to the HomeController
 					$get_input = 'Home';
 				}
@@ -87,7 +88,7 @@ class DGZ_Router {
 			//if we are in the live environment
 			if (!empty($urlString[1])) {
 				//For their convenience; if they only enter 'index', or 'index.phtml', we should show them the home page too
-				if ($urlString[1] == 'index' || $urlString[1] == 'index.phtml')
+				if ($urlString[1] == 'index' || $urlString[1] == 'index.php')
 				{
 					//send them to the HomeController
 					$get_input = 'Home';
@@ -227,8 +228,12 @@ class DGZ_Router {
 	 * Returns the URL required to get back to this controller and method.
 	 * Used by Views which contain forms which need to do a postback.
 	 *
-	 * @param string $overrideMethod [Optional] If you want to set a different method, specify it here. Otherwise uses the current method.
+	 * @param string $overrideMethod [Optional] If you want to set a different method, specify it here. Otherwise use
+	 * the current method.
+	 *
 	 * @return string The base URL to get back to this controller/method.
+	 *
+	 * @throws \DGZ_library\DGZ_Exception if not all arguments required by the method are provided.
 	 */
 	public static function getPageUrl($overrideMethod = null) {
 		list($controller, $method) = self::getControllerAndMethod();
@@ -285,17 +290,14 @@ class DGZ_Router {
 			$object = $classReflector->newInstance();
 
 			try {
-				//If there's a default action above, that is returned and execution is moved over to the controller.
-				//So we will only get in here if there is an explicit action GET parameter in the URL, in which case we check for an action in this here try block
+				/*If no method is passed to the URL and the controller has a default method (declared as 'defaultAction()'),
+                the getControllerAndMethod() above would have set that default method as that $method.
+                This script above will then automatically redirect and run that method on the controller and we will not get
+                to this point, esp coz the defaultAction() method takes no arguments & there's nothing further to resolve.
+                Therefore, we will only get in here if there is a method parameter in the URL, in which case we check for it
+                in this try block.
 
-				//note that if no action is defined in the URL, getControllerAndMethod() above on setting the default action will automatically run it, which will cause the script to exit execution at this point,
-				// esp coz the defaultAction() has no arguments n there's nothing further to resolve. But weirdly, the script still gets to this point where we run getMethod() below on the reflection class
-				//It then fails to find the method getDefaultAction() probably coz it's run in and thus no longer has it in memory. So we get to see the page we intended to show using getDefaultAction()
-				// (meaning it works fine), but then still throws an exception with the msg 'No method to handle this request' below. However, if an action was passed in the URL, then it all works fine
-				//To prevent this, we will modify where we set the options default parameter in filter_input() to getDefaultAction(), n make it a string, so rather than 'default' => $object->getDefaultAction(),
-				// we will say 'default' => 'getDefaultAction()'. Making it a string prevents it from being automatically ran, then right here below, we will now check if $method equals the
-				// string 'getDefaultAction()' then run that method n exit the script, else if not, we run whatever method is given in the URL
-
+                grab the method on the controller that was called in the URL */
 				$methodReflector = $classReflector->getMethod($method);
 			}
 			catch (\ReflectionException $e) {
@@ -303,11 +305,12 @@ class DGZ_Router {
 			}
 
 
-			//we wont get here if an exception is thrown above, as that would alter the execution of the script
+			//we wont get here if an exception is thrown above. Grab any query string parameters passed in the URL.
+			//These will be the arguments to pass to the method
 			$methodParameters = $methodReflector->getParameters();
 			$inputParameters = [];
 
-			// Loop over each parameter:
+			// Loop over the parameters:
 			foreach ($methodParameters as $parameter) {
 				// Is the parameter an object? We are not doing anything if it's an object for now-may become useful some day
 				if ($parameter->getClass() instanceof \ReflectionClass) {
@@ -319,6 +322,7 @@ class DGZ_Router {
 					if (!empty($_REQUEST[$parameterName])) {
 						$inputParameters[] = $_REQUEST[$parameterName];
 					}
+					//if a param has no value, see if the controller method takes a default value
 					elseif ($parameter->isDefaultValueAvailable()) {
 						$inputParameters[] = $parameter->getDefaultValue();
 					}
@@ -362,8 +366,8 @@ class DGZ_Router {
 			//WE DONT HAVE TO WORRY ABOUT THIS FOR NOW AS FORMAT WILL NOT BE USED-HOWEVER WE MAY COME BACK AT A LATER DATE AND DECIDE IF WE NEED FORMATS (FOR DATA)
 			if(!isset($_REQUEST['format']) || $_REQUEST['format'] == 'html')
 			{
-				$settings = new \DGZ_library\DGZ_Application();
-				$layout = \DGZ_library\DGZ_Layout::getLayout($settings->getUseFullLayoutSetting(), $settings->getAppName(), $settings->getDefaultLayoutDirectory(), $settings->getDefaultLayout());
+				$config = new DGZ_Application();
+				$layout = \DGZ_library\DGZ_Layout::getLayout($config->getUseFullLayoutSetting(), $config->getAppName(), $config->getDefaultLayoutDirectory(), $config->getDefaultLayout());
 
 				$layout->setPageTitle('Error: ');
 
