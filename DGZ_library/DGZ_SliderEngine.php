@@ -5,7 +5,7 @@ namespace DGZ_library;
  *
  * @author Gustav
  */
-
+use settings\Settings;
 
 class DGZ_SliderEngine
 {
@@ -16,7 +16,7 @@ class DGZ_SliderEngine
             'alt' => 'The perfect shine'
         ],
         [
-            'name' => 'wegotyourback.jpg',
+            'name' => 'slide2.jpg',
             'alt' => 'Professionalism'
         ],
         [
@@ -55,22 +55,26 @@ class DGZ_SliderEngine
 
     /**
      *
-     * @Description: This method displays an HTML div with all the necessary JS classes n IDs for the imgs you pass to it to be animated as a slider
-     *      You must have a folder in your 'images' folder (wh is in your site root folder) called 'sliderimgs' where you must have all the imgs you pass to this meth
+     * @Description: This method displays an HTML div with all the necessary JS classes n IDs for the images you pass to it to be animated as a slider.
+     *      You must have a folder called 'home_slide_images' (or whatever you want to call it-just remember to edit the 'src' attribute of the img tag
+     *      in this method with) in your 'assets/images' directory in which you have all the images you pass to this method.
      *
-     * @params: pass it an array of images which must be a multi-dimensional array, where each one has a 'name', and 'alt' key n value respectively
+     * @params: pass it an multidimensional array of images, where each array has a 'name' and an 'alt' key.
      *
      *
      *
      */
     public function showSlider()
-    { ?>
+    {
+        $settings = new Settings();
+        ?>
         <div id="amazingslider-1" style="display:block;position:relative;margin:16px auto 32px;">
             <ul class="amazingslider-slides" style="display:none;">
         <?php
             foreach ($this->_images as $img)
-            {
-                echo "<li><img src='assets/images/home_slide_images/{$img['name']}' alt='$img[alt]' width='1000' height='400' /></li>";
+            { ?>
+                <li><img src="<?=$settings->getFileRootPath()?>assets/images/home_slide_images/<?=$img['name']?>" alt="<?=$img['alt']?>" width='1000' height='400' /></li>
+                <?php
             } ?>
             </ul>
         </div>

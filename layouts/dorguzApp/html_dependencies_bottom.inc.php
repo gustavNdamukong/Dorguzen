@@ -19,6 +19,6 @@
 
 
         <!--SCRIPTS FOR THE SLIDER-->
-        <script src="js/sliderengine/amazingslider.js"></script>
+        <script src="<?=$this->settings->getFileRootPath()?>js/sliderengine/amazingslider.js"></script>
 
-        <script src="js/sliderengine/initslider-1.js"></script>
+        <script src="<?=$this->settings->getFileRootPath()?>js/sliderengine/initslider-1.js"></script>
