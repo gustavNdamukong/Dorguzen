@@ -56,9 +56,9 @@ class DGZ_SliderEngine
     /**
      *
      * @Description: This method displays an HTML div with all the necessary JS classes n IDs for the images you pass to it to be animated as a slider.
-     *      You must have a folder called 'home_slide_images' (or whatever you want to call it-just remember to edit the 'src' attribute of the img tag
+     *      You must have a folder called '' (or whatever you want to call it-just remember to edit the 'src' attribute of the img tag
      *      in this method with) in your 'assets/images' directory in which you have all the images you pass to this method.
-     *
+     *home_slide_images
      * @params: pass it an multidimensional array of images, where each array has a 'name' and an 'alt' key.
      *
      *
