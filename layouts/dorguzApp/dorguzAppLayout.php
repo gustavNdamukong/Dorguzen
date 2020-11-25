@@ -3,11 +3,6 @@
 namespace layouts\dorguzApp;
 
 
-/**
- * Description of BootstrapLayout
- *
- * @author Gustav
- */
 class dorguzAppLayout extends \DGZ_library\DGZ_Layout {
 	
 
@@ -28,10 +23,6 @@ class dorguzAppLayout extends \DGZ_library\DGZ_Layout {
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
 			<?=$this->getMetadata()?>
 			<title><?php echo self::$appName."-".$this->pageTitle; ?></title>
-
-
-			<link rel="shortcut icon" href="../../favicon.ico" type="image/x-icon">
-			<link rel="icon" href="../../favicon.ico" type="image/x-icon">
 
 			<!-- Include custom styles meant for individual views. These can override those set above -->
 			 <?= $this->getCssHtml()  ?>
@@ -129,7 +120,7 @@ class dorguzAppLayout extends \DGZ_library\DGZ_Layout {
                	i) go into the carousel_slider.css file and replace all instances of the text 'YOURIMAGE' with the images you want displayed as background for each slide.
                	ii) Make sure you create the directory 'assets/images/carousel_slider_images' (or go into it) and put the images you referred to in slider_carousel.css
                		in there.
-               	Now you will see your images appearing nicely as backgrounds to the slides. For best results, respect or tweak the image sizes specified in the stylesheet.
+               	Now you will see your images appearing nicely as backgrounds to the slides. For best results, make sure your image sizes match those specified in the stylesheet.
               				-->
 							<!-- ==========================
 							SLIDER JUMBOTRON - START
