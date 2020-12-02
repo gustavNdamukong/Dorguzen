@@ -343,18 +343,19 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
 
 	/**
-	 * Adds meta tags for a specific view be injected directly into the head tag of the layout page.
+	 * Adds meta tags for a specific view to be injected directly into the head tag of the layout page.
 	 * Other generic meta data have been preset in the layout file and are applied to all pages with the exception of the following:
 	 *		-description
 	 *		-keywords
-	 * You can add as many more as you see need. This is very handy for the SEO of specific views
+	 * You can add as many more as you need. This is very handy for the SEO of specific views
 	 *
 	 * @param array $metadataTagsArray. An array containing strings of fully formed meta tags
-	 * @example $page->addMetadata(
+	 * @example At the top of the show() method of your view file, do this:
+	 * 				$this->addMetadata(
 	 *					[
 	 * 						'<meta name="description" content="Free Web tutorials">',
-	'<meta name="keywords" content="HTML, CSS, JavaScript">',
-	'<meta name="author" content="John Doe">'
+	 *						'<meta name="keywords" content="HTML, CSS, JavaScript">',
+	 *						'<meta name="author" content="John Doe">'
 	 *
 	 * 					]);
 	 *
@@ -861,8 +862,6 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 			'cmerooncomnet',
 			'camerooncominfo',
 			'nolimit',
-			'soulja',
-			'nolimitsoulja',
 			'chopman',
 			'builders',
 			'jackstrow',
@@ -900,7 +899,8 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 		$randword = rand() . rand(0, 32000);
 		$activationCode = "$words[$randomnumber]" . "$randword";
 
-		return trim($activationCode);
+		$trimmed = trim($activationCode);
+		return md5($trimmed);
 	}
 
 

@@ -2,7 +2,7 @@
 
 namespace DGZ_library;
 
-
+use settings\Settings;
 
 
 class DGZ_Translator extends \DGZ_library\DGZ_Lang
@@ -49,9 +49,26 @@ class DGZ_Translator extends \DGZ_library\DGZ_Lang
 
 
 
+    /**
+     * Assuming your app has a translation feature, it  takes the language the user has chosen,
+     * the translation file to read from, and the specific text in the file to get.
+     *
+     * @param $lang the language the user has chosen
+     * @param $file the translation file for the view the user is on (located at 'lang/fileName')
+     * @param $phrase the text phrase you want to display to the user in the chosen language
+     * @return mixed
+     */
     public static function translate($lang, $file, $phrase)
     {
-        $langSourceFile = include("lang/$lang/$file");
+        if (file_exists("lang/$lang/$file")) {
+            $langSourceFile = include("lang/$lang/$file");
+        }
+        else
+        {
+            $settings = new Settings();
+            $defaultLang = $settings->getSettings()['fallback_locale'];
+            $langSourceFile = include("lang/$defaultLang/$file");
+        }
 
         return $langSourceFile[$phrase];
     }

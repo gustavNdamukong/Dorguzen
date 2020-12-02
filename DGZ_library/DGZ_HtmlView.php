@@ -24,7 +24,7 @@ abstract class DGZ_HtmlView extends \DGZ_library\DGZ_View {
 	 *
 	 * @var \DGZ_library\DGZ_Controller $page A reference to the page this view is going into.
 	 */
-	protected $controller;
+	protected $controller; 
 
 
 
@@ -84,5 +84,35 @@ abstract class DGZ_HtmlView extends \DGZ_library\DGZ_View {
 	protected function addScript($jsFileName) {
 		$this->controller->addScript($jsFileName);
 	}
+
+
+
+
+
+	/**
+	 * This method is a shortcut way for view files to create links and define file paths.
+	 * @example You can be call from within the href attribute in a view and pass it the path string to redirect to.
+	 * 		So in a view file, you can create links in either of these ways:
+	 * 			<a href="<?=$this->controller->settings->getFileRootPath()?>gallery";
+	 * 			<a href="<?=$this->route('gallery')";
+	 *
+	 * 			<form method="post" action="<?=$this->controller->settings->getFileRootPath()?>controllerName/methodName">
+	 * 			<form method="post" action="<?=$this->route('controllerName/methodName')">
+	 *
+	 * 			<a class="btn btn-primary"
+	href="<?=$this->controller->settings->getFileRootPath()?>gallery/openalbum?
+	 * 				album_id=<?php echo $view_album_id; ?>&amp;view_album=<?php echo $target_album;?>
+	 * 				&amp;upload_imgs=1">Upload images to this album
+	 * 			</a>
+	 *
+	 * @param string $path
+	 * @return mixed
+	 */
+	protected function route($path)
+	{
+		return $this->controller->settings->getFileRootPath().$path;
+	}
+
+
 
 }

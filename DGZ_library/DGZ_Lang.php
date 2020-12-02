@@ -2,7 +2,7 @@
 
 namespace DGZ_library;
 
-	use settings\settings;
+	use settings\Settings;
 
 	abstract class DGZ_Lang
 	{
@@ -16,7 +16,7 @@ namespace DGZ_library;
 
 		public function __construct()
 		{
-			$settings = new settings();
+			$settings = new Settings();
 			self::$default_lang = $settings->getSettings()['locale'];
 		}
 

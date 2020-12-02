@@ -134,8 +134,8 @@ class dorguzAppLayout extends \DGZ_library\DGZ_Layout {
 										  <div class="container">
 											  <h1>Welcome to <span class="color">your Dorguzen Framework App</span></h1>
 											  <h2>Your Rapid Web Development Toolkit</h2>
-											  <a href="<?=$this->settings->getFileRootPath()?>feedback/contact" class="btn btn-default btn-lg">Sniff the code</a>
-											  <a data-toggle="modal" class="btn btn-inverse btn-lg" data-target="#testimonialModal">lol</a>
+											  <a href="<?=$this->settings->getFileRootPath()?>feedback/contact" class="btn btn-default btn-lg">Contact Us</a>
+											  <a data-toggle="modal" class="btn btn-inverse btn-lg" data-target="#testimonialModal">Modal popup link here</a>
 										  </div>
 									  </div>
 								  </div>
@@ -184,7 +184,7 @@ class dorguzAppLayout extends \DGZ_library\DGZ_Layout {
 										  <div class="container">
 											  <h1 class="grey-background">The Power is in your hands</h1>
 											  <ul class="list-unstyled">
-												  <li>SOME LIST ITEM (S) HERE</li>
+												  <li>SOME LIST ITEM(S) HERE</li>
                                               </ul>
 										  </div>
 									  </div>
@@ -242,13 +242,13 @@ class dorguzAppLayout extends \DGZ_library\DGZ_Layout {
 				  <section class="content brands pattern border-top border-bottom">
 					  <div class="container">
 						  <div id="brands-carousel">
-							  <!--<div class="item"><a href="lookbook.phtml"><img src="assets/images/clients/1.png" class="img-responsive" alt=""></a></div>
-							  <div class="item"><a href="lookbook.phtml"><img src="assets/images/clients/2.png" class="img-responsive" alt=""></a></div>
-							  <div class="item"><a href="lookbook.phtml"><img src="assets/images/clients/3.png" class="img-responsive" alt=""></a></div>
-							  <div class="item"><a href="lookbook.phtml"><img src="assets/images/clients/4.png" class="img-responsive" alt=""></a></div>
-							  <div class="item"><a href="lookbook.phtml"><img src="assets/images/clients/5.png" class="img-responsive" alt=""></a></div>
-							  <div class="item"><a href="lookbook.phtml"><img src="assets/images/clients/6.png" class="img-responsive" alt=""></a></div>
-							  <div class="item"><a href="lookbook.phtml"><img src="assets/images/clients/7.png" class="img-responsive" alt=""></a></div>-->
+							  <!--<div class="item"><a href="#"><img src="assets/images/clients/1.png" class="img-responsive" alt=""></a></div>
+							  <div class="item"><a href="#"><img src="assets/images/clients/2.png" class="img-responsive" alt=""></a></div>
+							  <div class="item"><a href="#"><img src="assets/images/clients/3.png" class="img-responsive" alt=""></a></div>
+							  <div class="item"><a href="#"><img src="assets/images/clients/4.png" class="img-responsive" alt=""></a></div>
+							  <div class="item"><a href="#"><img src="assets/images/clients/5.png" class="img-responsive" alt=""></a></div>
+							  <div class="item"><a href="#"><img src="assets/images/clients/6.png" class="img-responsive" alt=""></a></div>
+							  <div class="item"><a href="#"><img src="assets/images/clients/7.png" class="img-responsive" alt=""></a></div>-->
 						  </div>
 					  </div>
 				  </section>

@@ -244,6 +244,9 @@ use BaseSettings;
 				| The fallback locale determines the default language to use when the current one
 				| is not available. You may change the value to correspond to any of
 				| the language folders that are provided through your application.
+				| This setting is very helpful because you will prevent getting errors stemming from
+				| Dorguzen trying to find translation files in the selected language of a user which
+				| don't exist yet, if you haven't finished translating your application.
 				|
 				*/
 

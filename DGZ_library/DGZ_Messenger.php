@@ -76,7 +76,7 @@ class DGZ_Messenger
         // We'll set the email "to" address to the database record
         //$to = $email;
         $to = $this->_appEmail.','.$this->_appEmailOther;
-        $subject = "Query from your website contact form";
+        $subject = "Inquiry from your website contact form";
 
         $msg = $this->sendContactFormMsgToAdminTemplate($name, $visitorEmail, $phone, $message);
 

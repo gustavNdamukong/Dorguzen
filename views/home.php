@@ -18,7 +18,7 @@ class home extends \DGZ_library\DGZ_HtmlView
          $this->addMetadata(
              [
                  '<meta name="description" content="Welcome to DorguzApp (replace this with your application name).">',
-                 '<meta name="keywords" content="DorguzApp (replace this with your application name) contact form.">',
+                 '<meta name="keywords" content="DorguzApp (replace this with your application name) contact form. Separate multiple keywords by commas">',
                  '<meta name="author" content="Your name here">'
              ]);
          ?>

@@ -7,10 +7,11 @@ namespace views;
  * This class exposes various JS code snippets which you can reuse across many view files in your application.
  * Just use it by pulling it into any view files where u need it. Place the code to include it above in the show()
  * method as it is done in login.php
- *          $jsValidation = \DGZ_library\DGZ_View::getView('jsValidationPartial', $this->controller);
+ *          $jsValidation = \DGZ_library\DGZ_View::getInsideView('jsValidationPartial', $this->controller);
             $jsValidation->show();
  *
- * It is essencially a partial and is meant to give you an idea of how code can be reused in Dorguzen
+ * It is essentially a partial (a piece of code that is included), and a good example of how a view can be used
+ *  inside of another in Dorguzen
  *
  * Class jsValidationPartial
  * @package views
@@ -46,18 +47,11 @@ class jsValidationPartial extends \DGZ_library\DGZ_HtmlView
                         this.submit();
                     }
                 });
-                
-
-
-                $(document).on('blur', '#regis_form #username', function()
-                {
-                    checkUsername(this);
-                });
 
 
 
 
-                //func to validate the registration form
+                //function to validate the registration form
                 function validate(form) {
                     fail = validateFirstname(form.firstname.value)
                     fail += validateSurname(form.surname.value)
@@ -78,10 +72,9 @@ class jsValidationPartial extends \DGZ_library\DGZ_HtmlView
 
 
 
-                //func to validate the login form
+                //function to validate the login form
                 function validateLoginForm(form)
-                { //alert("You have submitted the login form");
-                    //return false
+                {
                     if ($('#forgotstatus').val() == 'yes')
                     {
                         fail = validateEmail(form.forgot_pass_input.value);
@@ -140,7 +133,7 @@ class jsValidationPartial extends \DGZ_library\DGZ_HtmlView
 
 
                 function validateFirstname(field) {
-                        if (field == "") { alert('please enter firstname!!!'); return false;
+                        if (field == "") {
                             return "firstname\n";
                         }
                         return "";
@@ -175,7 +168,7 @@ class jsValidationPartial extends \DGZ_library\DGZ_HtmlView
                         if (field == "") {
                             return "No password was entered"
                         }
-                        else if (field.length < 6) {"
+                        else if (field.length < 6) {
                             return 'The password must be at least 6 characters';
                         }
 
@@ -216,14 +209,24 @@ class jsValidationPartial extends \DGZ_library\DGZ_HtmlView
 
 
 
+                //make an ajax call-this calls the function 'checkUsername()' below
+                $(document).on('blur', '#regis_form #username', function()
+                {
+                    checkUsername(this);
+                });
 
 
 
+                /**
+                 * Code to get you started making ajax calls form your application.
+                 * Create a controller called AuthController with a method checkUsername()
+                 * You pass it a username from a form, and it calls the checkUsername() method
+                 * The checkUsername() method checks in the DB if that username is already in use.
+                 * It returns some text like 'username available' or 'username already taken' which you can display in a span
+                 *    element next to the username input field
 
-
-                    //code to get you started making ajax calls form your application.
-                    //create a controller called AuthController with a method checkUsername()
-                    //you pass it the username from a form to and it checks in the DB if that username is already in use.
+                 * @param username
+                 */
                     function checkUsername(username) {
                         if (username.value == '') {
                             document.getElementById('info').innerHTML = '';
@@ -253,8 +256,6 @@ class jsValidationPartial extends \DGZ_library\DGZ_HtmlView
 
 
 
-
-
                     function ajaxRequest() {
                         try {
                             var request = new XMLHttpRequest()
@@ -274,8 +275,6 @@ class jsValidationPartial extends \DGZ_library\DGZ_HtmlView
                         }
                         return request
                     }
-
-
 
             });
 
