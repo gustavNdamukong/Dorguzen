@@ -491,7 +491,7 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
             //grab and store the old user info just in case u have to redirect the user back to the edit form n redisplay them
             $userForEdit = $user->getUserById($userId);
 
-            $val = new \DGZ_library\DGZ_Validate();
+            $val = new DGZ_Validate();
 
 
 
@@ -524,60 +524,17 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
 
             if ($fail == "")
             {
-                //validation passed, now prepare to update the object
-                $key = $user->getSalt();
-
-                $table = $user->getTable();
-
                 $data = [
                     'users_type' =>  'admin',
                     'users_email' => $email,
                     'users_pass' => $password,
-                    'key' => $key,
                     'users_first_name' => $fn,
                     'users_last_name' => $ln
                 ];
 
-                $dataTypes = '';
-                $usersDataTypes = $user->getColumnDataTypes();
-
-                //prepare the datatypes for the query (a string is needed)-We only need those of the columns that are affected by our
-                // query (as in the $data array above)-notice we leave $key out of it as it's not a column in our 'users' table
-                //we also add an extra string character for the case of 'users_pass' because of its associated salt encryption string
-                foreach ($usersDataTypes as $dataClueKey => $columnClue) {
-                    if ($dataClueKey == 'users_pass') {
-                        $dataTypes .= $columnClue;
-                        $dataTypes .= 's';
-                    }
-                    else
-                    {
-                        if ($dataClueKey == 'users_type')
-                        {
-                            $dataTypes .= $columnClue;
-                        }
-                        if ($dataClueKey == 'users_email')
-                        {
-                            $dataTypes .= $columnClue;
-                        }
-                        if ($dataClueKey == 'users_first_name')
-                        {
-                            $dataTypes .= $columnClue;
-                        }
-                        if ($dataClueKey == 'users_last_name')
-                        {
-                            $dataTypes .= $columnClue;
-                        }
-                    }
-                }
-
                 //build the where clause
                 $where = ['users_id' => $userId];
-
-                //Because we are dealing with an update query, we have to add an extra dataType for every where clause used,
-                // this is needed by the placeholders of the mysqli prepared statement
-                $dataTypes .= 'i'; //i here obviously represents an integer for the user ID
-
-                $updated = $user->update($table, $data, $dataTypes, $where);
+                $updated = $user->update($data, $where);
 
                 if ($updated)
                 {

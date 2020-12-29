@@ -2,9 +2,6 @@
 
 namespace DGZ_library\DGZ_Uploader;
 
-
-use DGZ_library\DGZ_Uploader\DGZ_Thumbnail;
-use DGZ_library\DGZ_Uploader\DGZ_Upload;
 use settings\Settings;
 use Exception;
 
@@ -91,14 +88,20 @@ class DGZ_Uploader extends DGZ_Upload {
 
 
 	public function setThumbSuffix($suffix) {
-		//if (preg_match('/\w+/', $suffix)) {
-		//if (strpos($suffix, '_') !== 0) {
-		// $this->_suffix = '_' . $suffix;
-		//} else {
-		//$this->_suffix = $suffix;
-		//}
-		//} else {
-		$this->_suffix = '';
+		if (preg_match('/\w+/', $suffix))
+		{
+			if (strpos($suffix, '_') !== 0)
+			{
+				$this->_suffix = '_' . $suffix;
+			}
+			else
+			{
+				$this->_suffix = $suffix;
+			}
+		}
+		else {
+			$this->_suffix = '';
+		}
 	}
 
 
