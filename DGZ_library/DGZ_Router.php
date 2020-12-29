@@ -11,12 +11,16 @@ use DGZ_library\DGZ_Application;
 class DGZ_Router {
 
 	/**
-	 * Returns an array containing the controller and method
+	 * Returns an array containing the currently active controller and method
 	 *
 	 * @example list($controller, $method) = DGZ_Router::getControllerAndMethod();
 	 *
+	 * @param bool $stringFormat pass this as true if you want the current controller name returned as a string
+	 * 		without checking if the controller object actually exists in the system
+	 * @return array
+	 * @throws \DGZ_library\DGZ_Exception
 	 */
-	public static function getControllerAndMethod() {
+	public static function getControllerAndMethod($stringFormat = false) {
 
 		//------------------------------------------------------
 		//lets separate the factions of the URL into controllers, their methods, and their args
@@ -137,6 +141,11 @@ class DGZ_Router {
 		}
 
 
+		//does the caller just want this as a string instead of as an object?
+		if ($stringFormat == true)
+		{
+			$controllerNameString = ucfirst($get_input);
+		}
 		$controller = 'controllers\\'. ucfirst($get_input).'Controller';
 
 		try {
@@ -211,7 +220,15 @@ class DGZ_Router {
 			}
 		}
 		//---------------------------------------------------------------------------------------------------------------------------------//
-		return [$controller, $method];
+
+		if ($stringFormat == true)
+		{
+			return [$controllerNameString, $method];
+		}
+		else
+		{
+			return [$controller, $method];
+		}
 
 	}
 

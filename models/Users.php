@@ -214,62 +214,21 @@
 
 
 
-
-
-
-
+        
         
         
         public function createUser($firstname, $lastname, $email, $password)
         {
-            //Get ready to save the new user
-            $key = $this->getSalt();
-
-            $table = $this->getTable();
-
             $data = [
                 'users_type' => 'admin',
                 'users_first_name' => $firstname,
                 'users_last_name' => $lastname,
                 'users_email' => $email,
                 'users_pass' => $password,
-                'key' => $key,
                 'users_created' => ''
             ];
 
-            $datatypes = '';
-            $usersDataClues = $this->getColumnDataTypes();
-
-            //echo '<pre>'; var_dump($usersDataClues); die();
-
-            //prepare the datatypes for the query (a string is needed)
-            foreach ($usersDataClues as $dataClueKey => $columnDatClue)
-            {
-                if ($dataClueKey == 'users_type') {
-                    $datatypes .= $columnDatClue;
-                }
-
-                if ($dataClueKey == 'users_first_name') {
-                    $datatypes .= $columnDatClue;
-                }
-
-                if ($dataClueKey == 'users_last_name') {
-                    $datatypes .= $columnDatClue;
-                }
-                if ($dataClueKey == 'users_email') {
-                    $datatypes .= $columnDatClue;
-                }
-
-                if ($dataClueKey == 'users_pass') {
-                    $datatypes .= $columnDatClue;
-                }
-                if ($dataClueKey == 'users_created') {
-                    $datatypes .= $columnDatClue;
-                }
-
-            }
-
-            $saved = $this->insert($table, $data, $datatypes);
+            $saved = $this->insert($data);
 
             if ($saved == 1062)
             {

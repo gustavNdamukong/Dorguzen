@@ -67,7 +67,9 @@
                       	</ul>
                     </li>
 
-
+                    <?php
+                        list($controller, $method) = $this->settings->getCurrentRoute();
+                    ?>
                     <!--------------------------------------- THE SITE SEARCH FORM -------------------------------------------------------------->
                     <li class="dropdown navbar-search hidden-xs"><!--TAKE AWAY THE CLASS 'hidden-xs' TO HAVE AN ITEM DISPLAYED IN A MINIMIZED (mobile-view) MENU-->
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-search">Search</i></a>
@@ -79,7 +81,7 @@
 
                                         <!--below we need to sent the current controller so we know on which view the user searched from
                                             as this search form is available every where on the site-->
-                                        <input type="hidden" name="searchOrigin" value="<?=$this->settings->getCurrentController()?>" />
+                                        <input type="hidden" name="searchOrigin" value="<?=$controller?>/<?=$method?>" /> 
                                         <span class="input-group-btn">
                                             <button type="submit" class="btn btn-primary">Search</button>
                                         </span>

@@ -248,16 +248,14 @@ use settings\Settings;
          return lcfirst(get_class($this));
      }
 
-
-
-
+     
 
 
 
      public function save()
      {
-
          $model = new $this->whoCalledMe;
+         $table = $model->getTable();
 
          //prepare the data to make up the query
          $data = array();
@@ -278,26 +276,47 @@ use settings\Settings;
          //Convert datatypes into a string
          $datatypes = implode($datatypes);
 
+         // Connect to the database
+         $db = $this->connect();
+         $key = $this->getSalt();
 
-         //get this model's tablename
-         $table = $this->getTable();
+         list( $fields, $placeholders, $values ) = $this->insert_update_prep_query($data);
 
-         //save it
-         $saved = $this->insert($table, $data, $datatypes);
+         // Prepend the $dataTypes string onto the $values array (The bind_param() meth needs it like this-1st param is string of datatype xters to rep the fields,
+         // followed by as many params (vars) as there are values to rep the placeholders (? xters))
+         array_unshift($values, $datatypes);
 
-         if ($saved == 1062)
+         $stmt = $db->stmt_init();
+
+         // echo '<pre>'; die("INSERT INTO {$table} ({$fields}) VALUES ({$placeholders})".' RefValues: '.print_r($this->ref_values($values)));
+
+         // Prepare our query for binding
+         $stmt->prepare("INSERT INTO {$table} ({$fields}) VALUES ({$placeholders})");
+
+
+         // Dynamically bind values
+         call_user_func_array( array( $stmt, 'bind_param'), $this->ref_values($values));
+         //this code above does the equiv of this line below:
+         //$stmt->bind_param('ssssssiis', $user_type, $firstname, $surname, $email, $password, $key, $custo_status, $emailverified, $finalwords);
+
+         // Execute the query
+         $stmt->execute();
+
+         // Check for successful insertion
+         if ( $stmt->affected_rows == 1)
+         {
+             //return true;
+             return $stmt->insert_id;
+         }
+         elseif ( (isset($stmt->errno)) && ($stmt->errno == 1062))
          {
              return 'duplicate';
          }
-         elseif ($saved)
-         {
-             return true;
-         }
          else
          {
+             //the insertion failed
              return false;
          }
-
      }
 
 
@@ -320,10 +339,11 @@ use settings\Settings;
      public function updateObject($where)
      {
          $model = new $this->whoCalledMe;
+         $table = $model->getTable();
 
          //prepare the data to make up the query
          $data = array();
-         $datatypes = array();
+         $dataTypes = array();
 
 
          foreach (get_object_vars($this) as $property => $value) {
@@ -338,57 +358,83 @@ use settings\Settings;
                      $data['key'] = $key;
 
                      //store the 2 pieces of datatypes needed for passwords (is)
-                     array_push($datatypes, $model->_columns[$property]);
+                     array_push($dataTypes, $model->_columns[$property]);
                      //we add an extra string character for the case of 'users_pass' coz of its associated salt encryption string
-                     array_push($datatypes, 's');
+                     array_push($dataTypes, 's');
                  }
                  else {
                      $data[$property] = $value;
 
                      //set the field datatype
-                     array_push($datatypes, $model->_columns[$property]);
+                     array_push($dataTypes, $model->_columns[$property]);
                  }
              }
 
          }
 
-
          //The 'Where' clause also needs to have its own matched datatypes separately from the data itself
          // this is needed by the placeholders of the mysqli prepared statement
-         //-----------------------------------------------------------
          foreach ($where as $field => $val)
          {
              if (array_key_exists($field, $model->_columns)) {
                  //add to the field datatypes
-                 array_push($datatypes, $model->_columns[$field]);
+                 array_push($dataTypes, $model->_columns[$field]);
              }
          }
-         //------------------------------------------------------------
 
          //Convert datatypes into a string
-         $datatypes = implode($datatypes);
+         $datatypes = implode($dataTypes);
 
+         // Connect to the database
+         $db = $this->connect();
 
-         //get this model's tablename
-         $table = $this->getTable();
+         list( $fields, $placeholders, $values ) = $this->insert_update_prep_query($data, 'update');
 
-         //do the update
-         $updated = $this->update($table, $data, $datatypes, $where);
-         if ($updated == 1062) {
-             return 'duplicate';
+         //Format where clause
+         $where_clause = '';
+         $where_values = [];
+         $count = 0;
+
+         foreach ( $where as $field => $value )
+         {
+             if ( $count > 0 ) {
+                 $where_clause .= ' AND ';
+             }
+
+             $where_clause .= $field . '=?';
+             $where_values[] = $value;
+
+             $count++;
          }
-         elseif ($updated) {
+
+         // Prepend $format onto $values
+         array_unshift($values, $datatypes);
+         $values = array_merge($values, $where_values);
+
+         //echo '<pre>'; die("UPDATE {$table} SET {$placeholders} WHERE {$where_clause}".' RefValues: '.print_r($this->ref_values($values)));
+
+         $stmt = $db->prepare("UPDATE {$table} SET {$placeholders} WHERE {$where_clause}");
+
+         // Dynamically bind values
+         //This calls $stmt obj's bind_param() meth passing the result of ref_values() as its args
+
+         //--------------------------
+         //This one is for testing purposes. It should return 1 (BOOL-TRUE) if the query has no faults in it
+         //var_dump(call_user_func_array( array( $stmt, 'bind_param'), $this->ref_values($values))); die();///////
+         //---------------------------
+
+         call_user_func_array( array( $stmt, 'bind_param'), $this->ref_values($values));
+
+         // Execute the query
+         $stmt->execute();
+
+         // Check for successful insertion
+         if ( $stmt->affected_rows ) {
              return true;
          }
-         else {
-             return false;
-         }
 
+         return false;
      }
-
-
-
-
 
 
 
@@ -402,7 +448,7 @@ use settings\Settings;
       *
       * this method prepares the args ($table, $where criteria, and $dataTypes) before passing these args to delete()
       *
-      * @param array $criteria which is the criteria to delete reocords in this model based on. For example, if we are deleting an album, $criteria will contain
+      * @param array $criteria the criteria to delete records based on. For example, if we are deleting an album, $criteria will contain
       *   something like ['albums_name' => 'Birthday']
       *
       * @return string
@@ -516,7 +562,6 @@ use settings\Settings;
                 return $results;
             }
 
-
             //check result if INSERTING/UPDATING/DELETING
             if ((isset($db->affected_rows)) && ($db->affected_rows > 0))
             {
@@ -541,18 +586,63 @@ use settings\Settings;
 
 
      /**
-      * This meth does select all (SELECT *) as well as only on given columns (SELECT bla FROM bla WHERE)
-      * If $columns is empty, none of the other params will have anything, so its does a select * FROM
-      * If $columns has sth, then $where n $dataTypes must also have sth
-      * $columns is given the names of columns u wanna grab, the model will make sure they exist in its table columns
-      * $where is given the columns you're matching on as keys, n those column values as the values.The model also ensures these keys exist in its columns
-      * $dataTypes is a string of datatype xters for the column placeholders; wh the model easily gets from the values of its columns array
       *
-      * @returns array with the results
+      * This meth does select all (SELECT *) or only SELECTS a given set of columns
+      * If no $columns are specified, none of the other params will have anything, so its does a SELECT all
+      * If $columns are specified, then $where must also be specified
+      * $columns is given the names of columns u wanna grab, the model will check that they exist in the table
+      * $where is given the column names you're matching on as keys, & the column values required as the values.The model also checks if these keys
+      * exist in the table.
       *
+      *
+      * @param string $columns of fields to grab
+      * @param array $criteria is an assoc array of 'where key (column name) => value' sort o thing
+      *
+      * @return array of results
       */
-     public function selectWhere($table, $columns = array(), $where = array(), $dataTypes = '')
+     public function selectWhere($columns = array(), $criteria = array())
      {
+         $model = new $this->whoCalledMe;
+
+         //There might be more or nothing, or an array in $columns, so lets filter it
+         //we'll also prepare the datatype xters while we're at it
+         $fields_to_select = array();
+         $datatypes = '';
+         $criterion = array();
+         if (!empty($columns)) {
+             foreach ($columns as $column) {
+                 //securely check that that field exists n DB table
+                 if (!array_key_exists($column, $model->getColumnDatatypes())) {
+                     return 'The field ' . $column . ' does not exist in the ' . strtolower($model->getTable() . ' table');
+                 }
+                 else {
+                     $fields_to_select[] = $column;
+                 }
+             }
+
+             //check criteria
+             foreach ($criteria as $key => $crits)
+             {
+                 //securely check that that field exists n DB table
+                 if (!array_key_exists($key, $model->getColumnDatatypes())) {
+                     return 'The field ' . $key . ' does not exist in the ' . strtolower($model->getTable() . ' table');
+                 }
+                 else {
+                     $criterion[$key] = $crits;
+                     $datatypes .= $model->getColumnDatatypes()[$key];
+                 }
+             }
+         }
+
+         $table = strtolower($model->getTable());
+         $columns_needed = $fields_to_select;
+         $where = $criterion;
+
+
+
+         //-------------------------- SAVE IT ---------------------------------
+
+
          // Connect to the database
          $db = $this->connect();
 
@@ -560,10 +650,11 @@ use settings\Settings;
              //All the other params are empty too, so this is a quick one, we'll just grab everything
              $sql = "SELECT * FROM $table";
 
+
              $result = $this->query($sql);
 
              //when selecting we return an array of the selected values
-             //but when doing sth else with query() e.g. deleting, we only return a string like 'deleted'
+             //but when doing sth else with query() e.g. deleting, we only return a Boolean
              //hence to see if selection was successful, first check if $result is an array
              if (is_array($result)) {
                  return $result;
@@ -576,17 +667,31 @@ use settings\Settings;
          elseif (!empty($columns)) {
 
              // Cast all data to arrays
-             $columns = (array) $columns;
-             $where = (array) $where;
-             $dataTypes = (string) $dataTypes;
+             $columns = (array)$columns;
+             $where = (array)$where;
+
+             //Lets define a couple of terms
+             //$placeholders are the '?' xters that will be created to match the where values
+             //what i call $datatypes are the datatype xters that will be bind_params() meth which is invoked after the query has been built. bind_param() does 2 things;
+             // -1) uses the $datatypes string as its first param to rep the fields (columns)
+             // -2) uses additional params (vars) as there are placeholders (the ? xters) used in the query string
+
+             //$where_fields will be like 'albums_name',
+             //$placeholders will be like '?'
+             //$where_values will be like 'Gustav'
+
+
+             // Prepend the $dataTypes string onto the $values array (The bind_param() meth needs it like this-1st param is string of datatype xters to rep the fields,
+             // followed by as many params (vars) as there are values to rep the placeholders (? xters))
 
              //Format where clause
              $where_placeholders = '';
+             /////$where_values = '';
              $where_values = [];
              $count = 0;
 
-             foreach ( $where as $field => $value ) {
-                 if ( $count > 0 ) {
+             foreach ($where as $field => $value) { //albums_name => 'Gustav'
+                 if ($count > 0) {
                      $where_placeholders .= ' AND ';
                  }
 
@@ -598,27 +703,37 @@ use settings\Settings;
 
 
              // Prepend $format onto $values
-             array_unshift($where_values, $dataTypes);
+             //$where_values now becomes this: ['s', 'Gustav'] (for bind_param())
+             array_unshift($where_values, $datatypes);
 
 
              //convert $columns to a string for use in a query
              $columns_as_string = implode(',', $columns);
 
+             //echo '<pre>'; die(print_r($where_values));
+
+             //die("SELECT {$columns_as_string} FROM {$table} WHERE {$where_placeholders}");
+
+             //The fact that we're in this conditional block means that the where clause is not empty,
+             // as we'd have been grabbing everything above otherwise
              $stmt = $db->prepare("SELECT {$columns_as_string} FROM {$table} WHERE {$where_placeholders}");
 
-             call_user_func_array( array( $stmt, 'bind_param'), $this->ref_values($where_values));
+
+             // Dynamically bind values. It takes an array that's an exact copy (a reference) of the original where_values array
+             //This calls $stmt obj's bind_param() meth passing the result of ref_values() as its args
+             call_user_func_array(array($stmt, 'bind_param'), $this->ref_values($where_values));
+             //this code above does the equiv of this line below:
+             //$stmt->bind_param('ssiis', $user_type, $firstname, $custo_status, $emailverified, $finalwords);
 
              // Execute the query
              $stmt->execute();
 
              $stmt->store_result();
 
-             if ($stmt->num_rows )
-             {
+             if ($stmt->num_rows) {
                  $results_basket = [];
 
-                 while($row = $this->fetchAssocStatement($stmt))
-                 {
+                 while ($row = $this->fetchAssocStatement($stmt)) {
                      $results_basket[] = $row;
                  }
 
@@ -626,8 +741,7 @@ use settings\Settings;
 
                  return $results_basket;
              }
-             else
-             {
+             else {
                  return false;
              }
          }
@@ -639,85 +753,84 @@ use settings\Settings;
 
 
 
-
-
-
      /**
       * Call this function like so:
       *
-      *  $blog2catTable = $blog2cat->getTable();
-      *  $blog2catDatatypes = '';
-         $blog2catDataClues = $blog2cat->getColumnDataTypes();
-
-         //prepare the datatypes for the query (a string is needed)
-         foreach ($blog2catDataClues as $dataClueKey => $columnDatClue)
-         {
-            $blog2catDatatypes .= $columnDatClue;
-         }
-
-        foreach ($_POST['category'] as $cat_id)
-        {
-            $blog2catData = [
-                'blog_id' => $_POST['blog_id'],
-                'blog_cats_id' => $cat_id,
-            ];
-
-        $blog2cat->insert($blog2catTable, $blog2catData, $blog2catDatatypes);
+      *      $blog2cat = new Article2cat();
       *
+      *      $blogPost = [
+      *          'blog_id' => $_POST['blog_id'],
+      *          'blog_cats_id' => $cat_id,
+      *      ];
+      *      $blog2cat->insert($blogPost);
       *
-      *
-      * @param $table
       * @param $data
-      * @param $dataTypes
       * @return bool|int|string
       */
-    public function insert($table, $data, $dataTypes)
-    {
-        // Check for $table or $data not set
-        if ( empty( $table ) || empty( $data ) ) {
-                return false;
-        }
+     public function insert($data)
+     {
+         $model = new $this->whoCalledMe;
+         $table = $model->getTable();
 
-        // Connect to the database
-        $db = $this->connect();
+         // Connect to the database
+         $db = $this->connect();
+         $key = $this->getSalt();
 
-        // Cast $data to an array
-        $data = (array) $data;
+         // Cast $data to an array
+         $data = (array) $data;
+
+         $dataTypes = '';
+         $usersDataClues = $model->getColumnDataTypes();
+
+         //prepare the datatypes for the query (a string is needed)
+         foreach ($data as $dataKey => $dat) {
+             foreach ($usersDataClues as $dataClueKey => $columnDatClue) {
+                 if ($dataClueKey == $dataKey) {
+                     $dataTypes .= $columnDatClue;
+                     if ($dataKey == 'users_pass')
+                     {
+                         //additional parameters for the password field
+                         $data['key'] = $key;
+                     }
+                 }
+             }
+         }
+
+         list( $fields, $placeholders, $values ) = $this->insert_update_prep_query($data);
+
+         // Prepend the $dataTypes string onto the $values array (The bind_param() meth needs it like this-1st param is string of datatype xters to rep the fields,
+         // followed by as many params (vars) as there are values to rep the placeholders (? xters))
+         array_unshift($values, $dataTypes);
 
 
-        list( $fields, $placeholders, $values ) = $this->insert_update_prep_query($data);
+         $stmt = $db->stmt_init();
 
-        array_unshift($values, $dataTypes);
-
-
-        $stmt = $db->stmt_init();
-
-        // Prepare our query for binding
-        $stmt->prepare("INSERT INTO {$table} ({$fields}) VALUES ({$placeholders})");
+         // Prepare our query for binding
+         $stmt->prepare("INSERT INTO {$table} ({$fields}) VALUES ({$placeholders})");
 
 
-        // Dynamically bind values
-        call_user_func_array( array( $stmt, 'bind_param'), $this->ref_values($values));
+         // Dynamically bind values
+         call_user_func_array( array( $stmt, 'bind_param'), $this->ref_values($values));
 
-        // Execute the query
-        $stmt->execute();
+         // Execute the query
+         $stmt->execute();
 
-        // Check for successful insertion
-        if ( $stmt->affected_rows == 1)
-        {
-            //return true;
-            return $stmt->insert_id;
-        }
-        elseif ( (isset($stmt->errno)) && ($stmt->errno == 1062))
-        {
-            return '1062';
-        }
-        else
-        {
-            //the insertion failed
-            return false;
-        }
-    }
+         // Check for successful insertion
+         if ( $stmt->affected_rows == 1)
+         {
+             //return true;
+             return $stmt->insert_id;
+         }
+         elseif ( (isset($stmt->errno)) && ($stmt->errno == 1062))
+         {
+             return '1062';
+         }
+         else
+         {
+             //the insertion failed
+             return false;
+         }
+     }
 
 
 
@@ -738,29 +851,12 @@ use settings\Settings;
       * Update a record in the DB
       *
       * Prepare to call it like so:
-      * $table = $blog->getTable();
-      * $ data = ['blog_title' => $_POST['title'],
+      * $data = ['blog_title' => $_POST['title'],
       *     'blog_article' => $_POST['article'],
       *  ];
       *
-      *  //get the datatypes for this model n build it into a string-since it must be a string
-      * $blogDatatypes = '';
-      * $blogData = $blog->getColumnDataTypes();
-      * foreach ($blogData as $dataKey => $columnDat)
-      * {
-            if ($dataKey == 'blog_title')
-            {
-            $blogDatatypes .= $columnDat;
-            }
-            if ($dataKey == 'blog_article')
-            {
-                $blogDatatypes .= $columnDat;
-            }
-        }
-
       * $where = ['blog_id' => $blog_id];
-        $blogDatatypes .= 'i';
-        $updated = $blog->update($table, $data, $blogDatatypes, $where);
+        $updated = $blog->update($data, $where);
       *
       * @param string $table the table to update in
       * @param array $data a ready-made array of 'fieldName' => 'value' elements
@@ -771,18 +867,40 @@ use settings\Settings;
       *
       * @return bool
       */
-    public function update($table, $data, $dataTypes, $where)
+    public function update($data, $where)
     {
-        // Check for $table or $data not set
-        if (empty( $table ) || empty($data)) {
-            return false;
+        $model = new $this->whoCalledMe;
+        $table = $model->getTable();
+
+        // Cast $data to an array
+        $data = (array) $data;
+
+        $dataTypes = '';
+        $tableDataClues = $model->getColumnDataTypes();
+
+        //prepare the datatype string for the data
+        foreach ($data as $dataKey => $dat) {
+            foreach ($tableDataClues as $dataClueKey => $columnDatClue) {
+                if ($dataClueKey == $dataKey) {
+                    $dataTypes .= $columnDatClue;
+                }
+            }
         }
+
+        //prepare the datatype string for the where clause too
+        foreach ($where as $criteriaKey => $criteria)
+        {
+            foreach ($tableDataClues as $dataClueKey => $columnDatClue) {
+                if ($dataClueKey == $criteriaKey) {
+                    $dataTypes .= $columnDatClue;
+                }
+            }
+        }
+        //echo '<pre>'; die(print_r($data));
+        //die($dataTypes);
 
         // Connect to the database
         $db = $this->connect();
-
-        // Cast $data and $format to arrays
-        $data = (array) $data;
 
         list( $fields, $placeholders, $values ) = $this->insert_update_prep_query($data, 'update');
 
@@ -794,7 +912,7 @@ use settings\Settings;
         foreach ( $where as $field => $value )
         {
             if ( $count > 0 ) {
-                    $where_clause .= ' AND ';
+                $where_clause .= ' AND ';
             }
 
             $where_clause .= $field . '=?';
@@ -803,13 +921,23 @@ use settings\Settings;
             $count++;
         }
 
+
         // Prepend $format onto $values
         array_unshift($values, $dataTypes);
         $values = array_merge($values, $where_values);
 
+        //echo '<pre>'; die("UPDATE {$table} SET {$placeholders} WHERE {$where_clause}".' RefValues: '.print_r($this->ref_values($values)));
+
         $stmt = $db->prepare("UPDATE {$table} SET {$placeholders} WHERE {$where_clause}");
 
         // Dynamically bind values
+        //This calls $stmt obj's bind_param() meth passing the result of ref_values() as its args
+
+        //--------------------------
+        //This one is for testing purposes. It should return 1 (BOOL-TRUE) if the query has no faults in it
+        //var_dump(call_user_func_array( array( $stmt, 'bind_param'), $this->ref_values($values))); die();///////
+        //---------------------------
+
         call_user_func_array( array( $stmt, 'bind_param'), $this->ref_values($values));
 
         // Execute the query
@@ -817,7 +945,7 @@ use settings\Settings;
 
         // Check for successful insertion
         if ( $stmt->affected_rows ) {
-                return true;
+            return true;
         }
 
         return false;
@@ -834,7 +962,7 @@ use settings\Settings;
      /**
       * a method in your model prepares the args for this method n calls it
       *
-      * @return bool
+      * @return Bool true or false for whether the deletion was successful or not
       */
     public function delete($table, $where = array(), $dataTypes = '')
     {
@@ -847,11 +975,11 @@ use settings\Settings;
 
             $result = $this->query($sql);
 
-            if ($result == 'done') {
-                return 'deleted';
+            if ($result) {
+                return true;
             }
             else {
-                return 'failed';
+                return false;
             }
         }
         elseif (!empty($where)) {
@@ -1266,26 +1394,25 @@ use settings\Settings;
 
 
 
-    /**
-     * This meth takes 2 params, the columns of the fields to grab, and what criteria to grab them based on
-     *
-     * If $columns is empty, then $criteria will contain nothing-so we are to grab all
-     * But if $columns has sth, then $criteria must also have sth
-     * This method is different from selectWhere() method above in that other models can call this method and we will detect the model that called
-     * it and handle it accordingly. It also takes less parameters than selectWhere() and thus is less complex.
-     * It calls selectWhere() behind the scenes in the end anyway
-     *
-     * @param string $columns of fields to grab
-     * @param array $criteria is an assoc array of 'where key (column name) => value' sort o thing
-     *
-     * @return array
-     */
+     /**
+      *
+      * This meth does select all (SELECT *) or only SELECTS a given set of columns
+      * If no $columns are specified, none of the other params will have anything, so its does a SELECT all
+      * If $columns are specified, then $where must also be specified
+      * $columns is given the names of columns u wanna grab, the model will check that they exist in the table
+      * $where is given the column names you're matching on as keys, & the column values required as the values.The model also checks if these keys
+      * exist in the table.
+      *
+      *
+      * @param string $columns of fields to grab
+      * @param array $criteria is an assoc array of 'where key (column name) => value' sort o thing
+      *
+      * @return array of results
+      */
     public function grabWhere($columns = array(), $criteria = array())
     {
         $model = new $this->whoCalledMe;
 
-        //There might be more or nothing, or an array in $columns, so lets filter it
-        //we'll also prepare the datatype xters while we're at it
         $fields_to_select = array();
         $datatypes = '';
         $criterion = array();
@@ -1318,9 +1445,75 @@ use settings\Settings;
         $columns_needed = $fields_to_select;
         $where = $criterion;
 
-        $result = $this->selectWhere($table, $columns_needed, $where, $datatypes);
+        // Connect to the database
+        $db = $this->connect();
 
-        return $result;
+        if (empty($columns)) {
+            //All the other params are empty too, so this is a quick one, we'll just grab everything
+            $sql = "SELECT * FROM $table";
+
+            $result = $this->query($sql);
+
+            if (is_array($result)) {
+                return $result;
+            }
+            else {
+                return false;
+            }
+
+        }
+        elseif (!empty($columns)) {
+            // Cast all data to arrays
+            $columns = (array) $columns;
+            $where = (array) $where;
+
+            //Format where clause
+            $where_placeholders = '';
+            $where_values = [];
+            $count = 0;
+
+            foreach ( $where as $field => $value ) {
+                if ( $count > 0 ) {
+                    $where_placeholders .= ' AND ';
+                }
+
+                $where_placeholders .= $field . '=?';
+                $where_values[] = $value;
+
+                $count++;
+            }
+
+            // Prepend $format onto $values
+            array_unshift($where_values, $datatypes);
+
+            //convert $columns to a string for use in a query
+            $columns_as_string = implode(',', $columns);
+            $stmt = $db->prepare("SELECT {$columns_as_string} FROM {$table} WHERE {$where_placeholders}");
+
+            call_user_func_array( array( $stmt, 'bind_param'), $this->ref_values($where_values));
+
+            $stmt->execute();
+
+            $stmt->store_result();
+
+            if ($stmt->num_rows )
+            {
+                $results_basket = [];
+
+                while($row = $this->fetchAssocStatement($stmt))
+                {
+                    $results_basket[] = $row;
+                }
+
+                $stmt->close();
+
+                return $results_basket;
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 
 

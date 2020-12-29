@@ -3,6 +3,7 @@ namespace settings;
 
 
 use BaseSettings;
+use DGZ_Router;
 
 	######################### THE IDEA IS TO MAKE THIS CLASS TAKE OVER THE RESPONSIBILITY OF MANAGING SITE-WIDE SETTINGS ##########################
 	/*
@@ -376,6 +377,9 @@ use BaseSettings;
 
 
 
+
+
+
 		/**
 		 * Get the URL to the live home page of the app using SSL
 		 */
@@ -386,63 +390,26 @@ use BaseSettings;
 
 
 
+
+
 		/**
-		 * Used to determine what view a user is coming into another view from. It returns the string of the controler name without the 'Controller' bit
-		 * It is then used to redirect the user back to that controller if necessary.
+		 * Returns to you the current route which consists of the current controller and the active
+		 * method in string format e.g. 'auth/login'
 		 *
-		 * @return mixed
+		 * @return array containing the controller and the method
 		 */
-		public function getCurrentController()
+		public function getCurrentRoute()
 		{
-			$currentUrlString0 = filter_var($_SERVER['REQUEST_URI'], FILTER_SANITIZE_URL);
-
-			$currentUrlString = explode('/', $currentUrlString0);
-			if ($this->getSettings()['live'] == true)
-			{
-				//we are live
-				//there may not be a method specified (3rd slash level) eg when a user visits the home page, so check if there's one
-				if (!empty($currentUrlString[1])) {
-					//For their convenience; if they only enter 'index', or 'index.phtml', we should show them the home page too
-					if ($currentUrlString[1] == 'index' || $currentUrlString[1] == 'index.php')
-					{
-						//send them to the HomeController
-						return 'Home';
-					}
-					else
-					{
-						return $currentUrlString[1];
-					}
-				}
-				else
-				{
-					//If they just visited the root of the app, then it was the home controller
-					return 'Home';
-				}
-			}
-			else
-			{
-				//we are local
-				//there may not be a method specified (3rd slash level) eg when a user visits the home page, so check if there's one
-				if (!empty($currentUrlString[2])) {
-					if ($currentUrlString[2] == 'index' || $currentUrlString[2] == 'index.php')
-					{
-						return 'Home';
-					}
-					else
-					{
-						return $currentUrlString[2];
-					}
-
-				}
-				else
-				{
-					//If they just visited the root of the app, then it was the home controller
-					return 'Home';
-				}
-
-			}
-
+			$router = new DGZ_Router();
+			list($controller, $method) = $router::getControllerAndMethod(true);
+			return [$controller, $method];
 		}
+
+
+
+
+
+
 	}
 
 

@@ -2,7 +2,7 @@
 
 namespace DGZ_library;
 
-use \settings\Settings;
+use settings\Settings;
 
 class DGZ_Messenger
 {
@@ -279,12 +279,12 @@ class DGZ_Messenger
                     
                     <p><a href='".$this->_config->getHomePage()."admin/verifyEmail?em=$resetCode'>Click here to reset your password</a> or copy and paste the 
                     following link in your browser:</p>
-                    <p>$this->_appURL/admin/verifyEmail?em=$resetCode</p>
+                    <p>".$this->_config->getHomePage()."/admin/verifyEmail?em=$resetCode</p>
 
                     <br />
                     <h3>$this->_appBusinessName</h3>
                     <p>$this->_appSlogan</p>
-                    <p><img src='".$this->_config->getFileRootPath()."assets/images/logos/final_p3.svg' /></p>
+                    <p><img src='".$this->_config->getHomePage()."assets/images/logos/final_p3.svg' /></p>
                     <br />
                   <br />";
 

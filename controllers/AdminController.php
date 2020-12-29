@@ -5,8 +5,10 @@ namespace controllers;
 
 
 use DGZ_library\DGZ_Validate;
-use views\login;
+use Users;
 use Password_reset;
+use BaseSettings;
+use ContactFormMessage;
 
 class AdminController extends \DGZ_library\DGZ_Controller  {
 
@@ -110,7 +112,7 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
                 $fail .= $val->validate_email($email);
                 if ($fail == "")
                 {
-                    $user_model = new \Users();
+                    $user_model = new Users();
 
                     //$login_errors = array();
                     $found = $user_model->recoverLostPw($email);
@@ -241,7 +243,7 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
 
         if ($fail == "")
         {
-            $user_model = new \Users();
+            $user_model = new Users();
 
             $userCreated = $user_model->resetUserPassword($reset_user_id, $reset_email, $reset_pwd);
 
@@ -252,7 +254,7 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
             }
             elseif($userCreated == false)
             {
-                $this->addErrors('Your password could not be reset. Try again later, or contact us', 'Sorry!');
+                $this->addErrors('Try not to use the same old password. If it fails again, contact us', 'Error!');
                 $this->redirect('admin');
             }
 
@@ -280,7 +282,7 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
         //n a session is created on success, n redirection of the user to where they need to go.
         $login_errors = array();
 
-        $user_model = new \Users();
+        $user_model = new Users();
 
         $authenticated = $user_model->authenticateUser($email, $password);
 
@@ -426,7 +428,7 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
 
         if ($fail == "")
         {
-            $user_model = new \Users();
+            $user_model = new Users();
 
             $userCreated = $user_model->createUser($fn, $ln, $email, $password);
 
@@ -470,7 +472,7 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
         if ((isset($_GET['userId'])) && ($_GET['edit'] == 0))
         {
             $userId = $_GET['userId'];
-            $user = new \Users();
+            $user = new Users();
             $userForEdit = $user->getUserById($userId);
 
             $view = \DGZ_library\DGZ_View::getAdminView('editUser', $this, 'html');
@@ -484,7 +486,7 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
             $fail = "";
 
             $userId = $_POST['userId'];
-            $user = new \Users();
+            $user = new Users();
 
             //grab and store the old user info just in case u have to redirect the user back to the edit form n redisplay them
             $userForEdit = $user->getUserById($userId);
@@ -607,7 +609,7 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
         if ((isset($_GET['userId'])) && ($_GET['change'] == 0))
         {
             $userId = $_GET['userId'];
-            $user = new \Users();
+            $user = new Users();
             $userForEdit = $user->getUserById($userId);
 
             $view = \DGZ_library\DGZ_View::getAdminView('adminUserChangePw', $this, 'html');
@@ -620,12 +622,12 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
             $fail = "";
 
             $userId = $_POST['userId'];
-            $user = new \Users();
+            $user = new Users();
 
             //grab and store the old user info just in case u have to redirect the user back to the edit form n redisplay them
             $userForEdit = $user->getUserById($userId);
 
-            $val = new \DGZ_library\DGZ_Validate();
+            $val = new DGZ_Validate();
 
 
             //sanitize the submitted values
@@ -711,7 +713,7 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
 
     public function deleteUser()
     {
-        $user = new \Users();
+        $user = new Users();
         $userId = $_GET['userId'];
         $whereClause = ['users_id' => $userId];
         $deleted = $user->deleteWhere($whereClause);
@@ -735,7 +737,7 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
 
     public function contactMessages()
     {
-        $settings= new \ContactFormMessage();
+        $settings= new ContactFormMessage();
         $contactMessages = $settings->getAll('contactformmessage_date DESC');
 
         $view = \DGZ_library\DGZ_View::getAdminView('manageContactMessages', $this, 'html');
@@ -752,7 +754,7 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
     {
         if ((isset($_GET['contactformmessage_id'])) && ($_GET['contactformmessage_id'] != "")) {
             $recId = $_GET['contactformmessage_id'];
-            $contactFormClass = new \ContactFormMessage();
+            $contactFormClass = new ContactFormMessage();
 
             $whereClause = ['contactformmessage_id' => $recId];
             $deleted = $contactFormClass->deleteWhere($whereClause);
@@ -776,7 +778,7 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
     {
         if ($_GET['change'] == 0)
         {
-            $settings= new \BaseSettings();
+            $settings= new BaseSettings();
             $baseSettings = $settings->getAll();
 
             $view = \DGZ_library\DGZ_View::getAdminView('manageSettings', $this, 'html');
@@ -786,7 +788,7 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
         }
         elseif((isset($_GET['change'])) && ($_GET['change'] == 1)) {
             //get ready to update
-            $settings= new \BaseSettings();
+            $settings= new BaseSettings();
             $table = $settings->getTable();
 
             foreach ($_POST as $field => $value)

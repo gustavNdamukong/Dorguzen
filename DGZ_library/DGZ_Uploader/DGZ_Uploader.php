@@ -6,12 +6,13 @@ namespace DGZ_library\DGZ_Uploader;
 use DGZ_library\DGZ_Uploader\DGZ_Thumbnail;
 use DGZ_library\DGZ_Uploader\DGZ_Upload;
 use settings\Settings;
+use Exception;
 
 class DGZ_Uploader extends DGZ_Upload {
 
 	protected $_thumbDestination;
 
-	
+
 
 
 
@@ -20,12 +21,13 @@ class DGZ_Uploader extends DGZ_Upload {
 
 
 	/**
-	 * This constructor takes two arguments; the upload destination folder as a string, and a boolean whether to delete a previous copy of the same file
-	 * if one is found, or rename the new one and keep both files.
+	 * This constructor takes two arguments; the upload destination folder as a string, and an optional sub folder therein which could be
+	 * for example, an ID or image or product name.
 	 *
-	 * @param $path string
+	 * @param $path string the array key referencing the file upload destination path you set in settings\Settings.php
 	 * @param $uniqeSubFolder string (optional) that will contain the a sub-folder name for cases where unique records have their own sub folders, for example;
-	 * 	the images of a listed item in an e-commerce application. Take note that just like with the $path value; the trailing slash appended to $uniqeSubFolder is crucial.
+	 * 	the images of a listed item in an e-commerce application. Take note that just like with the $path value; the trailing slash appended to
+	 * 	$uniqeSubFolder is crucial.
 	 *
 	 * @return void
 	 */
@@ -33,12 +35,26 @@ class DGZ_Uploader extends DGZ_Upload {
 
 		//set upload path dynamically (value of $path is for example 'gallery')
 		$settings = new Settings();
-		if ($uniqeSubFolder != '') {
-			$destination = trim($settings->getSettings()[$path].$uniqeSubFolder.'/');
+		if (array_key_exists($path, $settings->getSettings()))
+		{
+			if ($uniqeSubFolder != '') {
+				$destination = trim($settings->getSettings()[$path].$uniqeSubFolder.'/');
+			}
+			else
+			{
+				$destination = $settings->getSettings()[$path];
+			}
 		}
 		else
 		{
-			$destination = config("dgz_uploader.$path") ;
+			//allow user to pass in a full file path-without going through Settings.php
+			if ($uniqeSubFolder != '') {
+				$destination = $path.$uniqeSubFolder.'/';
+			}
+			else
+			{
+				$destination = $path;
+			}
 		}
 
 		//set the file size
@@ -57,16 +73,12 @@ class DGZ_Uploader extends DGZ_Upload {
 
 
 
-	public function setThumbDestination($path, $secondThumbDestiny) {
+	public function setThumbDestination($path) {
 		if (!is_dir($path) || !is_writable($path)) {
 			throw new Exception("$path must be a valid, writable directory.");
-		} else {
-			$this->_thumbDestination = $path; }
-		if ($this->_secondThumb) {
-			if (!is_dir($secondThumbDestiny) || !is_writable($secondThumbDestiny)) {
-				throw new Exception("$secondThumbDestiny must be a valid, writable directory.");
-			} else {
-				$this->_secondThumbDestiny = $secondThumbDestiny; }
+		}
+		else {
+			$this->_thumbDestination = $path;
 		}
 	}
 
@@ -87,7 +99,6 @@ class DGZ_Uploader extends DGZ_Upload {
 		//}
 		//} else {
 		$this->_suffix = '';
-		//}
 	}
 
 
@@ -147,16 +158,6 @@ class DGZ_Uploader extends DGZ_Upload {
 				$typeOK = $this->checkType($filename, $type);
 			}
 
-			/* //We are uploading videos so we will ignore the check for the filetype (Besides, it's only an authenticated admin user that will have access to this facility)
-				  $sizeOK = $this->checkSize($filename, $size);
-				  $typeOK = $this->checkType($filename, $type);
-				  if ($sizeOK && $typeOK) {
-				  */
-
-			//----------------------------------------------
-
-			/////$sizeOK = $this->checkSize($filename, $size);
-			/////$typeOK = $this->checkType($filename, $type);
 			if ($sizeOK && $typeOK) {
 				$name = $this->createFileName($filename, $overwrite);
 				$success = move_uploaded_file($tmp_name, $this->_destination . $name);

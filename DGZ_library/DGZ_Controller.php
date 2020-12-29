@@ -892,7 +892,10 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 			'business',
 			'bosco',
 			'shokoloko',
-			'bangoshay'
+			'bangoshay',
+			'papou',
+			'wembley',
+			'hausa',
 		];
 
 		$randomnumber = rand(0, 53);

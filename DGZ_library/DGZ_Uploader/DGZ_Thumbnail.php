@@ -55,18 +55,28 @@ class DGZ_Thumbnail {
 	  $this->_maxSize = abs($size);
 	}
   }
-  
-  //public function setSuffix($suffix) {
-	//if (preg_match('/^\w+$/', $suffix)) {
-	  //if (strpos($suffix, '_') !== 0) {
-	    //$this->_suffix = '_' . $suffix;
-	  //} else {
-		//$this->_suffix = $suffix;
-	  //}
-	//} else {
-     // $this->_suffix = ''; 
-	//}
-  //}
+
+
+
+	public function setSuffix($suffix) {
+		if (preg_match('/^\w+$/', $suffix))
+		{
+			if (strpos($suffix, '_') !== 0)
+			{
+				$this->_suffix = '_' . $suffix;
+			}
+			else
+			{
+				$this->_suffix = $suffix;
+			}
+		}
+		else
+		{
+			$this->_suffix = '';
+		}
+	}
+
+
 
   public function create() {
     if ($this->_canProcess && $this->_originalwidth != 0) {
@@ -82,7 +92,7 @@ class DGZ_Thumbnail {
 	return $this->_messages;
   }
 
-/*
+
   public function test() {
 	echo 'File: ' . $this->_original . '<br>';
 	echo 'Original width: ' . $this->_originalwidth . '<br>';
@@ -98,7 +108,7 @@ class DGZ_Thumbnail {
 	  print_r($this->_messages);
 	}
   }
-*/
+
   protected function checkType($mime) {
 	$mimetypes = array('image/jpeg', 'image/png', 'image/gif');
 	if (in_array($mime, $mimetypes)) {

@@ -2,7 +2,7 @@
 
 namespace DGZ_library\DGZ_Uploader;
 
-
+use Exception;
 
 class DGZ_Upload {
 
@@ -44,20 +44,17 @@ class DGZ_Upload {
   public function __construct($path) {
 	  try {
 		  if (!is_dir($path) || !is_writable($path)) {
-			  //throw new \DGZ_Exception("$path must be a valid, writable directory.");
 			  throw new \DGZ_library\DGZ_Exception("$path must be a valid, writable directory.");
 		  }
 	  }
 	  catch (\Exception $e)
 	  {
-		  // Is this a DGZ_Exception?
 		  if ($e instanceof \DGZ_library\DGZ_Exception) {
 
 			  $view = \DGZ_library\DGZ_View::getView('DGZExceptionView', null, 'html');
 			  $view->show($e);
 		  }
 		  else {
-			  // If it's a normal exception then just use the default view
 			  $view = \DGZ_library\DGZ_View::getView('ExceptionView', null, 'html');
 			  $view->show($e);
 		  }
@@ -92,15 +89,16 @@ class DGZ_Upload {
 
 
 
-	/*
+	/**
 	 * Upload the file
 	 * @param String $modify has 3 options
 	 * 		i) 'original' to upload the file as is with check for file type but no check for file size
-	 * 		iii) 'original-allow' to upload a file without checking if its size or type is permitted. This will allow you upload audios and video files. You probably
-	 * 			want to use this only in sections of your application used by authenticated admin users.
+	 * 		iii) 'original-allow' to upload a file without checking if its size or type is permitted. This will allow you upload audios and video files.
+	 * 			You probably want to use this only in sections of your application used by authenticated admin users.
 	 * 		iii) 'resize' to resize the file upon upload according to the specified file upload size, and also check if the file type is allowed.
-	 * 	By default, 'original' is used.  This means that your files are uploaded as they are with no resizing, and the file type is checked against the list of allowed file
-	 * 	types and rejected if not found in there.
+	 *
+	 * 	By default, 'original' is used.  This means that your files are uploaded as they are with no resizing, and the file type is checked against the list
+	 *  of allowed file types and rejected if not found in there.
 	 * @param Boolean $overwrite to determine whether to replace any previous copy of the file at the destination, or to rename and keep both
 	 *
 	 */
@@ -209,7 +207,7 @@ class DGZ_Upload {
 
 
 
-	/*
+	/**
 	 * Additional doc types to allow in your application. I have added these so your application also allows these text document types.
 	 * Feel free to add to the list more document types that you wish to allow into your application.
 	 *
@@ -234,7 +232,7 @@ class DGZ_Upload {
 
 
 
-	/*
+	/**
 	 * Checks if a file with the same name previously exists in the upload destination and overwrites the previous file if $overwrite is true
 	 * or renames the uploaded file and keeps both files if $overwrite is false
 	 *
@@ -283,35 +281,5 @@ class DGZ_Upload {
 		return $nospaces;
 	}
 
-
-
-
-
-
-
-	protected function processFile($filename, $error, $size, $type, $tmp_name, $path, $modify, $overwrite) {
-		$OK = $this->checkError($filename, $error);
-		if ($OK) {
-			$sizeOK = $this->checkSize($filename, $size);
-			$typeOK = $this->checkType($filename, $type);
-			if ($sizeOK && $typeOK) {
-				$name = $this->createFileName($filename, $overwrite);
-
-				$success = move_uploaded_file($tmp_name, $path . $name);
-				if ($success) {
-					// add the amended filename to the array of file names
-					$this->_filenames[] = $name;
-
-					$message = "$filename uploaded successfully";
-					if ($this->_renamed) {
-						$message .= " and renamed $name";
-					}
-					$this->_messages[] = $message;
-				} else {
-					$this->_messages[] = "Could not upload $filename";
-				}
-			}
-		}
-	}
 
 }
