@@ -39,7 +39,7 @@ function show()
 
 
      <?php
-     if (isset($_SESSION['authenticated'])) {
+     if ((isset($_SESSION['authenticated'])) && ($_SESSION['authenticated'] == 'Let Go-'.$this->controller->settings->getSettings()['appName'])) {
      ?>
 
 
@@ -47,37 +47,6 @@ function show()
               PAGE CONTENT - START
           =========================== -->
           <div class="main">
-               <?php /*
-               <section class="article-text">
-               <div class="container">
-                    <div class="row">
-                         <div class="col-sm-8 col-md-8">
-                              <p>Use this admin section of the site to do lots of awesome stuff, like add a new user (or users) and make them admin users to be able to login
-                                            and manage newsletters, upload new images to the site, delete old images, and define various other settings.</p>
-                              <div class="thumbnail">Upload Videos</div>
-                              <div class="thumbnail">Upload Videos</div>
-                              <div class="thumbnail">Upload Videos</div>
-                              <div class="thumbnail">Upload Videos</div>
-                               <!--<blockquote>
-                                  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-                                   <small>Clients are talking about us</small>
-                               </blockquote>-->
-                         </div>
-                         <div class="col-sm-4 col-md-4">
-                              <div class="service_teaser vertical">
-                                   <div class="service_photo">
-                                        <figure style="background-image:url(images/bull_dog_engineer.jpg)"></figure>
-                                        <img src="images/bull_dog_engineer.jpg" /><!--just added this here, not sure if i should keep it here-->
-                                   </div>
-                                   <div class="service_details">
-                                        <h2 class="section_header skincolored"><b>Is there something you would like to be able to manage on your site which is not available here?</b>
-                                            <small>We are constantly working on this admin section of our sites and adding new features. Please suggest any ideas you have and we will work on it and make sure you
-                                                have an update of your admin page with the new functionality. Thank you.</small></h2>
-                              </div>
-                         </div>
-                    </div>
-               </div>
-               </section> */ ?>
                <section class="content account">
                     <div class="container">
                          <div class="row">
@@ -87,7 +56,7 @@ function show()
                                         <!-- WIDGET:CATEGORIES - START -->
                                         <div class="widget widget-navigation">
                                              <ul class="nav nav-pills nav-stacked">
-                                                  <li class="active"><a href="<?=$this->controller->settings->getFileRootPath()?>admin/adminHome">Account Dashboard</a>
+                                                  <li class="active"><a href="<?=$this->controller->settings->getFileRootPath()?>admin/dashboard">Account Dashboard</a>
                                                   </li>
                                                   <li><a href="<?=$this->controller->settings->getFileRootPath()?>home/home" title="Go to the home page">Exit Dashboard</a></li>
                                                   <li><a href="<?=$this->controller->settings->getFileRootPath()?>admin/logout" title="This will take you back to the home page">Logout</a></li>
@@ -124,10 +93,6 @@ function show()
                                                            class="fa fa-thumbs-up"></i> Manage Testimonials</a></div>
                                              <div class="col-xs-6 col-md-3"><a href="<?=$this->controller->settings->getFileRootPath()?>admin/baseSettings?change=0"><i
                                                            class="fa fa-gears"></i> Settings</a></div>
-
-                                             <div class="col-xs-6 col-md-3"><a href="<?=$this->controller->settings->getFileRootPath()?>components"><i
-                                                           class="fa fa-space-shuttle"></i>Build Components</a></div>
-
                                              <div class="col-xs-6 col-md-3"><a><i
                                                            class="fa fa-heart"></i> Portfolio</a></div>
                                              <div class="col-xs-6 col-md-3"><a

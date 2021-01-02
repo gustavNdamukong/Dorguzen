@@ -16,7 +16,7 @@ class createUser extends \DGZ_library\DGZ_HtmlView
     <?php
          if (isset($_SESSION['authenticated'])) {
          //Pull in the PHP file that has the JS validation codes
-         $jsValidation = \DGZ_library\DGZ_View::getView('jsValidationPartial', $this->controller);
+         $jsValidation = \DGZ_library\DGZ_View::getInsideView('jsValidationPartial', $this->controller);
          $jsValidation->show();
          ?>
          <!-- ==========================
@@ -30,7 +30,7 @@ class createUser extends \DGZ_library\DGZ_HtmlView
                      </div>
                      <div class="col-xs-6">
                          <ol class="breadcrumb">
-                             <li><a href="<?=$this->controller->settings->getFileRootPath()?>admin/adminHome"><i class="fa fa-home"></i>Dashboard</a></li>
+                             <li><a href="<?=$this->controller->settings->getFileRootPath()?>admin/dashboard"><i class="fa fa-home"></i>Dashboard</a></li>
                              <li><a href="<?=$this->controller->settings->getFileRootPath()?>admin/manageUsers"><i class="fa fa-user"></i>Manage users</a></li>
                              <li class="active">Create user</li>
                          </ol>
@@ -53,12 +53,6 @@ class createUser extends \DGZ_library\DGZ_HtmlView
                      <div class="col-sm-6 col-md-12">
                          <div>
                              <div class="row">
-                                 <h4><?php //if ($econfirm) { echo "Congratulations, your account has been activated, you may now login"; }?></h4>
-                                 <br />
-
-
-
-
                                  <div class="col-lg-2"></div>
                                  <div class="form col-lg-8">
                                      <form id="createUserForm" action="<?=$this->controller->settings->getFileRootPath()?>admin/doCreateUser" method="post">

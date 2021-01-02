@@ -83,7 +83,7 @@
             if ($stmt->num_rows ) 
             {
                 if (!session_id()) { session_start(); } // You should start the session only just bf u start assigning the session variables.
-                $_SESSION['authenticated'] = 'Let Go'; //this is the secret keyword (token) u'll check to confirm that a user is logged in.
+                $_SESSION['authenticated'] = 'Let Go-'.$this->settings->getSettings()['appName']; //this is the secret keyword (token) u'll check to confirm that a user is logged in.
                 //get the time the session started
                 $_SESSION['start'] = time();
                 session_regenerate_id();

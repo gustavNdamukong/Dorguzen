@@ -14,7 +14,7 @@ class manageSettings extends \DGZ_library\DGZ_HtmlView
          <script src="http://code.jquery.com/jquery-latest.min.js"></script>
         <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
     <?php
-         if (isset($_SESSION['authenticated'])) {
+         if ((isset($_SESSION['authenticated'])) && ($_SESSION['authenticated'] == 'Let Go-'.$this->controller->settings->getSettings()['appName'])) {
          ?>
          <!-- ==========================
          BREADCRUMB - START
@@ -27,7 +27,7 @@ class manageSettings extends \DGZ_library\DGZ_HtmlView
                      </div>
                      <div class="col-xs-6">
                          <ol class="breadcrumb">
-                             <li><a href="<?=$this->controller->settings->getFileRootPath()?>admin/adminHome"><i class="fa fa-home"></i>Dashboard</a></li>
+                             <li><a href="<?=$this->controller->settings->getFileRootPath()?>admin/dashboard"><i class="fa fa-home"></i>Dashboard</a></li>
                              <li class="active">Edit settings</li>
                          </ol>
                      </div>
@@ -85,33 +85,20 @@ class manageSettings extends \DGZ_library\DGZ_HtmlView
                                                          }
 
 
-                                                         if ($val['settings_name'] == 'brand_slider_source') { ?>
-                                                             <label for="brand_slider_source">Brand slider source (If gallery, please ensure you have a
-                                                                 gallery album named <b>brand_slider</b>)</label>
-                                                             <select id="brand_slider_source" name="brand_slider_source" class="form-control" onchange="alert('Please be aware that if you choose gallery, you must have a gallery album called brand_slider')">
-                                                                 <option
-                                                                     value="gallery" <?= $val['settings_value'] == 'gallery' ? 'selected="true"' : '' ?>>
-                                                                     Gallery
-                                                                 </option>
-                                                             </select>
-                                                             <hr />
-                                                             <?php
-                                                         }
-
                                                          if ($val['settings_name'] == 'default_language') { ?>
                                                              <label for="default_language">Choose your app's default language</label>
                                                              <select id="default_language" name="default_language" class="form-control">
                                                                  <option
-                                                                     value="english" <?= $val['settings_value'] == 'english' ? 'selected="true"' : '' ?>>
+                                                                     value="en" <?= $val['settings_value'] == 'en' ? 'selected="true"' : '' ?>>
                                                                      English
                                                                  </option>
                                                                  <option
-                                                                     value="french" <?= $val['settings_value'] == 'french' ? 'selected="true"' : '' ?>>
+                                                                     value="fre" <?= $val['settings_value'] == 'fre' ? 'selected="true"' : '' ?>>
                                                                      French
                                                                  </option>
                                                                  <option
-                                                                     value="spanish" <?= $val['settings_value'] == 'spanish' ? 'selected="true"' : '' ?>>
-                                                                     Spanish
+                                                                     value="nl" <?= $val['settings_value'] == 'nl' ? 'selected="true"' : '' ?>>
+                                                                     Dutch
                                                                  </option>
                                                              </select>
                                                              <hr/>
@@ -172,7 +159,7 @@ class manageSettings extends \DGZ_library\DGZ_HtmlView
                                          <div class="panel-footer clearfix">
 
                                              <div class="pull-right">
-                                                 <a href="<?=$this->controller->settings->getFileRootPath()?>admin/adminHome" class="btn btn-warning" role="button">Cancel</a>
+                                                 <a href="<?=$this->controller->settings->getFileRootPath()?>admin/dashboard" class="btn btn-warning" role="button">Cancel</a>
                                                  <input type="submit" name="" class="btn btn-primary" value="Save changes" />
 
                                              </div><!--end of div holding form button(s)-->

@@ -44,7 +44,7 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
 
 
 
-    public function adminHome()
+    public function dashboard()
     {
         $view = \DGZ_library\DGZ_View::getAdminView('adminHome', $this, 'html');
         $this->setPageTitle('Admin');
@@ -296,7 +296,7 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
             }
 
             $this->addSuccess('Welcome Admin, long time!', 'Hey');
-            $this->redirect('admin','adminHome');
+            $this->redirect('admin','dashboard');
             exit();
 
         }//END OF ALL SUCCESSFUL LOG-IN CHECKS, IF USER WASN'T PROCESSED ABOVE THEN THEIR LOG IN details were wrong
@@ -646,7 +646,7 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
                     $_SESSION['pass'] = $userForEdit[0]['pass'];
 
                     $this->addSuccess('Your details were successfully updated!', 'Hooray');
-                    $this->redirect('admin', 'adminHome');
+                    $this->redirect('admin', 'dashboard');
                     exit();
                 }
             }
@@ -756,7 +756,7 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
             }
 
             $this->addSuccess('Your settings have been saved!', 'Great!');
-            $this->redirect('admin', 'adminHome');
+            $this->redirect('admin', 'dashboard');
             exit();
 
 

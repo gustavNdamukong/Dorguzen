@@ -6,7 +6,7 @@
         <script src="https://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
         <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&amp;sensor=true"></script>
         <script src="<?=$this->settings->getFileRootPath()?>assets/js/bootstrap.min.js"></script>
-        <script src="<?=$this->settings->getFileRootPath()?>assets/js/bootstrap-hover-dropdown.min.js"></script><!--THIS MAKES THE MENU LINKS RESPOND TO HOVERING-->
+        <script src="<?=$this->settings->getFileRootPath()?>assets/js/bootstrap-hover-dropdown.min.js"></script>
         <script src="<?=$this->settings->getFileRootPath()?>assets/js/SmoothScroll.js"></script>
         <script src="<?=$this->settings->getFileRootPath()?>assets/js/jquery.dragtable.js"></script>
         <script src="<?=$this->settings->getFileRootPath()?>assets/js/jquery.card.js"></script>

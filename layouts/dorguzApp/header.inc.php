@@ -4,7 +4,6 @@
     	<div class="container">
             <div class="navbar-header">
                 <a href="<?=$this->settings->getHomePage()?>home" class="navbar-brand"><span>Dor</span>Guzen</a>
-                <?php /*<a href="<?=$this->settings->getHomePage()?>home/home" class="navbar-brand"><img width="200" height="100" src="<?=$this->settings->getFileRootPath()?>assets/images/logos/final_p3.png" class="img-responsive center-block" alt="Your App Logo Here" /></a>*/?>
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse"><i class="fa fa-bars"></i></button>
 
 
@@ -44,8 +43,6 @@
                             <li class="col-sm-4 col-md-3">
                             	<ul class="list-unstyled">
                                 	<li class="title">Feedback</li>
-                                    <li><a href="<?=$this->settings->getHomePage()?>components" style="border-radius:4px;" class="btn btn-info btn-lg">View your Tools</a></li>
-
                                     <?php
                                     if (!isset($_SESSION['authenticated'])) {
                                         //only show the log in link if the user is not currently logged in ?>
@@ -56,7 +53,7 @@
                                     {
                                         //show a logout button if the user is logged in ?>
                                         <li><a href="<?=$this->settings->getFileRootPath()?>admin/logout">Logout</a></li>
-                                        <li><a href="<?=$this->settings->getFileRootPath()?>admin/adminHome">Admin Dashboard</a></li>
+                                        <li><a href="<?=$this->settings->getFileRootPath()?>admin/dashboard">Admin Dashboard</a></li>
                                     <?php
                                     } ?>
                                 </ul>
@@ -71,7 +68,7 @@
                         list($controller, $method) = $this->settings->getCurrentRoute();
                     ?>
                     <!--------------------------------------- THE SITE SEARCH FORM -------------------------------------------------------------->
-                    <li class="dropdown navbar-search hidden-xs"><!--TAKE AWAY THE CLASS 'hidden-xs' TO HAVE AN ITEM DISPLAYED IN A MINIMIZED (mobile-view) MENU-->
+                    <li class="dropdown navbar-search hidden-xs">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-search">Search</i></a>
                         <ul class="dropdown-menu">
                             <li>

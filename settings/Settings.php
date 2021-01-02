@@ -293,8 +293,8 @@ use DGZ_Router;
 
 		/**
 		 * This method gets the DB settings from the baseSettings table and stores them in this class's
-		 * private property $baseSettings. This ensures that you now have all your application settings
-		 * file-driven (in this Settings class), and database-driven, all in one place, this class.
+		 * private property $baseSettings. This ensures that you now have here all your application settings
+		 * file-driven (in this Settings class) and database-driven, all in one place.
 		 *
 		 */
 		private function setBaseSettings()

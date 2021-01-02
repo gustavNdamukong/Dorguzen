@@ -30,7 +30,8 @@ abstract class DGZ_View
 	 * @return object A DGZ_View object if found,
 	 * @throws /Exception if a view object cannot be found in the desired format.
 	 */
-	public static function getView($viewName, \DGZ_library\DGZ_Controller $pageController = null, $format = null, $toolkit = false)
+	/////public static function getView($viewName, \DGZ_library\DGZ_Controller $pageController = null, $format = null, $toolkit = false)
+	public static function getView($viewName, \DGZ_library\DGZ_Controller $pageController = null, $format = null)
 	{
 
 		if (is_null($format)) {
@@ -40,23 +41,14 @@ abstract class DGZ_View
 		$fileName = './views/' . $viewName . '.php';
 		$coreViewFile = 'DGZ_library/DGZ_views/' . $viewName . '.php';
 
-		if ((file_exists($fileName)) && ($toolkit === false)) {
+		if (file_exists($fileName)) {
 			include_once $fileName;
 			$viewClass = 'views\\' . $viewName;
 		}
-		elseif ((file_exists($coreViewFile)) && ($toolkit === false)) {
+		elseif (file_exists($coreViewFile)) {
 			//we sometimes want to display Dorguzen's internal view files
-
 			include_once($coreViewFile);
 			$viewClass = 'DGZ_library\DGZ_views\\' . $viewName;
-		}
-		elseif ($toolkit === true) {
-			//finally, if we are trying to grab a view from our UI design toolbox
-			$toolboxFileNameBase = 'layouts/reserveViewTemplates/' . $viewName . '.phtml';
-			if (file_exists($toolboxFileNameBase)) {
-				include_once($toolboxFileNameBase);
-				$viewClass = 'layouts\reserveViewTemplates\\' . $viewName;
-			}
 		}
 		else {
 			//the views file path does not exist

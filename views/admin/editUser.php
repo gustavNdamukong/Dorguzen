@@ -27,7 +27,7 @@ class editUser extends \DGZ_library\DGZ_HtmlView
                      </div>
                      <div class="col-xs-6">
                          <ol class="breadcrumb">
-                             <li><a href="<?=$this->controller->settings->getFileRootPath()?>admin/adminHome"><i class="fa fa-home"></i>Dashboard</a></li>
+                             <li><a href="<?=$this->controller->settings->getFileRootPath()?>admin/dashboard"><i class="fa fa-home"></i>Dashboard</a></li>
                              <li><a href="<?=$this->controller->settings->getFileRootPath()?>admin/manageUsers"><i class="fa fa-user"></i>Manage users</a></li>
                              <li class="active">Edit user</li>
                          </ol>

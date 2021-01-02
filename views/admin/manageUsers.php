@@ -3,7 +3,7 @@
 namespace views\admin;
 
 
-
+use Users;
 
 class manageUsers extends \DGZ_library\DGZ_HtmlView
 {
@@ -16,12 +16,10 @@ class manageUsers extends \DGZ_library\DGZ_HtmlView
           <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
 
           <?php
-          //$langClass = new \DGZ_library\DGZ_Translator();
-          //$lang = $langClass::getCurrentLang();
           if (isset($_SESSION['authenticated'])) {
 
 
-               $users = new \Users();
+               $users = new Users();
                $allUsers = $users->getAll();
                $numOfAllUsers = $users->getCount();
 
@@ -70,7 +68,7 @@ class manageUsers extends \DGZ_library\DGZ_HtmlView
                               </div>
                               <div class="col-xs-6">
                                    <ol class="breadcrumb">
-                                        <li><a href="<?=$this->controller->settings->getFileRootPath()?>admin/adminHome"><i class="fa fa-home"></i>Dashboard</a></li>
+                                        <li><a href="<?=$this->controller->settings->getFileRootPath()?>admin/dashboard"><i class="fa fa-home"></i>Dashboard</a></li>
                                         <li class="active">Manage users</li>
                                    </ol>
                               </div>
@@ -95,7 +93,7 @@ class manageUsers extends \DGZ_library\DGZ_HtmlView
                               <div class="jumbotron">
 
                                    <div class="well" style="text-align: center; color: white; background: black;"><h3>Manage Users</h3>
-                                        <a href='<?=$this->controller->settings->getFileRootPath()?>admin/adminHome' class="btn btn-lg btn-primary pull-right">Return to Dashboard</a>
+                                        <a href='<?=$this->controller->settings->getFileRootPath()?>admin/dashboard' class="btn btn-lg btn-primary pull-right">Return to Dashboard</a>
                                         <div style="clear:both;"></div>
                                    </div>
 
@@ -213,11 +211,6 @@ class manageUsers extends \DGZ_library\DGZ_HtmlView
                                              } ?>
                                         </table>
                                    </div>
-
-                                   <?php /*if ($userCounter == 0)
-                                   {
-                                        echo '<p style="color:green;">There are no Member Users</p>';
-                                   } */?>
                               </div>
 
                          </div>
