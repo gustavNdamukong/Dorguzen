@@ -116,23 +116,8 @@ class DGZ_Validate
         }
         else
         {
-            @list($nl_userName, $nl_mailDomain) = explode("@", $field); 
-
-            if ($nl_mailDomain)
-            {
-                /*if (!checkdnsrr($nl_mailDomain, "MX")) 
-                { 
-                    // this email domain is not valid 
-                    return 'Invalid email domain<br />';
-                }
-                 * 
-                 */
-            }
-
-            // Next we'll make sure the email address appears to be valid (i.e. it has an @ symbol, no invalid characters etc
             if(!preg_match("^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$^", $field)) 
-            { 
-                // This email address doesn't seem valid
+            {
                 return 'Your email address doesn\'t appear to be valid - please check and try again<br />';
             }
         }

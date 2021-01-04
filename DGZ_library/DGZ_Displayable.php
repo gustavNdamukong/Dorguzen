@@ -3,7 +3,7 @@
 /**
  * Description of Displayable
  *
- * @author Gustav
+ * @author Gustav Ndamukong
  */
 namespace DGZ_library;
 

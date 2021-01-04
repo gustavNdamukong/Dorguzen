@@ -16,7 +16,7 @@ class manageUsers extends \DGZ_library\DGZ_HtmlView
           <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
 
           <?php
-          if (isset($_SESSION['authenticated'])) {
+          if ((isset($_SESSION['authenticated'])) && ($_SESSION['authenticated'] == 'Let Go-'.$this->controller->settings->getSettings()['appName'])) {
 
 
                $users = new Users();
@@ -177,9 +177,7 @@ class manageUsers extends \DGZ_library\DGZ_HtmlView
                                              foreach($allUsers as $user) { ?>
                                                   <?php if ($user['users_type'] == 'admin') { ?>
                                                        <tr>
-                                                            <td>
-                                                                 <a href="single-order.html"><?= $user['users_first_name'] ?></a>
-                                                            </td>
+                                                            <td><?= $user['users_first_name'] ?></td>
                                                             <td><?= $user['users_last_name'] ?></td>
                                                             <td class="hidden-xs"><?= $user['users_email'] ?></td>
                                                             <td class="hidden-xs"><?= $dateClass->YYYYMMDDtoDDMMYYYY($user['users_created']) ?></td>

@@ -2,7 +2,7 @@
 
 namespace DGZ_library;
 
-use \settings\Settings;
+use settings\Settings;
 class DGZ_Notifier
 {
 
@@ -20,7 +20,7 @@ class DGZ_Notifier
 
     public function __construct()
     {
-        $config = new settings();
+        $config = new Settings();
 
         $this->_applicationEmail = $config->getSettings()['appEmail'];
         $this->_appName = $config->getSettings()['appName'];
@@ -48,19 +48,14 @@ class DGZ_Notifier
 
     public function notify($receiverName, $email, $subject, $message)
     {
-        //prepare to send an email to the new user with a link to activate their account
-        //Time to send a welcome email to the new member with an account activation code
         $to = "$email";
-        //$to = $this->_applicationEmail;
 
-        // Add your "sending" email below, notice we are getting this from the settings file
         $headers  = "From: $this->_headerFrom\r\n";
         $headers .= "Reply-To: $this->_headerReplyTo\r\n";
         $headers .= "Content-type: text/html; charset=utf-8\r\n";
 
         $msg = $this->notifierTemplate($receiverName, $message);
 
-        // And send the email!
         $send = mail($to, $subject, $msg, $headers);
         if ($send)
         {

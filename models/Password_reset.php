@@ -57,8 +57,6 @@
         {
             parent::__construct();
 
-            //build the map of the table columns and datatypes. Note we have created before hand a private member called '_columns' wh will hold column names n datatypes
-            //only your model class will write to n read from this member
             $columns = $this->loadORM($this);
         }
 

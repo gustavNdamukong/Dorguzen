@@ -3,8 +3,9 @@
 namespace controllers;
 
 
-
 use DGZ_library\DGZ_Validate;
+use DGZ_library\DGZ_View;
+
 
 class SearchController extends \DGZ_library\DGZ_Controller
 {
@@ -39,7 +40,7 @@ class SearchController extends \DGZ_library\DGZ_Controller
      */
     public function doSearch()
     {
-        $val = new \DGZ_library\DGZ_Validate();
+        $val = new DGZ_Validate();
         $word = "";
         
         if(isset($_GET['search_keyword']))
@@ -58,14 +59,12 @@ class SearchController extends \DGZ_library\DGZ_Controller
 
 
             if (key_exists($word, $viewKeywords)) {
-                $view = \DGZ_library\DGZ_View::getView($viewKeywords[$word], $this, 'html');
+                $view = DGZ_View::getView($viewKeywords[$word], $this, 'html');
                 $this->setPageTitle($word);
                 $view->show();
             }
             elseif (isset($_GET['searchOrigin']))
             {
-                //if 'searchOrigin' is not '' (blank), send them to that page where they came from, otherwise
-                //send them to the home page as 'searchOrigin' will be blank if they came from the home page
                 if ($_GET['searchOrigin'] != '') {
                     $this->addWarning('No such page found, please visit the site Menu');
                     if ($_GET['searchOrigin'] == 'home' || $_GET['searchOrigin'] == 'Home')
@@ -85,7 +84,6 @@ class SearchController extends \DGZ_library\DGZ_Controller
             }
             else
             {
-                //just send them to the home page
                 $this->addWarning('No such page found, please visit the site Menu');
                 $this->redirect('home', 'home');
                 exit();

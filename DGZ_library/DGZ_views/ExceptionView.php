@@ -5,7 +5,7 @@ namespace DGZ_library\DGZ_views;
 /**
  * Description of ExceptionView
  *
- * @author Gustav
+ * @author Gustav Ndamukong
  */
 class ExceptionView extends \DGZ_library\DGZ_View {
 	

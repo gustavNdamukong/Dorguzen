@@ -6,17 +6,17 @@ use BaseSettings;
 use DGZ_Router;
 
 	######################### THE IDEA IS TO MAKE THIS CLASS TAKE OVER THE RESPONSIBILITY OF MANAGING SITE-WIDE SETTINGS ##########################
-	/*
-	 * The Dorguzen Application, adminController, DB Adapter (which is extended by all models) classes, as well as any classes that will all need
-	 * to be aware of some app-wide settings will instantiate this class and inject it into themselves at run time, giving you access to all your
+	/**
+	 * The DGZ_library/DGZ_Application, the AdminController, DGZ_library/DGZ_DB_Adapter (which is extended by all models), as well as any classes that need
+	 * to be aware of some app-wide settings will instantiate this class and inject it into themselves at run time, giving you access to your
 	 * application Settings at all times.
 	 *
-	 * The advantage of course is that all these app-wide settings can be configured from one location - this settings class file.
+	 * The advantage of course is that all these app-wide settings can be configured from one location.
 	 *
-	 * Take note that Dorguzen ships with a settings DB table 'baseSettings' which you may prefer to use for these app-wide settings.
-	 * whichever you use is entirely up to your preference. We have provided this Settings class with a getBaseSettings() method-similar to the AdminController's
-	 * getBaseSettings() method, which pulls in all the DB settings to merge with the file-based settings here. This way, you have all your app settings in one place.
-	 *
+	 * Take note that Dorguzen ships with a settings DB table 'baseSettings' which you may also prefer to use for some application-wide settings.
+	 * This is up to your preference. We have provided this Settings class with a getBaseSettings() method-similar to the AdminController's
+	 * getBaseSettings() method, which pulls in all the DB settings to merge with the file-based settings here. Again, this puts all you application
+	 * settings in one place.
 	 */
 	class Settings
 	{

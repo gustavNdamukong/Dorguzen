@@ -2,6 +2,9 @@
 
 	namespace DGZ_library;
 
+	use Exception;
+	use DGZ_library\DGZ_Exception;
+
 
 	/**
 	 * Use this class for uploading big files like audios and video files
@@ -51,8 +54,7 @@
 			  }
 			catch (DGZ_Exception $e)
 			{
-				// Is this a DGZ_Exception?
-				if ($e instanceof \DGZ_library\DGZ_Exception) {
+				if ($e instanceof DGZ_Exception) {
 
 					$view = \DGZ_library\DGZ_View::getView('DGZExceptionView', null, 'html');
 					$view->show($e);
@@ -245,43 +247,30 @@
 
 		  protected function checkName($name, $overwrite)
 		  {
-				//get rid of any blank space in the submitted file name
 				$nospaces = str_replace(' ', '_', $name);
-				//mark the file as renamed if that changed the name from what was submitted
+
 				if ($nospaces != $name) {
 				  $this->_renamed = true;
 				}
 				if (!$overwrite) {
 					$existing = scandir($this->_destination);
-					//check if an image with that name already exists
 					if (in_array($nospaces, $existing)) {
-					//if the filename already exists, we need to rename the file, so let's start by finding the character number of the '.' character
-					$dot = strrpos($nospaces, '.');
-					if ($dot) {
-						//get the name of the file up to but without the dot
-						$base = substr($nospaces, 0, $dot);
-						//store the current file extension as well
-						$extension = substr($nospaces, $dot);
-					} else {
-						//else if the file has no extension, store its name too
-						$base = $nospaces;
-						$extension = '';
-					}
-					//Now proceed to rename the file
-					//we use a do while loop because we may be renaming multiple files from a multiple file upload, otherwise it will be just the one file being renamed,
-					// hence the choice of do..while loop which will run at least once
-					$i = 1;
-					do {
-						//we rename the file by adding an underscore and an incremented number (e.g. gus_2) to the basename (before the extension)
-						//notice how we commence by incrementing the number after the underscore by one ($i++). The initial 1 value of $i is to indicate that we're uploading a second version of that same file
-						//but the while loop below will also ensure that the renamed file has an incremented number for as long as it finds another file existing in the destination folder
-						$nospaces = $base . '_' . $i++ . $extension;
-					} while (in_array($nospaces, $existing));
-						//mark the file as renamed
-						$this->_renamed = true;
+						$dot = strrpos($nospaces, '.');
+						if ($dot) {
+							$base = substr($nospaces, 0, $dot);
+							$extension = substr($nospaces, $dot);
+						} else {
+							$base = $nospaces;
+							$extension = '';
+						}
+
+						$i = 1;
+						do {
+							$nospaces = $base . '_' . $i++ . $extension;
+						} while (in_array($nospaces, $existing));
+							$this->_renamed = true;
 				  }
 				}
-				//return the new file name
 				return $nospaces;
 		  }
 
@@ -296,26 +285,19 @@
 		  protected function processFile($filename, $error, $size, $type, $tmp_name, $path, $overwrite) {
 				$OK = $this->checkError($filename, $error);
 				if ($OK) {
-				  /* //We are uploading videos so we will ignore the check for the filetype (Besides, it's only an authenticated admin user that will have access to this facility)
-				  $sizeOK = $this->checkSize($filename, $size);
-				  $typeOK = $this->checkType($filename, $type);
-				  if ($sizeOK && $typeOK) {
-				  */
-						$name = $this->checkName($filename, $overwrite);
-	
-						$success = move_uploaded_file($tmp_name, $this->_destination . $name);
-						if ($success) {
-						  // add the amended filename to the array of file names
-						  $this->_filenames[] = $name;
-							$message = "$filename uploaded successfully";
-							if ($this->_renamed) {
-							  $message .= " and renamed $name";
-							}
-							$this->_messages[] = $message;
-						} else {
-						  $this->_messages[] = "Could not upload $filename";
+					$name = $this->checkName($filename, $overwrite);
+
+					$success = move_uploaded_file($tmp_name, $this->_destination . $name);
+					if ($success) {
+					  $this->_filenames[] = $name;
+						$message = "$filename uploaded successfully";
+						if ($this->_renamed) {
+						  $message .= " and renamed $name";
 						}
-				  //}
+						$this->_messages[] = $message;
+					} else {
+					  $this->_messages[] = "Could not upload $filename";
+					}
 				}
 		  }
 

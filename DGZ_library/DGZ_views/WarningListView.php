@@ -5,7 +5,7 @@ namespace DGZ_library\DGZ_views;
 /**
  * Description of WarningListView
  *
- * @author Gustav
+ * @author Gustav Ndamukong
  */
 class WarningListView extends \DGZ_library\DGZ_View {
 	

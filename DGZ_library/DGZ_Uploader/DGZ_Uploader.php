@@ -12,11 +12,6 @@ class DGZ_Uploader extends DGZ_Upload {
 
 
 
-
-
-
-
-
 	/**
 	 * This constructor takes two arguments; the upload destination folder as a string, and an optional sub folder therein which could be
 	 * for example, an ID or image or product name.
@@ -25,12 +20,8 @@ class DGZ_Uploader extends DGZ_Upload {
 	 * @param $uniqeSubFolder string (optional) that will contain the a sub-folder name for cases where unique records have their own sub folders, for example;
 	 * 	the images of a listed item in an e-commerce application. Take note that just like with the $path value; the trailing slash appended to
 	 * 	$uniqeSubFolder is crucial.
-	 *
-	 * @return void
 	 */
 	public function __construct($path, $uniqeSubFolder = '') {
-
-		//set upload path dynamically (value of $path is for example 'gallery')
 		$settings = new Settings();
 		if (array_key_exists($path, $settings->getSettings()))
 		{
@@ -44,7 +35,6 @@ class DGZ_Uploader extends DGZ_Upload {
 		}
 		else
 		{
-			//allow user to pass in a full file path-without going through Settings.php
 			if ($uniqeSubFolder != '') {
 				$destination = $path.$uniqeSubFolder.'/';
 			}
@@ -54,7 +44,6 @@ class DGZ_Uploader extends DGZ_Upload {
 			}
 		}
 
-		//set the file size
 		$maxFileUploadSize = $settings->getSettings()['maxFileUploadSize'];
 
 		$this->setMaxSize($maxFileUploadSize);
@@ -128,11 +117,17 @@ class DGZ_Uploader extends DGZ_Upload {
 
 
 	/**
-	 * This method overrides that of the parent class (processFile()).
+	 * This method overrides that of the parent class (processFile()) in order to not only upload as its parent does, but to
+	 * resize the file.
 	 *
 	 * Having extended the DGZ_Upload parent class, notice how it calls the createThumbnail() method to generate a thumbnail from the uploaded image;
-	 * something its parent class does not do. The parent class only does an upload, that's it. So the DGZ_Thumbnail class which the createThumbnail instantiates behind the scenes
-	 * was a class created just for this child class's use, so that it basically extends its parent's function of merely uploading, to uploading and thumbnail creation.
+	 * something its parent class does not do. The parent class only does an upload, that's it.
+	 * The DGZ_Thumbnail class which the createThumbnail method instantiates behind the scenes was a class
+	 * created just for this child class's use. So this class basically extends its parent's functionality of
+	 * only uploading, to uploading and resizing (thumbnail creation).
+	 * Use the parent DGZ_Upload class or DGZ_library\FileUploader for uploading large files like videos, audios,
+	 * large images.
+	 * But use this DGZ_Uploader class for uploading and resizing images
 	 *
 	 * @param $filename
 	 * @param $error
@@ -165,7 +160,6 @@ class DGZ_Uploader extends DGZ_Upload {
 				$name = $this->createFileName($filename, $overwrite);
 				$success = move_uploaded_file($tmp_name, $this->_destination . $name);
 				if ($success) {
-					// add the amended filename to the array of file names
 					$this->_filenames[] = $name;
 					$message = "$filename uploaded successfully";
 					if ($this->_renamed) {
@@ -173,9 +167,6 @@ class DGZ_Uploader extends DGZ_Upload {
 					}
 					$this->_messages[] = $message;
 
-					// create a thumbnail from the uploaded image if $modify == 'resize'
-					//it is possible to modify this script here so that a thumbnail is created in a different location while
-					//preserving the earlier uploaded large file
 					if ($modify == 'resize') {
 						$this->createThumbnail($this->_destination . $name);
 					}

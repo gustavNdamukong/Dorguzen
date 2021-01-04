@@ -23,12 +23,12 @@ class DGZ_Thumbnail {
 	  $details = null;
 	  $this->_messages[] = "Cannot open $image.";
 	}
-	// if getimagesize() returns an array, it looks like an image
+
 	if (is_array($details)) {
   	  $this->_original = $image;
 	  $this->_originalwidth = $details[0];
 	  $this->_originalheight = $details[1];
-	  // check the MIME type
+
       $this->checkType($details['mime']);
 	} else {
 	  $this->_messages[] = "$image doesn't appear to be an image."; 
@@ -149,7 +149,7 @@ class DGZ_Thumbnail {
 	$resource = $this->createImageResource();
 	$thumb = imagecreatetruecolor($this->_thumbwidth, $this->_thumbheight);
 	imagecopyresampled($thumb, $resource, 0, 0, 0, 0, $this->_thumbwidth, $this->_thumbheight, $this->_originalwidth, $this->_originalheight);
-	$newname = $this->_name; //. $this->_suffix;
+	$newname = $this->_name;
 	if ($this->_imageType == 'jpeg') {
 	  $newname .= '.jpg';
 	  $success = imagejpeg($thumb, $this->_destination . $newname, 100);

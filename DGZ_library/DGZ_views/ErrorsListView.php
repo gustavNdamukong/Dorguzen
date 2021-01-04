@@ -5,7 +5,7 @@ namespace DGZ_library\DGZ_views;
 /**
  * Description of ErrorsListView
  *
- * @author Gustav
+ * @author Gustav Ndamukong
  */
 class ErrorsListView extends \DGZ_library\DGZ_View {
 	

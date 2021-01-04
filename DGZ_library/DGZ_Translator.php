@@ -16,11 +16,7 @@ class DGZ_Translator extends \DGZ_library\DGZ_Lang
 
 
     /**
-     * This is the setter method that sets the default language of your application, and it is called from the config file, the one place where that variable will be
-     * set and this setter method on this main (parent) abstract translation class will be called. Because the next method following this one which is a getter method
-     * that determines the language used by your app will first of all check for the existence of a session 'lang' variable. If the user has clicked on a language
-     * flag to choose a language, that choice will override the value of this $default_lang property.
-     *
+     * Set the default language of your application
      * @param $default_lang
      */
     public static function setDefaultLang($default_lang)

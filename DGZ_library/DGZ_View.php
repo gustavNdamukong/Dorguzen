@@ -8,7 +8,7 @@ namespace DGZ_library;
  * Base Class for Views. Also contains the static method getView which looks for a named view and decides whether to use
  * the base version or an overridden version
  *
- * @author Gustav
+ * @author Gustav Ndamukong
  */
 abstract class DGZ_View
 {
@@ -17,20 +17,16 @@ abstract class DGZ_View
 	/**
 	 * Returns a View class for displaying things in the desired format as defined in the URL (default to HTML if not set).
 	 *
-	 * Checks for the target view in three locations:
+	 * Checks for the target view in two locations:
 	 *        i) views/[format]/[viewName]
 	 *        ii) DGZ_library/DGZ_views/[viewName]
-	 *        iii) layouts/reserveViewTemplates/[viewName]
 	 *
 	 * @param string $viewName The name of the view you want
-	 * @param /DGZ_Controller $container [Optional] If calling a view which descends from HtmlView, pass in a reference to the controller (view container) in which this view will be displayed.
+	 * @param $pageController [Optional] If calling a view which descends from HtmlView, pass in a reference to the controller (view container) in which this view will be displayed.
 	 * @param string $format [Optional] Specify a format if necessary, otherwise it uses the format of the url
-	 * @param boolean $toolkit [Optional] indicates if the view file to be displayed is part of the toolkit folder containing useful frontend design components
-	 *
 	 * @return object A DGZ_View object if found,
 	 * @throws /Exception if a view object cannot be found in the desired format.
 	 */
-	/////public static function getView($viewName, \DGZ_library\DGZ_Controller $pageController = null, $format = null, $toolkit = false)
 	public static function getView($viewName, \DGZ_library\DGZ_Controller $pageController = null, $format = null)
 	{
 
@@ -46,17 +42,13 @@ abstract class DGZ_View
 			$viewClass = 'views\\' . $viewName;
 		}
 		elseif (file_exists($coreViewFile)) {
-			//we sometimes want to display Dorguzen's internal view files
 			include_once($coreViewFile);
 			$viewClass = 'DGZ_library\DGZ_views\\' . $viewName;
 		}
 		else {
-			//the views file path does not exist
 			throw new \DGZ_library\DGZ_Exception('DGZ_View "' . $viewName . '" not found', \DGZ_library\DGZ_Exception::NO_VIEW_FOUND, 'No view class could be found called "' . $viewName . '" for format "' . '"' . PHP_EOL . 'Please check that the class exists in either "' . $fileName . '" or in "' . $coreViewFile . '"');
 		}
 
-
-		//No need to specify the whole path in order to instantiate the class, as we have already included its file above
 		$object = new $viewClass();
 
 		if ($object instanceof \DGZ_library\DGZ_HtmlView) {
@@ -65,17 +57,16 @@ abstract class DGZ_View
 				throw new \DGZ_library\DGZ_Exception('Controller Object Required for HtmlView', \DGZ_library\DGZ_Exception::MISSING_PARAMETERS, 'When creating a view which extends from //DGZ_library//DGZ_View, you must provide your DGZ_Controller object as the second parameter ' . 'into DGZ_View::getView()' . PHP_EOL . '(got "' . (is_object($pageController) ? get_class($pageController) : (is_array($pageController) ? 'array' : print_r($pageController, true))) . '")' . 'This is because HTML views may need to add their own styles and scripts into your controller object in order for them to work properly.');
 			}
 
-			//Set the default title of the page to the view (class) name
-			//This can be overridden in the controller when generating a view for a more SEO-friendly title
 			$pageController->setPageTitle($viewName);
 			$pageController->setViewName($viewName);
 			$object->setContext($pageController);
 		}
 
-		//return the new view object
 		return $object;
 
 	}
+
+
 
 
 	/**
@@ -87,7 +78,7 @@ abstract class DGZ_View
 	 *        views/admin/[format]/[viewName]
 	 *
 	 * @param string $viewName The name of the view you want
-	 * @param /DGZ_Controller $container [Optional] If calling a view which descends from HtmlView, pass in a reference to the controller (view container) in which this view will be displayed.
+	 * @param $viewController [Optional] If calling a view which descends from HtmlView, pass in a reference to the controller (view container) in which this view will be displayed.
 	 * @param string $format [Optional] Specify a format if necessary, otherwise it uses the format of the url
 	 *
 	 * @return object A DGZ_View object if found,
@@ -107,12 +98,10 @@ abstract class DGZ_View
 			$viewClass = 'views\admin\\' . $viewName;
 		}
 		else {
-			//the views file path does not exist
 			throw new \DGZ_library\DGZ_Exception('DGZ_View "' . $viewName . '" not found', \DGZ_library\DGZ_Exception::NO_VIEW_FOUND, 'No view class could be found called "' . $viewName . '" for format "' . '"' . PHP_EOL . 'Please check that the class exists in either "' . $fileName . '" or in "');
 		}
 
 
-		//No need to specify the whole path in order to instantiate the class, as we have already included its file above
 		$object = new $viewClass();
 
 		if ($object instanceof \DGZ_library\DGZ_HtmlView) {
@@ -121,14 +110,11 @@ abstract class DGZ_View
 				throw new \DGZ_library\DGZ_Exception('Controller Object Required for HtmlView', \DGZ_library\DGZ_Exception::MISSING_PARAMETERS, 'When creating a view which extends from //DGZ_library//DGZ_View, you must provide your DGZ_Controller object as the second parameter ' . 'into DGZ_View::getView()' . PHP_EOL . '(got "' . (is_object($viewController) ? get_class($viewController) : (is_array($viewController) ? 'array' : print_r($viewController, true))) . '")' . 'This is because HTML views may need to add their own styles and scripts into your controller object in order for them to work properly.');
 			}
 
-			//Set the default title of the page to the view (class) name
-			//This can be overridden in the controller when generating a view for a more SEO-friendly title
 			$viewController->setPageTitle($viewName);
 			$viewController->setViewName($viewName);
 			$object->setContext($viewController);
 		}
 
-		//return the new view object
 		return $object;
 
 
@@ -147,7 +133,7 @@ abstract class DGZ_View
 	 *        ii) views/admin/[viewName]
 	 *
 	 * @param string $viewName The name of the view you want
-	 * @param /DGZ_Controller $container [Optional] If calling a view which descends from HtmlView, pass in a reference to the controller (view container) in which this view will be displayed.
+	 * @param $viewController [Optional] If calling a view which descends from HtmlView, pass in a reference to the controller (view container) in which this view will be displayed.
 	 * @param string $format [Optional] Specify a format if necessary, otherwise it uses the format of the url
 	 *
 	 * @return object A DGZ_View object if found,
@@ -172,12 +158,10 @@ abstract class DGZ_View
 			$viewClass = 'views\admin\\' . $viewName;
 		}
 		else {
-			//the views file path does not exist
 			throw new \DGZ_library\DGZ_Exception('DGZ_View "' . $viewName . '" not found', \DGZ_library\DGZ_Exception::NO_VIEW_FOUND, 'No view class could be found called "' . $viewName . '" for format "' . '"' . PHP_EOL . 'Please check that the class exists in either "' . $fileName . '" or in "');
 		}
 
 
-		//No need to specify the whole path in order to instantiate the class, as we have already included its file above
 		$object = new $viewClass();
 
 		if ($object instanceof \DGZ_library\DGZ_HtmlView) {
@@ -189,7 +173,6 @@ abstract class DGZ_View
 			$object->setContext($viewController);
 		}
 
-		//return the new view object
 		return $object;
 
 	}

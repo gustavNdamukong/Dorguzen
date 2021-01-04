@@ -31,10 +31,10 @@
                     <div class="footer-widget footer-widget-twitter">
                     	<h4>Recent Tweets</h4>
                         <div id="twitter-wrapper">
-                            <!-- WIDGET: FACEBOOK NEWS - START -->
+                            <!-- WIDGET: TWITTER - START -->
                             <a class="twitter-timeline" data-width="265" data-height="250" href="https://twitter.com/">Tweets by some one</a>
                             <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
-                            <!-- WIDGET: FACEBOOK NEWS - END -->
+                            <!-- WIDGET: TWITTER- END -->
                         </div>
                 	</div>
                 </div>
@@ -59,7 +59,7 @@
             	<div class="row">
                     <div class="col-sm-6">
                         <p class="copyright">Copyright © 2020 - All Rights Reserved.</p>
-                        <p class="copyright">Designed by <a href="http://nolimitmedia.co.uk" target="_blank">Nolimit Media Ltd</a></p>
+                        <p class="copyright">Designed by <a href="https://nolimitmedia.co.uk" target="_blank">Nolimit Media Ltd</a></p>
                     </div>
                     <div class="col-sm-6">
                         <ul class="list-inline payment-methods">

@@ -5,7 +5,7 @@ namespace DGZ_library\DGZ_functions;
 /**
  * Utility functions for working with numbers which represent currency values.
  *
- * @author brittaind
+ * @author Gustav Ndamukong
  */
 class CurrencyConversion {
 	

@@ -8,6 +8,8 @@ class SuccessListView extends \DGZ_library\DGZ_View {
 	/**
 	 * Displays a list of success messages as an unordered list
 	 * @param array $successes An array of success messages to display
+	 *
+	 * @author Gustav Ndamukong
 	 */
 	public function show(array $successes) {
 	

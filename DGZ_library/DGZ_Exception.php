@@ -6,7 +6,7 @@ namespace DGZ_library;
  * Extension of Exception class so that more details can be passed through when
  * errors are encountered.
  *
- * @author Gustav
+ * @author Gustav Ndamukong
  */
 class DGZ_Exception extends \Exception {
 

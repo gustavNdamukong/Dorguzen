@@ -8,7 +8,7 @@ use settings\Settings;
 /**
  * Displays a DGZ_library/Exception in HTML format
  *
- * @author Gustav
+ * @author Gustav Ndamukong
  */
 
 class DGZExceptionView  extends \DGZ_library\DGZ_View {
@@ -44,7 +44,6 @@ class DGZExceptionView  extends \DGZ_library\DGZ_View {
 					<?php
 						endif;
 
-					//check if are not live, n only if so, throw exception details on screen
 					if($settings->getSettings()['live'] == false)
 					{ ?>
 							<hr/>

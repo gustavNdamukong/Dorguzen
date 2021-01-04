@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * Call this class like so
  * $data = new DGZ_Paginator($array);
  * $data->paginate($array);
@@ -25,7 +25,7 @@ class DGZ_Paginator
     protected $_offset = 0;
 
 
-    protected $_end = 0; //this is now showPerPage
+    protected $_end = 0;
 
 
     protected $_firstPage = 'no';
@@ -44,9 +44,14 @@ class DGZ_Paginator
 
 
 
+
+    /**
+     * DGZ_Paginator constructor. Here we set things that are fixed values, that will not change with page refreshes
+     *
+     * @param $display_array the array of data a user is paging through in a view
+     */
     public function __construct($display_array)
     {
-        //Here we set things that are fixed values, that will not change with page refreshes
         $this->_data = $display_array;
 
         $this->_totalCount = count($display_array);
@@ -66,6 +71,8 @@ class DGZ_Paginator
      *  or decreased by 1 to make the last record on the previous page in case of prev, as the user navigates the data.
      *  Note that the length (end of the items) displayed per page is then worked out from this offset
      *
+     * @page the current page number
+     * @offset what record number to start displaying from
      */
     public function paginate($page, $offset)
     {
@@ -82,30 +89,19 @@ class DGZ_Paginator
 
         $this->_currentPage = $page;
 
-
-
         $this->_offset = $offset;
 
-        //Note that arrays start from 0 so array_slice() will grab from 0 which means the numPerPage figure must be decreased by 1
-        //to get the accurate number per page. These numbers will not look right to humans, so we create a separate pair of offset n end
-        // wh we call humanOffset and humanEnd respectively just for displaying on screen.
-        /////////////////$this->_end = ($this->_offset + $this->_numPerPage); //the length param of array_slice() does not count the last ending number
-        $this->_end = ($this->_numPerPage); //the length param of array_slice() does not count the last ending number
+        $this->_end = ($this->_numPerPage);
 
-
-        //set the human-friendly start and end
         $this->_humanOffset = $this->_offset + 1;
 
-        $this->_humanEnd = ($this->_numPerPage * $page); //the length param of array_slice() does not count the last ending number
+        $this->_humanEnd = ($this->_numPerPage * $page);
 
 
-
-        //determine when its the first or last page
         if ($page == 1)
         {
             $this->_firstPage = 'yes';
         }
-
 
 
         if ($page == $this->_numPages)
@@ -114,13 +110,10 @@ class DGZ_Paginator
         }
 
 
-        //If the array is shorter than the length, then only the available array elements will be present
         $result = array_slice($this->_data, $this->_offset, $this->_end, true);
 
 
-
         return $result;
-
 
     }
 

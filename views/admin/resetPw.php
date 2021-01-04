@@ -11,7 +11,7 @@ class resetPw extends \DGZ_library\DGZ_HtmlView
 
      function show($userId, $userEmail)
      {
-
+         if ((isset($_SESSION['authenticated'])) && ($_SESSION['authenticated'] == 'Let Go-'.$this->controller->settings->getSettings()['appName'])) {
          //Pull in the PHP file that has the JS validation codes
          $jsValidation = \DGZ_library\DGZ_View::getInsideView('jsValidationPartial', $this->controller);
          $jsValidation->show();
@@ -64,7 +64,25 @@ class resetPw extends \DGZ_library\DGZ_HtmlView
              </div>
          </section>
          </div>
-     <?php
+        <?php
+          }
+         else
+         { ?>
+             <div class="main">
+                 <section class="content account">
+                     <div class="container">
+                         <div class="row">
+                             <div class="col-sm-3">
+                             </div>
+                             <div class="col-sm-9">
+                                 <h3 style="color:red;">Sorry! You have no access to this page</h3>
+                             </div>
+                         </div>
+                     </div>
+                 </section>
+             </div>
+         <?php
+         }
      }
 
 } ?>

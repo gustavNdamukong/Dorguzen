@@ -5,6 +5,8 @@ namespace controllers;
 use DGZ_library\DGZ_Validate;
 use DGZ_library\DGZ_Messenger;
 use ContactFormMessage;
+use DGZ_library\DGZ_View;
+
 
 class FeedbackController extends \DGZ_library\DGZ_Controller
 {
@@ -13,7 +15,6 @@ class FeedbackController extends \DGZ_library\DGZ_Controller
     {
         parent::__construct();
     }
-
 
 
 
@@ -29,16 +30,14 @@ class FeedbackController extends \DGZ_library\DGZ_Controller
 
 
 
-
     public function defaultAction()
     {
-        $view = \DGZ_library\DGZ_View::getView('contact', $this, 'html');
+        $view = DGZ_View::getView('contact', $this, 'html');
 
         $this->setLayoutDirectory($this->settings->getSettings()['layoutDirectory']);
         $this->setLayoutView($this->settings->getSettings()['defaultLayout']);
         $view->show();
     }
-
 
 
 
@@ -46,16 +45,12 @@ class FeedbackController extends \DGZ_library\DGZ_Controller
 
     public function contact()
     {
-        $view = \DGZ_library\DGZ_View::getView('contact', $this, 'html');
+        $view = DGZ_View::getView('contact', $this, 'html');
 
         $this->setLayoutDirectory($this->settings->getSettings()['layoutDirectory']);
         $this->setLayoutView($this->settings->getSettings()['defaultLayout']);
         $view->show();
     }
-
-
-
-
 
 
 
@@ -118,8 +113,6 @@ class FeedbackController extends \DGZ_library\DGZ_Controller
 
                 $contactFormModel->contactformmessage_message = $message;
                 $contactFormModel->contactformessage_date = date("Y-m-d H:i:s");
-
-                //Save to DB
                 $saved = $contactFormModel->save();
 
                 //Also send an email to the site admin

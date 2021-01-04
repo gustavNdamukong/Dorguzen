@@ -100,7 +100,7 @@ abstract class DGZ_HtmlView extends \DGZ_library\DGZ_View {
 	 * 			<form method="post" action="<?=$this->route('controllerName/methodName')">
 	 *
 	 * 			<a class="btn btn-primary"
-	href="<?=$this->controller->settings->getFileRootPath()?>gallery/openalbum?
+					href="<?=$this->controller->settings->getFileRootPath()?>gallery/openalbum?
 	 * 				album_id=<?php echo $view_album_id; ?>&amp;view_album=<?php echo $target_album;?>
 	 * 				&amp;upload_imgs=1">Upload images to this album
 	 * 			</a>

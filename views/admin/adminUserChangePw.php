@@ -14,7 +14,7 @@ class adminUserChangePw extends \DGZ_library\DGZ_HtmlView
          <script src="http://code.jquery.com/jquery-latest.min.js"></script>
         <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
     <?php
-         if (isset($_SESSION['authenticated'])) {
+         if ((isset($_SESSION['authenticated'])) && ($_SESSION['authenticated'] == 'Let Go-'.$this->controller->settings->getSettings()['appName'])) {
 
          ?>
          <!-- ==========================

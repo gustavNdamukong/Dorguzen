@@ -54,11 +54,8 @@
 
         public function __construct()
         {
-            //Parent constructors wont run auto, u have to explicitly call it, in this case to load our DB connection settings
             parent::__construct();
 
-            //build the map of the table columns and datatypes. Note we have created before hand an private member called 'columns' wh will hold column names n datatypes
-            //only your model class will write to n read from this member
             $columns = $this->loadORM($this);
         }
 

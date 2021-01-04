@@ -13,8 +13,6 @@ class contact extends \DGZ_library\DGZ_HtmlView
 
 	function show()
 	{
-		//Use the addMetadata() method to add description, keywords, and author details to the head tag of your view. This is critical for SEO. Check the layout files to
-			//see which generic meta tags have been used that apply to all views in your app and determine which ones you need to add on the fly for specific views.
 		$this->addMetadata(
 			[
 				'<meta name="description" content="The DorguzApp (replace this with your application name) contact us page. Send us a quick message and we will get back 

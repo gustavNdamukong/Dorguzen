@@ -5,11 +5,12 @@ namespace DGZ_library\DGZ_functions;
 /**
 * Description of StringFunctions
 *
-* @author Gustav
+* @author Gustav Ndamukong
+*/
 class StringFunctions {
 
 /**
-* @description standard startsWidth function that doesn't seem to exist in php for some reason
+* @description standard startsWidth function that doesn't seem to exist in php
 * @usage  if (/StringFunctions::startsWith($this->getSellerType(), 'Bus')==true)<br>
 return "is a business";
 * @param string $haystack

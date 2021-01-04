@@ -23,7 +23,6 @@
     class ContactFormMessage extends DGZ_DB_Adapter
     {
 
-        //make the visibility of this field protected, not private; else the parent class would not be able to write to it.
         protected $_columns = array();
 
 
@@ -57,34 +56,12 @@
 
         public function __construct()
         {
-            //Parent constructors wont run auto, u have to explicitly call it, in this case to load our DB connection settings
             parent::__construct();
 
-            //build the map of the table columns and datatypes. Note we have created before hand a private member called '_columns' wh will hold column names n datatypes
-            //only your model class will write to n read from this member
             $columns = $this->loadORM($this);
 
         }
 
-
-
-
-
-
-        /**
-         * THIS IS NOT YET IN USE
-         *
-         * @param $id
-         * @return string
-         */
-        public function deleteContacFormMessage($id)
-        {  
-            $connect = $this->_dbadapter->getConnected();
-            $sql = "DELETE FROM contactFormMessage WHERE id = $id";
-            $deleted = $connect->query($sql);
-            return $deleted;
-        }
-          
         
     }
     

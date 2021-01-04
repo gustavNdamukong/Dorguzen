@@ -7,7 +7,7 @@ namespace DGZ_library;
 /**
  * Description of Layout
  *
- * @author Gustav
+ * @author Gustav Ndamukong
  */
 
 
@@ -436,19 +436,17 @@ abstract class DGZ_Layout
 	 * @param string $appName The name of this app so it knows how to scale the folder system for the right layout file
 	 * @param string $layoutFolder The name of the folder to find the layout in
 	 * @param string $layoutName The name of the layout to find
-	 * @return \layouts\Layout The named layout if found
+	 * @return string The name of layout if found
 	 * @throws \Exception If the layout cannot be found
 	 */
 	public static function getLayout($useFullLayout, $appName, $layoutFolder, $layoutName)
 	{
 		$layoutSettings = new Settings();
 
-		//While we're grabbing the right layout to show, take this opportunity to tell the layout class the app settings for layouts as it also needs to know
 		self::$appName = $appName;
 		self::$defaultLayoutDirectory = $layoutFolder;
 		self::$defaultLayout = $layoutName;
 
-		//if we are in the local environment
 		if ($layoutSettings->getSettings()['live'] == false) {
 			if ($useFullLayout) {
 				$layoutFileName = $_SERVER['DOCUMENT_ROOT'] . '/' . $appName . '/layouts/' . $layoutFolder . '/' . $layoutName . '.php';
@@ -487,7 +485,6 @@ abstract class DGZ_Layout
 		}
 
 		if (file_exists($layoutFileName)) {
-			//Now require the file so you can instantiate its class
 			require_once($layoutFileName);
 
 			return new $layoutClass();

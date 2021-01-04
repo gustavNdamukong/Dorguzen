@@ -1,15 +1,7 @@
 <?php
 namespace DGZ_library;
 
-##########THIS SECTION BELOW DEALS WITH FUNCTIONS PROCESSING VARIOUS FORMS EG LOGIN, LOGOUT, REGISTER ETC ETC###########
-// This script defines any functions required by the various forms.
-// This script is created in Chapter 4.
 
-// This function generates a form INPUT or TEXTAREA tag.
-// It takes three arguments:
-// - The name to be given to the element.
-// - The type of element (text, password, textarea).
-// - An array of errors.
 
 class DGZ_Dates
 {

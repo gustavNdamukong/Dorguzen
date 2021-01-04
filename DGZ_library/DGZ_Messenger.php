@@ -67,20 +67,15 @@ class DGZ_Messenger
 
     public function sendContactFormMsgToAdmin($name, $visitorEmail, $phone, $message)
     {
-        // Add your "sending" email below, better to get this from the config file
         $headers  = "From: $this->_headerFrom\r\n";
-        /////$headers .= "Reply-To: $this->_headerReplyTo\r\n";
         $headers .= "Reply-To: $visitorEmail\r\n";
         $headers .= "Content-type: text/html; charset=utf-8\r\n";
 
-        // We'll set the email "to" address to the database record
-        //$to = $email;
         $to = $this->_appEmail.','.$this->_appEmailOther;
         $subject = "Inquiry from your website contact form";
 
         $msg = $this->sendContactFormMsgToAdminTemplate($name, $visitorEmail, $phone, $message);
 
-        // And send the email!
         $send = mail($to, $subject, $msg, $headers);
         if ($send)
         {
@@ -108,14 +103,12 @@ class DGZ_Messenger
 
         $to = "$email";
 
-        // Add your "sending" email below, notice we are getting this from the settings file
         $headers  = "From: $this->_headerFrom\r\n";
         $headers .= "Reply-To: $this->_headerReplyTo\r\n";
         $headers .= "Content-type: text/html; charset=utf-8\r\n";
 
         $msg = $this->passwordResetTemplate($firstname, $resetCode);
 
-        // And send the email!
         $send = mail($to, $subject, $msg, $headers);
         
         if ($send)
@@ -147,7 +140,6 @@ class DGZ_Messenger
 
     private function sendContactFormMsgToAdminTemplate($name, $email, $phone, $message)
     {
-        //Determine if we are live or not in order to build any links with the right URLs
         if ($this->_config->getSettings()['live'])
         {
             $url = $this->_config->getSettings()['liveUrl'];
@@ -227,9 +219,8 @@ class DGZ_Messenger
 
 
     /**
-     * @param $username
-     * @param $password
      * @param $firstname
+     * @param $resetCode
      * @return string
      */
        private function passwordResetTemplate($firstname, $resetCode)

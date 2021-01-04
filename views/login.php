@@ -19,10 +19,9 @@ class login extends \DGZ_library\DGZ_HtmlView
              ?>
              <script src="http://code.jquery.com/jquery-latest.min.js"></script>
              <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
-             <?php
 
-             //Pull in the PHP file that has the JS validation codes
-             $jsValidation = \DGZ_library\DGZ_View::getView('jsValidationPartial', $this->controller);
+             <?php
+             $jsValidation = \DGZ_library\DGZ_View::getInsideView('jsValidationPartial', $this->controller);
              $jsValidation->show();
 
              ?>
