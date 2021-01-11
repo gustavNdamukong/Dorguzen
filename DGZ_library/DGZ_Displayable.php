@@ -1,10 +1,5 @@
 <?php
 
-/**
- * Description of Displayable
- *
- * @author Gustav Ndamukong
- */
 namespace DGZ_library;
 
 

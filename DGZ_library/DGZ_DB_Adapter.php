@@ -1,11 +1,15 @@
 <?php
 
+namespace DGZ_library;
+
+
 /**
  *
  * @author Gustav Ndamukong
  */
 
 use settings\Settings;
+use mysqli;
 
 
 /**

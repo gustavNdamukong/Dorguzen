@@ -2,7 +2,7 @@
 
 namespace views;
 
-
+use DGZ_library\DGZ_View;
 
 class login extends \DGZ_library\DGZ_HtmlView
 {
@@ -21,7 +21,7 @@ class login extends \DGZ_library\DGZ_HtmlView
              <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
 
              <?php
-             $jsValidation = \DGZ_library\DGZ_View::getInsideView('jsValidationPartial', $this->controller);
+             $jsValidation = DGZ_View::getInsideView('jsValidationPartial', $this->controller);
              $jsValidation->show();
 
              ?>

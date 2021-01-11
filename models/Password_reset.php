@@ -1,6 +1,8 @@
 <?php
 
 
+use DGZ_library\DGZ_DB_Adapter;
+
     /** ############## Properties and Methods all model classes must have to get the full power of the Dorguzen ###############
      * Must extend the parent model DGZ_DB_ADAPTER
 

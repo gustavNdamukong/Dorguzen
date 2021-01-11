@@ -1,4 +1,7 @@
 <?php
+
+namespace DGZ_library;
+
 class DGZ_CheckPassword {
 
   protected $_password;

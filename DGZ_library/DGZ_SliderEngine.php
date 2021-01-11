@@ -1,4 +1,5 @@
 <?php
+
 namespace DGZ_library;
 
 /**

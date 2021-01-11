@@ -15,7 +15,6 @@
         <script src="<?=$this->settings->getFileRootPath()?>assets/js/jquery.mb.YTPlayer.min.js"></script>
         <script src="<?=$this->settings->getFileRootPath()?>assets/js/color-switcher.js"></script>
         <script src="<?=$this->settings->getFileRootPath()?>assets/js/custom.js"></script>
-        <script src="<?=$this->settings->getFileRootPath()?>assets/js/validate.js"></script>
 
 
         <!--SCRIPTS FOR THE SLIDER-->

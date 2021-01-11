@@ -3,7 +3,7 @@ namespace settings;
 
 
 use BaseSettings;
-use DGZ_Router;
+use DGZ_library\DGZ_Router;
 
 	######################### THE IDEA IS TO MAKE THIS CLASS TAKE OVER THE RESPONSIBILITY OF MANAGING SITE-WIDE SETTINGS ##########################
 	/**

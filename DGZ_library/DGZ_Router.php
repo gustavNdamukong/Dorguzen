@@ -1,7 +1,10 @@
 <?php
 
+namespace DGZ_library;
+
 use settings\Settings;
-use DGZ_library\DGZ_Application;
+use ReflectionClass;
+
 
 /**
  * Description of DGZ_Router

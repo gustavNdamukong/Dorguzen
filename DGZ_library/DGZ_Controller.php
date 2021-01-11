@@ -3,6 +3,13 @@ namespace DGZ_library;
 
 
 use settings\Settings;
+use DGZ_library\DGZ_Router;
+use DGZ_library\DGZ_Exception;
+use DGZ_library\DGZ_Layout;
+use ReflectionClass;
+use Exception;
+use DGZ_library\DGZ_Application;
+
 
 /**
  * Description of HtmlPage
@@ -173,7 +180,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 	 * @return string The name of the layout to be used, e.g. 'DefaultLayout'
 	 */
 	public function getAppName() {
-		$app = new \DGZ_library\DGZ_Application();
+		$app = new DGZ_Application();
 		return $app->getAppName();
 	}
 
@@ -185,7 +192,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 	 * @return string The name of the layout to be used, e.g. 'DefaultLayout'
 	 */
 	public function getDefaultLayoutDirectory() {
-		$app = new \DGZ_library\DGZ_Application();
+		$app = new DGZ_Application();
 		return $app->getDefaultLayoutDirectory();
 	}
 
@@ -197,7 +204,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 	 * @return string The name of the layout to be used, e.g. 'DefaultLayout'. We just instantiate the application class n return it Factory style
 	 */
 	public function getDefaultLayout() {
-		$app = new \DGZ_library\DGZ_Application();
+		$app = new DGZ_Application();
 		return $app->getDefaultLayout();
 	}
 
@@ -485,7 +492,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 	/**
 	 * Add a thrown exception to an internal array so that it can be displayed nicely in the layout.
 	 */
-	public function addException(\Exception $e) {
+	public function addException(Exception $e) {
 		$this->exceptions[] = $e;
 		$_SESSION['_exceptions'] = $this->exceptions;
 	}
@@ -513,7 +520,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 			try {
 				ob_start();
 
-				list($controller, $method) = \DGZ_Router::getControllerAndMethod();
+				list($controller, $method) = DGZ_Router::getControllerAndMethod();
 
 
 				if ($method == 'defaultAction')
@@ -523,10 +530,10 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 				else {
 					call_user_func_array(array($this, $method), $inputParameters);
 				}
-			} catch (\DGZ_library\DGZException $e) {
+			} catch (DGZ_Exception $e) {
 				$this->addException($e);
 
-			} catch (\Exception $e) {
+			} catch (Exception $e) {
 				$this->addException($e);
 			}
 
@@ -548,7 +555,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 				);
 			}
 
-			$layout = \DGZ_library\DGZ_Layout::getLayout($this->useFullLayout, $this->appName, $this->defaultLayoutDirectory, $this->defaultLayout);
+			$layout = DGZ_Layout::getLayout($this->useFullLayout, $this->appName, $this->defaultLayoutDirectory, $this->defaultLayout);
 
 
 			if(isset($_SESSION['_warnings']) && is_array($_SESSION['_warnings']) && count($_SESSION['_warnings']) > 0) {
@@ -649,7 +656,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 			$layout->display();
 
 
-		} catch (\DGZ_library\DGZ_Exception $e) {
+		} catch (DGZ_Exception $e) {
 
 			if($this->format == 'html') {
 				$e->display();
@@ -657,11 +664,11 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 				throw $e;
 			}
 
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 
 			if($this->format == 'html') {
 
-				$layout = \DGZ_library\DGZ_Layout::getLayout($this->useFullLayout, $this->appName, $this->defaultLayoutDirectory, $this->defaultLayout);
+				$layout = DGZ_Layout::getLayout($this->useFullLayout, $this->appName, $this->defaultLayoutDirectory, $this->defaultLayout);
 
 
 				$view = DGZ_View::getView('ExceptionView', $this);
@@ -751,7 +758,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
 		if(class_exists($controller, true)) {
 
-			$reflection = new \ReflectionClass($controller);
+			$reflection = new ReflectionClass($controller);
 			if(empty($method)) {
 				$controllerInstance = new $controller();
 				$method = $controllerInstance->getDefaultAction();
@@ -759,7 +766,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 			try {
 				$reflection->getMethod($method);
 				return true;
-			} catch (\Exception $e) {
+			} catch (Exception $e) {
 				return false;
 			}
 

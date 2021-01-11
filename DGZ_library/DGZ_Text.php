@@ -1,6 +1,6 @@
-
 <?php
 
+namespace DGZ_library;
 
 class DGZ_Text
 {

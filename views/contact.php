@@ -20,7 +20,6 @@ class contact extends \DGZ_library\DGZ_HtmlView
 				'<meta name="keywords" content="DorguzApp (replace this with your application name) contact form, get quote, more information.">',
 				'<meta name="author" content="Your name here">'
 			]);
-		$this->addStyle('general.css');
 		?>
 
 		<!-- ==========================
@@ -157,7 +156,7 @@ class contact extends \DGZ_library\DGZ_HtmlView
 								<h3>Twitter</h3>
 								<div class="widget" id="twitter-news">
 									<a class="twitter-timeline" data-width="265" data-height="800" href="https://twitter.com/yourAppName">Tweets by yourAppName</a>
-									<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+									<script async src="http://platform.twitter.com/widgets.js" charset="utf-8"></script>
 								</div>
 							</div>
 							<!-- WIDGET: FACEBOOK NEWS - END -->

@@ -1,5 +1,7 @@
 <?php
 
+namespace DGZ_library;
+
 /**
  * Call this class like so
  * $data = new DGZ_Paginator($array);

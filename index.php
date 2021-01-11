@@ -173,7 +173,7 @@ function loadController($className) {
 		$fileName = $folder .'/'. basename($className) . '.php';
 		if (file_exists($fileName))
 		{
-			include($fileName);
+			include_once($fileName);
 		}
 	}
 
@@ -183,6 +183,6 @@ function loadController($className) {
 
 
 
-DGZ_Router::route();
+DGZ_library\DGZ_Router::route();
 
 	

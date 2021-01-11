@@ -1,6 +1,7 @@
 <?php
 
-use DGZ_library\DGZ_Dates;
+namespace DGZ_library;
+
 
 /**
  * This class is an improved version of the DGZ_Paginator which provided very basic navigation. Now DGZ_Pager offers much more, like:
