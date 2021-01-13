@@ -435,7 +435,7 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
         else
         {
             $this->addErrors($fail);
-            $this->postBackFormVals($_POST);
+            $this->postBack($_POST);
             $this->redirect('admin', 'createUser');
         }
     }

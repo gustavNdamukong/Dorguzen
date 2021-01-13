@@ -2,7 +2,7 @@
 
 namespace views\admin;
 
-use \DGZ_Pager;
+use DGZ_library\DGZ_Table;
 
 
 class manageContactMessages extends \DGZ_library\DGZ_HtmlView
@@ -53,7 +53,7 @@ class manageContactMessages extends \DGZ_library\DGZ_HtmlView
 									if ($contactMessages)
 									{
 
-									$pager = new DGZ_Pager($contactMessages);
+									$pager = new DGZ_Table($contactMessages);
 
 									//add some extra columns
 									$pager->addColumn('Action');

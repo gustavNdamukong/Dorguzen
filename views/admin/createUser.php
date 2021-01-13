@@ -57,9 +57,9 @@ class createUser extends \DGZ_library\DGZ_HtmlView
                                  <div class="form col-lg-8">
                                      <form id="createUserForm" action="<?=$this->controller->settings->getFileRootPath()?>admin/doCreateUser" method="post">
 
-                                         <input placeholder="First name" id="new_user_fn" name="new_user_fn" class="form-control" type="text" <?=isset($_SESSION['formPostBack'])? 'value="' . htmlentities($_SESSION['formPostBack']['new_user_fn'], ENT_COMPAT, 'UTF-8') . '"':''?> />
-                                         <input placeholder="Last name" id="new_user_ln" name="new_user_ln" class="form-control" type="text" <?=isset($_SESSION['formPostBack'])? 'value="' . htmlentities($_SESSION['formPostBack']['new_user_ln'], ENT_COMPAT, 'UTF-8') . '"':''?> />
-                                         <input placeholder="Email address" id="new_user_un" name="new_user_un" class="form-control" type="text" <?=isset($_SESSION['formPostBack'])? 'value="' . htmlentities($_SESSION['formPostBack']['new_user_un'], ENT_COMPAT, 'UTF-8') . '"':''?> />
+                                         <input placeholder="First name" id="new_user_fn" name="new_user_fn" class="form-control" type="text" <?=isset($_SESSION['postBack'])? 'value="' . htmlentities($_SESSION['postBack']['new_user_fn'], ENT_COMPAT, 'UTF-8') . '"':''?> />
+                                         <input placeholder="Last name" id="new_user_ln" name="new_user_ln" class="form-control" type="text" <?=isset($_SESSION['postBack'])? 'value="' . htmlentities($_SESSION['postBack']['new_user_ln'], ENT_COMPAT, 'UTF-8') . '"':''?> />
+                                         <input placeholder="Email address" id="new_user_un" name="new_user_un" class="form-control" type="text" <?=isset($_SESSION['postBack'])? 'value="' . htmlentities($_SESSION['postBack']['new_user_un'], ENT_COMPAT, 'UTF-8') . '"':''?> />
 
                                          <input placeholder="Password" id="new_user_pwd" name="new_user_pwd" class="form-control" type="password">
                                          <input placeholder="Confirm password" id="new_user_pwd_confirm" name="new_user_pwd_confirm" class="form-control" type="password">

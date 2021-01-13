@@ -789,9 +789,9 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 	 *
 	 * @param $post
 	 */
-	public function postBackFormVals($post)
+	public function postBack($post)
 	{
-		$_SESSION['formPostBack'] = $post;
+		$_SESSION['postBack'] = $post;
 	}
 
 

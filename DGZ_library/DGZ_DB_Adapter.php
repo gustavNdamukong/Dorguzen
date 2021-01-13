@@ -9,7 +9,6 @@ namespace DGZ_library;
  */
 
 use settings\Settings;
-use mysqli;
 
 
 /**
@@ -22,24 +21,9 @@ use mysqli;
  class DGZ_DB_Adapter 
  {
      protected $settings;
-
-
-     protected $host = '';
-
-
-     protected $username = '';
-
-
-     protected $pwd = '';
-
-     
-     protected $db = '';
      
      
      protected $salt = '';
-     
-     
-     protected $connectionType = '';
 
 
      protected $whoCalledMe = '';
@@ -67,11 +51,6 @@ use mysqli;
             $credentials = $this->settings->getSettings()['liveDBcredentials'];
         }
 
-        $this->username = $credentials['username'];
-        $this->pwd = $credentials['pwd'];
-        $this->db = $credentials['db'];
-        $this->host = $credentials['host'];
-        $this->connectionType = $credentials['connectionType'];
         $this->salt = $credentials['key'];
 
     }
@@ -82,31 +61,7 @@ use mysqli;
 
     protected function connect()
     {
-
-        if ($this->connectionType  == 'mysqli')
-        {
-            $conn = new mysqli($this->host, $this->username, $this->pwd, $this->db);
-
-            if ($conn->connect_error)
-            {
-                die('cannot open database');
-            }
-
-
-            return $conn;
-        }
-        elseif ($this->connectionType  == 'pdo')
-        {
-            try
-            {
-                return new PDO("mysql:host=$this->host;dbname=$this->db", $this->username, $this->pwd);
-            }
-            catch (PDOException $e)
-            {
-                echo 'Cannot connect to database';
-                exit;
-            }
-        }
+        return DGZ_DB_Singleton::getInstance();
     }
 
 

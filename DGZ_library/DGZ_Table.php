@@ -4,7 +4,7 @@ namespace DGZ_library;
 
 
 /**
- * This class is an improved version of the DGZ_Paginator which provided very basic navigation. Now DGZ_Pager offers much more, like:
+ * This class is an improved version of the DGZ_Paginator which provided very basic navigation. Now DGZ_Table offers much more, like:
  *      i) pagination through pages, same as DGZ_Paginator
  *      ii) ability to display that data in a responsive table with paginated data display
  *      iii) ability to sort the columns of that table
@@ -15,7 +15,7 @@ namespace DGZ_library;
  * You can then call its getData() method to retrieve the chunk of data you want for every page
  * 
  * Call this class like so
- * $data = new DGZ_Pager($data);
+ * $data = new DGZ_Table($data);
  * $data->getData();
  * 
  * -Note that getData should be passed 2 arguments (the number of items u want displayed per page, n the current page number)
@@ -24,7 +24,7 @@ namespace DGZ_library;
  *          ii) the current page number ($page)
  *
  * e.g.
- *  $pager = new \DGZ_Pager($newsData, $filteredCount);
+ *  $pager = new \DGZ_Table($newsData, $filteredCount);
 
     //set pagination vars
     $limit = ( isset( $_GET['limit'] ) ) ? $_GET['limit'] : 3;
@@ -40,7 +40,7 @@ namespace DGZ_library;
  *
  * @Author Gustav
  */
-class DGZ_Pager
+class DGZ_Table
 {
     
 
@@ -66,7 +66,7 @@ class DGZ_Pager
 
 
     /**
-     * DGZ_Pager constructor. Pass it a second parameter which should be the count of the data to be displayed; remember to filter the real count if you have any applicable filters,
+     * DGZ_Table constructor. Pass it a second parameter which should be the count of the data to be displayed; remember to filter the real count if you have any applicable filters,
      * otherwise the $count will be the total number of records displayed and reflect the number of page links shown in the pagination links, which may not be accurate.
      *
      * This class has a dependency, and that is the DGZ_library\DGZ_Dates class which is injected into the $_dateClass field
