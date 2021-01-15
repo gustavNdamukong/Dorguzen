@@ -80,7 +80,7 @@
 
  ## Full documentation
 
-    Here is the official documentation link [Dorguzen documentation-by Molimit Media](https://nolimitmedia.co.uk/dorguzen/docs)
+Here is the official documentation link [Dorguzen documentation-by Molimit Media](https://nolimitmedia.co.uk/dorguzen/docs)
    
 [GitHub](http://github.com)
 Here is the official documentation link [Dorguzen documentation-by Molimit Media](https://nolimitmedia.co.uk/dorguzen/docs)
