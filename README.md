@@ -80,6 +80,6 @@
 
  ## Full documentation
 
-    Here is the official documentation link [Dorguzen documentation](https://nolimitmedia.co.uk/dorguzen/docs)
+    Here is the official documentation link [Dorguzen documentation](<https://nolimitmedia.co.uk/dorguzen/docs>)
     Bear in mind that this is a work in progress, and as such, the documentation is still being compiled. It is being updated weekly, but if you have any queries, feel free to reach us via the site contact form. 
     Please bare with me. In the mean time if you have any questions, reach out to me here on here and i will get right back at you.
