@@ -12,13 +12,13 @@ class DGZ_Form
 
         if ($formName != "")
         {
-                $str .= "name='".$formName."' ";
-                $str .= "id='".$formName."' ";
+            $str .= "name='".$formName."' ";
+            $str .= "id='".$formName."' ";
         }
 
         if ($action != "")
         {
-                $str .= "action='".$action."' ";
+            $str .= "action='".$action."' ";
         }
 
         if ($method != "")
@@ -28,15 +28,14 @@ class DGZ_Form
 
         if ($attributes)
         {
-                foreach ($attributes as $attribute => $attributeValue)
-                {
-                        $str .= $attribute.'="'.$attributeValue.'"'.' ';
-                }
+            foreach ($attributes as $attribute => $attributeValue)
+            {
+                $str .= $attribute.'="'.$attributeValue.'"'.' ';
+            }
         }
 
         $str .= ">";
-
-        return $str;
+        echo $str;
     }
 
 
@@ -57,8 +56,7 @@ class DGZ_Form
 
         $str .= '>';
         $str .= $value.' </label>';
-
-        return $str;
+        echo $str;
     }
 
 
@@ -70,45 +68,19 @@ class DGZ_Form
      * @param $input_name
      * @param $input_type
      * @param array $attributes
+     * @param string $input_type String to hold the text to pre-populate the field if there is any
      * @return string
      */
-    public static function input($input_name, $input_type, $attributes = array())
+    public static function input($input_name, $input_type, $attributes = array(), $input_value = false)
     {
-
-        // Assume no value already exists:
-        $input_value = false;
-
         // Check for a value in POST:
         if (isset($_SESSION['postBack'][$input_name])) {
             $input_value = $_SESSION['postBack'][$input_name];
         }
 
-        // determine the element type to create (these days thanks to HTML5 many more input types exist beside the old text field)
-        if (($input_type == 'text') || ($input_type == 'password') || ($input_type == 'number') || ($input_type == 'email')) {
-
-            // Start creating the input:
-            $str = '<input type="' . $input_type . '" name="' . $input_name . '" id="' . $input_name . '"';
-
-            // Add the value to the input:
-            if ($input_value)
-                $str .= ' value="' . htmlentities($input_value, ENT_COMPAT, 'UTF-8') . '"';
-
-            // Add any additional attributes
-            if ($attributes)
-            {
-                foreach ($attributes as $attribute => $attributeValue)
-                {
-                    $str .= $attribute.'="'.$attributeValue.'"'.' ';
-                }
-            }
-
-            $str .= '>';
-
-            return $str;
-
-        }
-        // Create a TEXTAREA.
-        elseif ($input_type == 'textarea')
+        // determine the element type to create
+        //In case of a textarea
+        if ($input_type == 'textarea')
         {
             // Start creating the textarea:
             $str = '<textarea name="' . $input_name . '" id="' . $input_name . '" ';
@@ -133,12 +105,44 @@ class DGZ_Form
 
             // Complete the textarea:
             $str .= '</textarea>';
-            return $str;
+            echo $str;
+
+        }
+        else
+        {
+            // Start creating the input:
+            $str = '<input type="' . $input_type . '" name="' . $input_name . '" id="' . $input_name . '"';
+
+            // Add the value to the input:
+            if ($input_value)
+                $str .= ' value="' . htmlentities($input_value, ENT_COMPAT, 'UTF-8') . '"';
+
+            // Add any additional attributes
+            if ($attributes)
+            {
+                foreach ($attributes as $attribute => $attributeValue)
+                {
+                    $str .= $attribute.'="'.$attributeValue.'"'.' ';
+                }
+            }
+
+            $str .= '>';
+            echo $str;
 
         }
 
+
     }
 
+
+
+
+
+    public static function hidden($input_name, $value)
+    {
+        $str = '<input type="hidden" name="' . $input_name . '" id="' . $input_name . '" value="'.$value .'" />';
+        echo $str;
+    }
 
 
 
@@ -168,7 +172,7 @@ class DGZ_Form
                 $str .= '>';
             }
 
-            return $str;
+            echo $str;
         }
         else
         {
@@ -188,7 +192,7 @@ class DGZ_Form
                 }
             }
             $str .= '>';
-            return $str;
+            echo $str;
         }
 
     }
@@ -197,12 +201,16 @@ class DGZ_Form
 
 
 
-    public static function radio($input_name, $value, $attributes = array())
+    public static function radio($input_name, $value, $attributes = array(), $preselected = '')
     {
         $str = '<input type="radio" name="' . $input_name . '" id="' . $value . '"';
 
         //is the field pre-selected
         if ((isset($_SESSION['postBack'][$input_name])) && ($_SESSION['postBack'][$input_name] == $value)) {
+            $str .= " checked='checked' ";
+        }
+        elseif ($value == $preselected)
+        {
             $str .= " checked='checked' ";
         }
 
@@ -217,7 +225,7 @@ class DGZ_Form
         }
 
         $str .= '>';
-        return $str;
+        echo $str;
     }
 
 
@@ -225,13 +233,13 @@ class DGZ_Form
 
     /**
      * @param $selectName the name of the select field. This will also be used as its ID
-     * @param $data an array of data to display in the select field, in the format of 'value => display value'
-     * @param string $preSelected this will contain the string matching the value that you want preselected
+     * @param $data an associative array of data to display in the select field in 'key => value' pairs where the keys will be the option values, & values the option text shown to the user.
+     * @param array $preSelected this will contain a numerically-indexed, single-level array of strings matching the value(s) that you want preselected
      * @param bool $multipleSelect whether you want the field to be a multi-select field or not
-     * @param array $attributes any attributes you wa t applied to the select tag
-     * @return string the fully formed and filled with data select field
+     * @param array $attributes any attributes you want applied to the select tag
+     * @return string the created select field
      */
-    public static function select($selectName, $data, $preSelected = '', $multipleSelect = false, $attributes = array())
+    public static function select($selectName, $data, $preSelected = [], $multipleSelect = false, $attributes = array())
     {
         //track whether we have made a selection-we're gonna wanna do this only once for pre-selected & single select fields
         $selection = false;
@@ -252,36 +260,72 @@ class DGZ_Form
 
             //Create the content (options)
             foreach ($data as $value => $displayValue) {
-                $str .= '<option value="' . $value . '" ';
-                //check if preselected
-                if ((isset($_SESSION['postBack'][$selectName])) && (is_array($_SESSION['postBack'][$selectName]) && (in_array($value, $_SESSION['postBack'][$selectName])))) {
-                    $str .= " selected='selected' ";
-                    $selection = true;
-                }
-                elseif (isset($_SESSION['postBack'][$selectName]))
+                if (is_array($displayValue))
                 {
-                    if ((is_array($_SESSION['postBack'][$selectName])) && (empty($_SESSION['postBack'][$selectName])))
+                    foreach ($displayValue as $displayVals => $displayVal)
                     {
-                        if (($preSelected == $value) && ($selection === false))
+                        $str .= '<option value="' . $displayVals . '" ';
+                        //check if preselected
+                        if ((isset($_SESSION['postBack'][$selectName])) && (is_array($_SESSION['postBack'][$selectName]) && (in_array($displayVals, $_SESSION['postBack'][$selectName]))))
                         {
+                            $str .= " selected='selected' ";
+                            $selection = true;
+                        }
+                        elseif (isset($_SESSION['postBack'][$selectName]))
+                        {
+                            if ((is_array($_SESSION['postBack'][$selectName])) && (empty($_SESSION['postBack'][$selectName])))
+                            {
+                                //This is where this foreach conditional ends coz it is abt the postBack being an array & if the array is empty then we have no further checks to do
+                                if ((in_array($displayVals, $preSelected)) && ($selection === false))
+                                {
+                                    $str .= " selected='selected' ";
+                                }
+                            }
+                        }
+                        else
+                        {
+                            //if there is no postBack, then lets check if the developer has passed in values to be preselected by default
+                            // Note that we only check for matches between the keys (option values) of the select field and the preselected array
+                            if ((in_array($displayVals, $preSelected)) && ($selection === false))
+                            {
+                                $str .= " selected='selected' ";
+                            }
+                        }
+                        $str .= '>' . $displayVal . '</option>';
+                    }
+                }
+                else {
+                    //The data provided is not a multidimensional array
+                    $str .= '<option value="' . $displayValue . '" ';
+                    //check if preselected
+                    if ((isset($_SESSION['postBack'][$selectName])) && (is_array($_SESSION['postBack'][$selectName]) && (in_array($value, $_SESSION['postBack'][$selectName])))) {
+                        $str .= " selected='selected' ";
+                        $selection = true;
+                    }
+                    elseif (isset($_SESSION['postBack'][$selectName]))
+                    {
+                        //if there is postBack but it is empty
+                        if ((is_array($_SESSION['postBack'][$selectName])) && (empty($_SESSION['postBack'][$selectName]))) {
+                            if ((in_array($value, $preSelected)) && ($selection === false)) {
+                                $str .= " selected='selected' ";
+                            }
+                        }
+                    }
+                    else {
+                        //if there is no postBack
+                        if ((in_array($value, $preSelected)) && ($selection === false)) {
                             $str .= " selected='selected' ";
                         }
                     }
+                    $str .= '>' . $displayValue . '</option>';
                 }
-                else
-                {
-                    if (($preSelected == $value) && ($selection === false))
-                    {
-                        $str .= " selected='selected' ";
-                    }
-                }
-                $str .= '>' . $displayValue . '</option>';
             }
 
             //close the select field
             $str .= '</select>';
         }
         else {
+            //it is a single select field-note that we still have an array to contain any existing single preselected value
             $str = '<select name="' . $selectName . '" id="' . $selectName . '" ';
             //add attributes
             if ($attributes) {
@@ -294,24 +338,55 @@ class DGZ_Form
 
             //Create the content (options)
             foreach ($data as $value => $displayValue) {
-                $str .= '<option value="' . $value . '" ';
-                //check if preselected
-                if ((isset($_SESSION['postBack'][$selectName])) && ($_SESSION['postBack'][$selectName] == $value)) {
-                    $str .= " selected='selected' ";
-                    $selection = true;
+                if (is_array($displayValue)) {
+                    foreach ($displayValue as $displayValueArrayKey => $displayValueArrayVal) {
+                        $str .= '<option value="' . $displayValueArrayKey . '" ';
+                        //check if preselected
+                        if ((isset($_SESSION['postBack'][$selectName])) && (is_array($_SESSION['postBack'][$selectName]) && (in_array($displayValueArrayKey, $_SESSION['postBack'][$selectName])))) {
+                            $str .= " selected='selected' ";
+                            $selection = true;
+                        }
+                        elseif (isset($_SESSION['postBack'][$selectName])) {
+                            if ((is_array($_SESSION['postBack'][$selectName])) && (empty($_SESSION['postBack'][$selectName]))) {
+                                if ((in_array($displayValueArrayKey, $preSelected)) && ($selection === false)) {
+                                    $str .= " selected='selected' ";
+                                }
+                            }
+                        }
+                        else {
+                            if ((in_array($displayValueArrayKey, $preSelected)) && ($selection === false)) {
+                                $str .= " selected='selected' ";
+                            }
+                            elseif (in_array($displayValueArrayKey, $preSelected))
+                            {
+                                $str .= " selected='selected' ";
+                            }
+                        }
+                        $str .= '>' . $displayValueArrayVal . '</option>';
+                    }
                 }
-                elseif (($preSelected == $value) && ($selection == false)) {
-                    $str .= " selected='selected' ";
-                }
+                else {
 
-                $str .= '>' . $displayValue . '</option>';
+                    $str .= '<option value="' . $value . '" ';
+                    //check if preselected
+                    if ((isset($_SESSION['postBack'][$selectName])) && ($_SESSION['postBack'][$selectName] == $value)) {
+                        $str .= " selected='selected' ";
+                        $selection = true;
+                    }
+
+                    if ((in_array($value, $preSelected)) && ($selection === false)) {
+                        $str .= " selected='selected' ";
+                    }
+
+                    $str .= '>' . $displayValue . '</option>';
+                }
             }
 
             //close the select field
             $str .= '</select>';
         }
 
-        return $str;
+        echo $str;
 
     }
 
@@ -340,20 +415,34 @@ class DGZ_Form
             }
 
             $str .= '>';
-            return $str;
+            echo $str;
         }
         elseif ($inputType == 'button')
         {
+            $hrefValue = '';
             $str = "<button ";
             //add any extra attributes
             foreach ($attributes as $attribute => $attributeValue)
             {
-                $str .= $attribute.'="'.$attributeValue.'"'.' ';
+                if ($attribute != 'href') {
+                    $str .= $attribute . '="' . $attributeValue . '"' . ' ';
+                }
+                else
+                {
+                    $hrefValue = $attributeValue;
+                }
             }
 
             $str .= '>';
-            $str .= $value.' </button>';
-            return $str;
+            if(array_key_exists('href', $attributes)) {
+                $str .= "<a href='$hrefValue'>$value</button></a>";
+            }
+            else
+            {
+                $str .= $value . ' </button>';
+            }
+
+            echo $str;
         }
     }
 
@@ -363,8 +452,7 @@ class DGZ_Form
     public static function close()
     {
         $str = "</form>";
-
-        return $str;
+        echo $str;
     }
 
 
@@ -388,7 +476,7 @@ class DGZ_Form
         $str = "<input type='hidden' name='csrf' value='".$csrf."' >";
         $_SESSION['postBack']['csrf'] = $csrf;
 
-        return $str;
+        echo $str;
     }
 
 
@@ -399,6 +487,7 @@ class DGZ_Form
     {
         if (hash_equals($_SESSION['postBack']['csrf'], $token))
         {
+            unset($_SESSION['postBack']);
             return true;
         }
         else
@@ -406,4 +495,5 @@ class DGZ_Form
             return false;
         }
     }
+
 }
