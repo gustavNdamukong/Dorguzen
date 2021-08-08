@@ -4,7 +4,7 @@ namespace DGZ_library;
 
 
 /**
- * This class is an improved version of the DGZ_Paginator which provided very basic navigation. Now DGZ_Table offers much more, like:
+ * This class is an improved version of the DGZ_Paginator which provided very basic navigation. Now DGZ_Pager offers much more, like:
  *      i) pagination through pages, same as DGZ_Paginator
  *      ii) ability to display that data in a responsive table with paginated data display
  *      iii) ability to sort the columns of that table
@@ -13,26 +13,26 @@ namespace DGZ_library;
  *
  * It takes an array as first param and an optional number of items to be displayed per page as 2nd param
  * You can then call its getData() method to retrieve the chunk of data you want for every page
- * 
+ *
  * Call this class like so
- * $data = new DGZ_Table($data);
+ * $data = new DGZ_Pager($data);
  * $data->getData();
- * 
+ *
  * -Note that getData should be passed 2 arguments (the number of items u want displayed per page, n the current page number)
  * -To make this work, you should declare some variables before it establishing the GET URL params representing
  *          i) the number of items to display on a page ($limit)
  *          ii) the current page number ($page)
  *
  * e.g.
- *  $pager = new \DGZ_Table($newsData, $filteredCount);
+ *  $pager = new \DGZ_Pager($newsData, $filteredCount);
 
-    //set pagination vars
-    $limit = ( isset( $_GET['limit'] ) ) ? $_GET['limit'] : 3;
-    $page  = ( isset( $_GET['pageNum'] ) ) ? $_GET['pageNum'] : 1;
+//set pagination vars
+$limit = ( isset( $_GET['limit'] ) ) ? $_GET['limit'] : 3;
+$page  = ( isset( $_GET['pageNum'] ) ) ? $_GET['pageNum'] : 1;
 
-    $newsData = $pager->getData($limit, $page); //This will work because every time the view file is refreshed, $limit and $page  would be updated
+$newsData = $pager->getData($limit, $page); //This will work because every time the view file is refreshed, $limit and $page  would be updated
  *
- * 
+ *
  * @param array $data. This class takes an array or a collection of objects. If it is a collection,
  * 		it will convert it into an array so that it can process
  * @param optional $count. Pass this class a count number in case the data you want to display will not have a count that is equal
@@ -42,7 +42,6 @@ namespace DGZ_library;
  */
 class DGZ_Table
 {
-    
 
     private $_limit; //This shows the number of records per page
     private $_page; // default start page number
@@ -51,8 +50,7 @@ class DGZ_Table
     private $_dateClass;
 
     //adding extra columns n fields on the fly
-    //This includes 'value', 'link', 'params' (optional array), and 'attributes' (optional array)
-    private $_extraFieldParameters = [];
+    private $_extraFieldParameters = []; //This includes 'value', 'link', 'params' (optional array), and 'attributes' (optional array)
     private $_extraColumns = [];
 
     //making the records clickable
@@ -66,7 +64,7 @@ class DGZ_Table
 
 
     /**
-     * DGZ_Table constructor. Pass it a second parameter which should be the count of the data to be displayed; remember to filter the real count if you have any applicable filters,
+     * DGZ_Pager constructor. Pass it a second parameter which should be the count of the data to be displayed; remember to filter the real count if you have any applicable filters,
      * otherwise the $count will be the total number of records displayed and reflect the number of page links shown in the pagination links, which may not be accurate.
      *
      * This class has a dependency, and that is the DGZ_library\DGZ_Dates class which is injected into the $_dateClass field
@@ -75,6 +73,7 @@ class DGZ_Table
      */
     function __construct($data, $count = 0)
     {
+        //our paginator class needs an array, so if our data is an object, we need to convert it into an array
         if (is_object($data))
         {
             $data = $this->entity2array($data);
@@ -102,6 +101,11 @@ class DGZ_Table
 
 
 
+
+
+
+
+
     /**
      * This is a method for dynamically adding extra columns on the fly to the paginated table to be created by this Pager class. Pass it the text for its heading.
      *
@@ -117,6 +121,8 @@ class DGZ_Table
      */
     public function addColumn($heading)
     {
+        //The $this->_extraColumns member could take multiple headings depending on how many times addColumn() is called to create multiple columns
+        // so each $heading will have a different value and be a separate multidimensional array within the one $this->_extraColumns array
         $this->_extraColumns[$heading] = [];
     }
 
@@ -134,14 +140,14 @@ class DGZ_Table
      *      i) the value (text) of the button
      *      ii) the link target, and
      *      iii) an array of parameters to pass at the end of the link
-     * 
+     *
      * @param $heading string this should match the text you gave to the heading when you first created the new column using addColumn()
-     *          the system will then know which heading to place this under 
+     *          the system will then know which heading to place this under
      * @param $buttonType string tell the system what type of button you want to create. We currently handle two button types; 'Edit', and 'Delete' buttons
      * @param $value string the text to go on the button
      * @param $link string the link where these buttons will take the user to e.g. 'index.phtml?page=blogController&action=editPost'
      * @param array $params array of strings of parameters to stick after the link as a query string. Note that these should match the names of DB table fields where the data is coming from e.g. ['blog_id']
-     * 
+     *
      * @return void
      */
     public function addFieldButton($heading, $buttonType, $value, $link, $params = [], $attributes = [])
@@ -166,7 +172,7 @@ class DGZ_Table
      * This is the equivalent of the addFieldButton method because it also builds up the _extraFieldParameters array property so that we properly deal with cases where buttons,
      * or text column fields are being created. It handles placing of text in the extra column field, and not a button, therefore it is thus much simpler.
      *
-     * Unlike the case of buttons where we build 3 sub arrays, this array will hold only one sub array where the value is the value of the text 
+     * Unlike the case of buttons where we build 3 sub arrays, this array will hold only one sub array where the value is the value of the text
      *
      * @param $heading string this should match the text you gave to the heading when you first created the new column using addColumn()
      *          the system will then know which heading to place this under
@@ -213,8 +219,8 @@ class DGZ_Table
 
 
 
-    
-    
+
+
 
     /**
      * Each time you call this method, pass it the number of items you want displayed on the page, and the current page number
@@ -272,11 +278,13 @@ class DGZ_Table
             include_once($adminFileNameBase);
             $viewClass = 'views\admin\\'. $tableTemplateClassName;
         }
-        
+
         $view = new $viewClass;
 
+        //get the table view template
         $tableTemplate = $view->show();
 
+        //get the data n prepare to map it to a table
         $this->_limit = $limit;
         $this->_page = $page;
 
@@ -288,77 +296,91 @@ class DGZ_Table
 
         $this->_data = $data;
 
+        //now build the HTML table
         $HTMLTable = "<div class='table-responsive'>
                             <table class='table'>
                                 <thead>
                                     <tr>";
-                                    foreach ($tableTemplate as $result => $heading)
-                                    {
-                                        if ($this->_sortable) {
-                                            if ((isset($_GET['ord'])) && ($_GET['ord'] == $result)) {
-                                                if ($_GET['s'] == 'ASC') {
-                                                    $sort = 'DESC';
-                                                }
-                                                else {
-                                                    $sort = $this->_sort;
-                                                }
-                                                $HTMLTable .= "<th class='text-center'><a style='color: white;' href='$sortLinkTarget&ord=$result&s=$sort'>" . $heading . " <i class='fa fa-fw fa-sort'></i></a></th>";
-                                            }
-                                            else {
-                                                $HTMLTable .= "<th class='text-center'><a style='color: white;' href='$sortLinkTarget&ord=$result&s=$this->_sort'>" . $heading . " <i class='fa fa-fw fa-sort'></i></a></th>";
-                                            }
-                                        }
-                                        else
-                                        {
-                                            $HTMLTable .= "<th class='text-center'>" . $heading . "</th>";
-                                        }
+        foreach ($tableTemplate as $result => $heading)
+        {
+            //have they specified that they want the table to be sortable?
+            if ($this->_sortable) {
+                if ((isset($_GET['ord'])) && ($_GET['ord'] == $result)) {
+                    //it means they were already ordering by this column but now want to switch the ordering
+                    if ($_GET['s'] == 'ASC') {
+                        $sort = 'DESC';
+                    }
+                    else {
+                        $sort = $this->_sort;
+                    }
+                    $HTMLTable .= "<th class='text-center'><a style='color: white;' href='$sortLinkTarget&ord=$result&s=$sort'>" . $heading . " <i class='fa fa-fw fa-sort'></i></a></th>";
+                }
+                else {
+                    $HTMLTable .= "<th class='text-center'><a style='color: white;' href='$sortLinkTarget&ord=$result&s=$this->_sort'>" . $heading . " <i class='fa fa-fw fa-sort'></i></a></th>";
+                }
+            }
+            else
+            {
+                $HTMLTable .= "<th class='text-center'>" . $heading . "</th>";
+            }
 
-                                    }
+        }
+        //check if extra columns were specified and add their headings here before you proceed
+        if (!empty($this->_extraColumns)) {
+            foreach ($this->_extraColumns as $head => $valueArray)
+            {
+                //we need to know if the values of this field will be buttons, n if so how many btns are there, so we can make the header wide enough to contain the columns
+                //we are of course assuming below that there will not be more than two btns provided for one column, if u decide to accept more in your app, simply come here
+                //n add more conditionals like: if ($btnCount == 2) { etc
 
-                        if (!empty($this->_extraColumns)) {
-                            foreach ($this->_extraColumns as $head => $valueArray)
-                            {
-                                $textExtraColumnsCount = 0;
-                                $btnExtraColumnsCount = 0;
+                //we know there're only two types of buttons handled; 'text' n 'button', so let's get the count of total columns added on the fly
+                $textExtraColumnsCount = 0;
+                $btnExtraColumnsCount = 0;
 
-                                foreach ($valueArray as $type => $vals) {
-                                    if ($type == 'text') {
-                                        $textExtraColumnsCount = count($vals);
-                                    }
-                                    if ($type == 'button') {
-                                        $btnExtraColumnsCount = count($vals);
-                                    }
-                                }
-                                $extraColumnsCount = $textExtraColumnsCount + $btnExtraColumnsCount;
-
-
-                                //if ($btnCount == 2) {
-                                if ($extraColumnsCount > 1) {
-                                    $HTMLTable .= "<th class='text-center' colspan='$extraColumnsCount'>" . $head . "</th>";
-                                }
-                                else
-                                {
-                                    $HTMLTable .= "<th class='text-center'>" . $head . "</th>";
-                                }
+                foreach ($valueArray as $type => $vals) {
+                    if ($type == 'text') {
+                        $textExtraColumnsCount = count($vals);
+                    }
+                    if ($type == 'button') {
+                        $btnExtraColumnsCount = count($vals);
+                    }
+                }
+                $extraColumnsCount = $textExtraColumnsCount + $btnExtraColumnsCount;
 
 
+                //if ($btnCount == 2) {
+                if ($extraColumnsCount > 1) {
+                    $HTMLTable .= "<th class='text-center' colspan='$extraColumnsCount'>" . $head . "</th>";
+                }
+                else
+                {
+                    $HTMLTable .= "<th class='text-center'>" . $head . "</th>";
+                }
 
 
-                            }
-                        }
 
+
+            }
+        }
+
+        //close the table heading
         $HTMLTable .= "</tr></thead><tbody><tr>";
         $recCount = count($this->_data );
         $iteration = 0;
         foreach($this->_data as $ref => $dat)
         {
             foreach($dat as $col => $val) {
+                //only display in the table what (fields) the user has specified in their table template view class-where $col is the DB field names of the data
                 if (array_key_exists($col, $tableTemplate)) {
+                    //If they wanted the records clickable, then cater for that
                     if ($this->_clickableRecs) {
+
+                        //did they provide a link target
                         $linkTarget = $this->_clickableRecLinkTarget;
                         $paramCount = count($this->_clickableRecParams);
                         $check = 1;
                         if (!empty($paramCount)) {
+                            //They provided parameters to pass to the server with the link, so add them to the link
                             foreach ($dat as $key => $re) {
                                 if (in_array($key, $this->_clickableRecParams)) {
                                     if ($check < $paramCount) {
@@ -375,6 +397,7 @@ class DGZ_Table
                             foreach ($dat as $key => $re) {
                                 if (preg_match('/_id/', $key)) {
                                     $recId = $re;
+                                    //$key is the column name of the DB ID field and $re is its value (actual record ID)
                                 }
                             }
                             //-------------------------
@@ -382,50 +405,79 @@ class DGZ_Table
                         }
                         else
                         {
+                            //if they did not provide any parameter, send the DB ID of the rec by default if available, btw it should be always available if they used the DGZ naming convention
+                            //to build their tables, otherwise which they should not be trying to use this page class anyway
                             foreach ($dat as $key => $re) {
                                 if (preg_match('/_id/', $key)) {
                                     $recId = $re;
+                                    //$key is the column name of the DB ID field and $re is its value (actual record ID)
                                     $linkTarget .= '&' . $key . '=' . $re;
                                 }
                             }
 
+                            //We need to give every <td> tag an ID made of 'the unique record ID_the DB field name' e.g. '6_newsletter_name'
+                            //Then we will also place that ID as a data attribute (custom attribute) of any button u choose to have on the table (both Edit and Delete).
+                            //This is an extra service to expand the capabilities of this table engine, and is a bonus for u the developer in case u need to use JS to control the <td> values of the
+                            //table on the click of any of those buttons
+                            //That said: $key is the column name of the DB ID field, while $re is its value (the actual ID of the record. $col is the name of the  DB column
+                            //////$HTMLTable .= "<td><a href='$linkTarget'>" . $val . "</a></td>";
+                            /////$HTMLTable .= "<td id='".$recId."_".$col."'><a href='$linkTarget'>" . $val . "</a></td>";///////////////////////////
+                            //If its a date field, convert the date from DB to a regular (human-readable) format
                             if (preg_match('/date/', $col))
                             {
                                 $HTMLTable .= "<td id='".$recId."_".$col."'><a href='$linkTarget'>" . $this->_dateClass->YYYYMMDDtoDDMMYYYY($val) . "</a></td>";
                             }
                             else {
                                 $HTMLTable .= "<td id='".$recId."_".$col."'><a href='$linkTarget'>" . $val . "</a></td>";
-                                }
+                            }
                         }
                     }
                     else
                     {
+                        //The user did not request the records to be clickable, so we do not inject any link string into the <td> tag
+                        //-----------------------------
                         foreach ($dat as $key => $re) {
                             if (preg_match('/_id/', $key)) {
                                 $recId = $re;
+                                //$key is the column name of the DB ID field and $re is its value (actual record ID)
                             }
                         }
+                        //-------------------------
 
+                        //If its a date field, convert the date from DB to a regular (human-readable) format
                         if (preg_match('/date/', $col))
                         {
                             $HTMLTable .= "<td id='".$recId."_".$col."'>" . $this->_dateClass->YYYYMMDDtoDDMMYYYY($val) . "</td>";
                         }
                         else {
-                        $HTMLTable .= "<td id='".$recId."_".$col."'>" . $val . "</td>";}
+                            $HTMLTable .= "<td id='".$recId."_".$col."'>" . $val . "</td>";}
                     }
                 }
             }
 
+
+            //now for every iteration, loop though the extra columns and insert their values
+            ###########
             if (!empty($this->_extraColumns)) {
-                foreach ($this->_extraColumns as $head => $valuesArray) {
+                foreach ($this->_extraColumns as $head => $valuesArray) { ////////////////////// $this->_extraFieldParameters['text']['value'] = $value;
+                    //$valuesArray is a multidimensional array (which could be one of 'button', 'text'), so loop again
                     foreach ($valuesArray as $type => $vals) {
+                        //but because a 'button' type will contain a diff kinda sub-array from a 'text' type
+                        // we need to check what type it is before looping again, so we know how to loop over each sub-array
                         if ($type == 'text') {
+                            //this is easy, text has only one item in its sub-array, n that's the value of the text
                             $HTMLTable .= "<td>" . $vals['value'] . "</td>";
                         }
                         if ($type == 'button') {
+                            //its a button, n buttons could have one, or two multidimensional arrays; 'edit', and, or 'delete' with each one having an array of three items
+                            // so loop through the buttons
                             foreach ($vals as $buttonType => $attributes)
                             {
+                                //Now we need to build the button using its parameters ('vale', 'link', and 'params') from the sub array provided
+                                //but first, let's prepare the link wh is crucial for the button to be useful
                                 $link = $attributes['link'];
+
+                                //did they provide any parameters for the button link?
                                 if (!empty($attributes['params']))
                                 {
                                     $link .= '&';
@@ -433,7 +485,9 @@ class DGZ_Table
                                     $x = 1;
                                     foreach ($attributes['params'] as $param)
                                     {
+                                        //add them to the link
                                         if ($x < $count) {
+                                            //${$param} below will contain the value of the $col from the DB
                                             $link .= $param . '='.$dat[$param].'&';
                                         }
                                         else
@@ -444,6 +498,8 @@ class DGZ_Table
                                     }
                                 }
 
+                                //Did they provide any attributes for the button link element? If so use them to create the element. These attributes are different from link query strings as is the case
+                                //with link parameters
                                 $linkAttributes = '';
                                 if (!empty($attributes['attributes']))
                                 {
@@ -451,6 +507,7 @@ class DGZ_Table
                                     $i = 1;
                                     foreach ($attributes['attributes'] as $attrib => $attribVal)
                                     {
+                                        //build the attribute string that we will inject into the button element e. g. data-toggle='modal' or data-target='#editNewsletterModal' or id='clickMe' etc
                                         if ($i < $attributeCount) {
                                             //create the link
                                             $linkAttributes .= $attrib .'="'.$attribVal.'" ';
@@ -463,6 +520,10 @@ class DGZ_Table
                                     }
                                 }
 
+                                //now create the button - you can optionally check for the $buttonType value and style the button accordingly
+                                //Note that the $recId variable used in the jQuery custom attribute (data-recid) below has been set above where we create the main table body <td> tags, as we used
+                                //the record IDs prefixed with an underscore to the DB field names as the IDs of those <td> tags. This is to give you a way to use these btn links to uniquely
+                                // manipulate the rows of the table
                                 $btn = '<a data-recid="'.$recId.'" '.$linkAttributes.' href="'.$link.'" class="btn btn-info btn-sm">'.$attributes['value'].'</a>';
                                 $HTMLTable .= "<td>" . $btn . "</td>";
                             }
@@ -476,30 +537,39 @@ class DGZ_Table
                 $HTMLTable .= "</tr>";
             }
         }
-
+        //close the table
         $HTMLTable .= "</tbody>";
         $HTMLTable .= "</table></div>";
 
         return $HTMLTable;
 
 
-    } 
+    }
 
 
 
 
-    
-
+    /**
+     * We only hit this method when the records exceed our specified max num of records on a page
+     *
+     * @param $links
+     * @param $linkTarget
+     * @param $list_class
+     * @return string
+     */
     public function createLinks( $links, $linkTarget, $list_class) {
+        //If we're going to show all the records on one page, no need to show nav links then
         if ( $this->_limit == 'all' ) {
             return '';
         }
 
+        //If there are no records, there's no need to show nav links then
         if ($this->_total == 0)
         {
             return '';
         }
 
+        //If the total records is not greater than the number of recs to be displayed per page, no need to show links
         if ($this->_total <= $this->_limit)
         {
             return '';
@@ -509,6 +579,7 @@ class DGZ_Table
 
         $start      = ( ( $this->_page - $links ) > 0 ) ? $this->_page - $links : 1;
         $end        = ( ( $this->_page + $links ) < $last ) ? $this->_page + $links : $last;
+        //die('Total count is: '.$this->_total .'Start is '.$start.'End is '.$end);///////////////////
 
         $html       = '<ul class="' . $list_class . '">';
 
@@ -538,10 +609,14 @@ class DGZ_Table
 
         return $html;
     }
-    
 
 
-    
+
+
+
+
+
+
 
 
     function entity2array($entities) {
@@ -552,8 +627,6 @@ class DGZ_Table
         }
         return $result;
     }
-    
-    
 
 }
 
