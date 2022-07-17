@@ -1,5 +1,8 @@
 <?php
 
+namespace DGZ_library\FPDF;
+
+
 class PDFController extends fpdfBaseController
 {
 
@@ -86,9 +89,9 @@ class PDFController extends fpdfBaseController
 			$this->Cell($w[2],6,$row[2],'LR',0,'L',$fill);
 			$this->Cell($w[3],6,$row[3],'LR',0,'L',$fill);
 			$this->Cell($w[4],6,$row[4],'LR',0,'L',$fill);
-            $this->Cell($w[5],6,$row[5],'LR',0,'L',$fill);
-            $this->Cell($w[6],6,$row[6],'LR',0,'L',$fill);
-            $this->Cell($w[7],6,$row[7],'LR',0,'L',$fill);
+			$this->Cell($w[5],6,$row[5],'LR',0,'L',$fill);
+			$this->Cell($w[6],6,$row[6],'LR',0,'L',$fill);
+			$this->Cell($w[7],6,$row[7],'LR',0,'L',$fill);
 
 			$this->Ln();
 			$fill=!$fill;
@@ -109,8 +112,8 @@ class PDFController extends fpdfBaseController
 	function FormatAttend($data)
 	{
 		if($data == "t") {
-		//$this->Image('tick.png',5,5,5);
-		//$data=$this;
+			//$this->Image('tick.png',5,5,5);
+			//$data=$this;
 			$data = "yes";
 		}
 		if($data == "f"){
