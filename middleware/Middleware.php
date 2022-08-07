@@ -86,7 +86,6 @@ class Middleware
     public function api($targetController) {
         if (preg_match('/-/', $targetController)) {
             $control = explode('-', $targetController);
-            //die($control[0].' - '.$control[1]);
             return [$this->controller, 'api', [$control[0], $control[1]]];
         }
 

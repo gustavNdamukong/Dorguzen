@@ -94,16 +94,46 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
 
             if ($fail == "")
             {
-                $authenticated = $this->authenticate($email, $password, $rem_me);
+                $authenticated = $this->authenticate($email, $password);
 
+                if ($authenticated)
+                {
+                    if (!session_id()) { session_start(); }
+                    $_SESSION['authenticated'] = 'Let Go-'.$this->settings->getSettings()['appName'];
+                    $_SESSION['start'] = time();
+                    session_regenerate_id();
+
+                    $_SESSION['custo_id'] = $authenticated['users_id'];
+                    $_SESSION['user_type'] = $authenticated['users_type'];
+                    $_SESSION['email'] = $authenticated['users_email'];
+                    $_SESSION['first_name'] = $authenticated['users_first_name'];
+                    $_SESSION['last_name'] = $authenticated['users_last_name'];
+                    $_SESSION['created'] = $authenticated['users_created'];
+
+                    session_write_close();
+
+                    if ($rem_me)
+                    {
+                        setcookie('rem_me', $email, time() + 172800);
+                    }
+
+                    $this->addSuccess('Welcome Admin!', 'Hey');
+                    $this->redirect('admin','dashboard');
+                    exit();
+                }
+                else
+                {
+                    // if no match, prepare error message
+                    $this->addErrors('Either the email address or the password you provided was wrong, try again or contact us for help. Thank you.','Oops, something went wrong!');
+                    $this->redirect('admin');
+                }
+            }
+            else
+            {
+                $this->addErrors($fail, "Error!");
+                $this->redirect('admin');
             }
         }
-
-
-
-
-
-
         elseif ((isset($_POST['forgotstatus'])) && (($_POST['forgotstatus']) == 'yes'))
         {
             if(isset($_POST['forgot_pass_input']))
@@ -264,33 +294,18 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
 
 
 
-
-    public function authenticate($email, $password, $rem_me = false)
+    /**
+     * @param $email the email to authenticate the user with
+     * @param $password the password to authenticate the user with
+     * @return array|bool It returns false if the login fails, or an array of all fields in your users table
+     */
+    public function authenticate($email, $password)
     {
-        $login_errors = array();
-
         $user_model = new Users();
 
-        $authenticated = $user_model->authenticateUser($email, $password);
+        $loginData = ['users_email' => $email, 'users_pass' => $password];
 
-        if ($authenticated)
-        {
-            if ($rem_me)
-            {
-                setcookie('rem_me', $email, time() + 172800);
-            }
-
-            $this->addSuccess('Welcome Admin, long time!', 'Hey');
-            $this->redirect('admin','dashboard');
-            exit();
-
-        }
-        else
-        {
-            // if no match, prepare error message
-            $this->addErrors('Either the email address or the password you provided was wrong, try again or contact us for help. Thank you.','Oops, something went wrong!');
-            $this->redirect('admin');
-        }
+        return $user_model->authenticateUser($loginData);
 
     }
 

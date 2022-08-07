@@ -1,10 +1,10 @@
 <?php
 
 
-use DGZ_library\DGZ_DB_Adapter;
+use DGZ_library\DGZ_Model;
 
     /** ############## Properties and Methods all model classes must have to get the full power of the Dorguzen ###############
-     * Must extend the parent model DGZ_DB_ADAPTER
+     * Must extend the parent model DGZ_Model
 
     ##### PROPERTIES ######################
      * protected $_columns = array();
@@ -25,7 +25,7 @@ use DGZ_library\DGZ_DB_Adapter;
     /**
      * Class Users
      */
-    class Users extends DGZ_DB_Adapter
+    class Users extends DGZ_Model
     {
         protected $_columns = array();
 
@@ -36,80 +36,6 @@ use DGZ_library\DGZ_DB_Adapter;
 
             $columns = $this->loadORM($this);
         }
-
-
-
-
-
-        public function authenticateUser($email, $password)
-        {
-            $connect = $this->connect();
-
-            $salt = $this->getSalt();
-
-            $dataTypes = '';
-            $getdataTypes = $this->getColumnDataTypes();
-            foreach ($getdataTypes as $dataTypeKey => $getDataType)
-            {
-                if ($dataTypeKey == 'users_email')
-                {
-                    $dataTypes .= $getDataType;
-                }
-                if ($dataTypeKey == 'users_pass')
-                {
-                    $dataTypes .= $getDataType;
-                }
-            }
-
-            $dataTypes .= 's';
-
-            $sql = "SELECT * FROM ".$this->getTable()." WHERE users_email = ? AND users_pass = AES_ENCRYPT(?, ?)";
-
-            $stmt = $connect->stmt_init();
-            $stmt->prepare($sql);
-
-            $stmt->bind_param($dataTypes, $email, $password, $salt);
-            $stmt->bind_result($custo_id, $type, $email, $pass, $first_name, $last_name, $updated, $created);
-            $stmt->execute();
-            $stmt->store_result();
-
-            $stmt->fetch();
-
-            if ($stmt->num_rows ) 
-            {
-                if (!session_id()) { session_start(); }
-                $_SESSION['authenticated'] = 'Let Go-'.$this->settings->getSettings()['appName'];
-                $_SESSION['start'] = time();
-                session_regenerate_id();
-
-                if (isset($_SESSION['authenticated']))
-                {
-                    $_SESSION['custo_id'] = $custo_id;
-                    $_SESSION['user_type'] = $type;
-                    $_SESSION['email'] = $email;
-                    $_SESSION['pass'] = $pass;
-                    $_SESSION['first_name'] = $first_name;
-                    $_SESSION['last_name'] = $last_name;
-                    $_SESSION['created'] = $created;
-
-                    session_write_close();
-                }
-
-               return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        
-
-
-
-
-
-
-
 
 
 

@@ -4,15 +4,7 @@ namespace DGZ_library;
 use settings\Settings;
 
 
-/**
- * This class is meant for
- * -1) establishing a connection to the DB, and
- * -2) orchestrating DB connections that don't directly relate to models
- *
- *The 4 mysqli_stmt_bind_param() type specification characters:
- *          dibs (double e.g for percentages, integer, blob, string)
- *
- */
+
 class DGZ_Model
 {
     protected $settings;
@@ -20,6 +12,17 @@ class DGZ_Model
     protected $salt = '';
 
     protected $whoCalledMe = '';
+
+    private $passwordField = [
+        'password',
+        'pwd',
+        'user_pwd',
+        'users_pwd',
+        'user_password',
+        'users_password',
+        'user_pass',
+        'users_pass'
+    ];
 
 
     public function __construct()
@@ -203,30 +206,25 @@ class DGZ_Model
     public function save()
     {
         $model = new $this->whoCalledMe;
+        $db = $this->connect();
         $table = $model->getTable();
 
-        //prepare the data to make up the query
         $data = array();
-        $datatypes = array();
+        $datatypes = '';
 
         foreach (get_object_vars($this) as $property => $value) {
-            //filter out any properties that are not in ur columns array
             if (array_key_exists($property, $model->_columns)) {
-                //set the field n value
                 $data[$property] = $value;
 
-                //set the field datatype
-                array_push($datatypes, $model->_columns[$property]);
-
+                if (in_array($property, $this->passwordField)) {
+                    $data['key'] = $this->getSalt();
+                    $datatypes .= 'ss';
+                }
+                else {
+                    $datatypes .= $model->_columns[$property];
+                }
             }
-
         }
-
-        $datatypes = implode($datatypes);
-
-        // Connect to the database
-        $db = $this->connect();
-
 
         list( $fields, $placeholders, $values ) = $this->insert_update_prep_query($data);
 
@@ -234,29 +232,22 @@ class DGZ_Model
 
         $stmt = $db->stmt_init();
 
-        // Prepare our query for binding
         $stmt->prepare("INSERT INTO {$table} ({$fields}) VALUES ({$placeholders})");
 
-
-        // Dynamically bind values
         call_user_func_array( array( $stmt, 'bind_param'), $this->ref_values($values));
 
-        // Execute the query
         $stmt->execute();
 
-        // Check for successful insertion
         if ( $stmt->affected_rows == 1)
         {
-            //return true;
             return $stmt->insert_id;
         }
         elseif ( (isset($stmt->errno)) && ($stmt->errno == 1062))
         {
-            return 'duplicate';
+            return '1062';
         }
         else
         {
-            //the insertion failed
             return false;
         }
     }
@@ -265,11 +256,10 @@ class DGZ_Model
 
 
     /**
-     * Instead of preparing all the data needed to be passed to the update()
-     * method ($table, $data, $datatypes, $whereClause), updateObject just takes
-     * a 'where' clause array of 'fieldName' => 'value' pairs and does all the rest for you.
+     * This method takes a 'where' clause array of 'fieldName' => 'value' pairs.
      *
      * @example:
+     *         $products = new Products();
      *         $products->products_authorized = 'yes';
      *         $products->products_authorized_date = date("Y-m-d H:i:s");
      *         $products->products_authorized_by = $authorizerId;
@@ -277,10 +267,6 @@ class DGZ_Model
      *         $where = ['products_id' => $adId];
      *
      *         $updated = $products->updateObject($where);
-     *
-     * When it comes to the 'users_pass' (spelled exactly like that), we need 2 entries each for the data and datatypes arrays
-     *     -data)  password value, and key value (salt string of the pw)
-     *     -datatypes) 'i' for the password, and 's' for the salt string
      *
      * @param $where
      * @return bool|string
@@ -290,31 +276,19 @@ class DGZ_Model
         $model = new $this->whoCalledMe;
         $table = $model->getTable();
 
-        //prepare the data to make up the query
         $data = array();
-        $dataTypes = array();
+        $newData = [];
+        $dataTypes = '';
 
         foreach (get_object_vars($this) as $property => $value) {
-            //filter out any properties that are not in ur columns array
             if (array_key_exists($property, $model->_columns)) {
-                //set the field n value
-                if ($property == 'users_pass')
-                {
-                    //store the 2 pieces of data needed for passwords ('users_pass' and 'key')
-                    $key = $this->getSalt();
-                    $data[$property] = $value;
-                    $data['key'] = $key;
-
-                    //store the 2 pieces of datatypes needed for passwords (is)
-                    array_push($dataTypes, $model->_columns[$property]);
-                    //we add an extra string character for the case of 'users_pass' coz of its associated salt encryption string
-                    array_push($dataTypes, 's');
+                $newData[$property] = $value;
+                if (in_array($property, $this->passwordField)) {
+                    $newData['key'] = $this->getSalt();
+                    $dataTypes .= 'ss';
                 }
                 else {
-                    $data[$property] = $value;
-
-                    //set the field datatype
-                    array_push($dataTypes, $model->_columns[$property]);
+                    $dataTypes .= $model->_columns[$property];
                 }
             }
 
@@ -323,19 +297,13 @@ class DGZ_Model
         foreach ($where as $field => $val)
         {
             if (array_key_exists($field, $model->_columns)) {
-                array_push($dataTypes, $model->_columns[$field]);
+                $dataTypes .= $model->_columns[$field];
             }
         }
 
-        //Convert datatypes into a string
-        $datatypes = implode($dataTypes);
-
-        // Connect to the database
         $db = $this->connect();
+        list( $fields, $placeholders, $values ) = $this->insert_update_prep_query($newData, 'update');
 
-        list( $fields, $placeholders, $values ) = $this->insert_update_prep_query($data, 'update');
-
-        //Format where clause
         $where_clause = '';
         $where_values = [];
         $count = 0;
@@ -352,26 +320,20 @@ class DGZ_Model
             $count++;
         }
 
-        // Prepend $format onto $values
         array_unshift($values, $datatypes);
         $values = array_merge($values, $where_values);
 
         $stmt = $db->prepare("UPDATE {$table} SET {$placeholders} WHERE {$where_clause}");
 
-        // Dynamically bind values
-        //This calls $stmt obj's bind_param() meth passing the result of ref_values() as its args
         call_user_func_array( array( $stmt, 'bind_param'), $this->ref_values($values));
 
-        // Execute the query
         $stmt->execute();
 
-        // Check for successful insertion
         if ( $stmt->affected_rows ) {
             return true;
         }
 
         return false;
-
     }
 
 
@@ -390,17 +352,14 @@ class DGZ_Model
      */
     public function deleteWhere($criteria = array())
     {
-        //before we proceed, let's handle foreign key constraints n delete any existing children before their parents
         if ((isset($this->_hasChild)) && (!empty($this->_hasChild))) {
 
             foreach ($criteria as $key => $crits) {
-                //securely check that that field exists n DB table
                 if (!array_key_exists($key, $this->_columns)) {
                     return 'The field ' . $key . ' does not exist in the ' . strtolower($this->getTable() . ' table');
                 }
                 else
                 {
-                    //Now get the ID of the record to be used to delete any record in any of the child tables that use it as a foreign key
                     $recId = $crits;
 
                     foreach ($this->_hasChild as $childname => $childFkField)
@@ -410,14 +369,12 @@ class DGZ_Model
 
                         $childModel = new $childname;
 
-                        //again check that that foreign key field exists in that child DB table
                         $childDataTypes = $childModel->getColumnDataTypes();
 
                         if (!array_key_exists($childFkField, $childDataTypes)) {
                             return 'The field ' . $childFkField . ' does not exist in the ' . strtolower($childModel->getTable() . ' table');
                         }
 
-                        //prepare the 'where' clause and the 'datatypes' arguments to be used in deleting from the child tables
                         $where[$childFkField] = $recId;
                         $datatypes .= $childDataTypes[$childFkField];
 
@@ -430,12 +387,10 @@ class DGZ_Model
             }
         }
 
-
         foreach ($criteria as $key => $crits)
         {
             $datatypes = '';
             $where = array();
-            //securely check that that field exists n DB table
             if (!array_key_exists($key, $this->_columns)) {
                 return 'The field ' . $key . ' does not exist in the ' . strtolower($this->getTable() . ' table');
             }
@@ -533,7 +488,6 @@ class DGZ_Model
 
         if ((!empty($columns)) && (!empty($criteria))) {
             foreach ($columns as $column) {
-                //securely check that that field exists n DB table
                 if (!array_key_exists($column, $model->getColumnDatatypes())) {
                     return 'The field ' . $column . ' does not exist in the ' . strtolower($model->getTable() . ' table');
                 }
@@ -542,10 +496,8 @@ class DGZ_Model
                 }
             }
 
-            //check criteria
             foreach ($criteria as $key => $crits)
             {
-                //securely check that that field exists n DB table
                 if (!array_key_exists($key, $model->getColumnDatatypes())) {
                     return 'The field ' . $key . ' does not exist in the ' . strtolower($model->getTable() . ' table');
                 }
@@ -556,20 +508,15 @@ class DGZ_Model
             }
         }
 
-        //If columns is empty &, the $criteria array contains something
-        //it means they want to select all columns
         if ((empty($columns)) && (!empty($criteria))) {
 
-            //we need all table fields
             foreach ($model->getColumnDatatypes() as $fieldName => $datatype)
             {
                 $fields_to_select[] = $fieldName;
             }
 
-            //check criteria
             foreach ($criteria as $key => $crits)
             {
-                //securely check that that field exists n DB table
                 if (!array_key_exists($key, $model->getColumnDatatypes())) {
                     return 'The field ' . $key . ' does not exist in the ' . strtolower($model->getTable() . ' table');
                 }
@@ -580,10 +527,8 @@ class DGZ_Model
             }
         }
 
-        //If columns is not empty &, $criteria is empty
         if ((!empty($columns)) && (empty($criteria))) {
             foreach ($columns as $column) {
-                //securely check that that field exists n DB table
                 if (!array_key_exists($column, $model->getColumnDatatypes())) {
                     return 'The field ' . $column . ' does not exist in the ' . strtolower($model->getTable() . ' table');
                 }
@@ -593,48 +538,26 @@ class DGZ_Model
             }
         }
 
-        //If columns is empty &, $criteria is empty
         if ((empty($columns)) && (empty($criteria))) {
-            //we need all table fields
             foreach ($model->getColumnDatatypes() as $fieldName => $datatype)
             {
                 $fields_to_select[] = $fieldName;
             }
         }
 
-        // Connect to the database
         $db = $this->connect();
 
-        // Cast all data to arrays
         $columns = (array)$fields_to_select;
         $where = (array)$criterion;
 
-        //Lets define a couple of terms
-        //$placeholders are the '?' xters that will be created to match the where values
-        //what i call $datatypes are the datatype xters that will be bind_params() meth which is invoked after the query has been built.
-        // bind_param() does 2 things;
-        // -1) uses the $datatypes string as its first param to rep the fields (columns)
-        // -2) takes in its 2nd arg as many params (vars) as there are placeholders (the ? xters) used in the SQL query. The num of these vars must also
-        // match the number of datatypes characters used in the 1st arg.
-
-        //$where_fields will be like 'album_name',
-        //$placeholders will be like '?'
-        //$where_values will be like 'holidays'
-
-        // Prepend the $dataTypes string onto the $values array (The bind_param() meth needs it like this-1st param is string of datatype xters to rep the
-        // fields, followed by as many params (vars) as there are values to rep the placeholders (? xters))
-
-        //Format where clause
         $where_placeholders = '';
         $where_values = [];
         $count = 0;
 
-        //convert $columns to a string for use in a query
         $columns_as_string = implode(',', $columns);
 
-        //build the query depending on if there is a where clause
         if (!empty($where)) {
-            foreach ($where as $field => $value) { //album_name => 'holidays'
+            foreach ($where as $field => $value) {
                 if ($count > 0) {
                     $where_placeholders .= ' AND ';
                 }
@@ -645,8 +568,6 @@ class DGZ_Model
                 $count++;
             }
 
-            // Prepend $format onto $values
-            //$where_values now becomes this: ['s', 'holidays'] (for bind_param())
             array_unshift($where_values, $datatypes);
 
             if ($orderBy != '') {
@@ -667,7 +588,6 @@ class DGZ_Model
             }
         }
 
-        // Execute the query
         $stmt->execute();
 
         $stmt->store_result();
@@ -708,55 +628,37 @@ class DGZ_Model
     public function insert($data)
     {
         $model = new $this->whoCalledMe;
+        $db = $this->connect();
         $table = $model->getTable();
 
-        // Connect to the database
-        $db = $this->connect();
+        $datatypes = '';
+        $dataClean = [];
 
-        // Cast $data to an array
-        $data = (array) $data;
-
-        $dataTypes = '';
-        $usersDataClues = $model->getColumnDataTypes();
-
-        //prepare the datatypes for the query (a string is needed)
-        foreach ($data as $dataKey => $dat) {
-            foreach ($usersDataClues as $dataClueKey => $columnDatClue) {
-                if ($dataClueKey == $dataKey) {
-                    $dataTypes .= $columnDatClue;
-                    if ($dataKey == 'users_pass')
-                    {
-                        $key = $this->getSalt();
-                        //additional parameters for the password field
-                        $data['key'] = $key;
-                    }
+        foreach ($data as $key => $value) {
+            if (array_key_exists($key, $model->_columns)) {
+                $dataClean[$key] = $value;
+                if (in_array($key, $this->passwordField)) {
+                    $dataClean['key'] = $this->getSalt();
+                    $datatypes .= 'ss';
+                }
+                else {
+                    $datatypes .= $model->_columns[$key];
                 }
             }
         }
 
-        list( $fields, $placeholders, $values ) = $this->insert_update_prep_query($data);
+        list( $fields, $placeholders, $values ) = $this->insert_update_prep_query($dataClean);
 
         array_unshift($values, $dataTypes);
 
         $stmt = $db->stmt_init();
 
-        // Prepare our query for binding
         $stmt->prepare("INSERT INTO {$table} ({$fields}) VALUES ({$placeholders})");
 
-
-        // Dynamically bind values
         call_user_func_array( array( $stmt, 'bind_param'), $this->ref_values($values));
 
-        // Execute the query
-        try {
-            $stmt->execute();
-        }
-        catch(\Exception $e)
-        {
-            die($e->getMessage());
-        }
+        $stmt->execute();
 
-        // Check for successful insertion
         if ( $stmt->affected_rows == 1)
         {
             return $stmt->insert_id;
@@ -785,13 +687,8 @@ class DGZ_Model
      * $where = ['blog_id' => $blog_id];
     $updated = $blog->update($data, $where);
      *
-     * @param string $table the table to update in
-     * @param array $data a ready-made array of 'fieldName' => 'value' elements
-     * @param string $dataTypes a string of datatype characters to match the prepared statement placeholders this query needs
-     * @param array $where. An also ready-made array of 'fieldName' => 'value' which will be used for the 'WHERE' 'fieldName' = 'value' clause
-     *     Note very well that you should add one more character type to the $dataTypes string for each element in the 'where' clause, as this method will use prepared statements for each one,
-     *     otherwise the DB query will not work. Also, make sure the data type character you pass in matches the data type of the field the 'WHERE' clause is referring to.
-     *
+     * @param array $data an array of 'fieldName' => 'value' pairs for the DB table fields to be updated
+     * @param array $where. An array of 'key' - 'value' pairs which will be used to build the 'WHERE' clause
      * @return bool
      */
     public function update($data, $where)
@@ -799,28 +696,21 @@ class DGZ_Model
         $model = new $this->whoCalledMe;
         $table = $model->getTable();
 
-        // Cast $data to an array
         $data = (array) $data;
         $newData = [];
 
         $dataTypes = '';
         $tableDataClues = $model->getColumnDataTypes();
 
-        //prepare the datatype string for the data
-        foreach ($data as $dataKey => $dat) {
-            foreach ($tableDataClues as $dataClueKey => $columnDatClue) {
-                if ($dataClueKey == $dataKey) {
-                    $dataTypes .= $columnDatClue;
-
-                    //move the data into the new array because we need to maintain the order as passed in by the developer
-                    $newData[$dataKey] = $dat;
-                    if ($dataClueKey == 'users_pass')
-                    {
-                        $key = $this->getSalt();
-                        //additional parameters for the password field
-                        $newData['key'] = $key;
-                        $dataTypes .= 's';
-                    }
+        foreach ($data as $key => $value) {
+            if (array_key_exists($key, $model->_columns)) {
+                $newData[$key] = $value;
+                if (in_array($key, $this->passwordField)) {
+                    $newData['key'] = $this->getSalt();
+                    $dataTypes .= 'ss';
+                }
+                else {
+                    $dataTypes .= $model->_columns[$key];
                 }
             }
         }
@@ -834,15 +724,11 @@ class DGZ_Model
                 }
             }
         }
-        //echo '<pre>'; die(print_r($data));
-        //die($dataTypes);
 
-        // Connect to the database
         $db = $this->connect();
 
         list( $fields, $placeholders, $values ) = $this->insert_update_prep_query($newData, 'update');
 
-        //Format where clause
         $where_clause = '';
         $where_values = [];
         $count = 0;
@@ -859,29 +745,15 @@ class DGZ_Model
             $count++;
         }
 
-
-        // Prepend $format onto $values
         array_unshift($values, $dataTypes);
         $values = array_merge($values, $where_values);
 
-        //echo '<pre>'; die("UPDATE {$table} SET {$placeholders} WHERE {$where_clause}".' RefValues: '.print_r($this->ref_values($values)));
-
         $stmt = $db->prepare("UPDATE {$table} SET {$placeholders} WHERE {$where_clause}");
-
-        // Dynamically bind values
-        //This calls $stmt obj's bind_param() meth passing the result of ref_values() as its args
-
-        //--------------------------
-        //This one is for testing purposes. It should return 1 (BOOL-TRUE) if the query has no faults in it
-        //var_dump(call_user_func_array( array( $stmt, 'bind_param'), $this->ref_values($values))); die();///////
-        //---------------------------
 
         call_user_func_array( array( $stmt, 'bind_param'), $this->ref_values($values));
 
-        // Execute the query
         $stmt->execute();
 
-        // Check for successful insertion
         if ( $stmt->affected_rows ) {
             return true;
         }
@@ -893,22 +765,16 @@ class DGZ_Model
 
 
 
-
-
-
-
     /**
-     * a method in your model prepares the args for this method n calls it
-     *
+     * You wouldn't call this method directly in code, but rather a method in your model prepares the args for this method & calls it
      * @return Bool true or false for whether the deletion was successful or not
      */
     public function delete($table, $where = array(), $dataTypes = '')
     {
-        // Connect to the database
         $db = $this->connect();
 
         if (empty($where)) {
-            //They haven't specified a column, so we'll just delete everything in the table
+            //Truncate table if no criteria is given
             $sql = $db->prepare("DELETE FROM {$table}");
 
             $result = $this->query($sql);
@@ -921,12 +787,10 @@ class DGZ_Model
             }
         }
         elseif (!empty($where)) {
-
-            // Cast all data to arrays
             $where = (array) $where;
             $dataTypes = (string) $dataTypes;
 
-            //Format where clause
+            //prepare the where clause
             $where_placeholders = '';
             $where_values = [];
             $count = 0;
@@ -942,30 +806,20 @@ class DGZ_Model
                 $count++;
             }
 
-            // Prepend $format onto $values
             array_unshift($where_values, $dataTypes);
 
             $stmt = $db->prepare("DELETE FROM {$table} WHERE {$where_placeholders}");
 
             call_user_func_array(array($stmt, 'bind_param'), $this->ref_values($where_values));
 
-            // Execute the query
             $stmt->execute();
 
-            // Check for successful deletion
             if ($stmt->affected_rows) {
                 return true;
             }
-
             return true;
         }
-
     }
-
-
-
-
-
 
 
 
@@ -977,20 +831,14 @@ class DGZ_Model
      */
     private function insert_update_prep_query($data, $type = 'insert')
     {
-        //echo '<pre>'; die(print_r($data));////
-        // Instantiate $fields and $placeholders for looping
         $fields = '';
         $placeholders = '';
         $values = array();
 
-        // Loop through $data and build $fields, $placeholders, and $values
-
         foreach ( $data as $field => $value )
         {
-            //added this to stop 'key' from being inserted as a table field, which is wrong
             if ($field == 'key')
             {
-                //coz salt (the key) still needs to be bound to the values
                 $values[] = $value;
                 continue;
             }
@@ -1000,40 +848,40 @@ class DGZ_Model
 
             if ( $type == 'update')
             {
-                if ($field == 'users_pass')
+                if (in_array($field, $this->passwordField))
                 {
                     $placeholders .= $field ." = AES_ENCRYPT(?, ?),";
                 }
-                else
-                {
+                else {
                     $placeholders .= $field . '=?,';
                 }
             }
-            elseif ($field == 'users_pass')
+            elseif (in_array($field, $this->passwordField))
             {
-                $placeholders .= "AES_ENCRYPT(?, ?),";
+                $placeholders .= " AES_ENCRYPT(?, ?),";
             }
             elseif ($field == 'users_created')
             {
-                $placeholders .= "NOW(),";
+                if ($value === '') {
+                    $placeholders .= "NOW(),";
+                }
+                else {
+                    $placeholders .= '?,';
+                }
             }
             else
             {
                 $placeholders .= '?,';
             }
         }
-        //remove blank elements from the values array - this is very important
-        $values = array_filter($values); //TODO: I replaced this with the line below as this was getting rid of element with '0' value
-        //$values = array_filter($values, fn($value) => !is_null($value) && $value !== '');
+        $values = array_filter($values);
 
-        //echo '<pre>'; die(print_r($values));////
         // Normalize $fields and $placeholders for inserting
         $fields = substr($fields, 0, -1);
         $placeholders = substr($placeholders, 0, -1);
 
         return array( $fields, $placeholders, $values );
     }
-
 
 
 
@@ -1070,11 +918,6 @@ class DGZ_Model
 
 
 
-
-
-
-
-
     /**
      * Creates an optimized array to be used by bind_param() to bind
      * values to the query placeholders
@@ -1088,12 +931,6 @@ class DGZ_Model
         }
         return $refs;
     }
-
-
-
-
-
-
 
 
 
@@ -1124,9 +961,65 @@ class DGZ_Model
 
 
 
+    /**
+     * @param $data array containing the username & password to authenticate the user with
+     * @return array|bool It returns false if the login fails, or an array of all fields in your users table
+     */
+    public function authenticateUser($data)
+    {
+        $model = new $this->whoCalledMe;
+        $tableColumns = $model->_columns;
+
+        $connect = $this->connect();
+        $dataTypes = '';
+        $emailField = '';
+        $emailValue = '';
+        $passwordField = '';
+        $passwordValue = '';
+        $salt = '';
+
+        foreach ($data as $key => $value) {
+            if (array_key_exists($key, $tableColumns)) {
+                if (in_array($key, $this->passwordField)) {
+                    $passwordField = $key;
+                    $passwordValue = $value;
+                    $salt = $this->getSalt();
+                    $dataTypes .= 'ss';
+                }
+                else {
+                    $emailField = $key;
+                    $emailValue = $value;
+                    $dataTypes .= $tableColumns[$key];
+                }
+            }
+        }
+
+        $sql = "SELECT * FROM ".$this->getTable()." 
+            WHERE ".$emailField." = ? 
+            AND ".$passwordField." = AES_ENCRYPT(?, ?)";
+
+        $stmt = $connect->stmt_init();
+        $stmt->prepare($sql);
+
+        $stmt->bind_param($dataTypes, $emailValue, $passwordValue, $salt);
+        $stmt->execute();
+        $stmt->store_result();
+
+        if ($stmt->num_rows )
+        {
+            $row = $this->fetchAssocStatement($stmt);
+            $stmt->close();
+            return $row;
+        }
+        else
+        {
+            return false;
+        }
+    }
 
 
-    ############################################## ADDITIONAL METHODS SHARED BY ALL MODELS ##########################################################
+
+
 
     /**
      * return all records from any model. Optionally specify if records should be ordered by a specific column by passing
@@ -1166,9 +1059,6 @@ class DGZ_Model
 
 
 
-
-
-
     public function getNameFromId($id, $lang)
     {
         $model = new $this->whoCalledMe;
@@ -1183,8 +1073,6 @@ class DGZ_Model
             return $result[0][$table."_name_".$lang];
         }
     }
-
-
 
 
 
@@ -1210,9 +1098,6 @@ class DGZ_Model
             return $result;
         }
     }
-
-
-
 
 
 
@@ -1247,14 +1132,11 @@ class DGZ_Model
 
 
 
-
-
-
     /**
      * This method is to allow models to be able to grab everything about a record using its name
      * It assumes of course that you have followed the Dorguzen table column naming convention which is to have one column named: 'tableName_name'
      *
-     * @param $id
+     * @param $recordName
      * @return array
      */
     public function getByName($recordName)
@@ -1271,10 +1153,6 @@ class DGZ_Model
             return $result;
         }
     }
-
-
-
-
 
 
 
@@ -1306,7 +1184,6 @@ class DGZ_Model
         }
         else
         {
-            //There is no default record, so see if there really is any other record. If so we get back an array
             $query2 = "SELECT * FROM ".$table;
             $allRecs = $this->query($query2);
 
@@ -1323,15 +1200,6 @@ class DGZ_Model
 
 
 
-
-
-
-
-
-
-
-
-
     /**
      *
      * This meth does select all (SELECT *) or only SELECTS a given set of columns
@@ -1341,7 +1209,6 @@ class DGZ_Model
      * $where is given the column names you're matching on as keys, & the column values required as the values.The model also checks if these keys
      * exist in the table.
      *
-     *
      * @param string $columns of fields to grab
      * @param array $criteria is an assoc array of 'where key (column name) => value' sort o thing
      *
@@ -1350,16 +1217,12 @@ class DGZ_Model
     public function grabWhere($columns = array(), $criteria = array())
     {
         $model = new $this->whoCalledMe;
-        //die(print_r($criteria));//////
 
-        //There might be more or nothing, or an array in $columns, so lets filter it
-        //we'll also prepare the datatype xters while we're at it
         $fields_to_select = array();
         $datatypes = '';
         $criterion = array();
         if (!empty($columns)) {
             foreach ($columns as $column) {
-                //securely check that that field exists n DB table
                 if (!array_key_exists($column, $model->getColumnDatatypes())) {
                     return 'The field ' . $column . ' does not exist in the ' . strtolower($model->getTable() . ' table');
                 }
@@ -1368,10 +1231,8 @@ class DGZ_Model
                 }
             }
 
-            //check criteria
             foreach ($criteria as $key => $crits)
             {
-                //securely check that that field exists n DB table
                 if (!array_key_exists($key, $model->getColumnDatatypes())) {
                     return 'The field ' . $key . ' does not exist in the ' . strtolower($model->getTable() . ' table');
                 }
@@ -1386,20 +1247,13 @@ class DGZ_Model
         $columns_needed = $fields_to_select;
         $where = $criterion;
 
-
-        // Connect to the database
         $db = $this->connect();
 
         if (empty($columns)) {
-            //All the other params are empty too, so this is a quick one, we'll just grab everything
             $sql = "SELECT * FROM $table";
-
 
             $result = $this->query($sql);
 
-            //when selecting we return an array of the selected values
-            //but when doing sth else with query() e.g. deleting, we only return a Boolean
-            //hence to see if selection was successful, first check if $result is an array
             if (is_array($result)) {
                 return $result;
             }
@@ -1409,30 +1263,14 @@ class DGZ_Model
 
         }
         elseif (!empty($columns)) {
-            // Cast all data to arrays
             $columns = (array) $columns;
             $where = (array) $where;
 
-            //Lets define a couple of terms
-            //$placeholders are the '?' xters that will be created to match the where values
-            //what i call $datatypes are the datatype xters that will be bind_params() meth which is invoked after the query has been built. bind_param() does 2 things;
-            // -1) uses the $datatypes string as its first param to rep the fields (columns)
-            // -2) uses additional params (vars) as there are placeholders (the ? xters) used in the query string
-
-            //$where_fields will be like 'albums_name',
-            //$placeholders will be like '?'
-            //$where_values will be like 'Gustav'
-
-
-            // Prepend the $dataTypes string onto the $values array (The bind_param() meth needs it like this-1st param is string of datatype xters to rep the fields,
-            // followed by as many params (vars) as there are values to rep the placeholders (? xters))
-
-            //Format where clause
             $where_placeholders = '';
             $where_values = [];
             $count = 0;
 
-            foreach ( $where as $field => $value ) { //albums_name => 'John'
+            foreach ( $where as $field => $value ) {
                 if ( $count > 0 ) {
                     $where_placeholders .= ' AND ';
                 }
@@ -1443,29 +1281,14 @@ class DGZ_Model
                 $count++;
             }
 
-
-            // Prepend $format onto $values
-            //$where_values now becomes this: ['s', 'Gustav'] (for bind_param())
             array_unshift($where_values, $datatypes);
 
-
-            //convert $columns to a string for use in a query
             $columns_as_string = implode(',', $columns);
 
-            //die("SELECT {$columns_as_string} FROM {$table} WHERE {$where_placeholders}");
-
-            //The fact that we're in this conditional block means that the where clause is not empty,
-            // as we'd have been grabbing everything above otherwise
             $stmt = $db->prepare("SELECT {$columns_as_string} FROM {$table} WHERE {$where_placeholders}");
 
-
-            // Dynamically bind values. It takes an array that's an exact copy (a reference) of the original where_values array
-            //This calls $stmt obj's bind_param() meth passing the result of ref_values() as its args
             call_user_func_array( array( $stmt, 'bind_param'), $this->ref_values($where_values));
-            //this code above does the equiv of this line below:
-            //$stmt->bind_param('ssiis', $user_type, $firstname, $custo_status, $emailverified, $finalwords);
 
-            // Execute the query
             $stmt->execute();
 
             $stmt->store_result();
@@ -1492,13 +1315,6 @@ class DGZ_Model
 
 
 
-
-
-
-
-
-
-
     /**
      * This method takes only 1 mandatory argument; the columns of the fields to grab
      * The other three ($where, $order and $sort) are optional
@@ -1520,21 +1336,17 @@ class DGZ_Model
         $datatypes = '';
         if (!empty($columns)) {
             foreach ($columns as $column) {
-                //securely check that that field exists n DB table
                 if (!array_key_exists($column, $model->getColumnDatatypes())) {
                     return 'The field ' . $column . ' does not exist in the ' . strtolower($model->getTable() . ' table');
                 }
             }
         }
 
-        //prepare variables to build the query
         $columns_needed = implode(',', $columns);
-        //by default we shall order the records by the first column provided in the array of columns provided for selection
         $order = $order != ''?$order:$columns[0];
         $sort = $sort != ''?$sort:'ASC';
         $table = strtolower($model->getTable());
 
-        //If a where filter was provided, use it
         $whereClause = '';
         if ($where != null)
         {
@@ -1570,17 +1382,8 @@ class DGZ_Model
         $query = "SELECT $columns_needed FROM $table $whereClause ORDER BY $order $sort";
 
         $result = $this->query($query);
-
         return $result;
     }
-
-
-
-
-
-
-
-
 
 
 
@@ -1608,19 +1411,10 @@ class DGZ_Model
 
 
 
-
-
-
-
-
-
     public function getPaginated($start, $numPerPage)
     {
         $model = new $this->whoCalledMe;
         $table = $model->getTable();
-        //the comma after this $start variable below seems useless, but it is very very imp. It is responsible for making sure that the remaining
-        //results(thumbnail images) that don't add up to ten are displayed in the next page, and not nastily added to the previous result (ten-or whatever
-        //the max LIMIT of ur SELECT query is) when you click the NEXT button.
         $query = "SELECT * FROM $table LIMIT $start, $numPerPage";
 
 
@@ -1630,9 +1424,7 @@ class DGZ_Model
         {
             return $chunk;
         }
-
     }
-
 
 
 }

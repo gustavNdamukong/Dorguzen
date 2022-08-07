@@ -58,7 +58,7 @@ class manageContactMessages extends \DGZ_library\DGZ_HtmlView
 									//add some extra columns
 									$pager->addColumn('Action');
 
-									$deleteLink = $this->controller->settings->getFileRootPath() . 'admin/deleteContactMessage?';
+									$deleteLink = $this->controller->settings->getFileRootPath() . 'admin/deleteContactMessage';
 
 									$pager->addFieldButton('Action', 'Delete', 'Delete', $deleteLink, ['contactformmessage_id'], ['id' => 'deleteContactMessageBtn', 'class' => 'btn btn-danger']);
 									$pager->makeSortable(true);
@@ -95,7 +95,7 @@ class manageContactMessages extends \DGZ_library\DGZ_HtmlView
 							<?php
 							} ?>
 							</div>
-						</div> <!--End of div that wraps the content of all tabs-->
+						</div>
 
 					</div>
 					<br>
