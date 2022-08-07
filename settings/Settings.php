@@ -7,7 +7,7 @@ use DGZ_library\DGZ_Router;
 
 	######################### THE IDEA IS TO MAKE THIS CLASS TAKE OVER THE RESPONSIBILITY OF MANAGING SITE-WIDE SETTINGS ##########################
 	/**
-	 * The DGZ_library/DGZ_Application, the AdminController, DGZ_library/DGZ_DB_Adapter (which is extended by all models), as well as any classes that need
+	 * The DGZ_library/DGZ_Application, the AdminController, DGZ_library/DGZ_Model (which is extended by all models), as well as any classes that need
 	 * to be aware of some app-wide settings will instantiate this class and inject it into themselves at run time, giving you access to your
 	 * application Settings at all times.
 	 *

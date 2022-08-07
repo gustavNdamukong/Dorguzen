@@ -3,8 +3,9 @@
 namespace DGZ_library;
 
 
+
 /**
- * This class is an improved version of the DGZ_Paginator which provided very basic navigation. Now DGZ_Pager offers much more, like:
+ * This class is an improved version of the DGZ_Paginator which provided very basic navigation. Now DGZ_Table offers much more, like:
  *      i) pagination through pages, same as DGZ_Paginator
  *      ii) ability to display that data in a responsive table with paginated data display
  *      iii) ability to sort the columns of that table
@@ -15,7 +16,7 @@ namespace DGZ_library;
  * You can then call its getData() method to retrieve the chunk of data you want for every page
  *
  * Call this class like so
- * $data = new DGZ_Pager($data);
+ * $data = new DGZ_Table($data);
  * $data->getData();
  *
  * -Note that getData should be passed 2 arguments (the number of items u want displayed per page, n the current page number)
@@ -24,7 +25,7 @@ namespace DGZ_library;
  *          ii) the current page number ($page)
  *
  * e.g.
- *  $pager = new \DGZ_Pager($newsData, $filteredCount);
+ *  $pager = new \DGZ_Table($newsData, $filteredCount);
 
 //set pagination vars
 $limit = ( isset( $_GET['limit'] ) ) ? $_GET['limit'] : 3;
@@ -38,10 +39,11 @@ $newsData = $pager->getData($limit, $page); //This will work because every time 
  * @param optional $count. Pass this class a count number in case the data you want to display will not have a count that is equal
  * 		to the original count of the data you pass to it based on filtering you will do to the result
  *
- * @Author Gustav
+ * @Author Gustav Ndamukong
  */
 class DGZ_Table
 {
+
 
     private $_limit; //This shows the number of records per page
     private $_page; // default start page number
@@ -61,17 +63,25 @@ class DGZ_Table
     //make records sortable
     private $_sortable = false;
     private $_sort = 'ASC';
+    private $heading = '';
+    private $panelId = '';
 
 
     /**
-     * DGZ_Pager constructor. Pass it a second parameter which should be the count of the data to be displayed; remember to filter the real count if you have any applicable filters,
+     * DGZ_Table constructor. Pass it a second parameter which should be the count of the data to be displayed; remember to filter the real count if you have any applicable filters,
      * otherwise the $count will be the total number of records displayed and reflect the number of page links shown in the pagination links, which may not be accurate.
+     *
+     * For the sorting feature to work, you must send the ordering to the DB query so that the data returns ordered as desired before passing it to DGZ_Table e.g
+     *      $letters = $newsletter->selectOnly($columns, null, $order, $sort);
+    $pager = new DGZ_Table($letters);
      *
      * This class has a dependency, and that is the DGZ_library\DGZ_Dates class which is injected into the $_dateClass field
      * @param $data
      * @param int $count
+     * @param string $heading
+     * @param string $panelId
      */
-    function __construct($data, $count = 0)
+    function __construct($data, $count = 0, $heading = '', $panelId = '')
     {
         //our paginator class needs an array, so if our data is an object, we need to convert it into an array
         if (is_object($data))
@@ -85,20 +95,20 @@ class DGZ_Table
         {
             $count = $count;
         }
-        else
+        else if ($data)
         {
             $count = count($data);
+        }
+        else
+        {
+            $count = 0;
         }
 
         $this->_total = $count;
         $this->_dateClass = new DGZ_Dates();
+        $this->heading = $heading;
+        $this->panelId = $panelId;
     }
-
-
-
-
-
-
 
 
 
@@ -258,14 +268,16 @@ class DGZ_Table
      * Call this pager class's constructor first passing it your data before calling this method to get the table output
      *
      * @param string $tableTemplateClassName
-     * @param $sortLinkTarget string
-     * @param int $limit
-     * @param $page int
+     * @param $sortLinkTarget string link destib=nation for the sort links on the table head
+     * @param int $RecsPerpage number of records you want displayed per page (less records means many navigation pages)
      * @return array
      *
      */
-    public function getTable($tableTemplateClassName, $sortLinkTarget = '', $limit = 20, $page = 1 ) {
+    public function getTable($tableTemplateClassName, $sortLinkTarget = '', $RecsPerpage = 0) {
 
+        //pagination vars
+        $limit = $RecsPerpage > 0 ? $RecsPerpage : (isset($_GET['limit']) ? $_GET['limit'] : 20);
+        $currentPageNumber = (isset($_GET['pageNum'])) ? $_GET['pageNum'] : 1;
 
         //grab table views placed either inside the views folder or the views\admin sub-folder
         $fileNameBase = 'views/' . $tableTemplateClassName . '.php';
@@ -286,7 +298,7 @@ class DGZ_Table
 
         //get the data n prepare to map it to a table
         $this->_limit = $limit;
-        $this->_page = $page;
+        $this->_page = $currentPageNumber;
 
         if ( $this->_limit == 'all' ) {
             $data = $this->_data;
@@ -297,7 +309,12 @@ class DGZ_Table
         $this->_data = $data;
 
         //now build the HTML table
-        $HTMLTable = "<div class='table-responsive'>
+        $HTMLTable = "<div id='$this->panelId' class='panel panel-primary'>
+             <div class='panel-heading'>
+                  <h2 class='panel-title' style='text-align:center;color:#fff;'>$this->heading</h2>
+             </div>
+             <div class='panel-body'>
+                <div class='table-responsive'>
                             <table class='table'>
                                 <thead>
                                     <tr>";
@@ -313,10 +330,10 @@ class DGZ_Table
                     else {
                         $sort = $this->_sort;
                     }
-                    $HTMLTable .= "<th class='text-center'><a style='color: white;' href='$sortLinkTarget&ord=$result&s=$sort'>" . $heading . " <i class='fa fa-fw fa-sort'></i></a></th>";
+                    $HTMLTable .= "<th class='text-center'><a style='color: white;' href='$sortLinkTarget?ord=$result&s=$sort'>" . $heading . " <i class='fa fa-fw fa-sort'></i></a></th>";
                 }
                 else {
-                    $HTMLTable .= "<th class='text-center'><a style='color: white;' href='$sortLinkTarget&ord=$result&s=$this->_sort'>" . $heading . " <i class='fa fa-fw fa-sort'></i></a></th>";
+                    $HTMLTable .= "<th class='text-center'><a style='color: white;' href='$sortLinkTarget?ord=$result&s=$this->_sort'>" . $heading . " <i class='fa fa-fw fa-sort'></i></a></th>";
                 }
             }
             else
@@ -380,6 +397,7 @@ class DGZ_Table
                         $paramCount = count($this->_clickableRecParams);
                         $check = 1;
                         if (!empty($paramCount)) {
+                            $linkTarget = $linkTarget.'?';
                             //They provided parameters to pass to the server with the link, so add them to the link
                             foreach ($dat as $key => $re) {
                                 if (in_array($key, $this->_clickableRecParams)) {
@@ -395,20 +413,21 @@ class DGZ_Table
 
                             //-----------------------------
                             foreach ($dat as $key => $re) {
-                                if (preg_match('/_id/', $key)) {
+                                if (preg_match('/_id/', strtolower($key))) {
                                     $recId = $re;
                                     //$key is the column name of the DB ID field and $re is its value (actual record ID)
                                 }
                             }
                             //-------------------------
-                            $HTMLTable .= "<td id='".$recId."_".$col."'><a href='$linkTarget'>" . $val . "</a></td>";
+                            $HTMLTable .= "<td id='".$recId."_".$col."'><a href='$linkTarget'>" . wordwrap($val, 75, "<br>\n", true). "</a></td>";
                         }
                         else
                         {
                             //if they did not provide any parameter, send the DB ID of the rec by default if available, btw it should be always available if they used the DGZ naming convention
                             //to build their tables, otherwise which they should not be trying to use this page class anyway
+                            $linkTarget = $linkTarget.'?';
                             foreach ($dat as $key => $re) {
-                                if (preg_match('/_id/', $key)) {
+                                if (preg_match('/_id/', strtolower($key))) {
                                     $recId = $re;
                                     //$key is the column name of the DB ID field and $re is its value (actual record ID)
                                     $linkTarget .= '&' . $key . '=' . $re;
@@ -423,12 +442,12 @@ class DGZ_Table
                             //////$HTMLTable .= "<td><a href='$linkTarget'>" . $val . "</a></td>";
                             /////$HTMLTable .= "<td id='".$recId."_".$col."'><a href='$linkTarget'>" . $val . "</a></td>";///////////////////////////
                             //If its a date field, convert the date from DB to a regular (human-readable) format
-                            if (preg_match('/date/', $col))
+                            if (preg_match('/date/', strtolower($col)))
                             {
                                 $HTMLTable .= "<td id='".$recId."_".$col."'><a href='$linkTarget'>" . $this->_dateClass->YYYYMMDDtoDDMMYYYY($val) . "</a></td>";
                             }
                             else {
-                                $HTMLTable .= "<td id='".$recId."_".$col."'><a href='$linkTarget'>" . $val . "</a></td>";
+                                $HTMLTable .= "<td id='".$recId."_".$col."'><a href='$linkTarget'>" . wordwrap($val, 75, "<br>\n", true) . "</a></td>";
                             }
                         }
                     }
@@ -437,20 +456,19 @@ class DGZ_Table
                         //The user did not request the records to be clickable, so we do not inject any link string into the <td> tag
                         //-----------------------------
                         foreach ($dat as $key => $re) {
-                            if (preg_match('/_id/', $key)) {
+                            if (preg_match('/_id/', strtolower($key))) {
                                 $recId = $re;
                                 //$key is the column name of the DB ID field and $re is its value (actual record ID)
                             }
                         }
                         //-------------------------
-
                         //If its a date field, convert the date from DB to a regular (human-readable) format
-                        if (preg_match('/date/', $col))
+                        if (preg_match('/date/', strtolower($col)))
                         {
                             $HTMLTable .= "<td id='".$recId."_".$col."'>" . $this->_dateClass->YYYYMMDDtoDDMMYYYY($val) . "</td>";
                         }
                         else {
-                            $HTMLTable .= "<td id='".$recId."_".$col."'>" . $val . "</td>";}
+                            $HTMLTable .= "<td id='".$recId."_".$col."'>" . wordwrap($val, 75, "<br>\n", true) . "</td>";}
                     }
                 }
             }
@@ -480,7 +498,7 @@ class DGZ_Table
                                 //did they provide any parameters for the button link?
                                 if (!empty($attributes['params']))
                                 {
-                                    $link .= '&';
+                                    $link .= '?';
                                     $count = count($attributes['params']);
                                     $x = 1;
                                     foreach ($attributes['params'] as $param)
@@ -539,7 +557,7 @@ class DGZ_Table
         }
         //close the table
         $HTMLTable .= "</tbody>";
-        $HTMLTable .= "</table></div>";
+        $HTMLTable .= "</table></div></div></div>";
 
         return $HTMLTable;
 
@@ -549,16 +567,22 @@ class DGZ_Table
 
 
 
-    /**
-     * We only hit this method when the records exceed our specified max num of records on a page
-     *
-     * @param $links
-     * @param $linkTarget
-     * @param $list_class
-     * @return string
-     */
-    public function createLinks( $links, $linkTarget, $list_class) {
-        //If we're going to show all the records on one page, no need to show nav links then
+
+
+
+
+
+
+    public function createLinks($linkTarget, $list_class) {
+
+        //TODO: create an init object to set things like the following (number of pagination btns to show below table)
+        $links = ( isset( $_GET['links'] ) ) ? $_GET['links'] : 3;
+
+        $order = isset($_GET['ord'])?$_GET['ord']:'';
+        $sort = isset($_GET['s'])?$_GET['s']:'';
+        $linkTarget = $linkTarget.'?ord=' . $order . '&s=' . $sort;
+
+        //If we're going to show all the records on one page, then no need to show nav links
         if ( $this->_limit == 'all' ) {
             return '';
         }
@@ -579,13 +603,14 @@ class DGZ_Table
 
         $start      = ( ( $this->_page - $links ) > 0 ) ? $this->_page - $links : 1;
         $end        = ( ( $this->_page + $links ) < $last ) ? $this->_page + $links : $last;
-        //die('Total count is: '.$this->_total .'Start is '.$start.'End is '.$end);///////////////////
 
         $html       = '<ul class="' . $list_class . '">';
 
         $class      = ( $this->_page == 1 ) ? "disabled" : "";
-        $html       .= '<li class="' . $class . '"><a href="'.$linkTarget.'&limit=' . $this->_limit . '&pageNum=' . ( $this->_page - 1 ) . '">&laquo;</a></li>';
 
+        if ( $this->_page != 1 ) {
+            $html .= '<li class="' . $class . '"><a href="' . $linkTarget . '&limit=' . $this->_limit . '&pageNum=' . ($this->_page - 1) . '">&laquo;</a></li>';
+        }
         if ( $start > 1 ) {
             $html   .= '<li><a href="'.$linkTarget.'&limit=' . $this->_limit . '&pagNume=1">1</a></li>';
             $html   .= '<li class="disabled"><span>...</span></li>';
@@ -602,8 +627,10 @@ class DGZ_Table
         }
 
         $class      = ( $this->_page == $last ) ? "disabled" : "";
-        $html       .= '<li class="' . $class . '"><a href="'.$linkTarget.'&limit=' . $this->_limit . '&pageNum=' . ( $this->_page + 1 ) . '">&raquo;</a></li>';
 
+        if ( $this->_page != $last ) {
+            $html .= '<li class="' . $class . '"><a href="' . $linkTarget . '&limit=' . $this->_limit . '&pageNum=' . ($this->_page + 1) . '">&raquo;</a></li>';
+        }
         $html       .= '</ul>';
 
 
@@ -627,6 +654,8 @@ class DGZ_Table
         }
         return $result;
     }
+
+
 
 }
 

@@ -1,10 +1,10 @@
 <?php
 
 
-use DGZ_library\DGZ_DB_Adapter;
+use DGZ_library\DGZ_Model;
 
     /** ############## Properties and Methods all model classes must have to get the full power of the Dorguzen ###############
-     * Must extend the parent model DGZ_DB_ADAPTER
+     * Must extend the parent model DGZ_Model
 
     ##### PROPERTIES ######################
      * protected $_columns = array();
@@ -25,7 +25,7 @@ use DGZ_library\DGZ_DB_Adapter;
     /**
      * Class Users
      */
-    class Password_reset extends DGZ_DB_Adapter
+    class Password_reset extends DGZ_Model
     {
         protected $_columns = array();
 

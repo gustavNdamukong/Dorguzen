@@ -3,18 +3,15 @@ namespace DGZ_library;
 
 
 use settings\Settings;
-use DGZ_library\DGZ_Router;
-use DGZ_library\DGZ_Exception;
-use DGZ_library\DGZ_Layout;
-use ReflectionClass;
 use Exception;
-use DGZ_library\DGZ_Application;
+use ReflectionClass;
+use middleware\Middleware;
 
 
 /**
  * Description of HtmlPage
  *
- * @author Gustav Ndamukong
+ * @author Gustav
  */
 abstract class DGZ_Controller implements DGZ_Displayable {
 
@@ -29,13 +26,10 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 	protected $format;
 
 
-
 	/**
 	 * @var string The page title for every view file.
 	 */
 	protected $pageTitle = '';
-
-
 
 
 	/**
@@ -48,7 +42,6 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 	 * @var whether or not to show an image slider for every view file.
 	 */
 	protected $showImageSlider = false;
-
 
 
 	/**
@@ -70,10 +63,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 	protected $defaultLayoutDirectory;
 
 
-
 	protected $useFullLayout = true;
-
-
 
 	/**
 	 * @var array An array of meta tags containing meta data of a specific view that will be included on this page.
@@ -143,13 +133,12 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
 
 
-
 	/**
 	 * Constructor. Initialise the various elements of a page controller.
 	 */
 	public function __construct() {
 
-		$this->startTime = microtime(true);
+		$this->startTime = microtime(true); //we'll use this in future to debug our application
 		$this->application = new DGZ_Application();
 		$this->settings = new Settings();
 		$this->defaultAction = $this->getDefaultAction();
@@ -173,14 +162,14 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
 
 
-
 	/**
 	 * Gets the name of the application. It gets this from the application (Settings) class
 	 * If you want your page to use a different one, override this function to return a different name.
 	 * @return string The name of the layout to be used, e.g. 'DefaultLayout'
 	 */
 	public function getAppName() {
-		$app = new DGZ_Application();
+		//We should get this layout setting from one central location; the Application class or a config file.
+		$app = new \DGZ_library\DGZ_Application();
 		return $app->getAppName();
 	}
 
@@ -192,7 +181,8 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 	 * @return string The name of the layout to be used, e.g. 'DefaultLayout'
 	 */
 	public function getDefaultLayoutDirectory() {
-		$app = new DGZ_Application();
+		//We should get this layout setting from one central location; the Application class or a config file.
+		$app = new \DGZ_library\DGZ_Application();
 		return $app->getDefaultLayoutDirectory();
 	}
 
@@ -204,12 +194,10 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 	 * @return string The name of the layout to be used, e.g. 'DefaultLayout'. We just instantiate the application class n return it Factory style
 	 */
 	public function getDefaultLayout() {
-		$app = new DGZ_Application();
+		//We should get this layout setting from one central location; the Application class or a config file.
+		$app = new \DGZ_library\DGZ_Application();
 		return $app->getDefaultLayout();
 	}
-
-
-
 
 
 	/**
@@ -237,8 +225,6 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
 
 
-
-
 	/**
 	 * This method tells the controller thsat for the view file being about to be invoked, we do not need a full layout file as all
 	 * the site's other views do. THis will therefore set the $useFullLayout field to false. When the display() method is then called
@@ -249,8 +235,6 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 	public function setNoLayout() {
 		$this->useFullLayout = false;
 	}
-
-
 
 
 
@@ -303,7 +287,6 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
 
 
-
 	/**
 	 *Every page will have a different outlook, so we need to empower the programmer to decide whether to show an image slider for every view file they display
 	 * They will do so by calling this setImageSlider() method. It is optionally called from the controller when generating any view file that it wants an image
@@ -345,13 +328,12 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
 
 
-
 	/**
 	 * Adds meta tags for a specific view to be injected directly into the head tag of the layout page.
 	 * Other generic meta data have been preset in the layout file and are applied to all pages with the exception of the following:
 	 *		-description
 	 *		-keywords
-	 * You can add as many more as you need. This is very handy for the SEO of specific views
+	 * You can add as many more as need. This is very handy for the SEO of specific views
 	 *
 	 * @param array $metadataTagsArray. An array containing strings of fully formed meta tags
 	 * @example At the top of the show() method of your view file, do this:
@@ -367,7 +349,6 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 	public function addMetadata($metadataTagsArray) {
 		$this->metadata = $metadataTagsArray;
 	}
-
 
 
 
@@ -423,8 +404,6 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
 		$_SESSION['_warnings'] = $this->warnings;
 	}
-
-
 
 
 
@@ -485,20 +464,13 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 	}
 
 
-
-
-
-
 	/**
 	 * Add a thrown exception to an internal array so that it can be displayed nicely in the layout.
 	 */
-	public function addException(Exception $e) {
+	public function addException(\Exception $e) {
 		$this->exceptions[] = $e;
 		$_SESSION['_exceptions'] = $this->exceptions;
 	}
-
-
-
 
 
 
@@ -506,8 +478,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 	 * Calls the function as requested by $method with the given parameters
 	 * @param string $method. The name of the function to call
 	 * @param array $inputParameters. A numerically-indexed array to be passed in as arguments to the method.
-	 * @throws DGZ_Exception
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function display($method, array $inputParameters) {
 
@@ -518,9 +489,44 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 			}
 
 			try {
+				// Run the controller method. That method can override most of the attributes of this DGZ_Controller class.
 				ob_start();
 
-				list($controller, $method) = DGZ_Router::getControllerAndMethod();
+				list($controller, $method, $controllerInput) = DGZ_Router::getControllerAndMethod();
+
+				//The main thing here is we just need to update the method since this is what this display() is all about
+				//Point to note is that this DGZ_Controller now is acting as the instantiated controller that was called from DGZ_Router()
+				//It just wants to update its methods and method arguments
+				//--------------------------- MIDDLEWARE ---------------------------------//
+				$middleware = new Middleware($controller, $method);
+
+				$boot = $middleware->boot();
+				if (array_key_exists($controllerInput, $boot)) {
+					$middleWareIntent = $middleware->boot()[$controllerInput];
+					if ($middleWareIntent == true) {
+						//call the middleware method and proceed if it returns true
+						if (call_user_func([$middleware, $controllerInput], $method)) {
+						}
+						else {
+							throw new DGZ_Exception('Not authorized', DGZ_Exception::PERMISSION_DENIED, 'You are trying to visit a restricted area of this application.');
+						}
+					}
+					if ($middleWareIntent == false) {
+						//call the middleware method and proceed if it returns false
+						if (call_user_func([$middleware, $controllerInput], $method) != false) {
+							throw new DGZ_Exception('Not authorized', DGZ_Exception::PERMISSION_DENIED, 'You are trying to visit a restricted area of this application.');
+						}
+						else {
+						}
+					}
+					if ($middleWareIntent == 'divert') {
+						//call the middleware method and proceed with a new controller & or, method
+						list($controller, $method, $inputParameters) = call_user_func([$middleware, $controllerInput], $method);
+					}
+				}
+				//--------------------------- END MIDDLEWARE -----------------------------//
+
+
 
 
 				if ($method == 'defaultAction')
@@ -536,6 +542,9 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 			} catch (Exception $e) {
 				$this->addException($e);
 			}
+
+			// For HTML formatted output, we use a Layout and a Menu to complete the response.
+			// For NON-HTML formatted output, we just allow the output buffer to be sent as it is (PHP automatically outputs any open buffers when the script finishes)
 
 			$contentHtml = trim(ob_get_clean());
 
@@ -555,9 +564,13 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 				);
 			}
 
+
+			//Now load the page layout based on value in $this->layout -- which can be altered by the controller above.
 			$layout = DGZ_Layout::getLayout($this->useFullLayout, $this->appName, $this->defaultLayoutDirectory, $this->defaultLayout);
 
 
+			// Have there been any messages stored in the session?
+			// This can happen when a page has done some work in the database and has been redirected.
 			if(isset($_SESSION['_warnings']) && is_array($_SESSION['_warnings']) && count($_SESSION['_warnings']) > 0) {
 				$this->warnings += $_SESSION['_warnings'];
 			}
@@ -577,6 +590,9 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 				$this->exceptions += $_SESSION['_exceptions'];
 			}
 
+			// Are we about to redirect? If not (i.e. this page and therefore these messages are going to be shown)
+			// then we can clear out the stored messages in the session sent from the last page
+			//This is the bit that ensures that we do not show session msgs of a previous view when we go to a diff view
 			if(!$this->redirectPending()) {
 				if(isset($_SESSION['_warnings'])) {
 					unset($_SESSION['_warnings']);
@@ -598,9 +614,12 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 					unset($_SESSION['_exceptions']);
 				}
 			} else {
+				// If we are about to do a header redirect then save the session so that it is not lost.
+				// This can happen on redirected form submissions.
 				session_write_close();
 			}
 
+			// If there have been any warnings generated, get a view to render them
 			if(count($this->warnings) > 0) {
 				$warningView = DGZ_View::getView('WarningListView');
 				ob_start();
@@ -609,6 +628,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 				$layout->setWarningHtml($warningHtml);
 			}
 
+			// If there have been any errors generated, get a view to render them
 			if(count($this->errors) > 0) {
 				$errorsView = DGZ_View::getView('ErrorsListView');
 				ob_start();
@@ -617,14 +637,17 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 				$layout->setErrorsHtml($errorsHtml);
 			}
 
+
+			// If there have been any exceptions generated, get a view to render them
 			if(count($this->exceptions) > 0) {
-				$exceptionView = DGZ_View::getView('ExceptionListView', $this);
+				$exceptionView = DGZ_View::getView('ExceptionView', $this);
 				ob_start();
 				$exceptionView->show($this->exceptions);
 				$exceptionHtml = ob_get_clean();
 				$layout->setExceptionHtml($exceptionHtml);
 			}
 
+			// If there have been any notice messages generated, get a view to render them
 			if(count($this->notices) > 0) {
 				$noticeView = DGZ_View::getView('NoticeListView', $this);
 				ob_start();
@@ -633,6 +656,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 				$layout->setNoticeHtml($noticeHtml);
 			}
 
+			// If there have been any success messages generated, get a view to render them
 			if(count($this->success) > 0) {
 				$successView = DGZ_View::getView('SuccessListView', $this);
 				ob_start();
@@ -643,14 +667,19 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
 			$layout->setContentHtml($contentHtml);
 
+			//set any META TAGS, CSS or JS files that the programmer has used on the specific view file
 			$layout->setMetadata($this->metadata);
 			$layout->setCssFiles($this->styles);
 			$layout->setJavascriptFiles($this->scripts);
 
+			//Set the HTML title tag value for the specific view file about to be displayed
 			$layout->setPageTitle($this->pageTitle);
 
+			//Set the view file name of the specific view file about to be displayed
 			$layout->setViewName($this->viewName);
 
+
+			//Determine whether or not to show an image slider in the specific view file about to be displayed
 			$layout->setImageSlider($this->showImageSlider);
 
 			$layout->display();
@@ -658,17 +687,19 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
 		} catch (DGZ_Exception $e) {
 
+
 			if($this->format == 'html') {
 				$e->display();
 			} else {
 				throw $e;
 			}
 
+
 		} catch (Exception $e) {
 
 			if($this->format == 'html') {
 
-				$layout = DGZ_Layout::getLayout($this->useFullLayout, $this->appName, $this->defaultLayoutDirectory, $this->defaultLayout);
+				$layout = \DGZ_library\DGZ_Layout::getLayout($this->appName, $this->defaultLayoutDirectory, $this->defaultLayout);
 
 
 				$view = DGZ_View::getView('ExceptionView', $this);
@@ -677,6 +708,8 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 				$contentHtml = ob_get_clean();
 
 				$layout->setContentHtml($contentHtml);
+
+
 
 				$layout->display();
 
@@ -693,9 +726,6 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
 
 
-
-
-
 	/**
 	 * Silently redirects the user to another page (within the same application).
 	 *
@@ -705,7 +735,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 	 * You can call this function more than once, the last given URL is the one that is sent to the user.
 	 *
 	 * @param string $controller The name of the controller to target
-	 * @param string $action The action (method) of the controller to run. Leave blank to run the default action of the controller
+	 * @param string $method The action (method) of the controller to run. Leave blank to run the default action of the controller
 	 * @param array $arguments [Optional] Any extra URL parameters. Omit to pass none.
 	 */
 	public function redirect($controller, $method = '', array $arguments = []) {
@@ -714,19 +744,19 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 			$url = $url.'/'.$method;
 		}
 
+		//Check if redirect has already been called before
 		$redirecting = $this->redirectPending();
 		if ($redirecting)
 		{
+			//unset any previous header locations
 			header_remove('location');
 		}
 
+		// Set the new header location (i.e. last-one-wins strategy)
 		header('Location: '.$this->settings->getFileRootPath() .$url. ((count($arguments) > 0) ? '?' . http_build_query($arguments) : ''));
 		exit();
 
 	}
-
-
-
 
 
 	/**
@@ -759,6 +789,8 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 		if(class_exists($controller, true)) {
 
 			$reflection = new ReflectionClass($controller);
+
+			// If no method has been provided then get the default action is.
 			if(empty($method)) {
 				$controllerInstance = new $controller();
 				$method = $controllerInstance->getDefaultAction();
@@ -771,13 +803,11 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 			}
 
 		} else {
+			// The class cannot be found
 			return false;
 		}
 
 	}
-
-
-
 
 
 
@@ -793,7 +823,6 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 	{
 		$_SESSION['postBack'] = $post;
 	}
-
 
 
 
@@ -859,6 +888,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 			'papou',
 			'wembley',
 			'hausa',
+			'bororo',
 		];
 
 		$randomnumber = rand(0, 53);
@@ -868,8 +898,6 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 		$trimmed = trim($activationCode);
 		return md5($trimmed);
 	}
-
-
 
 }
 ?>
