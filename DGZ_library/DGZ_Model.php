@@ -1214,7 +1214,7 @@ class DGZ_Model
      *
      * @return array of results
      */
-    public function grabWhere($columns = array(), $criteria = array())
+    /*public function grabWhere($columns = array(), $criteria = array())
     {
         $model = new $this->whoCalledMe;
 
@@ -1312,6 +1312,7 @@ class DGZ_Model
             }
         }
     }
+    */
 
 
 
@@ -1424,6 +1425,12 @@ class DGZ_Model
         {
             return $chunk;
         }
+    }
+
+
+    public function timeNow()
+    {
+        return date("Y-m-d:H:i:s");
     }
 
 
