@@ -66,6 +66,12 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
     {
         $password = $email = $rem_me = false;
         $fail = "";
+        $callerOrigin = ((isset($_POST['caller-origin'])) && ($_POST['caller-origin'] == 'api'))?'api':'';
+        //'status' has a value of either 'true' or 'false', while 'message' has the error msg
+        $returnMessage = [
+            'status' => '',
+            'message' => ''
+        ];
 
         $val = new DGZ_Validate();
 
@@ -112,6 +118,13 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
 
                     session_write_close();
 
+                    //if this is an API call, send the success response now
+                    if ($callerOrigin == 'api') {
+                        $returnMessage['status'] = 'true';
+                        $returnMessage['message'] = 'Login was successful';
+                        return $returnMessage;
+                    }
+
                     if ($rem_me)
                     {
                         setcookie('rem_me', $email, time() + 172800);
@@ -123,6 +136,13 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
                 }
                 else
                 {
+                    //if this is an API call, send the failed response now
+                    if ($callerOrigin == 'api') {
+                        $returnMessage['status'] = 'false';
+                        $returnMessage['message'] = "Either the email address or the password you provided was wrong";
+                        return $returnMessage;
+                    }
+
                     // if no match, prepare error message
                     $this->addErrors('Either the email address or the password you provided was wrong, try again or contact us for help. Thank you.','Oops, something went wrong!');
                     $this->redirect('admin');
@@ -130,6 +150,13 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
             }
             else
             {
+                //if this is an API call, send the failed response now
+                if ($callerOrigin == 'api') {
+                    $returnMessage['status'] = 'false';
+                    $returnMessage['message'] = $fail;
+                    return $returnMessage;
+                }
+
                 $this->addErrors($fail, "Error!");
                 $this->redirect('admin');
             }
@@ -157,6 +184,22 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
                         $saved = $resetModel->query($query);
 
                         if ($saved) {
+                            //if this is an API call, send a response with the reset link now
+                            $resetLinkPath = "%sadmin/verifyEmail?em=%s";
+                            $resetLink = sprintf(
+                                $resetLinkPath,
+                                $this->settings->getHomePage(),
+                                $resetCode
+                            );
+
+                            if ($callerOrigin == 'api') {
+                                $returnMessage['status'] = 'true';
+                                $returnMessage['message'] = 'Here is the link for the user to reset their password';
+
+                                $returnMessage['resetLink'] = $resetLink;
+                                return $returnMessage;
+                            }
+
                             $mailer = new DGZ_Messenger();
 
                             $mailresult = $mailer->sendPasswordResetEmail($found['email'], $found['firstname'], $resetCode);
@@ -168,6 +211,13 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
                     }
                     else
                     {
+                        //if this is an API call, the failed response now
+                        if ($callerOrigin == 'api') {
+                            $returnMessage['status'] = 'false';
+                            $returnMessage['message'] = "Either the email address or the password you provided was wrong";
+                            return $returnMessage;
+                        }
+
                         $fail .= 'Sorry, there was a problem with the database! Try again later, or contact us';
                         $this->addErrors($fail);
                         $this->redirect('admin');
