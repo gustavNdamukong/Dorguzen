@@ -76,7 +76,7 @@ function show()
                                         <div class="alert alert-warning alert-dismissible" role="alert">
                                              <button type="button" class="close" data-dismiss="alert"
                                                      aria-label="Close"><i class="fa fa-times"></i></button>
-                                             <strong>Warning!</strong> You have one unpaid order.
+                                             <strong>Warning!</strong> You can display an alert to the user here.
                                         </div>
 
                                         <h3>Welcome <span><?= $_SESSION['first_name'] ?></span></h3>

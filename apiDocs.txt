@@ -1,0 +1,171 @@
+
+                                    DGZ API Docs
+                                    -LOGIN REQUEST
+                                    -LOGOUT REQUEST
+                                    -PASSWORD RESET REQUEST
+                                    -REGISTRATION (TODO)
+                                    -ACTIVATE ACCOUNT REQUEST (TODO)
+
+
+
+
+All API requests come in and out through this class.
+We get the request, and call the relevant controller for the resource.
+All headers and data type conversions are handled here too.
+In the case of controller methods that return values; it is easy-we call them, get their data back, and return the response to the caller here.
+In the the case of controller methods that return nothing, we'll send a 'caller-origin' key with a value of 'api' via POST or GET so the controller
+method will check for in order to know when to send back the appropriate response. Examples of such methods that send back no response are
+    -login
+    -logout
+    -registration
+    -account activation
+     -etc
+
+-The return response JSON object has the following structure:
+
+    {
+       "status":"true",
+       "message":"Logout successful",
+       "response_code":200
+    }
+
+    The 'status' field has a value of either 'true' or 'false', while 'message' has the error/success msg
+
+-------------------------------------------------------------------------------------------------
+LOGIN REQUEST (POST)
+-------------------------------------------------------------------------------------------------
+    Endpoint: https://camerooncom/api/auth-doLogin
+
+   {
+       "method":"POST",
+       "email":"emailAddressHere",
+       "pwd": "passwordHere",
+       "forgotstatus": "no",
+       "caller-origin": "api",
+       "credentials": "include"
+   }
+
+    An example API response:
+
+    {
+       "status":"true",
+       "message":"Login was successful"
+    }
+
+    -The 'forgotstatus' field needs to be 'no' if you do not want to reset your password.
+    -Notice the 'caller-origin' field mentioned above.
+    -Send in an additional field 'rem_me' with a value of '1' or 'yes' if you want a cookie to
+        be set on the server to keep you logged in. If you do not want that, then do not even
+        set the field at all.
+    -The 'credentials' field is important in the case of logging in because it allows the caller
+        to receive back in the response, an assigned PHP session cookie that was created in the
+        backend when the user is successfully authenticated. This cookie will now be sent back
+        and forth between the requester and the server, and the server will ID this requester
+        by it, and that's how it will know if the requester is already authenticated or not.
+        -It is important to note that this field works hand in hand with the header:
+            'header("Access-Control-Allow-Credentials: true")' which should have been set in the
+            server too. basically; this setting is saying that when PHP creates the auth
+            credentials for an authentication request, (which is what the session cookie is);
+            the requesting script should have access to it. Hence if you run the
+            cmd/property 'document.cookie', after the request is completed, you will the value
+            of the php session cookie created on the server for that request.
+
+-------------------------------------------------------------------------------------------------
+LOGOUT REQUEST  (POST/GET)
+-------------------------------------------------------------------------------------------------
+Endpoint POST: https://camerooncom/api/auth-logout)
+Endpoint GET: https://camerooncom/api/auth-logout?caller-origin=api)
+
+    //POST request data
+       {
+           "method":"POST",
+           "caller-origin": "api",
+       }
+
+    //GET request data
+      {
+          "method":"GET",
+      }
+
+    //Logout response:
+    {
+       "status":"true",
+       "message":"Logout successful",
+       "response_code":200
+    }
+
+-------------------------------------------------------------------------------------------------
+PASSWORD RESET REQUEST (POST)
+-------------------------------------------------------------------------------------------------
+  Endpoint: https://camerooncom/api/auth-doLogin
+
+   {
+       "method":"POST",
+       "username":"gustav",
+       "pwd": "passwordHere",
+       "forgotstatus": "yes"
+       "forgot_pass_input": "gustavfn@yahoo.co.uk"
+   }
+
+    Response:
+   {
+       "status":"true",
+       "message":"Here is the link for the user to reset their password",
+       "resetLink":"http:\/\/camerooncom\/admin\/verifyEmail?em=90886bc4d0f723a1299ed9b3360f48e8"
+   }
+
+   -The 'forgotstatus' field needs to be 'yes' if you want to reset your password. The response will contain the
+    link to visit to re-set your password.
+--------------------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------------------------
+REGISTER REQUEST (POST) (TODO)
+-------------------------------------------------------------------------------------------------
+  Endpoint: https://camerooncom/api/auth-doRegis
+
+   {
+       "method":"POST",
+       "firstname":"myFirstename",
+       "surname":"mySurname",
+       "username":"myUsername",
+       "pwd": "passwordHere",
+       "conf_pwd": "confirmPasswordHere",
+       "phone": "phoneNumber",
+       "mm_account": "momoNumber",
+       "email": "gustavfn@yahoo.co.uk",
+       "company_name": "companyName",
+       "captcha_addition": 4,
+       "caller-origin": "api"
+   }
+
+    Response:
+   {
+       "status":"true",
+       "message":"Registration successful. Here is the link to activate your account",
+       "activationLink":"https:\/\/camerooncom\/auth/verifyEmail?em=90886bc4d0f723a1299ed9b3360f48e8"
+   }
+
+
+   -The "captcha_addition" field must have a value of 4
+--------------------------------------------------------------------------------------------------
+
+
+-------------------------------------------------------------------------------------------------
+ACTIVATE ACCOUNT REQUEST (GET) (TODO)
+-------------------------------------------------------------------------------------------------
+  Endpoint: http://camerooncom/api/auth-verifyEmail?em=44490ee6bc14729a2a9b2a7f32e8acb3&caller-origin=api
+
+   {
+       "method":"GET",
+   }
+
+    Response:
+   {
+        "status":"true",
+        "message":"Your email was successfully activated, you may now log in",
+        "response_code":200
+   }
+
+    -Remember that the value of the endpoint 'em' query string will be different for every individual
+      account activation because of the uniquely-generated code.
+--------------------------------------------------------------------------------------------------

@@ -39,17 +39,12 @@ class ApiController extends \DGZ_library\DGZ_Controller
             //REQUESTS USING THIS
             /*
              * -login
+             * -password reset
              */
 
             $this->setHeaders();
             $controllerName = ucfirst($targetController).'Controller';
 
-            //-----------TESTING (THIS WORKS TOO)-----------------
-            /*$classReflector = new ReflectionClass('\controllers\\'.$controllerName);
-            $object = $classReflector->newInstance();
-            echo '<pre>';
-            die(var_dump($object));*/
-            //-----------END TESTING-------------------------------
             $classPath = '\controllers\\%s';
             $controller = sprintf(
                 $classPath,
@@ -57,9 +52,6 @@ class ApiController extends \DGZ_library\DGZ_Controller
             );
 
             $object = new $controller();
-            //echo '<pre>';
-            //die(print_r($_POST));
-            //$object->$targetMethod(); die('DONE');
             $response = $object->$targetMethod();
             if ($response['status'] == 'true') {
                 http_response_code(200);
