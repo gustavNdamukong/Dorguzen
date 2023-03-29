@@ -107,7 +107,7 @@ class home extends \DGZ_library\DGZ_HtmlView
              <div class="container-xxl position-relative p-0">
                  <nav class="navbar navbar-expand-lg navbar-light px-4 px-lg-5 py-3 py-lg-0">
                      <a href="" class="navbar-brand p-0">
-                         <h1 class="m-0"><i class="fa fa-search me-2"></i>Dor<span class="fs-5">Guzen</span></h1>
+                         <h1 class="m-0"><i class="fa fa-search me-2"></i>Dor<span class="fs-9">Guzen</span></h1><!--It was 'fs-5'-->
                          <!-- <img src="img/logo.png" alt="Logo"> -->
                      </a>
                      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
@@ -345,6 +345,7 @@ class home extends \DGZ_library\DGZ_HtmlView
                                  <li class="btn px-3 pe-4 active" data-filter="*">All</li>
                                  <li class="btn px-3 pe-4" data-filter=".first">Design</li>
                                  <li class="btn px-3 pe-4" data-filter=".second">Development</li>
+                                 <li class="btn px-3 pe-4" data-filter=".products">Products</li>
                              </ul>
                          </div>
                      </div>
@@ -421,6 +422,45 @@ class home extends \DGZ_library\DGZ_HtmlView
                                  </div>
                              </div>
                          </div>
+
+                         <div class="col-lg-4 col-md-6 portfolio-item products wow zoomIn" data-wow-delay="0.1s">
+                             <div class="position-relative rounded overflow-hidden">
+                                 <img class="img-fluid w-100" src="<?=$this->controller->settings->getFileRootPath()?>assets2/images/portfolio-4.jpg" alt="">
+                                 <div class="portfolio-overlay">
+                                     <a class="btn btn-light" href="<?=$this->controller->settings->getFileRootPath()?>assets2/images/portfolio-4.jpg" data-lightbox="portfolio"><i class="fa fa-plus fa-2x text-primary"></i></a>
+                                     <div class="mt-auto">
+                                         <small class="text-white"><i class="fa fa-folder me-2"></i>DGZ-Shop</small>
+                                         <a class="h5 d-block text-white mt-1 mb-0" href="">Cool web store</a>
+                                     </div>
+                                 </div>
+                             </div>
+                         </div>
+                         <div class="col-lg-4 col-md-6 portfolio-item products wow zoomIn" data-wow-delay="0.3s">
+                             <div class="position-relative rounded overflow-hidden">
+                                 <img class="img-fluid w-100" src="<?=$this->controller->settings->getFileRootPath()?>assets2/images/portfolio-5.jpg" alt="">
+                                 <div class="portfolio-overlay">
+                                     <a class="btn btn-light" href="<?=$this->controller->settings->getFileRootPath()?>assets2/images/portfolio-5.jpg" data-lightbox="portfolio"><i class="fa fa-plus fa-2x text-primary"></i></a>
+                                     <div class="mt-auto">
+                                         <small class="text-white"><i class="fa fa-folder me-2"></i>DGZ-Classified Ads</small>
+                                         <a class="h5 d-block text-white mt-1 mb-0" href="">Basic</a>
+                                     </div>
+                                 </div>
+                             </div>
+                         </div>
+
+                         <div class="col-lg-4 col-md-6 portfolio-item products wow zoomIn" data-wow-delay="0.6s">
+                             <div class="position-relative rounded overflow-hidden">
+                                 <img class="img-fluid w-100" src="<?=$this->controller->settings->getFileRootPath()?>assets2/images/portfolio-6.jpg" alt="">
+                                 <div class="portfolio-overlay">
+                                     <a class="btn btn-light" href="<?=$this->controller->settings->getFileRootPath()?>assets2/images/portfolio-6.jpg" data-lightbox="portfolio"><i class="fa fa-plus fa-2x text-primary"></i></a>
+                                     <div class="mt-auto">
+                                         <small class="text-white"><i class="fa fa-folder me-2"></i>DGZ-Classified Ads</small>
+                                         <a class="h5 d-block text-white mt-1 mb-0" href="">Multi-vendor</a>
+                                     </div>
+                                 </div>
+                             </div>
+                         </div>
+
                      </div>
                  </div>
              </div>
@@ -430,6 +470,13 @@ class home extends \DGZ_library\DGZ_HtmlView
              <!-- Testimonial Start -->
              <div class="container-xxl bg-primary testimonial py-5 my-5 wow fadeInUp" data-wow-delay="0.1s">
                  <div class="container py-5 px-lg-5">
+
+                     <div class="section-title-testimonials position-relative text-center mb-5 pb-2 wow fadeInUp" data-wow-delay="0.1s">
+                         <!--<h6 class="position-relative d-inline text-primary ps-4">Testimonials</h6>-->
+                         <h6 class="text-white mb-4 animated zoomIn position-relative d-inline text-primary ps-4">Testimonials</h6>
+                         <h2 class="mt-2 text-white">What Our Clients Say</h2>
+                     </div>
+
                      <div class="owl-carousel testimonial-carousel">
                          <div class="testimonial-item bg-transparent border rounded text-white p-4">
                              <i class="fa fa-quote-left fa-2x mb-3"></i>

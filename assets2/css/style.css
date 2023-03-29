@@ -241,6 +241,39 @@ h6,
     background: rgba(33, 66, 177, .5);
 }
 
+
+/* ----------------------------------------------------
+ We need to style the testimonials section on home
+    page separately coz it was on a blue background
+    & the before icon which is blue on other sections
+    was not visible
+    ---------------------------------------------------*/
+.section-title-testimonials h6::before, .section-title-testimonials h6::after {
+    position: absolute;
+    content: "";
+    width: 10px;
+    height: 10px;
+    top: 2px;
+    left: 0;
+    background: rgba(255,245,238, .5);
+}
+
+.section-title-testimonials h6::after {
+    top: 5px;
+    left: 3px;
+}
+
+/**, *::before, *::after {
+    box-sizing: border-box;
+}*/
+
+.section-title-testimonials h6::after {
+    top: 5px;
+    left: 3px;
+}
+
+/*--------------------------------------------------*/
+
 .section-title h6::after {
     top: 5px;
     left: 3px;
