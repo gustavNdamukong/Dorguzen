@@ -1,97 +1,90 @@
 
-
     <header class="navbar navbar-transparent navbar-fixed-top">
-    	<div class="container">
-            <div class="navbar-header">
-                <a href="<?=$this->settings->getHomePage()?>home" class="navbar-brand"><span>Dor</span>Guzen</a>
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse"><i class="fa fa-bars"></i></button>
-
-
-
-            </div>
-            <div class="navbar-collapse collapse">
-            	<p class="navbar-text hidden-xs hidden-sm">Your Rapid Web Development Toolkit</p>
-
-
-                <!----NAV BAR STARTS HERE --->
-            	<ul class="nav navbar-nav navbar-right">
-
-                    <li class="dropdown megamenu">
-                    	<a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="300" data-close-others="true">Go To Menu</a>
-                      	<ul class="dropdown-menu">
-                            <li class="col-sm-4 col-md-3">
-                            	<ul class="list-unstyled">
-                                	<li class="title">Who Are We <span class="label label-danger pull-right">HOT</span></li>
-                                    <li><a href="<?=$this->settings->getFileRootPath()?>home/home">Home page</a></li>
-                                    <li><a>Something here</a></li>
-                                    <li><a>Something here</a></li>
-                                    <li><a>Something here</a></li>
-                                    <li><a>Something here</a></li>
-                                </ul>
-                            </li>
-                            <li class="col-sm-4 col-md-3">
-                            	<ul class="list-unstyled">
-                                    <li><a>Something here</a></li>
-                                    <li><a>Something here</a></li>
-                                    <li><a>Something here</a></li>
-                                    <li><a>Something here</a></li>
-                                    <li><a>Something here</a></li>
-                                    <li><a>Something here</a></li>
-                                    <li><a href="<?=$this->settings->getFileRootPath()?>feedback/contact">Your Contact Form</a></li>
-                                </ul>
-                            </li>
-                            <li class="col-sm-4 col-md-3">
-                            	<ul class="list-unstyled">
-                                	<li class="title">Feedback</li>
-                                    <?php
-                                    if (!isset($_SESSION['authenticated'])) {
-                                        //only show the log in link if the user is not currently logged in ?>
-                                        <li><a href="<?=$this->settings->getFileRootPath()?>admin">Admin Login</a></li>
-                                    <?php
-                                    }
-                                    else
-                                    {
-                                        //show a logout button if the user is logged in ?>
-                                        <li><a href="<?=$this->settings->getFileRootPath()?>admin/logout">Logout</a></li>
-                                        <li><a href="<?=$this->settings->getFileRootPath()?>admin/dashboard">Admin Dashboard</a></li>
-                                    <?php
-                                    } ?>
-                                </ul>
-                            </li>
-                            <li class="hidden-xs hidden-sm col-md-3">
-                            	<img  style="padding-top:70px;" max-width="948" max-height="632" src="<?=$this->settings->getFileRootPath()?>assets/images/categories/category-8.png" class="img-responsive center-block" alt="Put Your App Banner Here">
-                            </li>
-                      	</ul>
-                    </li>
-
-                    <?php
-                        list($controller, $method) = $this->settings->getCurrentRoute();
-                    ?>
-                    <!--------------------------------------- THE SITE SEARCH FORM -------------------------------------------------------------->
-                    <li class="dropdown navbar-search hidden-xs">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-search">Search</i></a>
-                        <ul class="dropdown-menu">
-                            <li>
-                                <form method="get" action="<?=$this->settings->getFileRootPath()?>search/doSearch">
-                                    <div class="input-group input-group-lg">
-                                        <input type="text" class="form-control" name="search_keyword" placeholder="Search ..." />
-
-                                        <!--below we need to sent the current controller so we know on which view the user searched from
-                                            as this search form is available every where on the site-->
-                                        <input type="hidden" name="searchOrigin" value="<?=$controller?>/<?=$method?>" /> 
-                                        <span class="input-group-btn">
-                                            <button type="submit" class="btn btn-primary">Search</button>
-                                        </span>
-                                    </div>
-                                </form>
-                            </li>
-                        </ul>
-                    </li>
-                    <!--------------------------------------------------------------------------------------------------------------------------->
-                </ul>
-                <!----NAV BAR ENDS HERE --->
-
-
+        <div class="container">
+    <div class="container-xxl bg-white p-0">
+        <!-- Spinner Start -->
+        <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+            <div class="spinner-grow text-primary" style="width: 3rem; height: 3rem;" role="status">
+                <span class="sr-only">Loading...</span>
             </div>
         </div>
+        <!-- Spinner End -->
+
+
+        <!-- Navbar & Hero Start -->
+        <div class="container-xxl position-relative p-0">
+            <nav class="navbar navbar-expand-lg navbar-light px-4 px-lg-5 py-3 py-lg-0">
+                <a href="<?=$this->settings->getHomePage()?>" class="navbar-brand p-0">
+                    <h1 class="m-0">Dor<span class="fs-9">Guzen</span></h1><!--It was 'fs-5'-->
+                    <!-- <img src="img/logo.png" alt="Logo"> -->
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                    <span class="fa fa-bars"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarCollapse">
+                    <div class="navbar-nav ms-auto py-0">
+                        <a href="<?=$this->settings->getHomePage()?>" class="nav-item nav-link active"><i class="fa fa-home"></i>Home</a>
+                        <a href="about.html" class="nav-item nav-link">About</a>
+                        <a href="service.html" class="nav-item nav-link">Service</a>
+                        <a href="project.html" class="nav-item nav-link">Project</a>
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
+                            <div class="dropdown-menu m-0">
+                                <a href="team.html" class="dropdown-item">Our Team</a>
+                                <a href="testimonial.html" class="dropdown-item">Testimonial</a>
+                                <a href="404.html" class="dropdown-item">404 Page</a>
+                            </div>
+                        </div>
+                        <a href="contact.html" class="nav-item nav-link">Contact</a>
+                        <?php
+                        if (!isset($_SESSION['authenticated'])) { ?>
+                            <a href="<?=$this->settings->getFileRootPath()?>admin" class="nav-item nav-link">Admin Login</a>
+                            <?php
+                        }
+                        else
+                        { ?>
+                            <a href="<?=$this->settings->getFileRootPath()?>admin/logout" class="nav-item nav-link">Logout</a>
+                            <a href="<?=$this->settings->getFileRootPath()?>admin/dashboard" class="nav-item nav-link">Dashboard</a>
+                            <?php
+                        } ?>
+                    </div>
+
+                    <butaton type="button" class="btn text-secondary ms-3" data-bs-toggle="modal" data-bs-target="#searchModal"><i class="fa fa-search"></i></butaton>
+                </div>
+            </nav>
+
+            <?php
+            list($controller, $method) = $this->settings->getCurrentRoute();
+            ?>
+            <?php //<!--------------------------------------- FULL SITE SEARCH FORM -------------------------------------------------------> */?>
+                    <div class="modal fade" id="searchModal" tabindex="-1">
+                        <div class="modal-dialog modal-fullscreen">
+                            <div class="modal-content" style="background: rgba(29, 29, 39, 0.7);">
+                                <form method="get" action="<?=$this->settings->getFileRootPath()?>search">
+
+
+                                    <div class="modal-header border-0">
+                                        <button type="button" class="btn bg-white btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+
+                                    <div class="modal-body d-flex align-items-center justify-content-center">
+                                        <div class="input-group" style="max-width: 600px;">
+                                            <input type="text" name="search_keyword" class="form-control bg-transparent border-light p-3" placeholder="Type search keyword">
+                                            <button type="submit" class="btn btn-light px-4"><i class="bi bi-search"></i></button>
+                                        </div>
+                                    </div>
+
+                                    <!--We send the current controller with this form, so the system knows which view the user searched from
+                                            as this search form is available every where on the site-->
+                                    <input type="hidden" name="searchOrigin" value="<?=$controller?>/<?=$method?>" />
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+            <?php //<!--------------------------------------------------------------------------------------------------------------------> */?>
+        </div>
+
+        </div>
+      </div>
     </header>

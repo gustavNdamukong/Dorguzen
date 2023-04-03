@@ -37,8 +37,10 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
     {
         $view = DGZ_View::getView('login', $this, 'html');
         $this->setPageTitle('login');
-        $this->setLayoutDirectory('admin');
-        $this->setLayoutView('adminLayout');
+        /*$this->setLayoutDirectory('admin');
+        $this->setLayoutView('adminLayout');*/
+        $this->setLayoutDirectory('seoMaster');
+        $this->setLayoutView('seoMasterLayout');
 
         $view->show();
     }
