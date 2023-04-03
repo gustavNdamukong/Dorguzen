@@ -76,10 +76,3 @@
         can log into the system. You can view contact messages sent through your application's contact form. These are messages that would have been emailed
         to you but are also stored in a database table for your perusal in the admin interface from where you can delete them at your convenience.
     -As a logged in user, you are also able to request to reset your password in case you forgot it.
-
-
- ## Full documentation
-
-    Here is the official documentation link [Dorguzen documentation](http://nolimitmedia.co.uk/dorguzen/docs)
-    Bear in mind that this is a work in progress, and as such, the documentation is still being compiled. It is being updated weekly, but if you have any queries, feel free to reach us via the site contact form. 
-    Please bare with me. In the mean time if you have any questions, reach out to me here on here and i will get right back at you.
