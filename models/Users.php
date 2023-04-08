@@ -21,7 +21,6 @@ use DGZ_library\DGZ_Model;
      */
 
 
-
     /**
      * Class Users
      */
@@ -29,6 +28,7 @@ use DGZ_library\DGZ_Model;
     {
         protected $_columns = array();
 
+        protected $idField = 'users_id';
 
         public function __construct()
         {
@@ -38,9 +38,6 @@ use DGZ_library\DGZ_Model;
         }
 
 
-
-
-        
         public function recoverLostPw($email)
         {
 
@@ -89,13 +86,6 @@ use DGZ_library\DGZ_Model;
         }
 
 
-
-
-
-
-
-
-
         public function getUserById($userId)
         {
             $key = $this->getSalt();
@@ -114,10 +104,6 @@ use DGZ_library\DGZ_Model;
         }
 
 
-
-        
-        
-        
         public function createUser($firstname, $lastname, $email, $password)
         {
             $data = [
@@ -146,10 +132,6 @@ use DGZ_library\DGZ_Model;
         }
 
 
-
-
-
-
         /**
          * When a user requests to reset their password, they are are sent a link to a form that eventually gets submitted here
          * their user ID and email address will have to match before the reset can happen.
@@ -173,11 +155,6 @@ use DGZ_library\DGZ_Model;
                 return false;
             }
         }
-
-
-
-
-        
     }
     
     

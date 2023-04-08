@@ -104,7 +104,7 @@ use DGZ_library\DGZ_Router;
 				'localDBcredentials' => [
 					'username' => 'dorguz',
 					'pwd' => 'dorguz123',
-					'db' => 'dorguzApp',
+					'db' => 'dorguzapp',
 					'host' => 'localhost',
 					'connectionType' => 'mysqli',
 					'key' => 'takeThisWith@PinchOfSalt'
@@ -113,7 +113,7 @@ use DGZ_library\DGZ_Router;
 				'liveDBcredentials' => [
 					'username' => 'dorguz',
 					'pwd' => 'dorguz123',
-					'db' => 'dorguzApp',
+					'db' => 'dorguzapp',
 					'host' => 'localhost',
 					'connectionType' => 'mysqli',
 					'key' => 'takeThisWith@PinchOfSalt'

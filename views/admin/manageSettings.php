@@ -152,6 +152,23 @@ class manageSettings extends \DGZ_library\DGZ_HtmlView
                                                              <hr/>
                                                              <?php
                                                          }
+
+                                                         if ($val['settings_name'] == 'allow_registration') { ?>
+                                                             <label for="allow_registration">Allow registration</label>
+                                                             <select id="allow_registration" name="allow_registration" class="form-control">
+                                                                 <option
+                                                                         value="true" <?= $val['settings_value'] == 'true' ? 'selected="true"' : '' ?>>
+                                                                     Yes
+                                                                 </option>
+                                                                 <option
+                                                                         value="false" <?= $val['settings_value'] == 'false' ? 'selected="true"' : '' ?>>
+                                                                     No
+                                                                 </option>
+
+                                                             </select>
+                                                             <hr/>
+                                                             <?php
+                                                         }
                                                      }
                                                  } ?>
                                          </div><!--END OF BODY OF PANEL HOLDING REGIS FORM-->

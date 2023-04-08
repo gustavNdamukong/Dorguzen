@@ -328,6 +328,39 @@ class DGZ_Model
     }
 
 
+    /**
+     * Delete a record by its field ID when you are not worried about managing fk constraints.
+     * If you are worried about fk constraints; use the deleteWhere() method instead.
+     * @param int $id the value to match on the table's given ID field
+     * @param bool $tablePrefixed if the id field is named with a prefix of the table name, default true
+     *     This will be the field name used as the ID field if $fieldName is a blank string
+     * @param string $fieldName if the id field is named something else-not 'id' or table name-prefixed,
+     *     default '' (blank string). If this is not blank, this is the field that will be used as the ID field. Use it to
+     *     override all other choices and specify the exact table field name to match.
+     * @return bool
+     */
+    public function deleteById($id, $tablePrefixed = true, $fieldName = '')
+    {
+        $table = $this->getTable();
+        $db = $this->connect();
+
+        if ($fieldName != '') {
+            $stmt = $db->prepare("DELETE FROM {$table} WHERE {$fieldName} = ?");
+        }
+        else if ($tablePrefixed)
+        {
+            $stmt = $db->prepare("DELETE FROM {$table} WHERE {$table}_id = ?");
+        }
+        else
+        {
+            $stmt = $db->prepare("DELETE FROM {$table} WHERE id = ?");
+        }
+        $stmt->bind_param( 'i', $id );
+        $stmt->execute();
+
+        return true;
+    }
+
 
     /**
      * delete based on any criteria desired
@@ -835,7 +868,7 @@ class DGZ_Model
                     $placeholders .= $field . '=?,';
                 }
             }
-            elseif (in_array($field, $this->passwordField))
+            else if (in_array($field, $this->passwordField))
             {
                 $placeholders .= " AES_ENCRYPT(?, ?),";
             }
@@ -844,7 +877,6 @@ class DGZ_Model
                 $placeholders .= '?,';
             }
         }
-        $values = array_filter($values);
 
         // Normalize $fields and $placeholders for inserting
         $fields = substr($fields, 0, -1);
@@ -1033,59 +1065,104 @@ class DGZ_Model
 
 
     /**
-     * This method is to allow models to be able to grab everything about a record using its ID
+     * Grab everything from a record using its ID. If you did not follow the DGZ convention of prefixing
+     * your table field names with the 'tablename_', you can pass it the actual id field name in $fieldName
+     * If you did, just pass true to the second argument.
+     * If however you pass only one argument-the actual id field value, this method will check if you
+     * specified the id field of your model in a 'idField' property & use it, otherwise, it assumes that
+     * your model table's id field is just 'id'.
      *
-     * @param $id
+     * @param int $id the value to match on the table's given ID field
+     * @param bool $tablePrefixed if the id field is named with a prefix of the table name, default true
+     *     This will be the field name used as the ID field if $fieldName is a blank string
+     * @param string $fieldName if the id field is named something else-not 'id' or table name-prefixed,
+     *     default '' (blank string). If this is not blank, this is the field that will be used as the ID field. Use it to
+     *     override all other choices and specify the exact table field name to match.
      * @return array
      */
-    public function getById($id)
+    public function getById($id, $tablePrefixed = true, $fieldName = '')
     {
+        $table = $this->getTable();
+        $db = $this->connect();
         $model = new $this->whoCalledMe;
-        $table = $model->getTable();
 
-        $query = "SELECT * FROM $table WHERE ".$table."_id = $id";
-
-        $result = $this->query($query);
-
-        if ($result)
+        if ($fieldName != '') {
+            $stmt = $db->prepare("SELECT * FROM {$table} WHERE {$fieldName} = ?");
+        }
+        else if ($tablePrefixed)
         {
-            return $result;
+            $stmt = $db->prepare("SELECT * FROM {$table} WHERE {$table}_id = ?");
+        }
+        else
+        {
+            if (property_exists($model, 'idField'))
+            {
+                $stmt = $db->prepare("SELECT * FROM {$table} WHERE {$model->idField} = ?");
+            }
+            else
+            {
+                $stmt = $db->prepare("SELECT * FROM {$table} WHERE id = ?");
+            }
+        }
+        $stmt->bind_param( 'i', $id );
+        $stmt->execute();
+        $stmt->store_result();
+
+        if ($stmt->num_rows) {
+            $results = [];
+            while ($row = $this->fetchAssocStatement($stmt)) {
+                $results[] = $row;
+            }
+
+            $stmt->close();
+
+            return $results[0];
+        }
+        else {
+            return false;
         }
     }
 
 
-
     /**
-     * Ideally, we should have made the $table.'_id' below be $this->id instead if that property is set in the model class, and then else use $table.'_id'.
-     *
-     * This is to allow developers give their model table id field any name they want while the default one will be the one currently used: $table.'_id' (e.g. albums_id)
-     * On second thought however, we dont need this. It will be too much work to have to check for a separate id name for model PK fields. IT'S SIMPLE; IF THE DEV DOES NOT FOLLOW THE
-     * column-naming convention of $tablename_id, and $tablename_name then they should not use these ready-made methods in the model, but write their own - simples :)
+     * Only use this method if you followed the DGZ table-naming convention of prefixing your table fields with 'tablename_'
+     * This method could be useful for records like users, or locations etc which have names you might need to fetch.
+     * It returns $result[0][$table.'_id'] The ID of the record having the given name, or false if no match is found.
      *
      * @params $name the name of the record whose ID you want to know
      *
-     * @return array $result[0][$table.'_id'] The ID of the record having the given name
+     * @return mixed
      */
     public function getIdFromName($name)
     {
-        $album_name = strtolower($name);
-        $model = new $this->whoCalledMe;
-        $table = $model->getTable();
-        $query = "SELECT ".$table."_id FROM $table WHERE ".$table."_name = '$name'";
+        $db = $this->connect();
+        $table = $this->getTable();
 
-        $result = $this->query($query);
+        $stmt = $db->prepare("SELECT {$table}_id FROM {$table} WHERE {$table}_name = ?");
+        $stmt->bind_param( 's', $name );
+        $stmt->execute();
+        $stmt->store_result();
 
-        if ($result)
-        {
-            return $result[0][$table.'_id'];
+        if ($stmt->num_rows) {
+            $results = [];
+            while ($row = $this->fetchAssocStatement($stmt)) {
+                $results[] = $row;
+            }
+
+            $stmt->close();
+
+            return $results[0][$table.'_id'];
+        }
+        else {
+            return false;
         }
     }
 
 
 
     /**
-     * This method is to allow models to be able to grab everything about a record using its name
-     * It assumes of course that you have followed the Dorguzen table column naming convention which is to have one column named: 'tableName_name'
+     * Only use this method if you followed the DGZ table-naming convention of prefixing your table fields with 'tablename_'
+     * This method could be useful for records like users, or locations etc which have names you might need to fetch.
      *
      * @param $recordName
      * @return array

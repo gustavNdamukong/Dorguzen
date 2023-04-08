@@ -24,7 +24,7 @@ class DGZ_Exception extends \Exception {
 	const NO_USER_RECORD = 'noUserRecord';
 	const WRONG_ADAPTER_FOR_MODEL = 'wrongAdapterForModel';
 	const MISSING_HANDLER_FOR_ACTION = 'missingHandlerForAction';
-	const PAGE_CLASS_NOT_FOUND = 'pageClassNotFound';
+	const CONTROLLER_CLASS_NOT_FOUND = 'controllerClassNotFound';
 	const INVALID_INPUT = 'invalidInput';
 	const INVALID_CONFIG = 'invalidConfig';
 	const INVALID_PARAMETER_VALUE = 'invalidParameterValue';

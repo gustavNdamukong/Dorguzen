@@ -128,10 +128,7 @@ class DGZ_Form
 
             $str .= '>';
             echo $str;
-
         }
-
-
     }
 
 
@@ -495,5 +492,4 @@ class DGZ_Form
             return false;
         }
     }
-
 }
