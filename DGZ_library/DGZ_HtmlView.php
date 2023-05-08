@@ -85,6 +85,11 @@ abstract class DGZ_HtmlView extends \DGZ_library\DGZ_View {
 		$this->controller->addScript($jsFileName);
 	}
 
+	public function rootPath()
+	{
+		return $this->controller->rootPath();
+	}
+
 
 
 

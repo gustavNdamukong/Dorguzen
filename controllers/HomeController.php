@@ -33,6 +33,8 @@ class HomeController extends \DGZ_library\DGZ_Controller  {
         $view = DGZ_View::getView('home', $this, 'html');
         $this->setPageTitle('Home');
         $this->setImageSlider(true);
+        $this->setLayoutDirectory('seoMaster');
+        $this->setLayoutView('seoMasterLayout');
         $view->show();
     }
 
@@ -44,6 +46,8 @@ class HomeController extends \DGZ_library\DGZ_Controller  {
         $view = DGZ_View::getView('home', $this, 'html');
         $this->setPageTitle('Home');
         $this->setImageSlider(true);
+        $this->setLayoutDirectory('seoMaster');
+        $this->setLayoutView('seoMasterLayout');
         $view->show();
     }
 

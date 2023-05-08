@@ -52,9 +52,13 @@ use DGZ_library\DGZ_Router;
 
 				'appURL' => 'http://www.nolimitmedia.co.uk',
 
-				'layoutDirectory' => 'dorguzApp',
+				/////'layoutDirectory' => 'dorguzApp',
 
-				'defaultLayout' => 'dorguzAppLayout',
+				/////'defaultLayout' => 'dorguzAppLayout',
+
+				'layoutDirectory' => 'seoMaster',
+
+				'defaultLayout' => 'seoMasterLayout',
 
 
 

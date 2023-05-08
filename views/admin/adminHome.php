@@ -14,7 +14,7 @@ function show()
 
 
 
-          <!-- ==========================
+          <?php /*<!-- ==========================
          BREADCRUMB - START
          =========================== -->
           <section class="breadcrumb-wrapper">
@@ -34,7 +34,27 @@ function show()
           </section>
           <!-- ==========================
               BREADCRUMB - END
-          =========================== -->
+          =========================== -->*/ ?>
+
+     <!-- Hero Header Start -->
+     <div class="container-xxl py-5 bg-primary hero-header mb-5">
+          <div class="container my-5 py-5 px-lg-5">
+               <div class="row g-5 py-5">
+                    <div class="col-12 text-center">
+                         <h1 class="text-white animated zoomIn">Dashboard</h1>
+                         <hr class="bg-white mx-auto mt-0" style="width: 90px;">
+                         <nav aria-label="breadcrumb">
+                              <ol class="breadcrumb justify-content-center">
+                                   <li class="breadcrumb-item"><a class="text-white" href="<?= $this->controller->settings->getFileRootPath() ?>">Home</a></li>
+                                   <li class="breadcrumb-item text-white active" aria-current="page">Dashboard</li>
+                              </ol>
+                         </nav>
+                    </div>
+               </div>
+          </div>
+     </div>
+     </div>
+     <!-- Hero Header End -->
 
 
 
@@ -47,7 +67,7 @@ function show()
               PAGE CONTENT - START
           =========================== -->
           <div class="main">
-               <section class="content account">
+               <section class="content account bg-white">
                     <div class="container">
                          <div class="row">
                               <div class="col-sm-3">
@@ -102,6 +122,21 @@ function show()
                                              <div class="col-xs-6 col-md-3"><a
                                                       href="<?=$this->controller->settings->getFileRootPath()?>admin/contactMessages"><i
                                                            class="fa fa-envelope-o"></i>Contact Messages</a></div>
+
+
+                                             <div class="card dashboard-cards" style="width: 12rem;">
+                                                  <a
+                                                      href="<?=$this->controller->settings->getFileRootPath()?>admin/contactMessages">
+                                                  <div class="card-body">
+
+                                                            <h5 class="card-title text-center" style="background:darkblue;border-radius:4px;color:#fff;font-weight:bold;"><i
+                                                                     class="fa fa-envelope-o"></i></h5>
+                                                            <p class="card-text">Contact Messages</p>
+                                                            <!--<a href="#" class="btn btn-primary">Go somewhere</a>-->
+                                                  </div>
+                                                  </a>
+                                             </div>
+
 
                                              <div class="col-xs-6 col-md-3"><a
                                                       href="<?=$this->controller->settings->getFileRootPath()?>admin/adminUserChangePw?userId=<?=$_SESSION['custo_id']?>&change=0"><i
