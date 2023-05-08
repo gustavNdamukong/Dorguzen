@@ -285,6 +285,11 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 		$this->viewName = $fileName;
 	}
 
+	public function rootPath()
+	{
+		return $this->settings->getFileRootPath();
+	}
+
 
 
 	/**

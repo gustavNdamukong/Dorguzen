@@ -43,8 +43,6 @@ $newsData = $pager->getData($limit, $page); //This will work because every time 
  */
 class DGZ_Table
 {
-
-
     private $_limit; //This shows the number of records per page
     private $_page; // default start page number
     private $_data;
@@ -65,6 +63,7 @@ class DGZ_Table
     private $_sort = 'ASC';
     private $heading = '';
     private $panelId = '';
+    private $recordsPerpage = 20;
 
 
     /**
@@ -113,9 +112,6 @@ class DGZ_Table
 
 
 
-
-
-
     /**
      * This is a method for dynamically adding extra columns on the fly to the paginated table to be created by this Pager class. Pass it the text for its heading.
      *
@@ -135,11 +131,6 @@ class DGZ_Table
         // so each $heading will have a different value and be a separate multidimensional array within the one $this->_extraColumns array
         $this->_extraColumns[$heading] = [];
     }
-
-
-
-
-
 
 
 
@@ -169,11 +160,6 @@ class DGZ_Table
 
         $this->_extraColumns[$heading]= $this->_extraFieldParameters;
     }
-
-
-
-
-
 
 
 
@@ -216,19 +202,10 @@ class DGZ_Table
 
 
 
-
-
-
     public function makeSortable($boolean)
     {
         $this->_sortable = $boolean;
     }
-
-
-
-
-
-
 
 
 
@@ -256,10 +233,15 @@ class DGZ_Table
         return $this->_data;
     }
 
+    public function getRecordsPerpage()
+    {
+        return $this->recordsPerpage;
+    }
 
-
-
-
+    public function setRecordsPerpage($recordsPerpage)
+    {
+        $this->recordsPerpage = $recordsPerpage;
+    }
 
 
 
@@ -267,16 +249,23 @@ class DGZ_Table
     /**
      * Call this pager class's constructor first passing it your data before calling this method to get the table output
      *
+     * The $sortLinkTarget specifies the target back link for the sort links which will be passed to getTable() - do this obviously only
+     * 		if you have set 'makeSortable()' to true
+     *      Note very carefully that if you have specified '$pager->makeSortable' as true and set the $sortLinkTarget
+     * 		variable, then in order for your links and pagination functionality to work well, you MUST call getTable() like so:
+     *        $table = $pager->getTable('blog_posts_TableView', $sortLinkTarget);
+     *          else you MUST call it like so:
+     *        $table = $pager->getTable('newsletter_TableView', ''); (leaving the 2nd argument meant for the sort links blank)
+     *
      * @param string $tableTemplateClassName
      * @param $sortLinkTarget string link destib=nation for the sort links on the table head
-     * @param int $RecsPerpage number of records you want displayed per page (less records means many navigation pages)
-     * @return array
+     * @return string containing the built HTML table
      *
      */
-    public function getTable($tableTemplateClassName, $sortLinkTarget = '', $RecsPerpage = 0) {
-
+    public function getTable($tableTemplateClassName, $sortLinkTarget = '') {
         //pagination vars
-        $limit = $RecsPerpage > 0 ? $RecsPerpage : (isset($_GET['limit']) ? $_GET['limit'] : 20);
+        $limit = $this->recordsPerpage > 0 ? $this->recordsPerpage : (isset($_GET['limit']) ? $_GET['limit'] : 20);
+        /////$limit = $this->recordsPerpage > 0 ? $RecsPerpage : (isset($_GET['limit']) ? $_GET['limit'] : 20);
         $currentPageNumber = (isset($_GET['pageNum'])) ? $_GET['pageNum'] : 1;
 
         //grab table views placed either inside the views folder or the views\admin sub-folder
@@ -330,17 +319,16 @@ class DGZ_Table
                     else {
                         $sort = $this->_sort;
                     }
-                    $HTMLTable .= "<th class='text-center'><a style='color: white;' href='$sortLinkTarget?ord=$result&s=$sort'>" . $heading . " <i class='fa fa-fw fa-sort'></i></a></th>";
+                    $HTMLTable .= "<th class='text-center'><a href='$sortLinkTarget?ord=$result&s=$sort'>" . $heading . " <i class='fa fa-fw fa-sort'></i></a></th>";
                 }
                 else {
-                    $HTMLTable .= "<th class='text-center'><a style='color: white;' href='$sortLinkTarget?ord=$result&s=$this->_sort'>" . $heading . " <i class='fa fa-fw fa-sort'></i></a></th>";
+                    $HTMLTable .= "<th class='text-center'><a href='$sortLinkTarget?ord=$result&s=$this->_sort'>" . $heading . " <i class='fa fa-fw fa-sort'></i></a></th>";
                 }
             }
             else
             {
                 $HTMLTable .= "<th class='text-center'>" . $heading . "</th>";
             }
-
         }
         //check if extra columns were specified and add their headings here before you proceed
         if (!empty($this->_extraColumns)) {
@@ -373,10 +361,6 @@ class DGZ_Table
                 {
                     $HTMLTable .= "<th class='text-center'>" . $head . "</th>";
                 }
-
-
-
-
             }
         }
 
@@ -560,16 +544,7 @@ class DGZ_Table
         $HTMLTable .= "</table></div></div></div>";
 
         return $HTMLTable;
-
-
     }
-
-
-
-
-
-
-
 
 
 
@@ -604,45 +579,40 @@ class DGZ_Table
         $start      = ( ( $this->_page - $links ) > 0 ) ? $this->_page - $links : 1;
         $end        = ( ( $this->_page + $links ) < $last ) ? $this->_page + $links : $last;
 
-        $html       = '<ul class="' . $list_class . '">';
+        $html       = '<nav aria-label="Page navigation">';
+        $html       .= '<ul class="' . $list_class . '">';
 
-        $class      = ( $this->_page == 1 ) ? "disabled" : "";
+        $class      = ( $this->_page == 1 ) ? "disabled page-item" : "page-item";
+        $anchorClass = "page-link";
 
         if ( $this->_page != 1 ) {
-            $html .= '<li class="' . $class . '"><a href="' . $linkTarget . '&limit=' . $this->_limit . '&pageNum=' . ($this->_page - 1) . '">&laquo;</a></li>';
+            $html .= '<li class="' . $class . '"><a class="'.$anchorClass.'" href="' . $linkTarget . '&limit=' . $this->_limit . '&pageNum=' . ($this->_page - 1) . '">&laquo;</a></li>';
         }
         if ( $start > 1 ) {
-            $html   .= '<li><a href="'.$linkTarget.'&limit=' . $this->_limit . '&pagNume=1">1</a></li>';
+            $html   .= '<li><a class="'.$anchorClass.'" href="'.$linkTarget.'&limit=' . $this->_limit . '&pagNume=1">1</a></li>';
             $html   .= '<li class="disabled"><span>...</span></li>';
         }
 
         for ( $i = $start ; $i <= $end; $i++ ) {
-            $class  = ( $this->_page == $i ) ? "active" : "";
-            $html   .= '<li class="' . $class . '"><a href="'.$linkTarget.'&limit=' . $this->_limit . '&pageNum=' . $i . '">' . $i . '</a></li>';
+            $class  = ( $this->_page == $i ) ? "active page-item" : "page-item";
+            $html   .= '<li class="' . $class . '"><a class="'.$anchorClass.'" href="'.$linkTarget.'&limit=' . $this->_limit . '&pageNum=' . $i . '">' . $i . '</a></li>';
         }
 
         if ( $end < $last ) {
             $html   .= '<li class="disabled"><span>...</span></li>';
-            $html   .= '<li><a href="'.$linkTarget.'&limit=' . $this->_limit . '&pageNum=' . $last . '">' . $last . '</a></li>';
+            $html   .= '<li><a class="'.$anchorClass.'" href="'.$linkTarget.'&limit=' . $this->_limit . '&pageNum=' . $last . '">' . $last . '</a></li>';
         }
 
-        $class      = ( $this->_page == $last ) ? "disabled" : "";
+        $class      = ( $this->_page == $last ) ? "disabled page-item" : "page-item";
 
         if ( $this->_page != $last ) {
-            $html .= '<li class="' . $class . '"><a href="' . $linkTarget . '&limit=' . $this->_limit . '&pageNum=' . ($this->_page + 1) . '">&raquo;</a></li>';
+            $html .= '<li class="' . $class . '"><a class="'.$anchorClass.'" href="' . $linkTarget . '&limit=' . $this->_limit . '&pageNum=' . ($this->_page + 1) . '">&raquo;</a></li>';
         }
         $html       .= '</ul>';
-
+        $html       .= '</nav>';
 
         return $html;
     }
-
-
-
-
-
-
-
 
 
 
@@ -654,11 +624,7 @@ class DGZ_Table
         }
         return $result;
     }
-
-
-
 }
-
 ?>
 
 

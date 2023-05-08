@@ -10,5 +10,8 @@
     <!-- Customized Bootstrap Stylesheet -->
     <link href="<?=$this->settings->getFileRootPath()?>assets2/css/bootstrap.min.css" rel="stylesheet">
 
+    <!--Font Awesome-->
+    <link href="<?=$this->settings->getFileRootPath()?>assets2/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
     <!-- Template Stylesheet -->
     <link href="<?=$this->settings->getFileRootPath()?>assets2/css/style.css" rel="stylesheet" type="text/css">

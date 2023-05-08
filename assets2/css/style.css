@@ -556,3 +556,7 @@ h6,
     padding-right: 0;
     border-right: none;
 }
+
+.dashboard-cards {
+    width: 12rem;
+}

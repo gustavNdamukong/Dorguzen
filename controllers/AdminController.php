@@ -697,8 +697,10 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
         $contactMessages = $settings->getAll('contactformmessage_date DESC');
 
         $view = DGZ_View::getAdminView('manageContactMessages', $this, 'html');
-        $this->setLayoutDirectory('admin');
-        $this->setLayoutView('adminLayout');
+        /*$this->setLayoutDirectory('admin');
+        $this->setLayoutView('adminLayout');*/
+        $this->setLayoutDirectory('seoMaster');
+        $this->setLayoutView('seoMasterLayout');
         $view->show($contactMessages);
     }
 

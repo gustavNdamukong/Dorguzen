@@ -123,6 +123,21 @@ function show()
                                                       href="<?=$this->controller->settings->getFileRootPath()?>admin/contactMessages"><i
                                                            class="fa fa-envelope-o"></i>Contact Messages</a></div>
 
+
+                                             <div class="card dashboard-cards" style="width: 12rem;">
+                                                  <a
+                                                      href="<?=$this->controller->settings->getFileRootPath()?>admin/contactMessages">
+                                                  <div class="card-body">
+
+                                                            <h5 class="card-title text-center" style="background:darkblue;border-radius:4px;color:#fff;font-weight:bold;"><i
+                                                                     class="fa fa-envelope-o"></i></h5>
+                                                            <p class="card-text">Contact Messages</p>
+                                                            <!--<a href="#" class="btn btn-primary">Go somewhere</a>-->
+                                                  </div>
+                                                  </a>
+                                             </div>
+
+
                                              <div class="col-xs-6 col-md-3"><a
                                                       href="<?=$this->controller->settings->getFileRootPath()?>admin/adminUserChangePw?userId=<?=$_SESSION['custo_id']?>&change=0"><i
                                                            class="fa fa-shield"></i>Change Password</a></div>
