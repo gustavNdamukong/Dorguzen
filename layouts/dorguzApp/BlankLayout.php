@@ -65,7 +65,7 @@ class BlankLayout extends \DGZ_library\DGZ_Layout {
 			<header class="navbar navbar-transparent navbar-fixed-top">
 				<div class="container">
 					<div class="navbar-header">
-						<a href="<?=$this->settings->getFileRootPath()?>home" class="navbar-brand"><span>Dor</span>Guzen</a>
+						<a href="<?=$this->config->getFileRootPath()?>home" class="navbar-brand"><span>Dor</span>Guzen</a>
 						<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse"><i class="fa fa-bars"></i></button>
 					</div>
 					<div class="navbar-collapse collapse">

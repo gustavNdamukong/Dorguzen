@@ -27,11 +27,11 @@ namespace DGZ_library;
  * e.g.
  *  $pager = new \DGZ_Table($newsData, $filteredCount);
 
-//set pagination vars
-$limit = ( isset( $_GET['limit'] ) ) ? $_GET['limit'] : 3;
-$page  = ( isset( $_GET['pageNum'] ) ) ? $_GET['pageNum'] : 1;
+ * set pagination vars
+ * $limit = ( isset( $_GET['limit'] ) ) ? $_GET['limit'] : 3;
+ * $page  = ( isset( $_GET['pageNum'] ) ) ? $_GET['pageNum'] : 1;
 
-$newsData = $pager->getData($limit, $page); //This will work because every time the view file is refreshed, $limit and $page  would be updated
+ * $newsData = $pager->getData($limit, $page); //This will work because every time the view file is refreshed, $limit and $page  would be updated
  *
  *
  * @param array $data. This class takes an array or a collection of objects. If it is a collection,
@@ -72,7 +72,7 @@ class DGZ_Table
      *
      * For the sorting feature to work, you must send the ordering to the DB query so that the data returns ordered as desired before passing it to DGZ_Table e.g
      *      $letters = $newsletter->selectOnly($columns, null, $order, $sort);
-    $pager = new DGZ_Table($letters);
+     * $pager = new DGZ_Table($letters);
      *
      * This class has a dependency, and that is the DGZ_library\DGZ_Dates class which is injected into the $_dateClass field
      * @param $data
@@ -186,14 +186,14 @@ class DGZ_Table
     /**
      * @param bool $clickable
      * @param $clickableRecLinkTarget, the link to send the request to which in DGZ is always the controllerName/method name e.g.
-     *      $this->controller->settings->getFileRootPath().'feedback/testimonial?'
+     *      $this->controller->config->getFileRootPath().'feedback/testimonial?'
      * @param array $params contains strings which MUST match the name of your table column who's value you are sending as a URL query string
      *      Also, the method handling this request on your controller MUST take a parameter whose name matches the field name e.g.
      *      $client_name for 'client_name', $id for 'id' etc.
      */
-    public function makeClickable($clickable = true, $clickableRecLinkTarget, $params = [])
+    public function makeClickable($clickableRecLinkTarget, $params = [])
     {
-        $this->_clickableRecs = $clickable;
+        $this->_clickableRecs = true;
         $this->_clickableRecLinkTarget = $clickableRecLinkTarget;
         $this->_clickableRecParams = $params;
     }
@@ -368,6 +368,7 @@ class DGZ_Table
         $HTMLTable .= "</tr></thead><tbody><tr>";
         $recCount = count($this->_data );
         $iteration = 0;
+        
         foreach($this->_data as $ref => $dat)
         {
             foreach($dat as $col => $val) {
@@ -403,7 +404,7 @@ class DGZ_Table
                                 }
                             }
                             //-------------------------
-                            $HTMLTable .= "<td id='".$recId."_".$col."'><a href='$linkTarget'>" . wordwrap($val, 75, "<br>\n", true). "</a></td>";
+                            $HTMLTable .= "<td id='".$recId."_".$col."'><a href='$linkTarget'>" . wordwrap($val ?? '', 75, "<br>\n", true). "</a></td>";
                         }
                         else
                         {
@@ -431,7 +432,7 @@ class DGZ_Table
                                 $HTMLTable .= "<td id='".$recId."_".$col."'><a href='$linkTarget'>" . $this->_dateClass->YYYYMMDDtoDDMMYYYY($val) . "</a></td>";
                             }
                             else {
-                                $HTMLTable .= "<td id='".$recId."_".$col."'><a href='$linkTarget'>" . wordwrap($val, 75, "<br>\n", true) . "</a></td>";
+                                $HTMLTable .= "<td id='".$recId."_".$col."'><a href='$linkTarget'>" . wordwrap($val ?? '', 75, "<br>\n", true) . "</a></td>";
                             }
                         }
                     }
@@ -451,8 +452,8 @@ class DGZ_Table
                         {
                             $HTMLTable .= "<td id='".$recId."_".$col."'>" . $this->_dateClass->YYYYMMDDtoDDMMYYYY($val) . "</td>";
                         }
-                        else {
-                            $HTMLTable .= "<td id='".$recId."_".$col."'>" . wordwrap($val, 75, "<br>\n", true) . "</td>";}
+                        else { 
+                            $HTMLTable .= "<td id='".$recId."_".$col."'>" . wordwrap($val ?? '', 75, "<br>\n", true) . "</td>";}
                     }
                 }
             }
@@ -461,7 +462,7 @@ class DGZ_Table
             //now for every iteration, loop though the extra columns and insert their values
             ###########
             if (!empty($this->_extraColumns)) {
-                foreach ($this->_extraColumns as $head => $valuesArray) { ////////////////////// $this->_extraFieldParameters['text']['value'] = $value;
+                foreach ($this->_extraColumns as $head => $valuesArray) { //$this->_extraFieldParameters['text']['value'] = $value;
                     //$valuesArray is a multidimensional array (which could be one of 'button', 'text'), so loop again
                     foreach ($valuesArray as $type => $vals) {
                         //but because a 'button' type will contain a diff kinda sub-array from a 'text' type

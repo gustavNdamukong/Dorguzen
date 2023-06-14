@@ -1,13 +1,13 @@
 <?php
 namespace DGZ_library;
 
-use settings\Settings;
+use configs\Config;
 
 
 
 class DGZ_Model
 {
-    protected $settings;
+    protected $config;
 
     protected $salt = '';
 
@@ -30,22 +30,18 @@ class DGZ_Model
     {
         $classThatCalled = get_class($this);
         $this->whoCalledMe = $classThatCalled;
-
-        $settingsClass = new Settings();
-
-        $this->settings = $settingsClass;
+        $this->config = new Config();
 
         //get DB connection credentials
-        if ($credentials = $this->settings->getSettings()['live'] == false) {
-            $credentials = $this->settings->getSettings()['localDBcredentials'];
+        if ($credentials = $this->config->getConfig()['live'] == false) {
+            $credentials = $this->config->getConfig()['localDBcredentials'];
         }
-        elseif ($this->settings->getSettings()['live'] == true)
+        elseif ($this->config->getConfig()['live'] == true)
         {
-            $credentials = $this->settings->getSettings()['liveDBcredentials'];
+            $credentials = $this->config->getConfig()['liveDBcredentials'];
         }
 
         $this->salt = $credentials['key'];
-
     }
 
 

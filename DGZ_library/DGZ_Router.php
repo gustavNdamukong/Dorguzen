@@ -2,7 +2,7 @@
 
 namespace DGZ_library;
 
-use settings\Settings;
+use configs\Config;
 use ReflectionClass;
 use ReflectionException;
 use Exception;
@@ -38,10 +38,10 @@ class DGZ_Router {
 
         //check if we are on local or live environment
         $rootPath = false;
-        $settings = new Settings();
+        $config = new Config();
 
         //if we are in the local environment
-        if ($settings->getSettings()['live'] == false) {
+        if ($config->getConfig()['live'] == false) {
             if (!empty($urlString[2])) {
                 //For their convenience; if they only enter 'index', or 'index.php', we should show them the home page too
                 if ($urlString[2] == 'index' || $urlString[2] == 'index.php') {

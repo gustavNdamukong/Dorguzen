@@ -558,5 +558,16 @@ h6,
 }
 
 .dashboard-cards {
+    color: #000;
     width: 12rem;
+    margin: 0.5rem;
+}
+
+.dash-icons {
+    font-size:3em;
+    font-weight:bold;
+}
+
+#editUserForm input {
+    margin-bottom: 1rem;
 }

@@ -3,7 +3,7 @@
 namespace middleware;
 
 
-use settings\Settings;
+use configs\Config;
 
 /**
  * Validate or divert requests
@@ -67,8 +67,8 @@ class Middleware
      */
     public function authorised()
     {
-        $settings = new Settings();
-        if ((isset($_SESSION['authenticated'])) && ($_SESSION['authenticated'] == 'Let Go-'.$settings->getSettings()['appName'])) {
+        $config = new Config();
+        if ((isset($_SESSION['authenticated'])) && ($_SESSION['authenticated'] == 'Let Go-'.$config->getConfig()['appName'])) {
             return true;
         }
         else

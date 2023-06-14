@@ -5,42 +5,44 @@ namespace views\admin;
 
 
 class adminUserChangePw extends \DGZ_library\DGZ_HtmlView
-{
+{ 
 
-
-
-     function show($user, $userId)
+    function show($user, $userId)
      { ?>
          <script src="http://code.jquery.com/jquery-latest.min.js"></script>
         <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
-    <?php
-         if ((isset($_SESSION['authenticated'])) && ($_SESSION['authenticated'] == 'Let Go-'.$this->controller->settings->getSettings()['appName'])) {
 
-         ?>
-         <!-- ==========================
-         BREADCRUMB - START
+
+        <!-- ==========================
+         Hero Header & Breadcrumb - START
          =========================== -->
-         <section class="breadcrumb-wrapper">
-             <div class="container">
-                 <div class="row">
-                     <div class="col-xs-6">
-                         <h3 class="text-center">Change your email & password</h3>
-                     </div>
-                     <div class="col-xs-6">
-                         <ol class="breadcrumb">
-                             <li><a href="<?=$this->controller->settings->getFileRootPath()?>admin/dashboard"><i class="fa fa-home"></i>Dashboard</a></li>
-                             <li><a href="<?=$this->controller->settings->getFileRootPath()?>admin/manageUsers"><i class="fa fa-user"></i>Manage users</a></li>
-                             <li class="active">Change password</li>
-                         </ol>
+         <div class="container-xxl py-5 bg-primary hero-header mb-5">
+                 <div class="container my-5 py-5 px-lg-5">
+                     <div class="row g-5 py-5">
+                         <div class="col-12 text-center">
+                             <h1 class="text-white animated zoomIn">Change your email & password</h1>
+                             <hr class="bg-white mx-auto mt-0" style="width: 90px;">
+
+                             <nav aria-label="breadcrumb">
+                                 <ol class="breadcrumb justify-content-center">
+                                     <li class="breadcrumb-item"><a class="text-white" href="<?=$this->controller->config->getFileRootPath()?>admin/dashboard"><i class="fa fa-home"></i>Dashboard</a></li>
+                                     <li class="breadcrumb-item text-white active" aria-current="page">Change password</li>
+                                 </ol>
+                             </nav>
+                         </div>
                      </div>
                  </div>
              </div>
-         </section>
-         <!-- ==========================
-             BREADCRUMB - END
-         =========================== -->
+             </div>
+        <!-- ==========================
+             Hero Header & Breadcrumb - End
+        =========================== -->   
 
 
+        <?php
+         if ((isset($_SESSION['authenticated'])) && ($_SESSION['authenticated'] == 'Let Go-'.$this->controller->config->getConfig()['appName'])) {
+
+         ?>
 
          <!-- ==========================
              PAGE CONTENT - START
@@ -48,12 +50,11 @@ class adminUserChangePw extends \DGZ_library\DGZ_HtmlView
          <section>
              <div class="container">
                  <div class="row">
-                     <div class="col-sm-6 col-md-12">
+                     <div class="col-sm-12 col-md-12">
                          <div>
                              <div class="row">
-                                 <div class="col-lg-2"></div>
-                                 <div class="form col-lg-8">
-                                     <form id="editUserForm" action="<?=$this->controller->settings->getFileRootPath()?>admin/adminUserChangePw?change=1'?>" method="post">
+                                 <div class="form">
+                                     <form id="editUserForm" action="<?=$this->controller->config->getFileRootPath()?>admin/adminUserChangePw?change=1" method="post">
 
                                          <input placeholder="Username" id="new_user_un" name="new_user_un" class="form-control" type="text" value="<?=$user[0]['users_email']?>" />
 
@@ -61,7 +62,7 @@ class adminUserChangePw extends \DGZ_library\DGZ_HtmlView
 
                                          <input type="hidden" name="userId" value="<?=$userId?>" />
 
-                                         <a href="<?=$this->controller->settings->getFileRootPath()?>admin/dashboard" class="btn btn-warning btn-sm" id="cancel" >Cancel</a>
+                                         <a href="<?=$this->controller->config->getFileRootPath()?>admin/dashboard" class="btn btn-warning btn-sm" id="cancel" >Cancel</a>
                                          <button type="submit" id="createUser" class="btn btn-primary btn-sm">Submit</button>
                                      </form>
 
@@ -72,25 +73,28 @@ class adminUserChangePw extends \DGZ_library\DGZ_HtmlView
                  </div>
                  </div>
          </section>
-     <?php
+        <?php
          }
          else
          { ?>
-             <div class="main">
-                 <section class="content account">
-                     <div class="container">
-                         <div class="row">
-                             <div class="col-sm-3">
-                             </div>
-                             <div class="col-sm-9">
-                                 <h3 style="color:red;">Sorry! You have no access to this page</h3>
-                             </div>
-                         </div>
-                     </div>
-                 </section>
-             </div>
-             <?php
-         }
-     }
+             <section>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-6 col-md-12">
+                            <div>
+                                <div class="row">
+                                    <div class="col-lg-2"></div>
+                                    <div class="form col-lg-8">
+                                        <h3 style="color:red;">Sorry! You have no access to this page</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        <?php
+        }
+    }
 
 } ?>

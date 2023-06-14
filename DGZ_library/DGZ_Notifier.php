@@ -2,7 +2,7 @@
 
 namespace DGZ_library;
 
-use settings\Settings;
+use configs\Config;
 class DGZ_Notifier
 {
 
@@ -20,22 +20,22 @@ class DGZ_Notifier
 
     public function __construct()
     {
-        $config = new Settings();
+        $config = new Config();
 
-        $this->_applicationEmail = $config->getSettings()['appEmail'];
-        $this->_appName = $config->getSettings()['appName'];
-        $this->_appBusinessName = $config->getSettings()['appBusinessName'];
+        $this->_applicationEmail = $config->getConfig()['appEmail'];
+        $this->_appName = $config->getConfig()['appName'];
+        $this->_appBusinessName = $config->getConfig()['appBusinessName'];
 
-        if ($config->getSettings()['live'] == false)
+        if ($config->getConfig()['live'] == false)
         {
-           $this->_headerFrom = $config->getSettings()['localHeaderFrom'];
+           $this->_headerFrom = $config->getConfig()['localHeaderFrom'];
         }
         else
         {
-            $this->_headerFrom = $config->getSettings()['liveHeaderFrom'];
+            $this->_headerFrom = $config->getConfig()['liveHeaderFrom'];
         }
 
-        $this->_headerReplyTo = $this->_headerFrom = $config->getSettings()['headerReply-To'];
+        $this->_headerReplyTo = $this->_headerFrom = $config->getConfig()['headerReply-To'];
     }
 
 

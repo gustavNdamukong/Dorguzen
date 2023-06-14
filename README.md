@@ -11,7 +11,9 @@
     Get your first 'Hello world' page up in Dorguzen in minutes. Here is how:
     -Go via the terminal into your server root where you have all your web projects and after initialising Composer in that folder (composer init)
     run the following command:
+
         ```composer create-project nolimitmedia/dorguzen```
+
         It will create a folder called 'dorguzen' and install the Dorguzen framework for you in it.
 
 ###   Clone or download from GitHub
@@ -19,49 +21,58 @@
       reigns in your hands, ready to fire away and start building your stunning new application :)
 
     -The name of the application that it has started you off with is called Dorguzen, so you need to change that to the name
-        of the app you are building.
-    -To do so, follow the following steps:
+        of the app you are building. In fact, you need to make a few configuration changes to get started.
+
+    -Configure your new application by going through the following steps:
+
         i) Start by changing the name of the root folder from 'dorguzen' to yourAppName
-        ii) navigate to settings/Settings.php (a config class file as you could probably guess) and from top to bottom change every instance of
-            'dorguzen' to yourAppName. All the settings in this file are pretty self-explanatory and are well commented so you will know what to put under
-            each group just by looking at the notes in there. It contains things like appUrl, appBusinessName, localUrl, liveUrl, localDBCredentials,
+        ii) navigate to configs/config.php which is Dorguzen's global configuration file. Go through this file and change every instance of
+            'dorguzen' to yourAppName. All the settings in this config file are pretty self-explanatory and are well commented so you know what to put under
+            each group and why. It contains things like appUrl, appBusinessName, localUrl, liveUrl, localDBCredentials,
             liveDBCredentials etc etc. You will be using this file a lot, but the most important settings to get you up and running are the layout directory
-            and layout class file and the DB connection stuff
-            Dorguzen needs to know the layout directory path in order to route your view files properly.
+            and layout class file and the DB connection stuff.
+
+            -It is important that the 'appName' key exactly matches the root directory name of your application, otherwise you will get errors of your layout not 
+                being found.
+            -It is also important that the 'fileRootPathLocal' key is given the exact same value as the 'appName' key, which is the name of your application's 
+                root directory.
+
+            -Also, Dorguzen needs to know the layout directory path in order to route your view files properly.
         iii) Dorguzen comes with a database file to start you off with a database. This file is called 'dorguzApp.sql'. Run it in your database client software
-            and it will create a database called 'dorguzApp'. The user credentials that Dorguzen expects to use to access this database are the following:
+                and it will create a database called 'dorguzapp'. The user credentials that Dorguzen expects to use to access this database are the following:
 
                     Username: 'dorguz'
                     Password: 'dorguz123'
-                    Database: 'dorguzApp'
+                    Database: 'dorguzapp'
 
-            These connection credentials are already registered in the Settings.php file so you don't have to do anything apart from run the query to create the
+            These connection credentials are already registered in the configs/config.php file so you don't have to do anything apart from run the query to create the
             database and tables and then use your database client tool, for example phpMyAdmin to create a user 'dorguz' and password 'dorguz123' for the database
-            'dorguzApp'. Obviously, you can name your database something else and use a different username and password to access it. Just make sure you go into
-            the settings/Settings.php file and change the database settings under the 'SET the local/live DB connection credentials' section to match them. Once
-            that is done you can get rid of the dorguzApp.sql file.
+            'dorguzapp'. Obviously, you can name your database something else and use a different username and password to access it. Just make sure you update these 
+            credentials under the 'SET the local/live DB connection credentials' section in configs/config.php to match them. 
+            Once that is done, you can get rid of the dorguzApp.sql file.
 
-            -In the Settings.php change the value of the 'layoutDirectory' key to 'yourAppName' and the value of 'defaultLayout' to something like 'yourAppNameLayout'.
-             It will look like so:
-             
-                    'layoutDirectory' => 'yourAppName',
-                     'defaultLayout' => 'yourAppNameLayout',
+            -You may want to go into layouts folder and change the name of the directory 'dorguzApp' to 'yourAppName'. This layouts directory is where all your       
+                application themes will live. Each theme (layout) would have its own separate directory in here, and you would set one of them as the default 
+                layout to be used in configs/config.php like this:
 
-             -Go into layouts and change the name of the directory 'dorguzApp' to 'yourAppName'
-             -Go into the directory and also change the name of the layout file 'dorguzAppLayout.php' to 'yourAppNameLayout.php'.
-             -Because you changed the name of the layout directory, do not forget to go into this directory and change the namespace of the two files in there to
+                    'layoutDirectory' => 'dorguzApp',     
+				    'defaultLayout' => 'dorguzAppLayout',
+
+             -If you change the values of the above (layoutDirectory, and defaultLayout), you should go into that layout's subdirectory and also change the name of   
+                the layout file inside of it, say from 'dorguzAppLayout.php' to 'yourAppNameLayout.php'.
+             -If you changed the name of the layout directory, do not forget to go change the namespaces of files in there to
                 reflect the new namespace.
-                -These two files are 'BlankLayout.php' and 'yourAppNameLayout.php'. Go into these files and change their namespaces at the top from
-                    namespace layouts\dorguzApp; to namespace layouts\yourAppName;
+                -There are two files to change namespaces in; 'BlankLayout.php' and 'yourAppNameLayout.php'. Go into these and change their namespaces at the from
+
+                    'namespace layouts\dorguzApp;' to 'namespace namespace layouts\yourAppName;'
 
                 -Remember that this is because you changed the name of their parent layout directory to 'yourAppName'.
 
-        -Finally, you can test to see the Dorguzen welcome page in the browser by typing in your browser the URI of that folder on your server. Mine looks something
-            like this:
+        -Finally, you can test to see the Dorguzen welcome page in the browser by typing in your browser the URI of that folder on your server.
 
-                    localhost:8888/myAppName/
+                    http://localhost/myAppName/
 
-            -Remember you can change your database credentials to whatever you want and enter the new ones into Settings.php
+            -Remember you can change your database credentials to whatever you want and enter the new ones into config/config.php
 
 
  ## Admin authentication (login)

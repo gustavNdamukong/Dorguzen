@@ -4,8 +4,8 @@
         <div class="row g-5">
             <div class="col-md-6 col-lg-3">
                 <h5 class="text-white mb-4">Get In Touch</h5>
-                <p><i class="fa fa-map-marker-alt me-3"></i>123 Street, New York, USA</p>
-                <p><i class="fa fa-phone-alt me-3"></i>+012 345 67890</p>
+                <p><i class="fa fa-map-marker-alt me-3"></i>123 Street,Your City</p>
+                <p><i class="fa fa-phone-alt me-3"></i>0123456789</p>
                 <p><i class="fa fa-envelope me-3"></i>info@example.com</p>
                 <div class="d-flex pt-2">
                     <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-twitter"></i></a>
@@ -16,7 +16,7 @@
                 </div>
             </div>
             <div class="col-md-6 col-lg-3">
-                <h5 class="text-white mb-4">Popular Link</h5>
+                <h5 class="text-white mb-4">Example Links</h5>
                 <a class="btn btn-link" href="">About Us</a>
                 <a class="btn btn-link" href="">Contact Us</a>
                 <a class="btn btn-link" href="">Privacy Policy</a>
@@ -27,22 +27,22 @@
                 <h5 class="text-white mb-4">Project Gallery</h5>
                 <div class="row g-2">
                     <div class="col-4">
-                        <img class="img-fluid" src="<?=$this->settings->getFileRootPath()?>assets2/images/portfolio-1.jpg" alt="Image">
+                        <img class="img-fluid" src="<?=$this->config->getFileRootPath()?>assets/images/portfolio-1.jpg" alt="Image">
                     </div>
                     <div class="col-4">
-                        <img class="img-fluid" src="<?=$this->settings->getFileRootPath()?>assets2/images/portfolio-2.jpg" alt="Image">
+                        <img class="img-fluid" src="<?=$this->config->getFileRootPath()?>assets/images/portfolio-2.jpg" alt="Image">
                     </div>
                     <div class="col-4">
-                        <img class="img-fluid" src="<?=$this->settings->getFileRootPath()?>assets2/images/portfolio-3.jpg" alt="Image">
+                        <img class="img-fluid" src="<?=$this->config->getFileRootPath()?>assets/images/portfolio-3.jpg" alt="Image">
                     </div>
                     <div class="col-4">
-                        <img class="img-fluid" src="<?=$this->settings->getFileRootPath()?>assets2/images/portfolio-4.jpg" alt="Image">
+                        <img class="img-fluid" src="<?=$this->config->getFileRootPath()?>assets/images/portfolio-4.jpg" alt="Image">
                     </div>
                     <div class="col-4">
-                        <img class="img-fluid" src="<?=$this->settings->getFileRootPath()?>assets2/images/portfolio-5.jpg" alt="Image">
+                        <img class="img-fluid" src="<?=$this->config->getFileRootPath()?>assets/images/portfolio-5.jpg" alt="Image">
                     </div>
                     <div class="col-4">
-                        <img class="img-fluid" src="<?=$this->settings->getFileRootPath()?>assets2/images/portfolio-6.jpg" alt="Image">
+                        <img class="img-fluid" src="<?=$this->config->getFileRootPath()?>assets/images/portfolio-6.jpg" alt="Image">
                     </div>
                 </div>
             </div>

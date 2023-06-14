@@ -107,7 +107,7 @@ class dorguzAppLayout extends \DGZ_library\DGZ_Layout {
 
 				  <?php if ($this->showImageSlider)
 				  {
-					  if ($this->settings->getSettings()['sliderType'] == 'slider')
+					  if ($this->config->getConfig()['sliderType'] == 'slider')
 					  { ?>
 						  	<!--
                This jumbotron holds the site's carousel slider. We currently have 5 divs having the classes 'slide-1', 'slide-2' 'slide-3' etc but u can add
@@ -131,7 +131,7 @@ class dorguzAppLayout extends \DGZ_library\DGZ_Layout {
 										  <div class="container">
 											  <h1>Welcome to <span class="color">your Dorguzen Framework App</span></h1>
 											  <h2>Your Rapid Web Development Toolkit</h2>
-											  <a href="<?=$this->settings->getFileRootPath()?>feedback/contact" class="btn btn-default btn-lg">Contact Us</a>
+											  <a href="<?=$this->config->getFileRootPath()?>feedback/contact" class="btn btn-default btn-lg">Contact Us</a>
 											  <a href="#">Link here</a>
 										  </div>
 									  </div>
@@ -196,7 +196,7 @@ class dorguzAppLayout extends \DGZ_library\DGZ_Layout {
 
 					  <?php
 					  }
-			          else if ($this->settings->getSettings()['sliderType'] == 'sliderEngine')
+			          else if ($this->config->getConfig()['sliderType'] == 'sliderEngine')
 					  { ?>
 						  <!-- ==========================
                               SLIDERENGINE JUMBOTRON - START
@@ -236,7 +236,7 @@ class dorguzAppLayout extends \DGZ_library\DGZ_Layout {
                       BRAND SLIDER - START
                   =========================== -->
 				  <?php
-				  $baseSettings = $this->settings->getBaseSettings();
+				  $baseSettings = $this->config->getBaseSettings();
 				  if ($baseSettings['show_brand_slider'] == 'true') {
 					  //We provide a makeshift array of image names here just to demonstrate how you can use the brand slide. But you can supply your own images dynamically
 					  $brandImages = ['1.png', '2.png', '3.png', '4.png', '5.png', '6.png', '7.png'];
@@ -248,7 +248,7 @@ class dorguzAppLayout extends \DGZ_library\DGZ_Layout {
 								  foreach ($brandImages as $img) { ?>
 									  <div class="item">
 										  <a href="#">
-											  <img src="<?=$this->settings->getFileRootPath()?>assets/images/brand_slider/<?=$img?>"
+											  <img src="<?=$this->config->getFileRootPath()?>assets/images/brand_slider/<?=$img?>"
 												   class="img-responsive" alt="">
 										  </a>
 									  </div>

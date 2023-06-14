@@ -167,7 +167,7 @@ spl_autoload_register('loadController');
 
 function loadController($className) {
 
-	$classFolders = array('controllers', 'DGZ_library', 'models', 'settings');
+	$classFolders = array('controllers', 'DGZ_library', 'models', 'configs');
 	foreach ($classFolders as $folder)
 	{
 		$fileName = $folder .'/'. basename($className) . '.php';
@@ -176,8 +176,6 @@ function loadController($className) {
 			include_once($fileName);
 		}
 	}
-
-
 }
 
 

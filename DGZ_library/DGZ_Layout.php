@@ -11,7 +11,7 @@ namespace DGZ_library;
  */
 
 
-use settings\Settings;
+use configs\Config;
 
 abstract class DGZ_Layout
 {
@@ -32,7 +32,7 @@ abstract class DGZ_Layout
 
 
 	/**
-	 * @var string The name of your application which MUST have been set in settings/config.inc.php.
+	 * @var string The name of your application which MUST have been set in configs/Config.php.
 	 */
 	protected static $appName;
 
@@ -44,7 +44,7 @@ abstract class DGZ_Layout
 
 
 	/**
-	 * @var string The name of your application's defaultLayout which MUST have been set in settings/config.inc.php.
+	 * @var string The name of your application's defaultLayout which MUST have been set in configs/Config.php.
 	 */
 	protected static $defaultLayout;
 
@@ -113,9 +113,9 @@ abstract class DGZ_Layout
 
 
 	/**
-	 * @var object contains the settings of the site, as the view files that will be managed by controllers need to be able to call on it
+	 * @var object contains the configurations of the site, as the view files that will be managed by controllers need to be able to call on it
 	 */
-	protected $settings;
+	protected $config;
 
 
 
@@ -131,7 +131,7 @@ abstract class DGZ_Layout
 		$this->metadata = array();
 		$this->jsFiles = array();
 		$this->cssFiles = array();
-		$this->settings = new Settings();
+		$this->config = new Config();
 	}
 
 
@@ -197,7 +197,7 @@ abstract class DGZ_Layout
 	 * slider to be displayed in. It calls setImageSlider() passing a boolean, if 'true' the view will have an image slider as the code in the layout file will
 	 * check for this boolean and act accordingly.
 	 *
-	 * It is how this setting is applied in the layout. From the DGZ_Router class's Route() method (called in index.phtml) we get the controller meant to handle the
+	 * It is how this configuration settings are applied in the layout. From the DGZ_Router class's Route() method (called in index.phtml) we get the controller meant to handle the
 	 * URL request. A couple of other things are then set subsequently; like the method of the controller to call, what layout to use to render the view file to be
 	 * shown to the user (getLayout() method of this class) etc. Once the controller to handle the request is gotten, the Dorguzen framework then uses the
 	 * DGZ_Controller class's display() method is used to set various things on the view file to be rendered, like, the page title value for the specific page,
@@ -205,8 +205,8 @@ abstract class DGZ_Layout
 	 * method, DGZ_Layout's (which represents the layout instance to be used by the view file being generated) setImageSlider() is called and the value of the
 	 * controller's own $showImageSlider field is passed to it (which is why $showImageSlider is false by default on both DGZ_Controller and DGZ_Layout classes).
 	 *
-	//Determine whether or not to show an image slider in the specific view file about to be displayed
-	$layout->setImageSlider($this->showImageSlider);
+	 * Determine whether or not to show an image slider in the specific view file about to be displayed
+	 * $layout->setImageSlider($this->showImageSlider);
 	 *
 	 * This is so because, in case the programmer had not explicitly specified that an image slider is shown in the view they're about to show,
 	 *
@@ -393,7 +393,7 @@ abstract class DGZ_Layout
 	{
 		$cssHtml = '';
 		foreach ($this->cssFiles as $file) {
-			$cssHtml .= "<link rel='stylesheet' type='text/css' href='".$this->settings->getFileRootPath().'css/' . htmlspecialchars($file) . "'>" . PHP_EOL;
+			$cssHtml .= "<link rel='stylesheet' type='text/css' href='".$this->config->getFileRootPath().'css/' . htmlspecialchars($file) . "'>" . PHP_EOL;
 		}
 		return $cssHtml;
 	}
@@ -412,7 +412,7 @@ abstract class DGZ_Layout
 	{
 		$jsHtml = '';
 		foreach ($this->jsFiles as $file) {
-			$jsHtml .= "<script type='text/javascript' src='".$this->settings->getFileRootPath().'js/' . htmlspecialchars($file) . "'></script>" . PHP_EOL;
+			$jsHtml .= "<script type='text/javascript' src='".$this->config->getFileRootPath().'js/' . htmlspecialchars($file) . "'></script>" . PHP_EOL;
 		}
 		return $jsHtml;
 	}
@@ -441,13 +441,13 @@ abstract class DGZ_Layout
 	 */
 	public static function getLayout($useFullLayout, $appName, $layoutFolder, $layoutName)
 	{
-		$layoutSettings = new Settings();
+		$layoutConfig = new Config();
 
 		self::$appName = $appName;
 		self::$defaultLayoutDirectory = $layoutFolder;
 		self::$defaultLayout = $layoutName;
 
-		if ($layoutSettings->getSettings()['live'] == false) {
+		if ($layoutConfig->getConfig()['live'] == false) {
 			if ($useFullLayout) {
 				$layoutFileName = $_SERVER['DOCUMENT_ROOT'] . '/' . $appName . '/layouts/' . $layoutFolder . '/' . $layoutName . '.php';
 				//on live (Godaddy) $layoutFilename is: /home/i3v8zo1vaw30/public_html/nolimitmedia/layouts/nolimitmedia/nolimitmediaLayout.php

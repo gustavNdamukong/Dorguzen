@@ -33,7 +33,7 @@ class contact extends \DGZ_library\DGZ_HtmlView
 					</div>
 					<div class="col-xs-6">
 						<ol class="breadcrumb">
-							<li><a href="<?=$this->controller->settings->getFileRootPath()?>home/home"><i class="fa fa-home"></i>Home</a></li>
+							<li><a href="<?=$this->controller->config->getFileRootPath()?>home/home"><i class="fa fa-home"></i>Home</a></li>
 							<li class="active">Contact us</li>
 						</ol>
 					</div>
@@ -79,7 +79,7 @@ class contact extends \DGZ_library\DGZ_HtmlView
 					<div class="col-sm-9" style="margin-top: 200px;">
 						<h2>Let us give you a quote!</h2>
 
-						<form action="<?=$this->controller->settings->getFileRootPath()?>feedback/processContact" method="post">
+						<form action="<?=$this->controller->config->getFileRootPath()?>feedback/processContact" method="post">
 							<div class="row">
 								<div class="col-md-6">
 									<label class="label-control" for="name">Name</label>

@@ -3,7 +3,7 @@
 namespace DGZ_library\DGZ_views;
 
 
-use settings\Settings;
+use configs\Config;
 
 /**
  * Displays a DGZ_library/Exception in HTML format
@@ -16,7 +16,7 @@ class DGZExceptionView  extends \DGZ_library\DGZ_View {
 
 
 	public function show(\DGZ_library\DGZ_Exception $e) {
-		$settings = new Settings();
+		$config = new Config();
 		?>
 	<div class="container">
 		<h3 class="animated bounceInDown">Oops <strong>something</strong> went wrong</h3>
@@ -25,7 +25,7 @@ class DGZExceptionView  extends \DGZ_library\DGZ_View {
 			<div class="container col-xs-12 col-md-9">
 				<h1>DGZException</h1>
 				<ul class="breadcrumb -align-center">
-					<li><a href="<?=$settings->getHomePage()?>">Home</a></li>
+					<li><a href="<?=$config->getHomePage()?>">Home</a></li>
 					<li class="active">DGZExceptionpage</li>
 				</ul>
 			</div>
@@ -44,7 +44,7 @@ class DGZExceptionView  extends \DGZ_library\DGZ_View {
 					<?php
 						endif;
 
-					if($settings->getSettings()['live'] == false)
+					if($config->getConfig()['live'] == false)
 					{ ?>
 							<hr/>
 							<div class="technical-info">

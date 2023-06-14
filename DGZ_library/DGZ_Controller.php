@@ -2,7 +2,7 @@
 namespace DGZ_library;
 
 
-use settings\Settings;
+use configs\Config;
 use Exception;
 use ReflectionClass;
 use middleware\Middleware;
@@ -138,9 +138,9 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
 
     /**
-     * @var object contains the settings of the site, as the view files that will be managed by controllers need to be able to call on it
+     * @var object contains the configs of the site, as the view files that will be managed by controllers need access to it
      */
-    public $settings;
+    public $config;
 
     /**
      * @var object contains the DGZ_Translator object
@@ -157,7 +157,9 @@ abstract class DGZ_Controller implements DGZ_Displayable {
     {
         $this->startTime = microtime(true); //can be useful for debugging
         $this->application = new DGZ_Application();
-        $this->settings = new Settings();
+        /////$this->config = new Config();
+        $this->config = $this->application->getAppConfig();
+
         $this->translator = new DGZ_Translator();
         $this->defaultAction = $this->getDefaultAction();
 
@@ -182,7 +184,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
 
     /**
-     * Gets the name of the application. It gets this from the application (Settings) class
+     * Gets the name of the application. It gets this from the application (Config) class
      * If you want your page to use a different one, override this function to return a different name.
      * @return string The name of the layout to be used, e.g. 'DefaultLayout'
      */
@@ -195,7 +197,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
 
     /**
-     * Sets the default layout directory for all pages. It gets this from the application (Settings) class
+     * Sets the default layout directory for all pages. It gets this from the application (Config) class
      * If you want your page to use a different one, override this function to return a different name.
      * @return string The name of the layout to be used, e.g. 'DefaultLayout'
      */
@@ -313,7 +315,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
 	public function rootPath()
 	{
-		return $this->settings->getFileRootPath();
+		return $this->config->getFileRootPath();
 	}
 
 
@@ -332,8 +334,8 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 	 * method, DGZ_Layout's (which represents the layout instance to be used by the view file being generated) setImageSlider() is called and the value of the
 	 * controller's own $showImageSlider field is passed to it (which is why $showImageSlider is false by default on both DGZ_Controller and DGZ_Layout classes).
 	 *
-	//Determine whether or not to show an image slider in the specific view file about to be displayed
-	$layout->setImageSlider($this->showImageSlider);
+	 * Determine whether or not to show an image slider in the specific view file about to be displayed
+	 * layout->setImageSlider($this->showImageSlider);
 	 *
 	 * This is so because, in case the programmer had not explicitly specified that an image slider is shown in the view they're about to show,
 	 *
@@ -721,7 +723,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
         } catch (Exception $e) {
 
             if($this->format == 'html') {
-                $layout = \DGZ_library\DGZ_Layout::getLayout($this->appName, $this->defaultLayoutDirectory, $this->defaultLayout);
+                $layout = \DGZ_library\DGZ_Layout::getLayout(true, $this->appName, $this->defaultLayoutDirectory, $this->defaultLayout);
                 $view = DGZ_View::getView('ExceptionView', $this);
                 ob_start();
                 $view->show($e);
@@ -764,7 +766,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
         }
 
         // Set the new header location (i.e. last-one-wins strategy)
-        header('Location: '.$this->settings->getFileRootPath() .$url. ((count($arguments) > 0) ? '?' . http_build_query($arguments) : ''));
+        header('Location: '.$this->config->getFileRootPath() .$url. ((count($arguments) > 0) ? '?' . http_build_query($arguments) : ''));
         exit();
 
     }

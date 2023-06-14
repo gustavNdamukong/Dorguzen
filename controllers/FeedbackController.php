@@ -34,8 +34,8 @@ class FeedbackController extends \DGZ_library\DGZ_Controller
     {
         $view = DGZ_View::getView('contact', $this, 'html');
 
-        $this->setLayoutDirectory($this->settings->getSettings()['layoutDirectory']);
-        $this->setLayoutView($this->settings->getSettings()['defaultLayout']);
+        $this->setLayoutDirectory($this->config->getConfig()['layoutDirectory']);
+        $this->setLayoutView($this->config->getConfig()['defaultLayout']);
         $view->show();
     }
 
@@ -47,8 +47,8 @@ class FeedbackController extends \DGZ_library\DGZ_Controller
     {
         $view = DGZ_View::getView('contact', $this, 'html');
 
-        $this->setLayoutDirectory($this->settings->getSettings()['layoutDirectory']);
-        $this->setLayoutView($this->settings->getSettings()['defaultLayout']);
+        $this->setLayoutDirectory($this->config->getConfig()['layoutDirectory']);
+        $this->setLayoutView($this->config->getConfig()['defaultLayout']);
         $view->show();
     }
 

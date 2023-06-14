@@ -14,7 +14,7 @@
         <!-- Navbar & Hero Start -->
         <div class="container-xxl position-relative p-0">
             <nav class="navbar navbar-expand-lg navbar-light px-4 px-lg-5 py-3 py-lg-0">
-                <a href="<?=$this->settings->getHomePage()?>" class="navbar-brand p-0">
+                <a href="<?=$this->config->getHomePage()?>" class="navbar-brand p-0">
                     <h1 class="m-0">Dor<span class="fs-9">Guzen</span></h1><!--It was 'fs-5'-->
                     <!-- <img src="img/logo.png" alt="Logo"> -->
                 </a>
@@ -23,7 +23,7 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarCollapse">
                     <div class="navbar-nav ms-auto py-0">
-                        <a href="<?=$this->settings->getHomePage()?>" class="nav-item nav-link active"><i class="fa fa-home"></i>Home</a>
+                        <a href="<?=$this->config->getHomePage()?>" class="nav-item nav-link active"><i class="fa fa-home"></i>Home</a>
                         <a href="about.html" class="nav-item nav-link">About</a>
                         <a href="service.html" class="nav-item nav-link">Service</a>
                         <a href="project.html" class="nav-item nav-link">Project</a>
@@ -38,13 +38,13 @@
                         <a href="contact.html" class="nav-item nav-link">Contact</a>
                         <?php
                         if (!isset($_SESSION['authenticated'])) { ?>
-                            <a href="<?=$this->settings->getFileRootPath()?>admin" class="nav-item nav-link">Admin Login</a>
+                            <a href="<?=$this->config->getFileRootPath()?>admin" class="nav-item nav-link">Admin Login</a>
                             <?php
                         }
                         else
                         { ?>
-                            <a href="<?=$this->settings->getFileRootPath()?>admin/logout" class="nav-item nav-link">Logout</a>
-                            <a href="<?=$this->settings->getFileRootPath()?>admin/dashboard" class="nav-item nav-link">Dashboard</a>
+                            <a href="<?=$this->config->getFileRootPath()?>admin/logout" class="nav-item nav-link">Logout</a>
+                            <a href="<?=$this->config->getFileRootPath()?>admin/dashboard" class="nav-item nav-link">Dashboard</a>
                             <?php
                         } ?>
                     </div>
@@ -54,13 +54,13 @@
             </nav>
 
             <?php
-            list($controller, $method) = $this->settings->getCurrentRoute();
+            list($controller, $method) = $this->config->getCurrentRoute();
             ?>
             <?php //<!--------------------------------------- FULL SITE SEARCH FORM -------------------------------------------------------> */?>
                     <div class="modal fade" id="searchModal" tabindex="-1">
                         <div class="modal-dialog modal-fullscreen">
                             <div class="modal-content" style="background: rgba(29, 29, 39, 0.7);">
-                                <form method="get" action="<?=$this->settings->getFileRootPath()?>search">
+                                <form method="get" action="<?=$this->config->getFileRootPath()?>search">
 
 
                                     <div class="modal-header border-0">

@@ -11,7 +11,7 @@ class resetPw extends \DGZ_library\DGZ_HtmlView
 
      function show($userId, $userEmail)
      {
-         if ((isset($_SESSION['authenticated'])) && ($_SESSION['authenticated'] == 'Let Go-'.$this->controller->settings->getSettings()['appName'])) {
+         if ((isset($_SESSION['authenticated'])) && ($_SESSION['authenticated'] == 'Let Go-'.$this->controller->config->getConfig()['appName'])) {
          //Pull in the PHP file that has the JS validation codes
          $jsValidation = \DGZ_library\DGZ_View::getInsideView('jsValidationPartial', $this->controller);
          $jsValidation->show();
@@ -22,7 +22,7 @@ class resetPw extends \DGZ_library\DGZ_HtmlView
              <div class="container">
                  <br />
                  <ul class="breadcrumb pull-right">
-                     <li><a href="<?=$this->controller->settings->getFileRootPath()?>Home/home">Home</a> </li>
+                     <li><a href="<?=$this->controller->config->getFileRootPath()?>Home/home">Home</a> </li>
                  </ul>
              </div>
          </section>
@@ -35,7 +35,7 @@ class resetPw extends \DGZ_library\DGZ_HtmlView
                              <div class="row">
                                  <div class="col-lg-2"></div>
                                  <div class="form col-lg-8">
-                                     <form action="<?=$this->controller->settings->getFileRootPath()?>admin/resetPw" method="post">
+                                     <form action="<?=$this->controller->config->getFileRootPath()?>admin/resetPw" method="post">
 
                                          <input id="reset_user_id" name="reset_user_id" class="form-control" type="hidden" value="<?=$userId?>" />
                                          <input id="reset_email" name="reset_email" class="form-control" type="hidden" value="<?=$userEmail?>" />

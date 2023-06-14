@@ -1,5 +1,5 @@
 <?php
-namespace settings;
+namespace configs;
 
 
 use BaseSettings;
@@ -18,17 +18,16 @@ use DGZ_library\DGZ_Router;
 	 * getBaseSettings() method, which pulls in all the DB settings to merge with the file-based settings here. Again, this puts all you application
 	 * settings in one place.
 	 */
-	class Settings
+	class Config
 	{
 		private $baseSettings = [];
 
+		//Allow the config data of external modules (with separate config files in 'configs/') to be merged into this core config
+		protected $module_configs = [];
 
-
-		public function getSettings()
+		public function getConfig()
 		{
 			return [
-
-
 
 				/**
 				|--------------------------------------------------------------------------
@@ -36,15 +35,16 @@ use DGZ_library\DGZ_Router;
 				|--------------------------------------------------------------------------
 				|
 				| State the name of your application. This is the name the system will use everywhere to refer to your application.
-				| The businessName is an optional name you may like to use in certain documents from your app as opposed to the website name, e.g.
-				|		Facebook Ltd instead of the appName facebook
+				| It is important that the 'appName' key exactly matches the root directory name of your application
+				| The 'appBusinessName' key is an optional name you may like to use in certain documents from your app as opposed to the website name, e.g.
+				|		'My Business Ltd' instead of just 'myBusiness' (assuming 'myBusiness' is the name of your application)
 				| The appSlogan is the slogan of your business/organisation which you may want to incorporate in documents coming from your app.
 				| Also, specify here which layout folder and layout file are to be used by default for your views.
 				|
 				*/
 
 
-				'appName' => 'dorguzApp',
+				'appName' => 'Dorguzen',
 
 				'appBusinessName' => 'Dorguzen',
 
@@ -52,16 +52,9 @@ use DGZ_library\DGZ_Router;
 
 				'appURL' => 'http://www.nolimitmedia.co.uk',
 
-				/////'layoutDirectory' => 'dorguzApp',
-
-				/////'defaultLayout' => 'dorguzAppLayout',
-
 				'layoutDirectory' => 'seoMaster',
 
 				'defaultLayout' => 'seoMasterLayout',
-
-
-
 
 
 
@@ -76,17 +69,16 @@ use DGZ_library\DGZ_Router;
 				|
 				| Update this with your local server URL and port number, and put in your live URL as well when
 				| when you eventually go live.
+				| It is very important that the value of the 'fileRootPathLocal' key be the name of your application's root directory. 
+				|  Note that this is the exact same value that the 'appName' key, has. 
 				|
 				 */
 
 				'localUrl' => 'http://localhost:8888/dorguzApp/',
 				'liveUrl' => 'http://www.nolimitmedia.co.uk/',
 				'liveUrlSecure' => 'https://www.nolimitmedia.co.uk/',
-				'fileRootPathLocal' => '/dorguzApp/',
+				'fileRootPathLocal' => '/Dorguzen/',
 				'fileRootPathLive' => '/',
-
-
-
 
 
 
@@ -125,9 +117,6 @@ use DGZ_library\DGZ_Router;
 
 
 
-
-
-
 				/**
 				|--------------------------------------------------------------------------
 				| Are we running on the live site?
@@ -139,8 +128,6 @@ use DGZ_library\DGZ_Router;
 
 				'live' => false,
 
-
-				
 
 
 				/**----------------------------FILE UPLOADING------------------------------------*/
@@ -202,8 +189,6 @@ use DGZ_library\DGZ_Router;
 
 
 
-
-
 				/**
 				|--------------------------------------------------------------------------
 				| Home page slider settings
@@ -222,9 +207,6 @@ use DGZ_library\DGZ_Router;
 
 
 
-
-
-
 				/**
 				|--------------------------------------------------------------------------
 				| Application Locale Configuration
@@ -237,7 +219,6 @@ use DGZ_library\DGZ_Router;
 				*/
 
 				'locale' => 'en',
-
 
 
 
@@ -256,9 +237,6 @@ use DGZ_library\DGZ_Router;
 				*/
 
 				'fallback_locale' => 'en',
-
-
-
 
 
 
@@ -291,8 +269,6 @@ use DGZ_library\DGZ_Router;
 
 			];
 		}
-
-
 
 
 		/**
@@ -332,6 +308,19 @@ use DGZ_library\DGZ_Router;
 			}
 		}
 
+		/**
+		 * $key string the key to be used to refer to a module's data, to minimise conflicts, as there might me multiple modules
+		 * $moduleConfig array the data from the getConfig() of an external module
+		 */
+		public function setModuleConfigs($key, $moduleConfig)
+		{
+			$this->module_configs[$key] = $moduleConfig;
+		}
+
+		public function getModuleConfigs()
+		{
+			return $this->module_configs;
+		}
 
 
 		/**
@@ -346,22 +335,19 @@ use DGZ_library\DGZ_Router;
 			$colorTheme = $this->getBaseSettings()['app_color_theme'];
 			return $colorTheme;
 		}
-
-
 		
 
 		public function getFileRootPath()
 		{
-			if ($this->getSettings()['live'])
+			if ($this->getConfig()['live'])
 			{
-				return $this->getSettings()['fileRootPathLive'];
+				return $this->getConfig()['fileRootPathLive'];
 			}
 			else
 			{
-				return $this->getSettings()['fileRootPathLocal'];
+				return $this->getConfig()['fileRootPathLocal'];
 			}
 		}
-
 
 
 		/**
@@ -369,19 +355,15 @@ use DGZ_library\DGZ_Router;
 		 */
 		public function getHomePage()
 		{
-			if ($this->getSettings()['live'])
+			if ($this->getConfig()['live'])
 			{
-				return $this->getSettings()['liveUrl'];
+				return $this->getConfig()['liveUrl'];
 			}
 			else
 			{
-				return $this->getSettings()['localUrl'];
+				return $this->getConfig()['localUrl'];
 			}
 		}
-
-
-
-
 
 
 		/**
@@ -389,11 +371,8 @@ use DGZ_library\DGZ_Router;
 		 */
 		public function getHomePageSecure()
 		{
-			return $this->getSettings()['liveUrlSecure'];
+			return $this->getConfig()['liveUrlSecure'];
 		}
-
-
-
 
 
 		/**
@@ -408,12 +387,6 @@ use DGZ_library\DGZ_Router;
 			list($controller, $method) = $router::getControllerAndMethod(true);
 			return [$controller, $method];
 		}
-
-
-
-
-
-
 	}
 
 

@@ -27,22 +27,22 @@
                 <h5 class="text-white mb-4">Project Gallery</h5>
                 <div class="row g-2">
                     <div class="col-4">
-                        <img class="img-fluid" src="<?=$this->settings->getFileRootPath()?>assets2/images/portfolio-1.jpg" alt="Image">
+                        <img class="img-fluid" src="<?=$this->config->getFileRootPath()?>assets/images/portfolio-1.jpg" alt="Image">
                     </div>
                     <div class="col-4">
-                        <img class="img-fluid" src="<?=$this->settings->getFileRootPath()?>assets2/images/portfolio-2.jpg" alt="Image">
+                        <img class="img-fluid" src="<?=$this->config->getFileRootPath()?>assets/images/portfolio-2.jpg" alt="Image">
                     </div>
                     <div class="col-4">
-                        <img class="img-fluid" src="<?=$this->settings->getFileRootPath()?>assets2/images/portfolio-3.jpg" alt="Image">
+                        <img class="img-fluid" src="<?=$this->config->getFileRootPath()?>assets/images/portfolio-3.jpg" alt="Image">
                     </div>
                     <div class="col-4">
-                        <img class="img-fluid" src="<?=$this->settings->getFileRootPath()?>assets2/images/portfolio-4.jpg" alt="Image">
+                        <img class="img-fluid" src="<?=$this->config->getFileRootPath()?>assets/images/portfolio-4.jpg" alt="Image">
                     </div>
                     <div class="col-4">
-                        <img class="img-fluid" src="<?=$this->settings->getFileRootPath()?>assets2/images/portfolio-5.jpg" alt="Image">
+                        <img class="img-fluid" src="<?=$this->config->getFileRootPath()?>assets/images/portfolio-5.jpg" alt="Image">
                     </div>
                     <div class="col-4">
-                        <img class="img-fluid" src="<?=$this->settings->getFileRootPath()?>assets2/images/portfolio-6.jpg" alt="Image">
+                        <img class="img-fluid" src="<?=$this->config->getFileRootPath()?>assets/images/portfolio-6.jpg" alt="Image">
                     </div>
                 </div>
             </div>

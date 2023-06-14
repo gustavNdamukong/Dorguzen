@@ -17,10 +17,10 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `dorguzApp`
+-- Database: `dorguzapp`
 --
-CREATE DATABASE IF NOT EXISTS `dorguzApp` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
-USE `dorguzApp`;
+CREATE DATABASE IF NOT EXISTS `dorguzapp` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+USE `dorguzapp`;
 
 -- --------------------------------------------------------
 

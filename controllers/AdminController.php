@@ -37,8 +37,8 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
     {
         $view = DGZ_View::getView('login', $this, 'html');
         $this->setPageTitle('login');
-        /*$this->setLayoutDirectory('admin');
-        $this->setLayoutView('adminLayout');*/
+        //$this->setLayoutDirectory('admin');
+        //$this->setLayoutView('adminLayout');
         $this->setLayoutDirectory('seoMaster');
         $this->setLayoutView('seoMasterLayout');
 
@@ -107,7 +107,7 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
                 if ($authenticated)
                 {
                     if (!session_id()) { session_start(); }
-                    $_SESSION['authenticated'] = 'Let Go-'.$this->settings->getSettings()['appName'];
+                    $_SESSION['authenticated'] = 'Let Go-'.$this->config->getConfig()['appName'];
                     $_SESSION['start'] = time();
                     session_regenerate_id();
 
@@ -190,7 +190,7 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
                             $resetLinkPath = "%sadmin/verifyEmail?em=%s";
                             $resetLink = sprintf(
                                 $resetLinkPath,
-                                $this->settings->getHomePage(),
+                                $this->config->getHomePage(),
                                 $resetCode
                             );
 
@@ -612,7 +612,10 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
             $this->setLayoutView('adminLayout');
             $view->show($userForEdit, $userId);
         }
-        elseif((isset($_GET['change'])) && ($_GET['change'] == 1)) {
+        elseif(
+            (isset($_GET['change'])) && 
+            ($_GET['change'] == 1)
+         ) { 
             $un = $newUserPw = false;
             $fail = "";
 
@@ -697,10 +700,10 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
         $contactMessages = $settings->getAll('contactformmessage_date DESC');
 
         $view = DGZ_View::getAdminView('manageContactMessages', $this, 'html');
-        /*$this->setLayoutDirectory('admin');
-        $this->setLayoutView('adminLayout');*/
-        $this->setLayoutDirectory('seoMaster');
-        $this->setLayoutView('seoMasterLayout');
+        $this->setLayoutDirectory('admin');
+        $this->setLayoutView('adminLayout');
+        //$this->setLayoutDirectory('seoMaster');
+        //$this->setLayoutView('seoMasterLayout');
         $view->show($contactMessages);
     }
 
@@ -734,7 +737,10 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
 
     public function baseSettings()
     {
-        if ($_GET['change'] == 0)
+        if (
+            (!isset($_GET['change'])) || 
+            (isset($_GET['change']) && $_GET['change'] == 0)
+        )
         {
             $settings= new BaseSettings();
             $baseSettings = $settings->getAll();
@@ -742,6 +748,8 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
             $view = DGZ_View::getAdminView('manageSettings', $this, 'html');
             $this->setLayoutDirectory('admin');
             $this->setLayoutView('adminLayout');
+            /////$this->setLayoutDirectory('seoMaster');
+            /////$this->setLayoutView('seoMasterLayout');
             $view->show($baseSettings);
         }
         elseif((isset($_GET['change'])) && ($_GET['change'] == 1)) {
@@ -757,8 +765,6 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
             $this->addSuccess('Your settings have been saved!', 'Great!');
             $this->redirect('admin', 'dashboard');
             exit();
-
-
         }
     }
 

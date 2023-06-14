@@ -2,7 +2,7 @@
 
 namespace DGZ_library\DGZ_Uploader;
 
-use settings\Settings;
+use configs\config;
 use Exception;
 
 class DGZ_Uploader extends DGZ_Upload {
@@ -16,21 +16,21 @@ class DGZ_Uploader extends DGZ_Upload {
 	 * This constructor takes two arguments; the upload destination folder as a string, and an optional sub folder therein which could be
 	 * for example, an ID or image or product name.
 	 *
-	 * @param $path string the array key referencing the file upload destination path you set in settings\Settings.php
+	 * @param $path string the array key referencing the file upload destination path you set in configs\config.php
 	 * @param $uniqeSubFolder string (optional) that will contain the a sub-folder name for cases where unique records have their own sub folders, for example;
 	 * 	the images of a listed item in an e-commerce application. Take note that just like with the $path value; the trailing slash appended to
 	 * 	$uniqeSubFolder is crucial.
 	 */
 	public function __construct($path, $uniqeSubFolder = '') {
-		$settings = new Settings();
-		if (array_key_exists($path, $settings->getSettings()))
+		$config = new config();
+		if (array_key_exists($path, $config->getconfig()))
 		{
 			if ($uniqeSubFolder != '') {
-				$destination = trim($settings->getSettings()[$path].$uniqeSubFolder.'/');
+				$destination = trim($config->getconfig()[$path].$uniqeSubFolder.'/');
 			}
 			else
 			{
-				$destination = $settings->getSettings()[$path];
+				$destination = $config->getconfig()[$path];
 			}
 		}
 		else
@@ -44,7 +44,7 @@ class DGZ_Uploader extends DGZ_Upload {
 			}
 		}
 
-		$maxFileUploadSize = $settings->getSettings()['maxFileUploadSize'];
+		$maxFileUploadSize = $config->getconfig()['maxFileUploadSize'];
 
 		$this->setMaxSize($maxFileUploadSize);
 

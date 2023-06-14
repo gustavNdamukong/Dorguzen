@@ -14,29 +14,33 @@ class manageSettings extends \DGZ_library\DGZ_HtmlView
          <script src="http://code.jquery.com/jquery-latest.min.js"></script>
         <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
     <?php
-         if ((isset($_SESSION['authenticated'])) && ($_SESSION['authenticated'] == 'Let Go-'.$this->controller->settings->getSettings()['appName'])) {
+         if ((isset($_SESSION['authenticated'])) && ($_SESSION['authenticated'] == 'Let Go-'.$this->controller->config->getConfig()['appName'])) {
          ?>
+
          <!-- ==========================
-         BREADCRUMB - START
+         Hero Header & Breadcrumb - START
          =========================== -->
-         <section class="breadcrumb-wrapper">
-             <div class="container">
-                 <div class="row">
-                     <div class="col-xs-6">
-                         <h3 class="text-center">Edit Base Settings</h3>
-                     </div>
-                     <div class="col-xs-6">
-                         <ol class="breadcrumb">
-                             <li><a href="<?=$this->controller->settings->getFileRootPath()?>admin/dashboard"><i class="fa fa-home"></i>Dashboard</a></li>
-                             <li class="active">Edit settings</li>
-                         </ol>
+         <div class="container-xxl py-5 bg-primary hero-header mb-5">
+                 <div class="container my-5 py-5 px-lg-5">
+                     <div class="row g-5 py-5">
+                         <div class="col-12 text-center">
+                             <h1 class="text-white animated zoomIn">Edit Base Settings</h1>
+                             <hr class="bg-white mx-auto mt-0" style="width: 90px;">
+
+                             <nav aria-label="breadcrumb">
+                                 <ol class="breadcrumb justify-content-center">
+                                     <li class="breadcrumb-item"><a class="text-white" href="<?=$this->controller->config->getFileRootPath()?>admin/dashboard"><i class="fa fa-home"></i>Dashboard</a></li>
+                                     <li class="breadcrumb-item text-white active" aria-current="page">Edit settings</li>
+                                 </ol>
+                             </nav>
+                         </div>
                      </div>
                  </div>
              </div>
-         </section>
-         <!-- ==========================
-             BREADCRUMB - END
-         =========================== -->
+             </div>
+        <!-- ==========================
+             Hero Header & Breadcrumb - End
+        =========================== -->
 
 
 
@@ -46,20 +50,15 @@ class manageSettings extends \DGZ_library\DGZ_HtmlView
          <section>
              <div class="container">
                  <div class="row">
-                     <div class="col-sm-6 col-md-12">
+                     <div class="col-sm-12 col-md-12">
 
                          <article class="account-content" style="height: auto;padding-bottom: 50%;">
                              <div style="margin-top: 100px;">
-                                 <form id="settings_form" method="post" action="<?=$this->controller->settings->getFileRootPath()?>admin/baseSettings?change=1"><!--THIS IS WHERE THE JS FUNCTIONS ARE CALLED WHEN THE FORM IS SUBMITTED. You put it inside the opening <form> tag, its a listening function 'onSubmit',
-                                                                                                                                            but then u use it as an attribute with = symbols, and obviously the action to be taken in quotes. validate(this) where validate(form) is the function to be run, while this refers to the current object(form).-->
-
+                                 <form id="settings_form" method="post" action="<?=$this->controller->config->getFileRootPath()?>admin/baseSettings?change=1">
 
                                      <div id="regis_panel" class="panel panel-primary">
 
                                          <div class="panel-heading">
-
-                                             <h3 class="panel-title text-center" style="color: #FFFFFF;">SETTINGS</h3>
-
                                          </div>
 
                                          <div class="panel-body">
@@ -176,7 +175,7 @@ class manageSettings extends \DGZ_library\DGZ_HtmlView
                                          <div class="panel-footer clearfix">
 
                                              <div class="pull-right">
-                                                 <a href="<?=$this->controller->settings->getFileRootPath()?>admin/dashboard" class="btn btn-warning" role="button">Cancel</a>
+                                                 <a href="<?=$this->controller->config->getFileRootPath()?>admin/dashboard" class="btn btn-warning" role="button">Cancel</a>
                                                  <input type="submit" name="" class="btn btn-primary" value="Save changes" />
 
                                              </div><!--end of div holding form button(s)-->
@@ -187,7 +186,6 @@ class manageSettings extends \DGZ_library\DGZ_HtmlView
                                  </form>
                              </div>
                          </article>
-
                      </div>
                  </div>
                  </div>
@@ -212,5 +210,4 @@ class manageSettings extends \DGZ_library\DGZ_HtmlView
              <?php
          }
      }
-
 } ?>

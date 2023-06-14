@@ -135,7 +135,7 @@ class home extends \DGZ_library\DGZ_HtmlView
                                  <a href="" class="btn btn-outline-light py-sm-3 px-sm-5 rounded-pill animated slideInRight">Contact Us</a>
                              </div>
                              <div class="col-lg-6 text-center text-lg-start">
-                                 <img class="img-fluid" src="<?=$this->controller->settings->getFileRootPath()?>assets2/images/hero.png" alt="">
+                                 <img class="img-fluid" src="<?=$this->controller->config->getFileRootPath()?>assets/images/hero.png" alt="">
                              </div>
                          </div>
                      </div>
@@ -178,7 +178,7 @@ class home extends \DGZ_library\DGZ_HtmlView
                              </div>
                          </div>
                          <div class="col-lg-6">
-                             <img class="img-fluid wow zoomIn" data-wow-delay="0.5s" src="<?=$this->controller->settings->getFileRootPath()?>assets2/images/about.jpg">
+                             <img class="img-fluid wow zoomIn" data-wow-delay="0.5s" src="<?=$this->controller->config->getFileRootPath()?>assets/images/about.jpg">
                          </div>
                      </div>
                  </div>
@@ -199,7 +199,7 @@ class home extends \DGZ_library\DGZ_HtmlView
                              </div>
                          </div>
                          <div class="col-md-6 text-center mb-n5 d-none d-md-block">
-                             <img class="img-fluid mt-5" style="height: 250px;" src="<?=$this->controller->settings->getFileRootPath()?>assets2/images/newsletter.png">
+                             <img class="img-fluid mt-5" style="height: 250px;" src="<?=$this->controller->config->getFileRootPath()?>assets/images/newsletter.png">
                          </div>
                      </div>
                  </div>
@@ -301,9 +301,9 @@ class home extends \DGZ_library\DGZ_HtmlView
                      <div class="row g-4 portfolio-container">
                          <div class="col-lg-4 col-md-6 portfolio-item first wow zoomIn" data-wow-delay="0.1s">
                              <div class="position-relative rounded overflow-hidden">
-                                 <img class="img-fluid w-100" src="<?=$this->controller->settings->getFileRootPath()?>assets2/images/portfolio-1.jpg" alt="">
+                                 <img class="img-fluid w-100" src="<?=$this->controller->config->getFileRootPath()?>assets/images/portfolio-1.jpg" alt="">
                                  <div class="portfolio-overlay">
-                                     <a class="btn btn-light" href="<?=$this->controller->settings->getFileRootPath()?>assets2/images/portfolio-1.jpg" data-lightbox="portfolio"><i class="fa fa-plus fa-2x text-primary"></i></a>
+                                     <a class="btn btn-light" href="<?=$this->controller->config->getFileRootPath()?>assets/images/portfolio-1.jpg" data-lightbox="portfolio"><i class="fa fa-plus fa-2x text-primary"></i></a>
                                      <div class="mt-auto">
                                          <small class="text-white"><i class="fa fa-folder me-2"></i>Web Design</small>
                                          <a class="h5 d-block text-white mt-1 mb-0" href="">Project Name</a>
@@ -313,9 +313,9 @@ class home extends \DGZ_library\DGZ_HtmlView
                          </div>
                          <div class="col-lg-4 col-md-6 portfolio-item second wow zoomIn" data-wow-delay="0.3s">
                              <div class="position-relative rounded overflow-hidden">
-                                 <img class="img-fluid w-100" src="<?=$this->controller->settings->getFileRootPath()?>assets2/images/portfolio-2.jpg" alt="">
+                                 <img class="img-fluid w-100" src="<?=$this->controller->config->getFileRootPath()?>assets/images/portfolio-2.jpg" alt="">
                                  <div class="portfolio-overlay">
-                                     <a class="btn btn-light" href="<?=$this->controller->settings->getFileRootPath()?>assets2/images/portfolio-2.jpg" data-lightbox="portfolio"><i class="fa fa-plus fa-2x text-primary"></i></a>
+                                     <a class="btn btn-light" href="<?=$this->controller->config->getFileRootPath()?>assets/images/portfolio-2.jpg" data-lightbox="portfolio"><i class="fa fa-plus fa-2x text-primary"></i></a>
                                      <div class="mt-auto">
                                          <small class="text-white"><i class="fa fa-folder me-2"></i>Web Design</small>
                                          <a class="h5 d-block text-white mt-1 mb-0" href="">Project Name</a>
@@ -325,9 +325,9 @@ class home extends \DGZ_library\DGZ_HtmlView
                          </div>
                          <div class="col-lg-4 col-md-6 portfolio-item first wow zoomIn" data-wow-delay="0.6s">
                              <div class="position-relative rounded overflow-hidden">
-                                 <img class="img-fluid w-100" src="<?=$this->controller->settings->getFileRootPath()?>assets2/images/portfolio-3.jpg" alt="">
+                                 <img class="img-fluid w-100" src="<?=$this->controller->config->getFileRootPath()?>assets/images/portfolio-3.jpg" alt="">
                                  <div class="portfolio-overlay">
-                                     <a class="btn btn-light" href="<?=$this->controller->settings->getFileRootPath()?>assets2/images/portfolio-3.jpg" data-lightbox="portfolio"><i class="fa fa-plus fa-2x text-primary"></i></a>
+                                     <a class="btn btn-light" href="<?=$this->controller->config->getFileRootPath()?>assets/images/portfolio-3.jpg" data-lightbox="portfolio"><i class="fa fa-plus fa-2x text-primary"></i></a>
                                      <div class="mt-auto">
                                          <small class="text-white"><i class="fa fa-folder me-2"></i>Web Design</small>
                                          <a class="h5 d-block text-white mt-1 mb-0" href="">Project Name</a>
@@ -337,9 +337,9 @@ class home extends \DGZ_library\DGZ_HtmlView
                          </div>
                          <div class="col-lg-4 col-md-6 portfolio-item second wow zoomIn" data-wow-delay="0.1s">
                              <div class="position-relative rounded overflow-hidden">
-                                 <img class="img-fluid w-100" src="<?=$this->controller->settings->getFileRootPath()?>assets2/images/portfolio-4.jpg" alt="">
+                                 <img class="img-fluid w-100" src="<?=$this->controller->config->getFileRootPath()?>assets/images/portfolio-4.jpg" alt="">
                                  <div class="portfolio-overlay">
-                                     <a class="btn btn-light" href="<?=$this->controller->settings->getFileRootPath()?>assets2/images/portfolio-4.jpg" data-lightbox="portfolio"><i class="fa fa-plus fa-2x text-primary"></i></a>
+                                     <a class="btn btn-light" href="<?=$this->controller->config->getFileRootPath()?>assets/images/portfolio-4.jpg" data-lightbox="portfolio"><i class="fa fa-plus fa-2x text-primary"></i></a>
                                      <div class="mt-auto">
                                          <small class="text-white"><i class="fa fa-folder me-2"></i>Web Design</small>
                                          <a class="h5 d-block text-white mt-1 mb-0" href="">Project Name</a>
@@ -349,9 +349,9 @@ class home extends \DGZ_library\DGZ_HtmlView
                          </div>
                          <div class="col-lg-4 col-md-6 portfolio-item first wow zoomIn" data-wow-delay="0.3s">
                              <div class="position-relative rounded overflow-hidden">
-                                 <img class="img-fluid w-100" src="<?=$this->controller->settings->getFileRootPath()?>assets2/images/portfolio-5.jpg" alt="">
+                                 <img class="img-fluid w-100" src="<?=$this->controller->config->getFileRootPath()?>assets/images/portfolio-5.jpg" alt="">
                                  <div class="portfolio-overlay">
-                                     <a class="btn btn-light" href="<?=$this->controller->settings->getFileRootPath()?>assets2/images/portfolio-5.jpg" data-lightbox="portfolio"><i class="fa fa-plus fa-2x text-primary"></i></a>
+                                     <a class="btn btn-light" href="<?=$this->controller->config->getFileRootPath()?>assets/images/portfolio-5.jpg" data-lightbox="portfolio"><i class="fa fa-plus fa-2x text-primary"></i></a>
                                      <div class="mt-auto">
                                          <small class="text-white"><i class="fa fa-folder me-2"></i>Web Design</small>
                                          <a class="h5 d-block text-white mt-1 mb-0" href="">Project Name</a>
@@ -361,9 +361,9 @@ class home extends \DGZ_library\DGZ_HtmlView
                          </div>
                          <div class="col-lg-4 col-md-6 portfolio-item second wow zoomIn" data-wow-delay="0.6s">
                              <div class="position-relative rounded overflow-hidden">
-                                 <img class="img-fluid w-100" src="<?=$this->controller->settings->getFileRootPath()?>assets2/images/portfolio-6.jpg" alt="">
+                                 <img class="img-fluid w-100" src="<?=$this->controller->config->getFileRootPath()?>assets/images/portfolio-6.jpg" alt="">
                                  <div class="portfolio-overlay">
-                                     <a class="btn btn-light" href="<?=$this->controller->settings->getFileRootPath()?>assets2/images/portfolio-6.jpg" data-lightbox="portfolio"><i class="fa fa-plus fa-2x text-primary"></i></a>
+                                     <a class="btn btn-light" href="<?=$this->controller->config->getFileRootPath()?>assets/images/portfolio-6.jpg" data-lightbox="portfolio"><i class="fa fa-plus fa-2x text-primary"></i></a>
                                      <div class="mt-auto">
                                          <small class="text-white"><i class="fa fa-folder me-2"></i>Web Design</small>
                                          <a class="h5 d-block text-white mt-1 mb-0" href="">Project Name</a>
@@ -374,9 +374,9 @@ class home extends \DGZ_library\DGZ_HtmlView
 
                          <div class="col-lg-4 col-md-6 portfolio-item products wow zoomIn" data-wow-delay="0.1s">
                              <div class="position-relative rounded overflow-hidden">
-                                 <img class="img-fluid w-100" src="<?=$this->controller->settings->getFileRootPath()?>assets2/images/portfolio-4.jpg" alt="">
+                                 <img class="img-fluid w-100" src="<?=$this->controller->config->getFileRootPath()?>assets/images/portfolio-4.jpg" alt="">
                                  <div class="portfolio-overlay">
-                                     <a class="btn btn-light" href="<?=$this->controller->settings->getFileRootPath()?>assets2/images/portfolio-4.jpg" data-lightbox="portfolio"><i class="fa fa-plus fa-2x text-primary"></i></a>
+                                     <a class="btn btn-light" href="<?=$this->controller->config->getFileRootPath()?>assets/images/portfolio-4.jpg" data-lightbox="portfolio"><i class="fa fa-plus fa-2x text-primary"></i></a>
                                      <div class="mt-auto">
                                          <small class="text-white"><i class="fa fa-folder me-2"></i>DGZ-Shop</small>
                                          <a class="h5 d-block text-white mt-1 mb-0" href="">Cool web store</a>
@@ -386,9 +386,9 @@ class home extends \DGZ_library\DGZ_HtmlView
                          </div>
                          <div class="col-lg-4 col-md-6 portfolio-item products wow zoomIn" data-wow-delay="0.3s">
                              <div class="position-relative rounded overflow-hidden">
-                                 <img class="img-fluid w-100" src="<?=$this->controller->settings->getFileRootPath()?>assets2/images/portfolio-5.jpg" alt="">
+                                 <img class="img-fluid w-100" src="<?=$this->controller->config->getFileRootPath()?>assets/images/portfolio-5.jpg" alt="">
                                  <div class="portfolio-overlay">
-                                     <a class="btn btn-light" href="<?=$this->controller->settings->getFileRootPath()?>assets2/images/portfolio-5.jpg" data-lightbox="portfolio"><i class="fa fa-plus fa-2x text-primary"></i></a>
+                                     <a class="btn btn-light" href="<?=$this->controller->config->getFileRootPath()?>assets/images/portfolio-5.jpg" data-lightbox="portfolio"><i class="fa fa-plus fa-2x text-primary"></i></a>
                                      <div class="mt-auto">
                                          <small class="text-white"><i class="fa fa-folder me-2"></i>DGZ-Classified Ads</small>
                                          <a class="h5 d-block text-white mt-1 mb-0" href="">Basic</a>
@@ -399,9 +399,9 @@ class home extends \DGZ_library\DGZ_HtmlView
 
                          <div class="col-lg-4 col-md-6 portfolio-item products wow zoomIn" data-wow-delay="0.6s">
                              <div class="position-relative rounded overflow-hidden">
-                                 <img class="img-fluid w-100" src="<?=$this->controller->settings->getFileRootPath()?>assets2/images/portfolio-6.jpg" alt="">
+                                 <img class="img-fluid w-100" src="<?=$this->controller->config->getFileRootPath()?>assets/images/portfolio-6.jpg" alt="">
                                  <div class="portfolio-overlay">
-                                     <a class="btn btn-light" href="<?=$this->controller->settings->getFileRootPath()?>assets2/images/portfolio-6.jpg" data-lightbox="portfolio"><i class="fa fa-plus fa-2x text-primary"></i></a>
+                                     <a class="btn btn-light" href="<?=$this->controller->config->getFileRootPath()?>assets/images/portfolio-6.jpg" data-lightbox="portfolio"><i class="fa fa-plus fa-2x text-primary"></i></a>
                                      <div class="mt-auto">
                                          <small class="text-white"><i class="fa fa-folder me-2"></i>DGZ-Classified Ads</small>
                                          <a class="h5 d-block text-white mt-1 mb-0" href="">Multi-vendor</a>
@@ -431,7 +431,7 @@ class home extends \DGZ_library\DGZ_HtmlView
                              <i class="fa fa-quote-left fa-2x mb-3"></i>
                              <p>Dolor et eos labore, stet justo sed est sed. Diam sed sed dolor stet amet eirmod eos labore diam</p>
                              <div class="d-flex align-items-center">
-                                 <img class="img-fluid flex-shrink-0 rounded-circle" src="<?=$this->controller->settings->getFileRootPath()?>assets2/images/testimonial-1.jpg" style="width: 50px; height: 50px;">
+                                 <img class="img-fluid flex-shrink-0 rounded-circle" src="<?=$this->controller->config->getFileRootPath()?>assets/images/testimonial-1.jpg" style="width: 50px; height: 50px;">
                                  <div class="ps-3">
                                      <h6 class="text-white mb-1">Client Name</h6>
                                      <small>Profession</small>
@@ -442,7 +442,7 @@ class home extends \DGZ_library\DGZ_HtmlView
                              <i class="fa fa-quote-left fa-2x mb-3"></i>
                              <p>Dolor et eos labore, stet justo sed est sed. Diam sed sed dolor stet amet eirmod eos labore diam</p>
                              <div class="d-flex align-items-center">
-                                 <img class="img-fluid flex-shrink-0 rounded-circle" src="<?=$this->controller->settings->getFileRootPath()?>assets2/images/testimonial-2.jpg" style="width: 50px; height: 50px;">
+                                 <img class="img-fluid flex-shrink-0 rounded-circle" src="<?=$this->controller->config->getFileRootPath()?>assets/images/testimonial-2.jpg" style="width: 50px; height: 50px;">
                                  <div class="ps-3">
                                      <h6 class="text-white mb-1">Client Name</h6>
                                      <small>Profession</small>
@@ -453,7 +453,7 @@ class home extends \DGZ_library\DGZ_HtmlView
                              <i class="fa fa-quote-left fa-2x mb-3"></i>
                              <p>Dolor et eos labore, stet justo sed est sed. Diam sed sed dolor stet amet eirmod eos labore diam</p>
                              <div class="d-flex align-items-center">
-                                 <img class="img-fluid flex-shrink-0 rounded-circle" src="<?=$this->controller->settings->getFileRootPath()?>assets2/images/testimonial-3.jpg" style="width: 50px; height: 50px;">
+                                 <img class="img-fluid flex-shrink-0 rounded-circle" src="<?=$this->controller->config->getFileRootPath()?>assets/images/testimonial-3.jpg" style="width: 50px; height: 50px;">
                                  <div class="ps-3">
                                      <h6 class="text-white mb-1">Client Name</h6>
                                      <small>Profession</small>
@@ -464,7 +464,7 @@ class home extends \DGZ_library\DGZ_HtmlView
                              <i class="fa fa-quote-left fa-2x mb-3"></i>
                              <p>Dolor et eos labore, stet justo sed est sed. Diam sed sed dolor stet amet eirmod eos labore diam</p>
                              <div class="d-flex align-items-center">
-                                 <img class="img-fluid flex-shrink-0 rounded-circle" src="<?=$this->controller->settings->getFileRootPath()?>assets2/images/testimonial-4.jpg" style="width: 50px; height: 50px;">
+                                 <img class="img-fluid flex-shrink-0 rounded-circle" src="<?=$this->controller->config->getFileRootPath()?>assets/images/testimonial-4.jpg" style="width: 50px; height: 50px;">
                                  <div class="ps-3">
                                      <h6 class="text-white mb-1">Client Name</h6>
                                      <small>Profession</small>
@@ -495,7 +495,7 @@ class home extends \DGZ_library\DGZ_HtmlView
                                          <a class="btn btn-square text-primary bg-white my-1" href=""><i class="fab fa-instagram"></i></a>
                                          <a class="btn btn-square text-primary bg-white my-1" href=""><i class="fab fa-linkedin-in"></i></a>
                                      </div>
-                                     <img class="img-fluid rounded w-100" src="<?=$this->controller->settings->getFileRootPath()?>assets2/images/team-1.jpg" alt="">
+                                     <img class="img-fluid rounded w-100" src="<?=$this->controller->config->getFileRootPath()?>assets/images/team-1.jpg" alt="">
                                  </div>
                                  <div class="px-4 py-3">
                                      <h5 class="fw-bold m-0">Jhon Doe</h5>
@@ -512,7 +512,7 @@ class home extends \DGZ_library\DGZ_HtmlView
                                          <a class="btn btn-square text-primary bg-white my-1" href=""><i class="fab fa-instagram"></i></a>
                                          <a class="btn btn-square text-primary bg-white my-1" href=""><i class="fab fa-linkedin-in"></i></a>
                                      </div>
-                                     <img class="img-fluid rounded w-100" src="<?=$this->controller->settings->getFileRootPath()?>assets2/images/team-2.jpg" alt="">
+                                     <img class="img-fluid rounded w-100" src="<?=$this->controller->config->getFileRootPath()?>assets/images/team-2.jpg" alt="">
                                  </div>
                                  <div class="px-4 py-3">
                                      <h5 class="fw-bold m-0">Emma William</h5>
@@ -529,7 +529,7 @@ class home extends \DGZ_library\DGZ_HtmlView
                                          <a class="btn btn-square text-primary bg-white my-1" href=""><i class="fab fa-instagram"></i></a>
                                          <a class="btn btn-square text-primary bg-white my-1" href=""><i class="fab fa-linkedin-in"></i></a>
                                      </div>
-                                     <img class="img-fluid rounded w-100" src="<?=$this->controller->settings->getFileRootPath()?>assets2/images/team-3.jpg" alt="">
+                                     <img class="img-fluid rounded w-100" src="<?=$this->controller->config->getFileRootPath()?>assets/images/team-3.jpg" alt="">
                                  </div>
                                  <div class="px-4 py-3">
                                      <h5 class="fw-bold m-0">Noah Michael</h5>

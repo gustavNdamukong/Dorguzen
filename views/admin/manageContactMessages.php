@@ -27,7 +27,7 @@ class manageContactMessages extends \DGZ_library\DGZ_HtmlView
 						<hr class="bg-white mx-auto mt-0" style="width: 90px;">
 						<nav aria-label="breadcrumb">
 							<ol class="breadcrumb justify-content-center">
-								<li class="breadcrumb-item"><a class="text-white" href="<?= $this->controller->settings->getFileRootPath() ?>admin/dashboard">Dashboard</a></li>
+								<li class="breadcrumb-item"><a class="text-white" href="<?= $this->controller->config->getFileRootPath() ?>admin/dashboard">Dashboard</a></li>
 								<li class="breadcrumb-item text-white active" aria-current="page">Contact Messages</li>
 							</ol>
 						</nav>

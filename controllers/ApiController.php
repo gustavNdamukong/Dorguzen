@@ -110,7 +110,7 @@ class ApiController extends \DGZ_library\DGZ_Controller
 
     public function setHeaders()
     {
-        header("Access-Control-Allow-Origin: ".$this->settings->getHomePage());
+        header("Access-Control-Allow-Origin: ".$this->config->getHomePage());
         //allow cookies to be used in the communication (once this is used, the '...Allow-Origin...' header above will no longer work with a wildcard
         //-u would have to explicitly spec the domain where these cookies are allowed to be used in. Tis is coz domains are not normally allowed to
         //be used across multiple platforms)

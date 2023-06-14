@@ -6,7 +6,7 @@ namespace DGZ_library;
  *
  * @author Gustav
  */
-use settings\Settings;
+use configs\config;
 
 class DGZ_SliderEngine
 {
@@ -68,14 +68,14 @@ class DGZ_SliderEngine
      */
     public function showSlider()
     {
-        $settings = new Settings();
+        $config = new config();
         ?>
         <div id="amazingslider-1" style="display:block;position:relative;margin:16px auto 32px;">
             <ul class="amazingslider-slides" style="display:none;">
         <?php
             foreach ($this->_images as $img)
             { ?>
-                <li><img src="<?=$settings->getFileRootPath()?>assets/images/home_slide_images/<?=$img['name']?>" alt="<?=$img['alt']?>" width='1000' height='400' /></li>
+                <li><img src="<?=$config->getFileRootPath()?>assets/images/home_slide_images/<?=$img['name']?>" alt="<?=$img['alt']?>" width='1000' height='400' /></li>
                 <?php
             } ?>
             </ul>

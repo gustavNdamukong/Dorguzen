@@ -2,7 +2,7 @@
 
 namespace DGZ_library;
 
-use settings\Settings;
+use configs\config;
 
 
 class DGZ_Translator extends \DGZ_library\DGZ_Lang
@@ -58,8 +58,8 @@ class DGZ_Translator extends \DGZ_library\DGZ_Lang
         }
         else
         {
-            $settings = new Settings();
-            $defaultLang = $settings->getSettings()['fallback_locale'];
+            $config = new config();
+            $defaultLang = $config->getconfig()['fallback_locale'];
             $langSourceFile = include("lang/$defaultLang/$file");
         }
 

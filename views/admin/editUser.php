@@ -14,7 +14,7 @@ class editUser extends \DGZ_library\DGZ_HtmlView
          <script src="http://code.jquery.com/jquery-latest.min.js"></script>
         <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
     <?php
-         if ((isset($_SESSION['authenticated'])) && ($_SESSION['authenticated'] == 'Let Go-'.$this->controller->settings->getSettings()['appName'])) {
+         if ((isset($_SESSION['authenticated'])) && ($_SESSION['authenticated'] == 'Let Go-'.$this->controller->config->getConfig()['appName'])) {
          ?>
          <!-- ==========================
          BREADCRUMB - START
@@ -27,8 +27,8 @@ class editUser extends \DGZ_library\DGZ_HtmlView
                      </div>
                      <div class="col-xs-6">
                          <ol class="breadcrumb">
-                             <li><a href="<?=$this->controller->settings->getFileRootPath()?>admin/dashboard"><i class="fa fa-home"></i>Dashboard</a></li>
-                             <li><a href="<?=$this->controller->settings->getFileRootPath()?>admin/manageUsers"><i class="fa fa-user"></i>Manage users</a></li>
+                             <li><a href="<?=$this->controller->config->getFileRootPath()?>admin/dashboard"><i class="fa fa-home"></i>Dashboard</a></li>
+                             <li><a href="<?=$this->controller->config->getFileRootPath()?>admin/manageUsers"><i class="fa fa-user"></i>Manage users</a></li>
                              <li class="active">Edit user</li>
                          </ol>
                      </div>
@@ -52,7 +52,7 @@ class editUser extends \DGZ_library\DGZ_HtmlView
                              <div class="row">
                                  <div class="col-lg-2"></div>
                                  <div class="form col-lg-8">
-                                     <form id="editUserForm" action="<?=$this->controller->settings->getFileRootPath()?>admin/editUser?edit=1'?>" method="post">
+                                     <form id="editUserForm" action="<?=$this->controller->config->getFileRootPath()?>admin/editUser?edit=1'?>" method="post">
 
                                          <input placeholder="First name" id="new_user_fn" name="new_user_fn" class="form-control" type="text" value="<?=$user[0]['users_first_name']?>" />
                                          <input placeholder="Last name" id="new_user_ln" name="new_user_ln" class="form-control" type="text" value="<?=$user[0]['users_last_name']?>" />
@@ -62,7 +62,7 @@ class editUser extends \DGZ_library\DGZ_HtmlView
 
                                          <input type="hidden" name="userId" value="<?=$userId?>" />
 
-                                         <a href="<?=$this->controller->settings->getFileRootPath()?>admin/manageUsers" class="btn btn-warning btn-sm" id="cancel" >Cancel</a>
+                                         <a href="<?=$this->controller->config->getFileRootPath()?>admin/manageUsers" class="btn btn-warning btn-sm" id="cancel" >Cancel</a>
                                          <button type="submit" id="createUser" class="btn btn-primary btn-sm">Submit</button>
                                      </form>
 

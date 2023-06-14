@@ -8,7 +8,7 @@ class login extends \DGZ_library\DGZ_HtmlView
 {
      function show($login_errors = [], $username = '', $password = '')
      {
-         if ((isset($_SESSION['authenticated'])) && ($_SESSION['authenticated'] == 'Let Go-' . $this->controller->settings->getSettings()['appName'])) {
+         if ((isset($_SESSION['authenticated'])) && ($_SESSION['authenticated'] == 'Let Go-' . $this->controller->config->getConfig()['appName'])) {
              //user is already logged in
              $this->controller->redirect('admin/dashboard');
          }
@@ -31,7 +31,7 @@ class login extends \DGZ_library\DGZ_HtmlView
                              <hr class="bg-white mx-auto mt-0" style="width: 90px;">
                              <nav aria-label="breadcrumb">
                                  <ol class="breadcrumb justify-content-center">
-                                     <li class="breadcrumb-item"><a class="text-white" href="<?= $this->controller->settings->getFileRootPath() ?>">Home</a></li>
+                                     <li class="breadcrumb-item"><a class="text-white" href="<?= $this->controller->config->getFileRootPath() ?>">Home</a></li>
                                      <li class="breadcrumb-item text-white active" aria-current="page">Login</li>
                                  </ol>
                              </nav>
@@ -49,7 +49,7 @@ class login extends \DGZ_library\DGZ_HtmlView
                          <div class="col-lg-7">
                              <div class="wow fadeInUp" data-wow-delay="0.3s">
                                  <form id="loginForm"
-                                       action="<?= $this->controller->settings->getFileRootPath() ?>admin/login"
+                                       action="<?= $this->controller->config->getFileRootPath() ?>admin/login"
                                        method="post" onSubmit="return validateLoginForm(this)">
                                      <div class="row g-3">
                                          <div class="col-md-12">

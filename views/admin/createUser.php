@@ -14,7 +14,7 @@ class createUser extends \DGZ_library\DGZ_HtmlView
          <script src="http://code.jquery.com/jquery-latest.min.js"></script>
         <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
     <?php
-         if ((isset($_SESSION['authenticated'])) && ($_SESSION['authenticated'] == 'Let Go-'.$this->controller->settings->getSettings()['appName'])) {
+         if ((isset($_SESSION['authenticated'])) && ($_SESSION['authenticated'] == 'Let Go-'.$this->controller->config->getConfig()['appName'])) {
          //Pull in the PHP file that has the JS validation codes
          $jsValidation = \DGZ_library\DGZ_View::getInsideView('jsValidationPartial', $this->controller);
          $jsValidation->show();
@@ -30,8 +30,8 @@ class createUser extends \DGZ_library\DGZ_HtmlView
                      </div>
                      <div class="col-xs-6">
                          <ol class="breadcrumb">
-                             <li><a href="<?=$this->controller->settings->getFileRootPath()?>admin/dashboard"><i class="fa fa-home"></i>Dashboard</a></li>
-                             <li><a href="<?=$this->controller->settings->getFileRootPath()?>admin/manageUsers"><i class="fa fa-user"></i>Manage users</a></li>
+                             <li><a href="<?=$this->controller->config->getFileRootPath()?>admin/dashboard"><i class="fa fa-home"></i>Dashboard</a></li>
+                             <li><a href="<?=$this->controller->config->getFileRootPath()?>admin/manageUsers"><i class="fa fa-user"></i>Manage users</a></li>
                              <li class="active">Create user</li>
                          </ol>
                      </div>
@@ -55,7 +55,7 @@ class createUser extends \DGZ_library\DGZ_HtmlView
                              <div class="row">
                                  <div class="col-lg-2"></div>
                                  <div class="form col-lg-8">
-                                     <form id="createUserForm" action="<?=$this->controller->settings->getFileRootPath()?>admin/doCreateUser" method="post">
+                                     <form id="createUserForm" action="<?=$this->controller->config->getFileRootPath()?>admin/doCreateUser" method="post">
 
                                          <input placeholder="First name" id="new_user_fn" name="new_user_fn" class="form-control" type="text" <?=isset($_SESSION['postBack'])? 'value="' . htmlentities($_SESSION['postBack']['new_user_fn'], ENT_COMPAT, 'UTF-8') . '"':''?> />
                                          <input placeholder="Last name" id="new_user_ln" name="new_user_ln" class="form-control" type="text" <?=isset($_SESSION['postBack'])? 'value="' . htmlentities($_SESSION['postBack']['new_user_ln'], ENT_COMPAT, 'UTF-8') . '"':''?> />

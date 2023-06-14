@@ -2,7 +2,7 @@
 
 namespace DGZ_library;
 
-use settings\Settings;
+use configs\Config;
 
 class DGZ_Messenger
 {
@@ -28,32 +28,32 @@ class DGZ_Messenger
 
     public function __construct()
     {
-        $settings = new Settings();
+        $config = new Config();
 
-        $this->_config = new Settings();
+        $this->_config = $config;
 
-        $this->_appEmail = $settings->getSettings()['appEmail'];
+        $this->_appEmail = $config->getConfig()['appEmail'];
 
-        $this->_appEmailOther = $settings->getSettings()['appEmailOther'];
+        $this->_appEmailOther = $config->getConfig()['appEmailOther'];
 
-        if ($settings->getSettings()['live'] == false)
+        if ($config->getConfig()['live'] == false)
         {
-            $this->_headerFrom = $settings->getSettings()['localHeaderFrom'];
+            $this->_headerFrom = $config->getConfig()['localHeaderFrom'];
         }
         else
         {
-            $this->_headerFrom = $settings->getSettings()['liveHeaderFrom'];
+            $this->_headerFrom = $config->getConfig()['liveHeaderFrom'];
         }
 
-        $this->_headerReplyTo = $settings->getSettings()['headerReply-To'];
+        $this->_headerReplyTo = $config->getConfig()['headerReply-To'];
 
-        $this->_appName = $settings->getSettings()['appName'];
+        $this->_appName = $config->getConfig()['appName'];
 
-        $this->_appBusinessName = $settings->getSettings()['appBusinessName'];
+        $this->_appBusinessName = $config->getConfig()['appBusinessName'];
 
-        $this->_appSlogan = $settings->getSettings()['appSlogan'];
+        $this->_appSlogan = $config->getConfig()['appSlogan'];
 
-        $this->_appURL = $settings->getSettings()['appURL'];
+        $this->_appURL = $config->getConfig()['appURL'];
     }
 
 
@@ -117,8 +117,10 @@ class DGZ_Messenger
     }
 
 
-
-    public function sendNewsletterWelcomeMsg($name, $email, $letterName)
+    /**
+     * TODO: This is for a newsletter (e-mail marketing) module to come
+     */
+    /*public function sendNewsletterWelcomeMsg($name, $email, $letterName)
     {
         //Get the newsletter data from the DB
         $newsletterWelcome = new Newsletter();
@@ -147,7 +149,6 @@ class DGZ_Messenger
         {
             return false;
         }
-
     }
 
 
@@ -182,7 +183,7 @@ class DGZ_Messenger
             return false;
         }
 
-    }
+    }*/
 
 
 
@@ -193,7 +194,7 @@ class DGZ_Messenger
         //Time to send a welcome email to the new member with an account activation code
         $to = "$email";
 
-        // Add your "sending" email below, notice we are getting this from the settings file
+        // Add your "sending" email below, notice we are getting this from the config file
         $headers  = "From: $this->_headerFrom\r\n";
         $headers .= "Reply-To: $this->_headerReplyTo\r\n";
         $headers .= "Content-type: text/html; charset=utf-8\r\n";
@@ -210,7 +211,6 @@ class DGZ_Messenger
         {
             return false;
         }
-
     }
 
 
@@ -222,7 +222,7 @@ class DGZ_Messenger
         //Time to send a welcome email to the new member with an account activation code
         $to = "$email";
 
-        // Add your "sending" email below, notice we are getting this from the settings file
+        // Add your "sending" email below, notice we are getting this from the config file
         $headers  = "From: $this->_headerFrom\r\n";
         $headers .= "Reply-To: $this->_headerReplyTo\r\n";
         $headers .= "Content-type: text/html; charset=utf-8\r\n";
@@ -239,7 +239,6 @@ class DGZ_Messenger
         {
             return false;
         }
-
     }
 
 
@@ -252,7 +251,7 @@ class DGZ_Messenger
 
         $to = "$email";
 
-        // Add your "sending" email below, notice we are getting this from the settings file
+        // Add your "sending" email below, notice we are getting this from the config file
         $headers  = "From: $this->_headerFrom\r\n";
         $headers .= "Reply-To: $this->_headerReplyTo\r\n";
         $headers .= "Content-type: text/html; charset=utf-8\r\n";
@@ -281,13 +280,13 @@ class DGZ_Messenger
     private function sendContactFormMsgToAdminTemplate($name, $email, $phone, $message)
     {
         //Determine if we are live or not in order to build any links with the right URLs
-        if ($this->_config->getSettings()['live'])
+        if ($this->_config->getConfig()['live'])
         {
-            $url = $this->_config->getSettings()['fileRootPathLive'];
+            $url = $this->_config->getConfig()['fileRootPathLive'];
         }
         else
         {
-            $url = $this->_config->getSettings()['fileRootPathLocal'];
+            $url = $this->_config->getConfig()['fileRootPathLocal'];
         }
 
 
@@ -364,14 +363,14 @@ class DGZ_Messenger
     private function sendNewsletterWelcomeMsgTemplate($heading, $name, $message, $image = '', $imageCaption = '')
     {
         //Determine if we are live or not in order to build any links with the right URLs
-        $app = new Settings();
-        if ($app->getSettings()['live'])
+        $app = new Config();
+        if ($app->getConfig()['live'])
         {
-            $url = $app->getSettings()['fileRootPathLive'];
+            $url = $app->getConfig()['fileRootPathLive'];
         }
         else
         {
-            $url = $app->getSettings()['fileRootPathLocal'];
+            $url = $app->getConfig()['fileRootPathLocal'];
         }
 
 
@@ -595,14 +594,14 @@ class DGZ_Messenger
     private function sendNewsletterMsgTemplate($heading, $name, $message, $image = '', $imageCaption = '')
     {
         //Determine if we are live or not in order to build any links with the right URLs
-        $app = new Settings();
-        if ($app->getSettings()['live'])
+        $app = new Config();
+        if ($app->getConfig()['live'])
         {
-            $url = $app->getSettings()['fileRootPathLive'];
+            $url = $app->getConfig()['fileRootPathLive'];
         }
         else
         {
-            $url = $app->getSettings()['fileRootPathLocal'];
+            $url = $app->getConfig()['fileRootPathLocal'];
         }
 
         ######<!-- ==========================

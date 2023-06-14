@@ -2,7 +2,7 @@
 
 namespace DGZ_library;
 
-use settings\Settings;
+use configs\Config;
 use mysqli;
 use Exception;
 use PDO;
@@ -34,15 +34,15 @@ class DGZ_DB_Singleton
          */
         public static function getInstance()
         {
-                $settingsClass = new Settings();
+                $configClass = new Config();
 
                 //get DB connection credentials
-                if ($credentials = $settingsClass->getSettings()['live'] == false) {
-                        $credentials = $settingsClass->getSettings()['localDBcredentials'];
+                if ($credentials = $configClass->getConfig()['live'] == false) {
+                        $credentials = $configClass->getConfig()['localDBcredentials'];
                 }
-                elseif ($settingsClass->getSettings()['live'] == true)
+                elseif ($configClass->getConfig()['live'] == true)
                 {
-                        $credentials = $settingsClass->getSettings()['liveDBcredentials'];
+                        $credentials = $configClass->getConfig()['liveDBcredentials'];
                 }
 
                 //get the connection driver (connection type)

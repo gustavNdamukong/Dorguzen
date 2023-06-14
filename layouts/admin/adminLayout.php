@@ -50,7 +50,7 @@ class adminLayout extends \DGZ_library\DGZ_Layout {
 				SCROLL TOP - END
 			=========================== -->
 			<?php
-			if ((isset($_SESSION['authenticated'])) && ($_SESSION['authenticated'] == 'Let Go-' . $this->settings->getSettings()['appName'])
+			if ((isset($_SESSION['authenticated'])) && ($_SESSION['authenticated'] == 'Let Go-' . $this->config->getConfig()['appName'])
 				/////&& ($this->viewName != 'login')) {
 			) {
 				?>
@@ -216,7 +216,7 @@ class adminLayout extends \DGZ_library\DGZ_Layout {
 									<div class="col-sm-3">
 									</div>
 									<div class="col-sm-9">
-										<h3 style="color:red;">Sorry! You have no access to this page <a href="<?=$this->settings->getFileRootPath()?>admin" class="btn btn-default">Login</a><a href="<?=$this->settings->getFileRootPath()?>home" class="btn btn-default">Home</a></h3>
+										<h3 style="color:red;">Sorry! You have no access to this page <a href="<?=$this->config->getFileRootPath()?>admin" class="btn btn-default">Login</a><a href="<?=$this->config->getFileRootPath()?>home" class="btn btn-default">Home</a></h3>
 									</div>
 								</div>
 							</div>
