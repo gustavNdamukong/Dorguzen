@@ -55,7 +55,7 @@ class register extends \DGZ_library\DGZ_HtmlView
                                       action="<?=$this->route('auth/register')?>">
 
                                     <div id="regis_panel" class="panel panel-primary">
-                                        <a href="login.php" class="btn btn-success btn-lg pull-right">Already a member? Login</a>
+                                        <a href="<?= $this->controller->config->getFileRootPath()?>auth/login" class="btn btn-success btn-lg pull-right">Already a member? Login</a>
 
                                         <div class="panel-heading">
 

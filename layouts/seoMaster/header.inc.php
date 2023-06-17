@@ -24,7 +24,7 @@
                 <div class="collapse navbar-collapse" id="navbarCollapse">
                     <div class="navbar-nav ms-auto py-0">
                         <a href="<?=$this->config->getHomePage()?>" class="nav-item nav-link active"><i class="fa fa-home"></i>Home</a>
-                        <a href="about.html" class="nav-item nav-link">About</a>
+                        <!--<a href="about.html" class="nav-item nav-link">About</a>
                         <a href="service.html" class="nav-item nav-link">Service</a>
                         <a href="project.html" class="nav-item nav-link">Project</a>
                         <div class="nav-item dropdown">
@@ -34,12 +34,18 @@
                                 <a href="testimonial.html" class="dropdown-item">Testimonial</a>
                                 <a href="404.html" class="dropdown-item">404 Page</a>
                             </div>
-                        </div>
-                        <a href="contact.html" class="nav-item nav-link">Contact</a>
+                        </div>-->
+                        <a href="<?=$this->config->getFileRootPath()?>feedback" class="nav-item nav-link">Contact</a>
                         <?php
                         if (!isset($_SESSION['authenticated'])) { ?>
-                            <a href="<?=$this->config->getFileRootPath()?>auth/login" class="nav-item nav-link">Admin Login</a>
+                            <a href="<?=$this->config->getFileRootPath()?>auth/login" class="nav-item nav-link">Login</a>
                             <?php
+                             $config = new \configs\Config();
+                             if ($config->getConfig()['allow_registration'] === true)
+                             { ?>
+                                <a href="<?=$this->config->getFileRootPath()?>auth/signup" type="button" class="nav-item nav-link">Register</a>
+                             <?php
+                             }
                         }
                         else
                         { ?>
