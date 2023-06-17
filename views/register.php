@@ -6,15 +6,8 @@ use DGZ_library\DGZ_View;
 
 class register extends \DGZ_library\DGZ_HtmlView
 {
-     function show($firstname = '', $lastname = '', $username = '', $phone = '', $email = '', $fail = '')
+     function show($firstname = '', $lastname = '', $phone = '', $email = '', $fail = '')
      {
-        //Pull in the PHP file that has the JS validation codes
-        /////$jsValidation = \DGZ_library\DGZ_View::getInsideView('jsValidationPartial', $this->controller);
-        /////$jsValidation->show(); 
-
-        //$jsValidation = \DGZ_library\DGZ_View::getInsideView('jsCreateUserValidationPartial', $this->controller);
-        //$jsValidation->show();
-
          if ((isset($_SESSION['authenticated'])) && ($_SESSION['authenticated'] == 'Let Go-' . $this->controller->config->getConfig()['appName'])) {
              //user is already logged in
              $this->controller->addNotice('You are already logged in');
@@ -26,7 +19,8 @@ class register extends \DGZ_library\DGZ_HtmlView
              <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
 
              <?php
-             $jsValidation = DGZ_View::getInsideView('jsValidationPartial', $this->controller);
+             //Pull in the PHP file that has the JS validation codes
+             $jsValidation = \DGZ_library\DGZ_View::getInsideView('jsCreateUserValidationPartial', $this->controller);
              $jsValidation->show();
              ?>
 
@@ -48,7 +42,6 @@ class register extends \DGZ_library\DGZ_HtmlView
                      </div>
                  </div>
              </div>
-             <!------</div>-->
              <!-- Hero Header End -->
 
              <!-- Contact Start -->
@@ -57,7 +50,6 @@ class register extends \DGZ_library\DGZ_HtmlView
                      <div class="row justify-content-center">
                          <div class="col-lg-7">
                              <div class="wow fadeInUp" data-wow-delay="0.3s">
-                                 
 
                              <form id="regis_form" method="post"
                                       action="<?=$this->route('auth/register')?>">
@@ -141,16 +133,6 @@ class register extends \DGZ_library\DGZ_HtmlView
                                             </p>
                                             <hr/>
 
-                                            <!--<p>
-                                                <label for="email">Your email address</label>
-                                                <input type="text" class="form-control regisforminput"
-                                                       maxlength="64"
-                                                       name="email"
-                                                       placeholder="Email"
-                                                       id="email" value="<?php //htmlentities($email, ENT_COMPAT, 'UTF-8')?>"/>
-                                            </p>-->
-                                            <hr/>
-
                                             <p>
                                                 <label for="captcha_addition">
                                                     If you are not a robot, what is 3 + 1?</label>
@@ -193,8 +175,6 @@ class register extends \DGZ_library\DGZ_HtmlView
                                         </div>
                                     </div>
                                 </form>
-
-
                              </div>
                          </div>
                      </div>

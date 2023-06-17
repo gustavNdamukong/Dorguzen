@@ -14,8 +14,33 @@ class howToActivateEmailAfterRegis extends \DGZ_library\DGZ_HtmlView
           unset($_SESSION['activationCode']);
           ?>
 
+          <!-- ==========================
+          Hero Header & Breadcrumb - START
+          =========================== -->
+          <div class="container-xxl py-5 bg-primary hero-header mb-5">
+               <div class="container my-5 py-5 px-lg-5">
+                    <div class="row g-5 py-5">
+                         <div class="col-12 text-center">
+                              <h1 class="text-white animated zoomIn">Thank you!</h1>
+                              <hr class="bg-white mx-auto mt-0" style="width: 90px;">
+
+                              <nav aria-label="breadcrumb">
+                                   <ol class="breadcrumb justify-content-center">
+                                        <li class="breadcrumb-item"><a class="text-white" href="<?=$this->controller->config->getFileRootPath()?>"><i class="fa fa-home"></i>Home</a></li>
+                                        <li class="breadcrumb-item text-white active" aria-current="page">
+                                        <a class="text-white" href="<?=$this->controller->config->getFileRootPath()?>feedback"><i class="fa fa-users"></i> Contact us</a></li>
+                                   </ol>
+                              </nav>
+                         </div>
+                    </div>
+               </div>
+          </div>
+          <!-- ==========================
+          Hero Header & Breadcrumb - End
+          =========================== -->
+
           <div class="main">
-               <section class="content account" style="margin-top: 100px;">
+               <section class="content account" style="margin-top: 100px;">  
                     <div class="container">
                          <div class="row">
                               

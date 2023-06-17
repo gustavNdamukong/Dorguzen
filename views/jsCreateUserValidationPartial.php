@@ -27,9 +27,9 @@ class jsCreateUserValidationPartial extends \DGZ_library\DGZ_HtmlView
 
             $(document).ready(function () { 
                 //make an ajax call-this calls the function 'checkEmail()' below // #regis_form #regis_panel 
-                $(document).on('blur', '#email', function()
-                {   
-                    alert('FIRING OFF AJAX CALL');
+                $(document).on('blur', '#regis_form #email', function(e)
+                {  
+                    e.preventDefault(); 
                     checkEmail(this);
                 });
 

@@ -39,7 +39,7 @@ class AuthController extends \DGZ_library\DGZ_Controller  {
 
     public function login($email = '')
     {
-        //Establish where they're coming from, so you can refer them back
+        //Establish where they're coming from, so you can refer them back after logging them in
         $this->checkReferral();
 
         $view = DGZ_View::getView('login', $this, 'html');
@@ -86,10 +86,6 @@ class AuthController extends \DGZ_library\DGZ_Controller  {
 
     public function register()
     {
-        //$langClass = new DGZ_Translator();
-        //$lang = $langClass->getCurrentLang();
-        echo '<pre>';
-        die(print_r($_POST));
         $val = new DGZ_Validate();
         $users = new Users();
         $config = new Config();
@@ -106,7 +102,6 @@ class AuthController extends \DGZ_library\DGZ_Controller  {
                 'bangoshay', 'papou', 'wembley', 'hausa'
             ];
 
-
             $randomnumber = rand(0, 53);
             $randword = rand() . rand(0, 32000);
             $randCode = "$words[$randomnumber]" . "$randword";
@@ -116,19 +111,11 @@ class AuthController extends \DGZ_library\DGZ_Controller  {
 
             $googleId = 'null';
             if ((isset($_POST)) && ($_POST != '')) {
-                //echo '<pre>';
-                //die(print_r($_POST));/////////
                 //They must agree to our terms & conditions
                 if (!array_key_exists('agreeToTerms', $_POST)) {
-                    //die("You FAILED TO enter any 'agreeToTerms': ");
-                    //$this->addErrors('Please accept our Terms and Conditions', 'Alert!');
-                    //$this->redirect('auth', 'signup');
+                    $this->addErrors('Please accept our Terms and Conditions', 'Alert!');
+                    $this->redirect('auth', 'signup');
                 }
-                /*else
-                {
-                    echo "GOOD!!! YOU entered 'agreeToTerms': ".$_POST['agreeToTerms'];
-                    die();///////////
-                }*/
 
                 //reject spam bots
                 if (isset($_POST['captcha_hidden'])) {
@@ -157,12 +144,15 @@ class AuthController extends \DGZ_library\DGZ_Controller  {
                 if (isset($_POST['firstname'])) {
                     $firstname = $val->fix_string($_POST['firstname']);
                 }
+
                 if (isset($_POST['surname'])) {
                     $surname = $val->fix_string($_POST['surname']);
                 }
-                if (isset($_POST['username'])) {
+
+                /*if (isset($_POST['username'])) {
                     $username = $val->fix_string($_POST['username']);
-                }
+                }*/
+
                 if (isset($_POST['pwd'])) {
                     $password = $val->fix_string($_POST['pwd']);
                     $retyped = $val->fix_string($_POST['conf_pwd']);
@@ -179,7 +169,7 @@ class AuthController extends \DGZ_library\DGZ_Controller  {
                 //validate the submitted values
                 $fail  = $val->validate_firstname($firstname);
                 $fail .= $val->validate_surname($surname);
-                $fail .= $val->validate_username($username);
+                //$fail .= $val->validate_username($username);
                 $fail .= $val->validate_password($password);
                 $fail .= $val->validate_phonenumber($phone);
                 $fail .= $val->validate_email($email);
@@ -212,11 +202,10 @@ class AuthController extends \DGZ_library\DGZ_Controller  {
                         $this->addErrors($fail);
                         $this->redirect(
                             'auth', 
-                            'register', 
+                            'signup',
                             [
                                 'firstname' => $firstname, 
-                                'surname' => $surname, 
-                                'username' => $username, 
+                                'surname' => $surname,  
                                 'phone' => $phone, 
                                 'email' => $email, 
                                 'fail' => $fail
@@ -226,7 +215,6 @@ class AuthController extends \DGZ_library\DGZ_Controller  {
 
                     if (!$fail) {
                         $users->users_type = $user_type;
-                        $users->users_username = $username;
                         $users->users_email = $email;
                         $users->users_pass = $password;
                         $users->users_first_name = $firstname;
@@ -261,9 +249,7 @@ class AuthController extends \DGZ_library\DGZ_Controller  {
                             $subject = "Activate your account";
 
                             $appName = $this->config->getConfig()['appName'];
-                            $appUrl = $config->getSettings()['live']?$config->getConfig()['liveUrl']:$config->getConfig()['localUrl'];
-
-
+                            $appUrl = $config->getConfig()['live']?$config->getConfig()['liveUrl']:$config->getConfig()['localUrl'];
 
                             $message = "<h1>Congratulations</h1>
                                     <h2>Your account has been created on " . $appName . "</h2>
@@ -279,7 +265,7 @@ class AuthController extends \DGZ_library\DGZ_Controller  {
                             $messenger->sendEmailActivationEmail($username, $email, $subject, $message);
                             $_SESSION['activationCode'] = $activationCode;
 
-                            $this->redirect('auth', 'email-activation-instructions'); //Look for this method
+                            $this->redirect('auth', 'email-activation-instructions'); 
                         } else {
                             $fail .= "Something went wrong. Please make sure all fields are completed, then try again or contact us for help. Thanks";
                             $this->addErrors($fail);
@@ -412,21 +398,19 @@ class AuthController extends \DGZ_library\DGZ_Controller  {
 
         if ($fail == "")
         {
+            $query = "SELECT * FROM users WHERE users_username = '$username'";
+
+            $user = $users->query($query);
+
+            if ($user)
             {
-                $query = "SELECT * FROM users WHERE users_username = '$username'";
-
-                $user = $users->query($query);
-
-                if ($user)
-                {
-                    die("<b style='color:red'>&nbsp;&larr;
-			 	    ".$langClass->translate($lang, 'register.php', 'usernameAlreadyTaken')."</b>");
-                }
-                else
-                {
-                    die("<b  style='color:green'>&nbsp;&larr;
-			 		".$langClass->translate($lang, 'register.php', 'usernameAvailable')."</b>");
-                }
+                die("<b style='color:red'>&nbsp;&larr;
+                ".$langClass->translate($lang, 'register.php', 'usernameAlreadyTaken')."</b>");
+            }
+            else
+            {
+                die("<b  style='color:green'>&nbsp;&larr;
+                ".$langClass->translate($lang, 'register.php', 'usernameAvailable')."</b>");
             }
         }
         else
@@ -455,16 +439,20 @@ class AuthController extends \DGZ_library\DGZ_Controller  {
 
         if ($fail == "")
         {
+            $query = "SELECT * FROM users WHERE users_email = '$email'";
+
+            $user = $users->query($query);
+
+            if ($user)
             {
-                $query = "SELECT * FROM users WHERE users_email = '$email'";
-
-                $user = $users->query($query);
-
-                if ($user)
-                {
-                    die("<b style='color:red'>&nbsp;&larr;
-			 	    ".$langClass->translate($lang, 'register.php', 'emailAlreadyExists')."</b>");
-                }
+                die("<b style='color:red'>&nbsp;&larr;
+                ".$langClass->translate($lang, 'register.php', 'emailAlreadyExists')."</b>");
+            }
+            else
+            {
+                //We have to return something, but because in this case we want to take no action 
+                //on the form if the email is unique, we return a null.
+                die(null);
             }
         }
         else
