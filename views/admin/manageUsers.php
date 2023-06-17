@@ -105,7 +105,7 @@ class manageUsers extends \DGZ_library\DGZ_HtmlView
                                         <p class="badge"><span><?=$numOfAllUsers?></span></p>
                                         <div style="clear:both;"></div>
                                    </div>
-                                   <?php if ($_SESSION['user_type'] == 'admin_gen') { ?>
+                                   <?php if (in_array($_SESSION['user_type'], ['admin_gen', 'super_admin'])) { ?>
                                         <a href='<?=$this->controller->config->getFileRootPath()?>admin/createUser'
                                            class="btn btn-lg btn-primary">Create new User</a>
                                         <?php
@@ -115,6 +115,63 @@ class manageUsers extends \DGZ_library\DGZ_HtmlView
                                         <a href="#" class="btn btn-lg btn-primary" title="You dont have permission create a user" disabled>Create new User</a>
                                    <?php
                                    } ?>
+
+
+                                   <h4>Super Admin Users <span class="badge"><?=$superAdminUserCounter?></span></h4>
+                                   <div class="table-responsive border">
+                                        <table class="table table-bordered">
+                                             <tr>
+                                                  <th class="col-xs-2">First Name</th>
+                                                  <th class="col-xs-2">Last Name</th>
+                                                  <th class="col-xs-2">Username</th>
+                                                  <th class="col-xs-5">Created</th>
+                                                  <th class="col-xs-1">Action</th>
+                                             </tr>
+                                             <?php
+                                             foreach($allUsers as $user) { ?>
+                                                  <?php if ($user['users_type'] == 'super_admin') { ?>
+                                                       <tr>
+                                                            <td>
+                                                                 <a><?= $user['users_first_name'] ?></a>
+                                                            </td>
+                                                            <td><?= $user['users_last_name'] ?></td>
+                                                            <td class="hidden-xs"><?= $user['users_email'] ?></td>
+                                                            <td><?=$dateClass->YYYYMMDDtoDDMMYYYY($user['users_created']) ?></td>
+                                                            <td><?php
+                                                                 if (
+                                                                      ($_SESSION['user_type'] == 'super_admin') &&
+                                                                      ($user['users_id'] != $_SESSION['custo_id'])
+                                                                 )
+                                                                 { ?>
+                                                                      <a href="<?=$this->controller->config->getFileRootPath()?>user/editUser?userId=<?=$user['users_id']?>"
+                                                                           title="Edit this user"
+                                                                           class="btn btn-primary btn-sm"><i class="fa fa-pencil"></i></a>
+                                                                      <a onclick="return confirm('Are you sure you wish to delete this user?')" 
+                                                                           href="<?=$this->controller->config->getFileRootPath()?>admin/deleteUser?userId=<?=$user['users_id']?>"
+                                                                           title="Delete this user"
+                                                                           class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></a>
+                                                                 <?php
+                                                                 }
+                                                                 elseif($_SESSION['user_type'] == 'admin_gen') { ?>
+                                                                      <a href="#" class="btn btn-primary btn-sm" title="You cannot edit a super admin user" disabled><i class="fa fa-pencil"></i></a>
+                                                                      <a href="#" class="btn btn-danger btn-sm" title="You cannot delete a super admin user" disabled><i class="fa fa-trash"></i></a>
+                                                                      <?php
+                                                                 } ?>
+                                                            </td>
+                                                       </tr>
+                                                       <?php
+                                                  }
+                                             } ?>
+
+                                             <?php
+                                             if ($superAdminUserCounter == 0)
+                                             {
+                                                  echo '<tr style="color:green;"><td  colspan="5">There are no Super Admin Users</td></tr>';
+                                             } ?>
+                                        </table>
+                                   </div>
+
+
                                    <h4>General Admin Users <span class="badge"><?=$adminGenUserCounter?></span></h4>
                                    <div class="table-responsive border">
                                         <table class="table table-bordered">
@@ -219,6 +276,62 @@ class manageUsers extends \DGZ_library\DGZ_HtmlView
                                              } ?>
                                         </table>
                                    </div>
+
+
+                                   
+                                   <h4>Member Users <span class="badge"><?=$userCounter?></span></h4>
+                                   <div class="table-responsive border">
+                                        <table class="table table-bordered">
+                                             <tr>
+                                                  <th class="col-xs-2">First name</th>
+                                                  <th class="col-xs-2">Last Name</th>
+                                                  <th class="col-xs-2">email</th>
+                                                  <th class="col-xs-2">Created</th>
+                                                  <th class="col-xs-1">Action</th>
+                                             </tr>
+                                             <?php
+                                             foreach($allUsers as $user) { ?>
+                                                  <?php if ($user['users_type'] == 'member') { ?>
+                                                       <tr>
+                                                            <td><?= $user['users_first_name'] ?></td>
+                                                            <td><?= $user['users_last_name'] ?></td>
+                                                            <td class="hidden-xs"><?= $user['users_email'] ?></td>
+                                                            <td class="hidden-xs"><?= $dateClass->YYYYMMDDtoDDMMYYYY($user['users_created']) ?></td>
+                                                            <td>
+                                                                 <?php
+                                                                 if ($_SESSION['user_type'] == 'super_admin' || $_SESSION['user_type'] == 'admin_gen' || $_SESSION['user_type'] == 'admin')
+                                                                 { ?>
+                                                                      <a href="<?=$this->controller->config->getFileRootPath()?>admin/editUser?userId=<?=$user['users_id']?>&edit=0"
+                                                                           title="Edit this user"  
+                                                                           class="btn btn-primary btn-sm"><i class="fa fa-pencil"></i>
+                                                                      </a>
+
+                                                                      <a onclick="return confirm('Are you sure you wish to delete this user?')" 
+                                                                           href="<?=$this->controller->config->getFileRootPath()?>admin/deleteUser?userId=<?=$user['users_id']?>"
+                                                                           title="Delete this user"
+                                                                           class="btn btn-danger btn-sm"><i class="fa fa-trash"></i>
+                                                                      </a>
+                                                                 <?php
+                                                                 }
+                                                                 else { ?>
+                                                                      <a href="#" class="btn btn-primary btn-sm" title="You dont have permission to edit" disabled><i class="fa fa-pencil"></i></a>
+                                                                      <a href="#" class="btn btn-danger btn-sm" title="You dont have permission to delete" disabled><i class="fa fa-trash"></i></a>
+                                                                      <?php
+                                                                 } ?>
+                                                            </td>
+                                                       </tr>
+                                                       <?php
+                                                  }
+                                             } ?>
+
+                                             <?php
+                                             if ($userCounter == 0)
+                                             {
+                                                  echo '<tr style="color:green;"><td  colspan="5">There are no Admin Users</td></tr>';
+                                             } ?>
+                                        </table>
+                                   </div>
+
                               </div>
 
                          </div>

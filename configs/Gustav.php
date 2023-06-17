@@ -1,19 +1,15 @@
 <?php
-namespace configs;
+//Module configs do not need namespaces
 
-
-use BaseSettings;
-use DGZ_library\DGZ_Router;
-
-	
 	class Gustav
 	{
-
 		public function getConfig()
 		{
 			return [
 
 				'bikko' => 'Bwaaaam',
+
+				'appName' => 'Doggy DOG',
 
 				'chaaai' => 'Buyaaaa',
 

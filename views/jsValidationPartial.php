@@ -172,8 +172,9 @@ class jsValidationPartial extends \DGZ_library\DGZ_HtmlView
                             return 'The password must be at least 6 characters';
                         }
 
-                        //
-                        <!--WE CAN MAKE THE PW EVEN STRONGER AND ACCEPT IT ONLY IF IT CONTAINS AT LEAST ONE SMALL LETTER, ONE UPPERCASE LETTER, AND ONE NUMBER, BUT IN THIS CASE WE WILL NOT BECAUSE OUR PHP CODE WILL STILL VALIDATE THE PW PROPERLY. HENCE WE COMMENT OUT THE FOLLOWING 4 LINES-->
+                        // WE CAN MAKE THE PW EVEN STRONGER AND ACCEPT IT ONLY IF IT CONTAINS AT LEAST ONE SMALL 
+                        // LETTER, ONE UPPERCASE LETTER, AND ONE NUMBER, BUT IN THIS CASE WE WILL NOT BECAUSE OUR 
+                        // PHP CODE WILL STILL VALIDATE THE PW PROPERLY. HENCE WE COMMENT OUT THE FOLLOWING 4 LINES
                         //else if (! /[a-z]/.test(field) ||
                         //! /[A-Z]/.test(field) ||
                         //! /[0-9]/.test(field))
@@ -211,7 +212,7 @@ class jsValidationPartial extends \DGZ_library\DGZ_HtmlView
 
                 //make an ajax call-this calls the function 'checkUsername()' below
                 $(document).on('blur', '#regis_form #username', function()
-                {
+                {   
                     checkUsername(this);
                 });
 
@@ -275,12 +276,9 @@ class jsValidationPartial extends \DGZ_library\DGZ_HtmlView
                         }
                         return request
                     }
-
             });
 
         </script>
-
-
         <?php
     }
 }

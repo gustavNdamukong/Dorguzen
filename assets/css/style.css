@@ -568,6 +568,10 @@ h6,
     font-weight:bold;
 }
 
-#editUserForm input {
+#editUserForm input, #editUserForm select {
+    margin-bottom: 1rem;
+}
+
+#createUserForm input, #createUserForm select {
     margin-bottom: 1rem;
 }

@@ -6,11 +6,11 @@ namespace controllers;
 
 use DGZ_library\DGZ_Validate;
 use Users;
-use Password_reset;
 use BaseSettings;
 use ContactFormMessage;
 use DGZ_library\DGZ_View;
 use DGZ_library\DGZ_Messenger;
+use Logs;
 
 
 class AdminController extends \DGZ_library\DGZ_Controller  {
@@ -31,21 +31,13 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
 
 
 
-
-
     public function defaultAction()
     {
-        $view = DGZ_View::getView('login', $this, 'html');
-        $this->setPageTitle('login');
-        //$this->setLayoutDirectory('admin');
-        //$this->setLayoutView('adminLayout');
-        $this->setLayoutDirectory('seoMaster');
-        $this->setLayoutView('seoMasterLayout');
+        $view = \DGZ_library\DGZ_View::getAdminView('adminHome', $this, 'html');
+        $this->setPageTitle('User dashboard');
 
         $view->show();
     }
-
-
 
 
 
@@ -53,338 +45,10 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
     {
         $view = DGZ_View::getAdminView('adminHome', $this, 'html');
         $this->setPageTitle('Admin');
-
         $this->setLayoutDirectory('admin');
         $this->setLayoutView('adminLayout');
         $view->show();
     }
-
-
-
-
-
-                                
-    public function login()
-    {
-        $password = $email = $rem_me = false;
-        $fail = "";
-        $callerOrigin = ((isset($_POST['caller-origin'])) && ($_POST['caller-origin'] == 'api'))?'api':'';
-        //'status' has a value of either 'true' or 'false', while 'message' has the error msg
-        $returnMessage = [
-            'status' => '',
-            'message' => ''
-        ];
-
-        $val = new DGZ_Validate();
-
-        if ((isset($_POST['login_email'])) && (($_POST['forgotstatus']) == 'no'))
-        {
-            if(isset($_POST['login_email']))
-            {
-                $email = $val->fix_string($_POST['login_email']);
-            }
-
-            if (isset($_POST['login_pwd']))
-            {
-                $password = $val->fix_string($_POST['login_pwd']);
-            }
-
-            if (isset($_POST['rem_me']))
-            {
-
-                $rem_me = ($_POST['rem_me']);
-            }
-
-
-            $fail .= $val->validate_email($email);
-
-            $fail .= $val->validate_password($password);
-
-            if ($fail == "")
-            {
-                $authenticated = $this->authenticate($email, $password);
-
-                if ($authenticated)
-                {
-                    if (!session_id()) { session_start(); }
-                    $_SESSION['authenticated'] = 'Let Go-'.$this->config->getConfig()['appName'];
-                    $_SESSION['start'] = time();
-                    session_regenerate_id();
-
-                    $_SESSION['custo_id'] = $authenticated['users_id'];
-                    $_SESSION['user_type'] = $authenticated['users_type'];
-                    $_SESSION['email'] = $authenticated['users_email'];
-                    $_SESSION['first_name'] = $authenticated['users_first_name'];
-                    $_SESSION['last_name'] = $authenticated['users_last_name'];
-                    $_SESSION['created'] = $authenticated['users_created'];
-
-                    session_write_close();
-
-                    //if this is an API call, send the success response now
-                    if ($callerOrigin == 'api') {
-                        $returnMessage['status'] = 'true';
-                        $returnMessage['message'] = 'Login was successful';
-                        return $returnMessage;
-                    }
-
-                    if ($rem_me)
-                    {
-                        setcookie('rem_me', $email, time() + 172800);
-                    }
-
-                    $this->addSuccess('Welcome Admin!', 'Hey');
-                    $this->redirect('admin','dashboard');
-                    exit();
-                }
-                else
-                {
-                    //if this is an API call, send the failed response now
-                    if ($callerOrigin == 'api') {
-                        $returnMessage['status'] = 'false';
-                        $returnMessage['message'] = "Either the email address or the password you provided was wrong";
-                        return $returnMessage;
-                    }
-
-                    // if no match, prepare error message
-                    $this->addErrors('Either the email address or the password you provided was wrong, try again or contact us for help. Thank you.','Oops, something went wrong!');
-                    $this->redirect('admin');
-                }
-            }
-            else
-            {
-                //if this is an API call, send the failed response now
-                if ($callerOrigin == 'api') {
-                    $returnMessage['status'] = 'false';
-                    $returnMessage['message'] = $fail;
-                    return $returnMessage;
-                }
-
-                $this->addErrors($fail, "Error!");
-                $this->redirect('admin');
-            }
-        }
-        elseif ((isset($_POST['forgotstatus'])) && (($_POST['forgotstatus']) == 'yes'))
-        {
-            if(isset($_POST['forgot_pass_input']))
-            {
-                $email = $val->fix_string($_POST['forgot_pass_input']);
-                $fail .= $val->validate_email($email);
-                if ($fail == "")
-                {
-                    $user_model = new Users();
-
-                    $found = $user_model->recoverLostPw($email);
-
-
-                    if ($found)
-                    {
-                        $resetCode = $this->generateCode();
-                        $resetModel = new Password_reset();
-
-                        $query = "INSERT INTO password_reset (password_reset_users_id, password_reset_firstname, password_reset_email, password_reset_date, password_reset_reset_code)
-                                  VALUES ($found[userId], '$found[firstname]', '$found[email]', '".date('Y-m-d H:i:s')."', '$resetCode')";
-                        $saved = $resetModel->query($query);
-
-                        if ($saved) {
-                            //if this is an API call, send a response with the reset link now
-                            $resetLinkPath = "%sadmin/verifyEmail?em=%s";
-                            $resetLink = sprintf(
-                                $resetLinkPath,
-                                $this->config->getHomePage(),
-                                $resetCode
-                            );
-
-                            if ($callerOrigin == 'api') {
-                                $returnMessage['status'] = 'true';
-                                $returnMessage['message'] = 'Here is the link for the user to reset their password';
-
-                                $returnMessage['resetLink'] = $resetLink;
-                                return $returnMessage;
-                            }
-
-                            $mailer = new DGZ_Messenger();
-
-                            $mailresult = $mailer->sendPasswordResetEmail($found['email'], $found['firstname'], $resetCode);
-                            if ($mailresult) {
-                                $this->addSuccess('We have sent a link to reset your password to your email address', "Thank you");
-                                $this->redirect('admin');
-                            }
-                        }
-                    }
-                    else
-                    {
-                        //if this is an API call, the failed response now
-                        if ($callerOrigin == 'api') {
-                            $returnMessage['status'] = 'false';
-                            $returnMessage['message'] = "Either the email address or the password you provided was wrong";
-                            return $returnMessage;
-                        }
-
-                        $fail .= 'Sorry, there was a problem with the database! Try again later, or contact us';
-                        $this->addErrors($fail);
-                        $this->redirect('admin');
-                    }
-                }
-            }
-        }
-    }
-
-
-
-
-
-
-    /**
-     * Users click on a link sent to them via email to reset their password and they land on this script.
-     * We need to generate a view file, verify their activation code, then if good we show a form for them
-     * to reset their password. If the code fails validation either because it's expired or is simply invalid,
-     * we display an error on that view and kick them out to the log in page.
-     */
-    public function verifyEmail($em)
-    {
-        if (isset($_GET['em'])) {
-            $val = new DGZ_Validate();
-            $resetCode = $val->fix_string($_GET['em']);
-            if ($resetCode != '') {
-                $model = new Password_reset();
-                $sql = "SELECT * FROM password_reset 
-                        WHERE password_reset_reset_code = '$resetCode'";
-
-                $resetDetails = $model->query($sql);
-
-                $sql = "DELETE FROM password_reset
-                    WHERE password_reset_id = ".$resetDetails[0]['password_reset_id'].
-                    " AND password_reset_reset_code = '$resetCode'";
-
-                $deleted = $model->query($sql);
-
-                if ($resetDetails[0]['password_reset_date'] <= strtotime('-2 hours'))
-                {
-                    $view = DGZ_View::getAdminView('resetPw', $this, 'html');
-                    $view->show($resetDetails[0]['password_reset_users_id'], $resetDetails[0]['password_reset_email']);
-                }
-                else{
-                    $this->addWarning('You waited too long and your reset code expired, request for one again');
-                    $this->redirect('admin');
-                }
-            }
-        }
-    }
-
-
-    
-    
-
-
-    public function resetPw()
-    {
-        $reset_email = $reset_user_id = $reset_pwd = $reset_conf_pwd = '';
-        $fail = "";
-
-        $val = new DGZ_Validate();
-
-        if(isset($_POST['reset_user_id']))
-        {
-            $reset_user_id = $val->fix_string($_POST['reset_user_id']);
-        }else{ $fail .= '<p>Something went wrong! Try requesting for a reset again or contact us.</p>'; }
-
-        if(isset($_POST['reset_email']))
-        {
-            $reset_email = $val->fix_string($_POST['reset_email']);
-        }else{ $fail .= '<p>Sorry! We could not identify your account.</p>'; }
-
-        if (isset($_POST['reset_pwd']))
-        {
-            $reset_pwd = $val->fix_string($_POST['reset_pwd']);
-        }
-
-
-        if (isset($_POST['reset_conf_pwd']))
-        {
-            $reset_conf_pwd = $val->fix_string($_POST['reset_conf_pwd']);
-        }
-
-
-        $fail .= $val->validate_password($reset_pwd);
-
-        if ($reset_pwd !== $reset_conf_pwd)
-        {
-            $fail .= "<p>Both passwords did not match!</p>";
-        }
-
-
-        if ($fail == "")
-        {
-            $user_model = new Users();
-
-            $userCreated = $user_model->resetUserPassword($reset_user_id, $reset_email, $reset_pwd);
-
-            if($userCreated)
-            {
-                $this->addSuccess('Your password was successfully updated, now you can login');
-                $this->redirect('admin');
-            }
-            elseif($userCreated == false)
-            {
-                $this->addErrors('Try not to use the same old password. If it fails again, contact us', 'Error!');
-                $this->redirect('admin');
-            }
-
-        }
-        else
-        {
-            $this->addErrors($fail);
-            $view = DGZ_View::getAdminView('resetPw', $this, 'html');
-            $view->show($reset_user_id, $reset_email);
-        }
-    }
-
-
-
-
-
-
-
-
-    /**
-     * @param $email the email to authenticate the user with
-     * @param $password the password to authenticate the user with
-     * @return array|bool It returns false if the login fails, or an array of all fields in your users table
-     */
-    public function authenticate($email, $password)
-    {
-        $user_model = new Users();
-
-        $loginData = ['users_email' => $email, 'users_pass' => $password];
-
-        return $user_model->authenticateUser($loginData);
-
-    }
-
-
-
-
-    public function logout()
-    {
-        $_SESSION = array();
-
-        if (isset($_COOKIE[session_name()]))
-        {
-            setcookie(session_name(), '', time() - 86400, '/');
-        }
-
-        if (isset($_COOKIE['rem_me']))
-        {
-            setcookie('rem_me', '', time()-86400);
-        }
-
-        session_destroy();
-
-        $this->redirect('home');
-        exit();
-
-    }
-
 
 
     /**
@@ -430,10 +94,15 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
 
     public function doCreateUser()
     {
-        $fn = $ln = $un = $newUserPw = $econfirm = false;
+        $user_type = $fn = $ln = $un = $phone_number = $newUserPw = $econfirm = false;
         $fail = "";
 
-        $val = new DGZ_Validate();
+        $val = new DGZ_Validate(); 
+
+        if(isset($_POST['new_user_type']))
+        {
+            $user_type = $val->fix_string($_POST['new_user_type']);
+        }
 
         if(isset($_POST['new_user_fn']))
         {
@@ -450,11 +119,15 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
             $email = $val->fix_string($_POST['new_user_un']);
         }
 
+        if(isset($_POST['new_user_phone']))
+        {
+            $phone_number = $val->fix_string($_POST['new_user_phone']);
+        }
+
         if (isset($_POST['new_user_pwd']))
         {
             $password = $val->fix_string($_POST['new_user_pwd']);
         }
-
 
         if (isset($_POST['new_user_pwd_confirm']))
         {
@@ -470,15 +143,21 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
 
         if ($password !== $econfirm)
         {
-            $fail .= "Both passwords did not match!";
+            $fail .= "Both passwords did not match!\n";
         }
 
+        //Make sure email is not already registered in the system
+        if ($this->isDuplicateEmail($email))
+        {
+            $fail .= "That email address is already registered on this system";
+        }
 
         if ($fail == "")
         {
             $user_model = new Users();
+            $created = $user_model->timeNow();
 
-            $userCreated = $user_model->createUser($fn, $ln, $email, $password);
+            $userCreated = $user_model->createUser($user_type, $fn, $ln, $email, $phone_number, $password, $created);
 
             if ($userCreated === 1062)
             {
@@ -508,6 +187,26 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
     }
 
 
+    public function isDuplicateEmail($email)
+    {
+        $users = new Users();
+        
+        $query = "SELECT * FROM users WHERE users_email = '$email'";
+
+        $user = $users->query($query);
+
+        if ($user)
+        {
+            return true;
+        }
+    
+        else
+        {
+            return false;
+        }
+    }
+
+
 
 
 
@@ -528,7 +227,7 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
         }
         elseif((isset($_GET['edit'])) && ($_GET['edit'] == 1))
         {
-            $fn = $ln = $un = $newUserPw = false;
+            $userType = $fn = $ln = $un = $new_user_phone = $newUserPw = false;
             $fail = "";
 
             $userId = $_POST['userId'];
@@ -536,8 +235,12 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
 
             $userForEdit = $user->getUserById($userId);
 
-            $val = new DGZ_Validate();
+            $val = new DGZ_Validate(); 
 
+            if(isset($_POST['new_user_type']))
+            {
+                $userType = $val->fix_string($_POST['new_user_type']);
+            }
 
             if(isset($_POST['new_user_fn']))
             {
@@ -554,6 +257,11 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
                 $email = $val->fix_string($_POST['new_user_un']);
             }
 
+            if(isset($_POST['new_user_phone']))
+            {
+                $new_user_phone = $val->fix_string($_POST['new_user_phone']);
+            }
+
             if (isset($_POST['new_user_pwd']))
             {
                 $password = $val->fix_string($_POST['new_user_pwd']);
@@ -568,11 +276,12 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
             if ($fail == "")
             {
                 $data = [
-                    'users_type' =>  'admin',
+                    'users_type' =>  $userType,
                     'users_email' => $email,
                     'users_pass' => $password,
                     'users_first_name' => $fn,
-                    'users_last_name' => $ln
+                    'users_last_name' => $ln,
+                    'users_phone_number' => $new_user_phone
                 ];
 
                 $where = ['users_id' => $userId];
@@ -696,14 +405,12 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
 
     public function contactMessages()
     {
-        $settings= new ContactFormMessage();
-        $contactMessages = $settings->getAll('contactformmessage_date DESC');
+        $message = new ContactFormMessage();
+        $contactMessages = $message->getAll('contactformmessage_date DESC');
 
         $view = DGZ_View::getAdminView('manageContactMessages', $this, 'html');
         $this->setLayoutDirectory('admin');
         $this->setLayoutView('adminLayout');
-        //$this->setLayoutDirectory('seoMaster');
-        //$this->setLayoutView('seoMasterLayout');
         $view->show($contactMessages);
     }
 
@@ -748,8 +455,6 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
             $view = DGZ_View::getAdminView('manageSettings', $this, 'html');
             $this->setLayoutDirectory('admin');
             $this->setLayoutView('adminLayout');
-            /////$this->setLayoutDirectory('seoMaster');
-            /////$this->setLayoutView('seoMasterLayout');
             $view->show($baseSettings);
         }
         elseif((isset($_GET['change'])) && ($_GET['change'] == 1)) {
@@ -769,8 +474,58 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
     }
 
 
+    /**
+     * Display the logs for admin users to see
+     */
+    public function log()
+    {
+        $users = new Users();
+        if (
+            (isset($_SESSION['custo_id'])) &&
+            ($users->isAdmin($_SESSION['custo_id']))
+        )
+        {
+            $logs = new Logs();
+            $advanced_logs = $logs->getAll('logs_created DESC', 10);
+
+            $view = \DGZ_library\DGZ_View::getAdminView('logs', $this, 'html');
+            $view->show($logs);
+        }
+        else
+        {
+            $controller = 'admin';
+            $method = 'log';
+            $this->addWarning('Please login to access the logs');
+            $this->redirect('admin', 'login', ['c' => $controller, 'm' => $method]);
+        }
+    }
+
+    
+    /**
+     * Filter logs by runtime errors only
+     */
+    public function log_errors_only()
+    {
+        $logs = new Logs();
+        $runtime_error_logs = $logs->getRunTimeErrors('logs_created DESC');
+        $result = $this->getPaginationMarkers($runtime_error_logs);
+        extract($result);
+
+        $view = \DGZ_library\DGZ_View::getAdminView('logs_errors_only', $this, 'html');
+        $view->show($runtime_error_logs, $totalRecs, $max_no_perpage, $no_pages, $pageNum, $first_item_onpage, $last_item_onpage);
+    }
 
 
+    /**
+     * Filter logs by runtime errors only
+     */
+    public function logAdminLogins()
+    {
+        $logs = new Logs();
+        $runtime_error_logs = $logs->getAdminLoginData('logs_created DESC');
 
+        $view = \DGZ_library\DGZ_View::getAdminView('logs_admin_logins', $this, 'html');
+        $view->show($runtime_error_logs);
+    }
 }
 

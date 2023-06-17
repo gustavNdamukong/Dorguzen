@@ -111,7 +111,7 @@ PASSWORD RESET REQUEST (POST)
    {
        "status":"true",
        "message":"Here is the link for the user to reset their password",
-       "resetLink":"http:\/\/camerooncom\/admin\/verifyEmail?em=90886bc4d0f723a1299ed9b3360f48e8"
+       "resetLink":"http:\/\/camerooncom\/auth\/reset?em=90886bc4d0f723a1299ed9b3360f48e8"
    }
 
    -The 'forgotstatus' field needs to be 'yes' if you want to reset your password. The response will contain the
@@ -142,7 +142,7 @@ REGISTER REQUEST (POST) (TODO)
    {
        "status":"true",
        "message":"Registration successful. Here is the link to activate your account",
-       "activationLink":"https:\/\/camerooncom\/auth/verifyEmail?em=90886bc4d0f723a1299ed9b3360f48e8"
+       "activationLink":"https:\/\/yourApp\/auth/verifyEmail?em=90886bc4d0f723a1299ed9b3360f48e8"
    }
 
 
@@ -153,7 +153,7 @@ REGISTER REQUEST (POST) (TODO)
 -------------------------------------------------------------------------------------------------
 ACTIVATE ACCOUNT REQUEST (GET) (TODO)
 -------------------------------------------------------------------------------------------------
-  Endpoint: http://camerooncom/api/auth-verifyEmail?em=44490ee6bc14729a2a9b2a7f32e8acb3&caller-origin=api
+  Endpoint: http://yourApp/api/auth/verifyEmail?em=44490ee6bc14729a2a9b2a7f32e8acb3&caller-origin=api
 
    {
        "method":"GET",
@@ -162,7 +162,7 @@ ACTIVATE ACCOUNT REQUEST (GET) (TODO)
     Response:
    {
         "status":"true",
-        "message":"Your email was successfully activated, you may now log in",
+        "message":"Your account was successfully activated, you may now log in",
         "response_code":200
    }
 

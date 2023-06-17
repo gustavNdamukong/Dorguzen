@@ -6,16 +6,17 @@ use DGZ_library\DGZ_Model;
     /** ############## Properties and Methods all model classes must have to get the full power of the Dorguzen ###############
      * Must extend the parent model DGZ_Model
 
-    ##### PROPERTIES ######################
+     * ##### PROPERTIES ######################
      * protected $_columns = array();
+     * protected $data = array(); 
      * private $_hasParent = array();
      * private $_hasChild = array();
 
-    ##### CONSTRUCTOR ######################
+     * ##### CONSTRUCTOR ######################
      * Must call the parent constructor
      * Must call loadORM(), which queries its table, then loops through the results and populates its _columns member array
 
-    ##### METHODS ######################
+     * ##### METHODS ######################
      * It has access to all its patent's methods, and you can add yours
      *
      */
@@ -27,6 +28,8 @@ use DGZ_library\DGZ_Model;
     class Users extends DGZ_Model
     {
         protected $_columns = array();
+
+        protected $data = [];
 
         protected $idField = 'users_id';
 
@@ -104,15 +107,16 @@ use DGZ_library\DGZ_Model;
         }
 
 
-        public function createUser($firstname, $lastname, $email, $password)
+        public function createUser($user_type, $firstname, $lastname, $email, $phone_number, $password, $created)
         {
             $data = [
-                'users_type' => 'admin',
+                'users_type' => $user_type,
                 'users_first_name' => $firstname,
                 'users_last_name' => $lastname,
                 'users_email' => $email,
+                'users_phone_number' => $phone_number,
                 'users_pass' => $password,
-                'users_created' => ''
+                'users_created' => $created
             ];
 
             $saved = $this->insert($data);
@@ -155,6 +159,36 @@ use DGZ_library\DGZ_Model;
                 return false;
             }
         }
+
+
+        /**
+     * Check if the given user is an admin user or not
+     *
+     * @param $userId
+     * @return boolean
+     */
+    public function isAdmin($userId)
+    {
+        $query = "SELECT users_type 
+                  FROM users
+                  WHERE users_id = $userId";
+
+        $result = $this->query($query);
+
+        if ($result) {
+            if (in_array($result[0]['users_type'], ['admin', 'admin_gen', 'super_admin']))
+            {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
+    }
     }
     
     

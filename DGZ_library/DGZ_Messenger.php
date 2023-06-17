@@ -272,6 +272,33 @@ class DGZ_Messenger
     }
 
 
+    public function sendErrorLogMsgToAdmin($message)
+    {
+        // Add your "sending" email below, better to get this from the config file
+        $headers  = "From: $this->_headerFrom\r\n";
+        $headers .= "Reply-To: $this->_headerReplyTo\r\n";
+        $headers .= "Content-type: text/html; charset=utf-8\r\n";
+
+        // We'll set the email "to" address to the database record
+        //$to = $email;
+        $to = $this->_appEmail.','.$this->_appEmailOther;
+        $subject = "An error has occurred on live and has been logged";
+
+        $msg = $this->sendErrorLogMsgToAdminTemplate($message);
+
+        // And send the email!
+        $send = mail($to, $subject, $msg, $headers);
+        if ($send)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+
 
 
     ############################################ EMAIL TEMPLATES #######################################################
@@ -931,15 +958,72 @@ class DGZ_Messenger
                     <p>Please click on the following link to reset your password.</p>
                     <br />
                     
-                    <p><a href='".$this->_config->getHomePage()."admin/verifyEmail?em=$resetCode'>Click here to reset your password</a> or copy and paste the 
+                    <p><a href='".$this->_config->getHomePage()."auth/reset?em=$resetCode'>Click here to reset your password</a> or copy and paste the 
                     following link in your browser:</p>
-                    <p>".$this->_config->getHomePage()."admin/verifyEmail?em=$resetCode</p>
+                    <p>".$this->_config->getHomePage()."auth/reset?em=$resetCode</p>
 
                     <br />
                     <h3>$this->_appBusinessName</h3>
                     <p>$this->_appSlogan</p>
                     <p><img src='".$this->_config->getFileRootPath()."assets/images/logos/logo.svg' /></p>
                     <br />
+                  <br />";
+
+        $msg .= "              
+            </div>
+        </body>
+        </html>";
+
+        return $msg;
+    }
+
+
+    
+
+
+    private function sendErrorLogMsgToAdminTemplate($message)
+    {
+        $msg = "
+            <!DOCTYPE HTML>
+		    <html class=\"no-js\" lang=\"en-gb\">
+		    <head>
+                    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+
+                    <style type='text/css'>
+                        #heading {
+                                 background-color: #b3d4fc; /*This makes that blue bg color*/
+               font-family: Verdana, Geneva, sans-serif;
+                font-size: 12px;
+                text-align: center;
+             }
+
+           #imageBox {
+                    float: right;
+                    }
+                    
+           </style>
+        
+           <!--[if lt IE 7]>
+          <style type='text/css'>
+          #wrapper { height:100%; }
+          </style>
+          <![endif]-->
+        
+          <!--[if lt IE 8]>
+          <link rel='stylesheet' href='css/ie.css'>
+          <![endif]-->
+        
+        </head>
+        <body>
+             <div id='maincontent' class='column'> 
+                  <br />
+                  <h1 id='heading'>!Error Alert <?=$this->_appBusinessName?></h1>
+                  <p>$message</p>
+                  
+                  <br />
+                  <p><a href='".$this->_config->getHomePage()."admin/log'>Click here to visit the logs</a> or copy and paste the 
+                    following link in your browser:</p>
+                    <p>".$this->_config->getHomePage()."admin/log</p>
                   <br />";
 
         $msg .= "              

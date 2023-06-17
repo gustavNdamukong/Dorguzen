@@ -1,8 +1,6 @@
 <?php
 namespace DGZ_library;
 
-use configs\Config;
-
 
 
 class DGZ_Model
@@ -30,7 +28,8 @@ class DGZ_Model
     {
         $classThatCalled = get_class($this);
         $this->whoCalledMe = $classThatCalled;
-        $this->config = new Config();
+        $application = new DGZ_Application();
+        $this->config = $application->getAppConfig();
 
         //get DB connection credentials
         if ($credentials = $this->config->getConfig()['live'] == false) {
@@ -136,7 +135,10 @@ class DGZ_Model
     public function __set($member, $value)
     {
         if (array_key_exists($member, $this->_columns)) {
-            $this->$member = $value;
+            //echo 'comin in: '.$member.'<br>';//////
+            /////$this->$member = $value;
+            $this->data[$member] = $value;
+            //echo 'Now set: '.$this->data[$member].'<br>';//////
         }
     }
 
@@ -148,7 +150,8 @@ class DGZ_Model
     public function __get($member)
     {
         if (array_key_exists($member, $this->_columns)) {
-            return $this->$member;
+            /////return $this->$member;
+            return $this->data[$member];
         }
     }
 
@@ -200,7 +203,23 @@ class DGZ_Model
         $data = array();
         $datatypes = '';
 
-        foreach (get_object_vars($this) as $property => $value) {
+        /*foreach (get_object_vars($this) as $property => $value) {
+            if (array_key_exists($property, $model->_columns)) {
+                $data[$property] = $value;
+
+                if (in_array($property, $this->passwordField)) {
+                    $data['key'] = $this->getSalt();
+                    $datatypes .= 'ss';
+                }
+                else {
+                    $datatypes .= $model->_columns[$property];
+                }
+            }
+        }*/
+        //---------------Above dynamic setting of properties on objects is deprecated since PHP 8.0
+        //---------------Our chosen workaround is to have a data array member on all models into 
+        //---------------which to store their field data
+        foreach ($this->data as $property => $value) {
             if (array_key_exists($property, $model->_columns)) {
                 $data[$property] = $value;
 
@@ -213,6 +232,7 @@ class DGZ_Model
                 }
             }
         }
+        //-------------------------------------
 
         list( $fields, $placeholders, $values ) = $this->insert_update_prep_query($data);
 
@@ -510,7 +530,7 @@ class DGZ_Model
                 }
             }
 
-            foreach ($criteria as $key => $crits)
+            foreach ($criteria as $key => $crits) 
             {
                 if (!array_key_exists($key, $model->getColumnDatatypes())) {
                     return 'The field ' . $key . ' does not exist in the ' . strtolower($model->getTable() . ' table');
@@ -697,7 +717,7 @@ class DGZ_Model
      *  ];
      *
      * $where = ['blog_id' => $blog_id];
-    $updated = $blog->update($data, $where);
+     * $updated = $blog->update($data, $where);
      *
      * @param array $data an array of 'fieldName' => 'value' pairs for the DB table fields to be updated
      * @param array $where. An array of 'key' - 'value' pairs which will be used to build the 'WHERE' clause

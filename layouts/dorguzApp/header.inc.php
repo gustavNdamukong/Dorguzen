@@ -46,13 +46,13 @@
                                     <?php
                                     if (!isset($_SESSION['authenticated'])) {
                                         //only show the log in link if the user is not currently logged in ?>
-                                        <li><a href="<?=$this->settings->getFileRootPath()?>admin">Admin Login</a></li>
+                                        <li><a href="<?=$this->settings->getFileRootPath()?>auth/login">Admin Login</a></li>
                                     <?php
                                     }
                                     else
                                     {
                                         //show a logout button if the user is logged in ?>
-                                        <li><a href="<?=$this->settings->getFileRootPath()?>admin/logout">Logout</a></li>
+                                        <li><a href="<?=$this->settings->getFileRootPath()?>auth/logout">Logout</a></li>
                                         <li><a href="<?=$this->settings->getFileRootPath()?>admin/dashboard">Admin Dashboard</a></li>
                                     <?php
                                     } ?>

@@ -12,63 +12,81 @@ use configs\Config;
  */
 
 class DGZExceptionView  extends \DGZ_library\DGZ_View {
+	
 
 
-
-	public function show(\DGZ_library\DGZ_Exception $e) {
+	public function show($exceptions = []) {
 		$config = new Config();
+		$langClass = new \DGZ_library\DGZ_Translator();
+        $lang = $langClass::getCurrentLang(); 
 		?>
-	<div class="container">
-		<h3 class="animated bounceInDown">Oops <strong>something</strong> went wrong</h3>
-		<h4 class="animated bounceInUp skincolored">find <strong>below</strong> our hints to the possible issue!</h4>
-		<section class="hgroup">
-			<div class="container col-xs-12 col-md-9">
-				<h1>DGZException</h1>
-				<ul class="breadcrumb -align-center">
-					<li><a href="<?=$config->getHomePage()?>">Home</a></li>
-					<li class="active">DGZExceptionpage</li>
-				</ul>
-			</div>
-		</section>
-		<section class="article-text">
-			<div class="main">
-				<div class="row">
+	
+	<div class="main">
+            <section class="content account" style="margin-top: 100px;">
+                <div class="container">
+                    <div class="row">
+                        <div class="jumbotron" style="">
+                            <div class="well" style="">
+                                <h3>Sorry, there was an error</h3>
+								<?php
+								if ($exceptions)
+								{ ?>
+									<ul>
+									<?php
+									foreach ($exceptions as $exception)
+									{ ?>
+										<li><?=$exception?></li>
+									<?php
+									} ?>
+									</ul>
+								<?php
+								} ?>
+                                <h3><?=$langClass->translate($lang, 'errors.php', 'sorry-about-this')?>:
+                                    <i><small>The error was logged and we will fix it ASAP</small></i></h3>
+                                <a href="<?=$config->getFileRootPath()?>" class="btn btn-outline-info btn-lg">
+                                    <?=$langClass->translate($lang, 'menu.php', 'menu-home')?>
+                                </a>
+                                <a href="<?=$config->getFileRootPath()?>admin/dashboard" class="btn btn-outline-info btn-lg">
+                                    <?=$langClass->translate($lang, 'menu.php', 'menu-dashboard')?>
+                                </a>
+                                <a target="_blank" class="btn btn-primary btn-lg" href="<?=$config->getFileRootPath()?>mall/">
+                                    <i class="fa fa-building"> <?=$langClass->translate($lang, 'menu.php', 'menu-mall')?></i></a>
 
-					<div class="alert alert-danger col-xs-6 col-md-9">
-						<strong>Error: <?= nl2br(htmlspecialchars($e->getMessage())) ?></strong>
+                                <?php
+                                if($config->getConfig()['live'] == true)
+                                {
+                                    if ((isset($_SESSION['authenticated'])) &&
+                                        (in_array($_SESSION['user_type'], ['admin', 'admin_gen', 'super_admin']))
+                                    ) { ?>
+                                        <hr style="border:solid 1px goldenrod;">
+                                        <h3><?=$langClass->translate($lang, 'errors.php', 'only-you-can-see')?></h3>
 
-					<?php
-						if($e->getHint()):
-					?>
-							<p><?= str_replace('<br />', '</p><p>', nl2br(htmlspecialchars($e->getHint())))?></p>
-					<?php
-						endif;
+                                        <h3><b style="color:goldenrod;"><?=$langClass->translate($lang, 'errors.php', 'click-below-to-view-logs')?></b></h3>
+                                        <a class="btn btn-primary" href="<?=$config->getFileRootPath()?>admin/log">
+                                            <i class="fa fa-eye"></i> <?=$langClass->translate($lang, 'errors.php', 'view-logs')?></a>
+                                    <?php
+                                    }
+                                }
+                                else
+                                { ?>
+                                    <hr style="border:solid 1px goldenrod;">
+                                    <h3><?=$langClass->translate($lang, 'errors.php', 'not-shown-on-live')?></h3>
 
-					if($config->getConfig()['live'] == false)
-					{ ?>
-							<hr/>
-							<div class="technical-info">
-								<p><strong>Technical Information - Not shown on Live</strong></p>
-								<p class="exception-source"><?= get_class($e) ?> thrown in file: <?= $e->getFile() ?> on line <?= $e->getLine() ?></p>
-								<p>Stack Trace:</p>
-								<pre>
-					<?= htmlspecialchars(trim($e->getTraceAsString())) ?>
-								</pre>
-							</div>
-						<?php
-					} ?>
+                                    <h3><b style="color:goldenrod;"><?=$langClass->translate($lang, 'errors.php', 'click-below-to-view-logs')?></b></h3>
+                                    <a class="btn btn-primary" href="<?=$config->getFileRootPath()?>admin/log" target="_blank">
+                                        <i class="fa fa-eye"></i> <?=$langClass->translate($lang, 'errors.php', 'view-logs')?></a>
+                                <?php
+                                } ?>
+                                <div style="clear:both;"></div>
+                            </div>
+                        </div>
 
-					</div>
-
-				</div>
-			</div>
-		</section>
-
-	</div>
+                    </div>
+                </div>
+            </section>
+        </div>
 
 	<?php
 	
 	}
-	
-	
 }

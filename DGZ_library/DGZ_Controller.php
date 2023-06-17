@@ -2,7 +2,7 @@
 namespace DGZ_library;
 
 
-use configs\Config;
+//////////use configs\Config;
 use Exception;
 use ReflectionClass;
 use middleware\Middleware;
@@ -120,7 +120,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
     protected $exceptions;
 
     /**
-     * @var \DGZ_library\DGZ_Application An object which holds the detail of this application's configuration
+     * @var object \DGZ_library\DGZ_Application An object which holds the detail of this application's configuration
      */
     protected $application;
 
@@ -138,7 +138,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
 
     /**
-     * @var object contains the configs of the site, as the view files that will be managed by controllers need access to it
+     * @var object \configs\Config Contains the configs of the app as views associated with controllers will need access to it
      */
     public $config;
 
@@ -157,7 +157,6 @@ abstract class DGZ_Controller implements DGZ_Displayable {
     {
         $this->startTime = microtime(true); //can be useful for debugging
         $this->application = new DGZ_Application();
-        /////$this->config = new Config();
         $this->config = $this->application->getAppConfig();
 
         $this->translator = new DGZ_Translator();
@@ -505,6 +504,13 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 		$_SESSION['_exceptions'] = $this->exceptions;
 	}
 
+    /**
+	 * Grab all internally stored exceptions.
+	 */
+	public function getException() {
+		return $this->exceptions;
+	}
+
 
 
 	/**
@@ -673,7 +679,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
             // If there have been any exceptions generated, get a view to render them
             if(count($this->exceptions) > 0) {
                 $exceptionView = DGZ_View::getView('ExceptionView', $this);
-                ob_start();
+                ob_start(); 
                 $exceptionView->show($this->exceptions);
                 $exceptionHtml = ob_get_clean();
                 $layout->setExceptionHtml($exceptionHtml);

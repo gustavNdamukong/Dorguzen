@@ -3,13 +3,12 @@
 
 use DGZ_library\DGZ_Model;
 
-
     /** ############## Properties and Methods all model classes must have to get the full power of the Dorguzen ###############
      * Must extend the parent model DGZ_Model
 
      * ##### PROPERTIES ######################
      * protected $_columns = array();
-     * protected $data = array();
+     * protected $data = array(); 
      * private $_hasParent = array();
      * private $_hasChild = array();
 
@@ -24,9 +23,12 @@ use DGZ_library\DGZ_Model;
 
 
 
-    class ContactFormMessage extends DGZ_Model
+    /**
+     * Logs
+     */
+    class Logs extends DGZ_Model
     {
-
+        //make the visibility of this field protected, not private; else the parent class would not be able to write to it.
         protected $_columns = array();
 
         protected $data = [];
@@ -57,15 +59,72 @@ use DGZ_library\DGZ_Model;
 
 
 
-
-
-
         public function __construct()
         {
+            //Parent constructors wont run auto, u have to explicitly call it, in this case to load our DB connection settings
             parent::__construct();
 
+            //build the map of the table columns and datatypes. Note we have created before hand a private member called '_columns' wh will hold column names n datatypes
+            //only your model class will write to n read from this member
             $columns = $this->loadORM($this);
 
+        }
+
+
+
+
+        /**
+         * Update the view counter for the view visited
+         *
+         * @param $title
+         * @param $message
+         * @return boolean
+         */
+        public function log($title, $message)
+        {
+            $this->logs_title = $title;
+            $this->logs_message = $message;
+            $this->logs_created = date("Y-m-d H:i:s");
+            $saved = $this->save();
+
+            if ($saved)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
+        /**
+         * @param string $orderBy
+         * @return array|bool
+         */
+        public function getRunTimeErrors($orderBy = '')
+        {
+            $orderby = $orderBy != ''?' ORDER BY '.$orderBy:'';
+            $query = "SELECT * FROM ".$this->getTable()." WHERE `logs_title` LIKE '%Runtime error%'".$orderby;
+
+            $result = $this->query($query);
+
+            return $result;
+        }
+
+
+        /**
+         * @param string $orderBy
+         * @return array|bool
+         */
+        public function getAdminLoginData($orderBy = '')
+        {
+            $orderby = $orderBy != ''?' ORDER BY '.$orderBy:'';
+            $query = "SELECT * FROM ".$this->getTable()." WHERE `logs_title` LIKE '%Admin login%'".$orderby;
+
+            $result = $this->query($query);
+
+            return $result;
         }
 
         

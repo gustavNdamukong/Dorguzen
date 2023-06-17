@@ -136,21 +136,59 @@ TEXT;
 		}
 		catch (\Exception $e)
 		{
-			//We have thrown an exception
-			// If you have problems with the script never ending (or timing out after 30/300 seconds then
-			//die($e->getMessage() . ' in ' . $e->getFile() . ' line ' . $e->getLine());
+			$hint = '';
+            $traceHint = '';
+            $message = '';
+            $file = '';
+            $line = '';
+            $time = date("d-m-y h:i:s");
 
 			// Is this a DGZ_Exception?
 			if ($e instanceof \DGZ_library\DGZ_Exception) {
 
-				$view = \DGZ_library\DGZ_View::getView('DGZExceptionView', null, 'html');
-				$view->show($e);
+				/////$view = \DGZ_library\DGZ_View::getView('DGZExceptionView', null, 'html');
+				/////$view->show($e);
+
+				$hint = nl2br(htmlspecialchars($e->getHint()));
+                if($e->getTraceAsString()) {
+                    $traceHint = nl2br(htmlspecialchars($e->getTraceAsString()));
+                }
+                $message = nl2br(htmlspecialchars($e->getMessage()));
+                $file = $e->getFile();
+                $line = $e->getLine();
 			}
 			else {
 				// If it's a normal exception then just use the default view
-				$view = \DGZ_library\DGZ_View::getView('ExceptionView', null, 'html');
-				$view->show($e);
+				/////$view = \DGZ_library\DGZ_View::getView('ExceptionView', null, 'html');
+				/////$view->show($e);
+				$message = nl2br(htmlspecialchars($e->getMessage()));
+                if($e->getTraceAsString()) {
+                    $hint = nl2br(htmlspecialchars($e->getTraceAsString()));
+                }
 			}
+
+			//We have thrown an exception
+            $logs = new Logs();
+            $exceptionTitle = 'Runtime error';
+            $exceptionData = 'Hint: '.$hint.
+                '| Trace Hint: <b>'.$traceHint.'</b><br>'.
+                '| Message: <b>'.$message.'</b><br>'.
+                '| File: <b>'.$file.'</b><br>'.
+                '| Line: <b>'.$line.'</b><br>'.
+                '| Time: <b>'.$time.'</b>';
+            $logs->log($exceptionTitle, $exceptionData);
+
+			//Determine if we are live, then Send email to the site admin about this error
+            $config = new \configs\Config();
+            if ($config->getConfig()['live'])
+            {
+                $messenger = new \DGZ_library\DGZ_Messenger();
+                $send = $messenger->sendErrorLogMsgToAdmin($message);
+            }
+
+			$controller = new \controllers\ExceptionController();
+            $controller->addException($e);
+            $controller->redirect('exception', 'error');
 		}
 
 	}
@@ -163,20 +201,21 @@ TEXT;
 
 
 
-spl_autoload_register('loadController');
+/*spl_autoload_register('loadController');
 
 function loadController($className) {
-
-	$classFolders = array('controllers', 'DGZ_library', 'models', 'configs');
+	$classFolders = array('configs', 'controllers', 'DGZ_library', 'models');
 	foreach ($classFolders as $folder)
 	{
 		$fileName = $folder .'/'. basename($className) . '.php';
+		/////echo $fileName.'<br>';////////
 		if (file_exists($fileName))
 		{
 			include_once($fileName);
+			/////echo $fileName.'<br> included';////////
 		}
 	}
-}
+}*/
 
 
 

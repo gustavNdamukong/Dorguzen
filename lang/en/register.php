@@ -1,0 +1,78 @@
+<?php
+
+			return [
+
+				'register-panelTitle' => 'REGISTER',
+				'register-signUpViaGoogle' => 'Sign up via Google',
+				'register-or' => 'OR',
+				'register-signUpToCamcom' => 'sign up to Camerooncom',
+				'register-fnField' => 'First name',
+				'register-alreadyAMember' => 'Already a member? Login',
+				'register-snField' => 'Surname',
+				'register-unField' => 'Username',
+				'register-pwField' => 'Password',
+				'register-confirmPwField' => 'Confirm password',
+				'register-phoneNumberField' => 'Phone number people can call in Cameroon',
+				'register-phoneNumberFieldInfo' => 'Do not put <b>+237</b> - we will put that for you',
+				'register-mobilemoneyAcc' => 'Mobile Money Account Number',
+				'register-mobilemoneyAccInfo' => 'Optional',
+				'register-email' => 'Email',
+				'register-companyName' => 'Company name',
+				'register-companyNameInfo' => 'Optional',
+				'register-captchaAddition' => 'If you are not a robot, what is 3 + 1?',
+				'register-acceptTerms' => 'Agree to our Terms & Conditions',
+				'register-acceptTermsLinkText' => 'Terms & Conditions',
+				'register-acceptTermsOpensInDiffTab' => 'Opens in a separate tab',
+				'register-resetBtn' => 'Reset',
+				'register-submitBtn' => 'Register',
+
+				'register-authJsFnBlank' => 'Please enter your first name',
+				'usernameAlreadyTaken' => 'Sorry, username already taken',
+				'emailAlreadyExists' => 'Sorry, that email is already in use in this system',
+				'usernameAvailable' => 'Username available',
+				'usernameInvalid' => 'Username invalid!',  
+				'emailInvalid' => 'Email non valide!',  
+				'usernameOrEmailAlreadyExists' => 'Either your username or email address is already registered to this website. Please try another or contact us',
+				'auth-activateYourAccount' => 'Activate your account',
+				'auth-congratulations' => 'Congratulations',
+				'auth-accountcreated' => 'Your account has been created',
+				'auth-newRegisEmailText' => 'You just need to verify your email address by clicking on the link below which will take you to a page where you will be able to log in',
+				'auth-newRegisEmailClickLinkText' => 'Click here to activate your account or copy and paste the following link in your browser',
+				'auth-newRegisEmailClickLinkText2' => 'or copy and paste the following link in your browser',
+				'auth-newRegisImmediateActivateHeadingText' => 'Or, activate your account now by clicking here: ',
+				'auth-newRegisImmediateActivateButtonText' => 'Activate',
+				'auth-camcomMotto' => 'Cameroon\'s Online Market Place',
+				'auth-problemWithDB' => 'Sorry, there was a problem with the database! Try again later, or contact us for help. Thank you',
+				'auth-newRegisCongratsText' => 'At Camerooncom, you can buy and sell securely. Feel free to contact us if you have any
+                                queries or want more information on any of our services.',
+				'auth-weWishYouSuccess' => 'We wish you all the best with your business',
+				'auth-registrationSuccessful' => 'Your registration was successful',
+				'auth-thankYou' => 'Thank you',
+				'auth-great' => 'Great!',
+				'auth-sorry' => 'Sorry!',
+				'auth-fillInTheForm' => 'Please fill in the form',
+				'auth-linkSentToConfirmEmail' => 'We have sent a link to your email address to reset your password',
+				'auth-loginOops-errorTitle' => 'Oops, something went wrong!',
+				'auth-emailOrPasswordWrong' => 'Either the email address or the password you provided was wrong, try again or contact us for help. Thank you.',
+				'auth-usernameOrPasswordWrong' => 'Either the username or password you provided was wrong, try again or contact us for help. Thank you.',
+				'auth-emailActivated' => 'Your email was successfully activated, you may now log in',
+				'auth-couldNotActivateEmail' => 'We could not activate your account, contact us for help',
+				'auth-couldNotFindYourDetails' => 'We could not find your details',
+
+				'sidebarsearch-title' => 'Search this Site',
+				'sidebarsearch-cat-label' => 'Category',
+				'sidebarsearch-cat-placeholder' => 'Choose Category',
+				'sidebarsearch-cat-all-option' => 'All Categories',
+				'sidebarsearch-keyword-label' => 'Search Keyword',
+				'sidebarsearch-keyword-placeholder' => 'Search Keyword',
+				'sidebarsearch-location-label' => 'Location',
+				'sidebarsearch-location-placeholder' => 'Choose Location',
+				'sidebarsearch-location-all-option' => 'All Towns',
+				'sidebarsearch-button' => 'Search',
+			];
+
+
+  
+	
+	
+	

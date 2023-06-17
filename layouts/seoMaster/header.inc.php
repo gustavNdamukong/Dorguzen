@@ -38,12 +38,12 @@
                         <a href="contact.html" class="nav-item nav-link">Contact</a>
                         <?php
                         if (!isset($_SESSION['authenticated'])) { ?>
-                            <a href="<?=$this->config->getFileRootPath()?>admin" class="nav-item nav-link">Admin Login</a>
+                            <a href="<?=$this->config->getFileRootPath()?>auth/login" class="nav-item nav-link">Admin Login</a>
                             <?php
                         }
                         else
                         { ?>
-                            <a href="<?=$this->config->getFileRootPath()?>admin/logout" class="nav-item nav-link">Logout</a>
+                            <a href="<?=$this->config->getFileRootPath()?>auth/logout" class="nav-item nav-link">Logout</a>
                             <a href="<?=$this->config->getFileRootPath()?>admin/dashboard" class="nav-item nav-link">Dashboard</a>
                             <?php
                         } ?>

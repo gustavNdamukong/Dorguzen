@@ -116,6 +116,15 @@ use DGZ_library\DGZ_Router;
 				],
 
 
+				/**
+				|--------------------------------------------------------------------------
+				| Allow members of the public to register
+				|--------------------------------------------------------------------------
+				*/
+
+				'allow_registration' => true,
+
+
 
 				/**
 				|--------------------------------------------------------------------------
@@ -291,7 +300,8 @@ use DGZ_library\DGZ_Router;
 		/**
 		 * Returns the database-driven settings stored in this class's private property $baseSettings.
 		 * If that member has not yet received the database-driven settings, it loads that data from the DB
-		 * into that $baseSettings property before returning its contents
+		 * into that $baseSettings property before returning its contents. This is lazy-loaded, so you should 
+		 * call this as needed.
 		 *
 		 * @return array
 		 */
@@ -309,8 +319,8 @@ use DGZ_library\DGZ_Router;
 		}
 
 		/**
-		 * $key string the key to be used to refer to a module's data, to minimise conflicts, as there might me multiple modules
-		 * $moduleConfig array the data from the getConfig() of an external module
+		 * $key @string the key to be used to refer to a module's data, to minimise conflicts, as there might be multiple modules.
+		 * $moduleConfig @array the data from the getConfig() of an external module
 		 */
 		public function setModuleConfigs($key, $moduleConfig)
 		{
@@ -321,6 +331,24 @@ use DGZ_library\DGZ_Router;
 		{
 			return $this->module_configs;
 		}
+
+		public function all()
+		{
+			return array_merge($this->module_configs, $this->getConfig());
+		}
+
+		/*public function loadModuleConfigs()
+		{
+			$gus = new Gustav();
+			echo '<pre>';
+			die(var_dump($gus));
+			///Applications/XAMPP/xamppfiles/htdocs/Dorguzen/configs/Config.php
+			/////include_once($_SERVER['DOCUMENT_ROOT'].'/Dorguzen/models/Users.php');
+			if (class_exists('Gustav')) {
+				echo 'Users exists';
+				die(var_dump('Gustav'));
+			} else { die('Gustav DOES NOT EXIST'); }
+		}*/
 
 
 		/**

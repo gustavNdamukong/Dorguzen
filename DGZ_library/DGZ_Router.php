@@ -7,7 +7,7 @@ use ReflectionClass;
 use ReflectionException;
 use Exception;
 use middleware\Middleware;
-
+use ReflectionNamedType;
 
 /**
  * Description of DGZ_Router
@@ -347,10 +347,19 @@ class DGZ_Router {
             // Loop over the parameters:
             foreach ($methodParameters as $parameter) {
                 // Is the parameter an object? We are not doing anything if it's an object for now-may become useful some day
-                if ($parameter->getClass() instanceof ReflectionClass) {
+                /*if ($parameter->getClass() instanceof ReflectionClass) {
                     $className = $parameter->getClass()->name;
                     $parameterObject = new $className();
-                }
+                }*/
+                //-----------------The above approach using 'getClass()' was deprecated from PHP 8.0, so we used the 'getType()' method instead
+                if ($parameter->getType() instanceof ReflectionNamedType) {
+                    $type = $parameter->getType();
+                    if (!$type->isBuiltin()) {
+                        $className = $type->getName();
+                        $parameterObject = new ReflectionClass($className);
+                    }
+                }    
+                //-----------------
                 else {
                     $parameterName = $parameter->getName();
                     if (!empty($_REQUEST[$parameterName])) {

@@ -6,16 +6,17 @@ use DGZ_library\DGZ_Model;
     /** ############## Properties and Methods all model classes must have to get the full power of the Dorguzen ###############
      * Must extend the parent model DGZ_Model
 
-    ##### PROPERTIES ######################
+     * ##### PROPERTIES ######################
      * protected $_columns = array();
+     * protected $data = array(); 
      * private $_hasParent = array();
      * private $_hasChild = array();
 
-    ##### CONSTRUCTOR ######################
+     * ##### CONSTRUCTOR ######################
      * Must call the parent constructor
      * Must call loadORM(), which queries its table, then loops through the results and populates its _columns member array
 
-    ##### METHODS ######################
+     * ##### METHODS ######################
      * It has access to all its patent's methods, and you can add yours
      *
      */
@@ -28,6 +29,8 @@ use DGZ_library\DGZ_Model;
     class Password_reset extends DGZ_Model
     {
         protected $_columns = array();
+
+        protected $data = [];
 
 
         /**

@@ -6,7 +6,7 @@ use DGZ_library\DGZ_View;
 
 class login extends \DGZ_library\DGZ_HtmlView
 {
-     function show($login_errors = [], $username = '', $password = '')
+     function show($email = '')
      {
          if ((isset($_SESSION['authenticated'])) && ($_SESSION['authenticated'] == 'Let Go-' . $this->controller->config->getConfig()['appName'])) {
              //user is already logged in
@@ -49,7 +49,7 @@ class login extends \DGZ_library\DGZ_HtmlView
                          <div class="col-lg-7">
                              <div class="wow fadeInUp" data-wow-delay="0.3s">
                                  <form id="loginForm"
-                                       action="<?= $this->controller->config->getFileRootPath() ?>admin/login"
+                                       action="<?= $this->controller->config->getFileRootPath() ?>auth/doLogin"
                                        method="post" onSubmit="return validateLoginForm(this)">
                                      <div class="row g-3">
                                          <div class="col-md-12">
@@ -57,7 +57,7 @@ class login extends \DGZ_library\DGZ_HtmlView
                                                  <input placeholder="Email" id="login_email" name="login_email"
                                                         class="form-control loginfieldinput"
                                                         type="text" <?php if ((isset($fail)) && ($fail != '') || ((isset($errors)) && count($errors) > 0)) {
-                                                     echo 'value="' . htmlentities($username, ENT_COMPAT, 'UTF-8') . '"';
+                                                     echo 'value="' . htmlentities($email, ENT_COMPAT, 'UTF-8') . '"';
                                                  } ?>>
                                                  <label class="loginfieldinput" for="login_email">Your Email</label>
                                              </div>
