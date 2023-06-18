@@ -18,28 +18,25 @@
                     <h1 class="m-0">Dor<span class="fs-9">Guzen</span></h1><!--It was 'fs-5'-->
                     <!-- <img src="img/logo.png" alt="Logo"> -->
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                
+                <button onclick="toggleSlideMenu(event)" type="button" class="navbar-toggler" data-bs-toggle="collapse">
                     <span class="fa fa-bars"></span>
                 </button>
+
                 <div class="collapse navbar-collapse" id="navbarCollapse">
                     <div class="navbar-nav ms-auto py-0">
-                        <a href="<?=$this->config->getHomePage()?>" class="nav-item nav-link active"><i class="fa fa-home"></i>Home</a>
-                        <a href="about.html" class="nav-item nav-link">About</a>
-                        <a href="service.html" class="nav-item nav-link">Service</a>
-                        <a href="project.html" class="nav-item nav-link">Project</a>
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
-                            <div class="dropdown-menu m-0">
-                                <a href="team.html" class="dropdown-item">Our Team</a>
-                                <a href="testimonial.html" class="dropdown-item">Testimonial</a>
-                                <a href="404.html" class="dropdown-item">404 Page</a>
-                            </div>
-                        </div>
-                        <a href="contact.html" class="nav-item nav-link">Contact</a>
+                    <a href="<?=$this->config->getHomePage()?>" class="nav-item nav-link active"><i class="fa fa-home"></i>Home</a>
+                        <a href="<?=$this->config->getFileRootPath()?>feedback" class="nav-item nav-link">Contact</a>
                         <?php
                         if (!isset($_SESSION['authenticated'])) { ?>
-                            <a href="<?=$this->config->getFileRootPath()?>auth/login" class="nav-item nav-link">Admin Login</a>
+                            <a href="<?=$this->config->getFileRootPath()?>auth/login" class="nav-item nav-link">Login</a>
                             <?php
+                             $config = new \configs\Config();
+                             if ($config->getConfig()['allow_registration'] === true)
+                             { ?>
+                                <a href="<?=$this->config->getFileRootPath()?>auth/signup" type="button"  class="nav-item nav-link">Register</a>
+                             <?php
+                             }
                         }
                         else
                         { ?>
@@ -88,3 +85,20 @@
         </div>
       </div>
     </header>
+
+    <script type="application/javascript">
+        function toggleSlideMenu(e) {
+            e.preventDefault();
+            const sideMenu = document.querySelector('#side-menu');
+            const sideMenuStyle = window.getComputedStyle(sideMenu);
+
+            document.getElementById('side-menu').style.width = sideMenuStyle.width === '250px' ? '0' : '250px';
+            document.getElementById('side-menu').style.display = sideMenuStyle.display === 'none' ? 'block' : 'none';
+        }
+
+        function closeSlideMenu(e) {
+            e.preventDefault();
+            document.getElementById('side-menu').style.width = '0';
+            document.getElementById('side-menu').style.display = 'none';
+        }
+    </script> 

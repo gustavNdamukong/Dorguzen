@@ -100,6 +100,15 @@ class home extends \DGZ_library\DGZ_HtmlView
                  <div class="container-xxl py-5 bg-primary hero-header mb-5">
                      <div class="container my-5 py-5 px-lg-5">
                          <div class="row g-5 py-5">
+
+                            <!-- START SIDE SLIDE-IN MENU -->
+                            <?php
+                            //Pull in the PHP file that has the JS code that handles all the JS to do with placing an ad
+                            $slideInMenu = \DGZ_library\DGZ_View::getInsideView('sideSlideInMenuPartial', $this->controller);
+                            $slideInMenu->show();
+                            ?>
+                            <!-- END OF SIDE SLIDE-IN MENU --> 
+
                              <div class="col-lg-6 text-center text-lg-start">
                                  <h1 class="text-white mb-4 animated zoomIn">Welcome to the Dorguzen Framework</h1>
                                  <p class="text-white pb-3 animated zoomIn">Alright we know you have heard about many PHP development frameworks out there, so the pressure is on. What do we tell you about Dorguzen to

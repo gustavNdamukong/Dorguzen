@@ -15,26 +15,58 @@ class logs extends \DGZ_library\DGZ_HtmlView
           $lang = $langClass::getCurrentLang();
           $dates = new DGZ_Dates(); ?>
 
+          <!-- START SIDE SLIDE-IN MENU -->
+          <?php
+          //Pull in the PHP file that has the JS code that handles all the JS to do with placing an ad
+          $jsValidation = \DGZ_library\DGZ_View::getInsideView('sideSlideInMenuPartial', $this->controller);
+          $jsValidation->show();
+          ?>
+          <!-- END OF SIDE SLIDE-IN MENU -->  
+
+          <!-- ==========================
+    	     BREADCRUMB - START
+		=========================== -->
+          <div class="container-xxl py-5 bg-primary hero-header mb-5">
+                 <div class="container my-5 py-5 px-lg-5">
+                     <div class="row g-5 py-5">
+                         <div class="col-12 text-center">
+                             <h1 class="text-white animated zoomIn">System Logs</h1>
+                             <hr class="bg-white mx-auto mt-0" style="width: 90px;">
+                             <nav aria-label="breadcrumb">
+                                 <ol class="breadcrumb justify-content-center">
+                                     <li class="breadcrumb-item"><a class="text-white" href="<?= $this->controller->config->getFileRootPath()?>">Home</a></li>
+                                     <li class="breadcrumb-item"><a class="text-white" href="<?= $this->controller->config->getFileRootPath()?>admin/dashboard">Dashboard</a></li>
+                                     <li class="breadcrumb-item text-white active" aria-current="page">Logs</li>
+                                 </ol>
+                             </nav>
+                         </div>
+                     </div>
+                 </div>
+             </div>
+             </div>
+             <!-- ==========================
+    	        BREADCRUMB - END
+		   =========================== -->
+
           <div class="main">
                <section class="content account" style="margin-top: 100px;">
                     <div class="container">
-                         <div class="row">
-                             <a class="btn btn-primary" href="<?=$this->controller->config->getFileRootPath()?>admin/dashboard">Return to Dashboard</a>
-                             <a class="btn btn-primary" href="<?=$this->controller->config->getFileRootPath()?>admin/log-errors-only">
-                                 <i class="fa fa-eye"></i> Runtime errors only</a>
-                             <?php
-                                 if ((isset($_SESSION['authenticated'])) && ($_SESSION['user_type'] == 'super_admin')) { ?>
-                                     <a class="btn btn-primary" href="<?=$this->controller->config->getFileRootPath()?>admin/log-admin-logins">
-                                 <i class="fa fa-eye"></i> Admin logins</a>
-                                 <?php
-                                 } ?>
-                         </div>
+                         <a class="btn btn-primary" href="<?=$this->controller->config->getFileRootPath()?>admin/dashboard">Return to Dashboard</a>
+                         <a class="btn btn-primary" href="<?=$this->controller->config->getFileRootPath()?>admin/log-errors-only">
+                              <i class="fa fa-eye"></i> Runtime errors only</a>
+                         <?php
+                         if ((isset($_SESSION['authenticated'])) && ($_SESSION['user_type'] == 'super_admin')) { ?>
+                              <a class="btn btn-primary" href="<?=$this->controller->config->getFileRootPath()?>admin/log-admin-logins">
+                         <i class="fa fa-eye"></i> Admin logins</a>
+                         <?php
+                         } ?>
                     </div>
                </section>
 
                <section>
                     <div class="py-5">
                          <div class="container">
+
                               <div class="row">
                                   <h2 style="color:#000;" class="text-center">General Log Feed</h2>
                                    <?php

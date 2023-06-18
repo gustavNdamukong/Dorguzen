@@ -53,39 +53,46 @@ class createUser extends \DGZ_library\DGZ_HtmlView
              <div class="container">
                  <div class="row">
                      <div class="col-sm-12 col-md-12">
-                         <div>
-                             <div class="row">
-                                 <div class="col-lg-2"></div>
-                                 <div class="form col-md-10 col-lg--10">
-                                     <form id="createUserForm" action="<?=$this->controller->config->getFileRootPath()?>admin/doCreateUser" method="post">
+                        
+                        <!-- START SIDE SLIDE-IN MENU -->
+                        <?php
+                        //Pull in the PHP file that has the JS code that handles all the JS to do with placing an ad
+                        $slideInMenu = \DGZ_library\DGZ_View::getInsideView('sideSlideInMenuPartial', $this->controller);
+                        $slideInMenu->show();
+                        ?>
+                        <!-- END OF SIDE SLIDE-IN MENU --> 
 
-                                        <label for="user_type">User Type</label>
-                                         <select id="new_user_type" name="new_user_type" class="form-control" <?=($_SESSION['user_type'] != 'super_admin') ? "disabled='true' title='Only a super admin can change user types'":''?>>
-                                            <option value="">Choose user type</option>
-                                            <option value="member">Member</option>
-                                            <option value="admin">Admin</option>
-                                            <option value="admin_gen">Admin Gen (general admin)</option>
-                                            <option value="superadmin">Super admin</option>
-                                         </select>
+                        <div class="row">
+                            <div class="col-lg-2"></div>
+                            <div class="form col-md-10 col-lg--10">
+                                <form id="createUserForm" action="<?=$this->controller->config->getFileRootPath()?>admin/doCreateUser" method="post">
 
-                                         <input placeholder="First name" id="new_user_fn" name="new_user_fn" class="form-control" type="text" <?=isset($_SESSION['postBack'])? 'value="' . htmlentities($_SESSION['postBack']['new_user_fn'], ENT_COMPAT, 'UTF-8') . '"':''?> />
-                                         <input placeholder="Last name" id="new_user_ln" name="new_user_ln" class="form-control" type="text" <?=isset($_SESSION['postBack'])? 'value="' . htmlentities($_SESSION['postBack']['new_user_ln'], ENT_COMPAT, 'UTF-8') . '"':''?> />
-                                         <label for="new_user_un">Email</label><span id='info'></span></p>
-                                         <input placeholder="Email address" id="new_user_un" name="new_user_un" 
-                                            class="form-control" 
-                                            type="text" <?=isset($_SESSION['postBack'])? 'value="' . htmlentities($_SESSION['postBack']['new_user_un'], ENT_COMPAT, 'UTF-8') . '"':''?> />
+                                <label for="user_type">User Type</label>
+                                    <select id="new_user_type" name="new_user_type" class="form-control" <?=($_SESSION['user_type'] != 'super_admin') ? "disabled='true' title='Only a super admin can change user types'":''?>>
+                                    <option value="">Choose user type</option>
+                                    <option value="member">Member</option>
+                                    <option value="admin">Admin</option>
+                                    <option value="admin_gen">Admin Gen (general admin)</option>
+                                    <option value="superadmin">Super admin</option>
+                                    </select>
 
-                                         <input placeholder="Phone number (Optional)" id="new_user_phone" name="new_user_phone" class="form-control" type="text">
-                                         <input placeholder="Password" id="new_user_pwd" name="new_user_pwd" class="form-control" type="password">
-                                         <input placeholder="Confirm password" id="new_user_pwd_confirm" name="new_user_pwd_confirm" class="form-control" type="password">
+                                    <input placeholder="First name" id="new_user_fn" name="new_user_fn" class="form-control" type="text" <?=isset($_SESSION['postBack'])? 'value="' . htmlentities($_SESSION['postBack']['new_user_fn'], ENT_COMPAT, 'UTF-8') . '"':''?> />
+                                    <input placeholder="Last name" id="new_user_ln" name="new_user_ln" class="form-control" type="text" <?=isset($_SESSION['postBack'])? 'value="' . htmlentities($_SESSION['postBack']['new_user_ln'], ENT_COMPAT, 'UTF-8') . '"':''?> />
+                                    <label for="new_user_un">Email</label><span id='info'></span></p>
+                                    <input placeholder="Email address" id="new_user_un" name="new_user_un" 
+                                    class="form-control" 
+                                    type="text" <?=isset($_SESSION['postBack'])? 'value="' . htmlentities($_SESSION['postBack']['new_user_un'], ENT_COMPAT, 'UTF-8') . '"':''?> />
 
-                                         <button type="reset" class="btn btn-warning btn-sm">Clear entry</button>
-                                         <button type="submit" id="createUser" class="btn btn-primary btn-sm">Submit</button>
-                                     </form>
+                                    <input placeholder="Phone number (Optional)" id="new_user_phone" name="new_user_phone" class="form-control" type="text">
+                                    <input placeholder="Password" id="new_user_pwd" name="new_user_pwd" class="form-control" type="password">
+                                    <input placeholder="Confirm password" id="new_user_pwd_confirm" name="new_user_pwd_confirm" class="form-control" type="password">
 
-                                 </div>
-                             </div>
-                         </div>
+                                    <button type="reset" class="btn btn-warning btn-sm">Clear entry</button>
+                                    <button type="submit" id="createUser" class="btn btn-primary btn-sm">Submit</button>
+                                </form>
+
+                            </div>
+                        </div>
                      </div>
                  </div>
                  </div>

@@ -96,7 +96,12 @@ use DGZ_library\DGZ_Model;
             $table = $this->getTable();
 
 
-            $sql = "SELECT users_id, users_type, users_email, AES_DECRYPT(users_pass, '$key') AS pass, users_first_name, users_last_name, users_created FROM ".$table." WHERE users_id = ".$userId;
+            $sql = "SELECT users_id, users_type, 
+                users_email, users_phone_number, 
+                AES_DECRYPT(users_pass, '$key') AS pass, 
+                users_first_name, users_last_name, 
+                users_created FROM ".$table." 
+                WHERE users_id = ".$userId;
             $users = $this->query($sql);
 
             if ($users)

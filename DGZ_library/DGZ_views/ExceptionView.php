@@ -42,9 +42,18 @@ class ExceptionView extends \DGZ_library\DGZ_View {
 		<div class="main">
             <section class="content account" style="margin-top: 100px;">
                 <div class="container">
+
+					<!-- START SIDE SLIDE-IN MENU -->
+                    <?php
+                    //Pull in the PHP file that has the JS code that handles all the JS to do with placing an ad
+                    $slideInMenu = \DGZ_library\DGZ_View::getInsideView('sideSlideInMenuPartial', $controller);
+                    $slideInMenu->show();
+                    ?>
+                    <!-- END OF SIDE SLIDE-IN MENU --> 
+
                     <div class="row">
-                        <div class="jumbotron" style="">
-                            <div class="well" style="">
+                        <div class="jumbotron">
+                            <div class="well">
 
 		
 
@@ -81,19 +90,18 @@ class ExceptionView extends \DGZ_library\DGZ_View {
 								<h3>The following message is only shown locally</h3>
 								<?php
 								if ($errorMessage != '')
-								{
+								{                                        
 									if (is_array($errorMessage))
 									{
 										foreach ($errorMessage as $msg)
 										{
-											echo "<p>$msg</p>";
+											var_dump($errorMessage);
 										}
 									}
 									else
 									{
 										echo "<p>$errorMessage</p>";
 									}
-									
 								}	
 							} ?>
 

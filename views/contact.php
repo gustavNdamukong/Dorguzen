@@ -51,6 +51,15 @@ class contact extends \DGZ_library\DGZ_HtmlView
         =========================== -->
 		<section class="content news">
 			<div class="container">
+
+				<!-- START SIDE SLIDE-IN MENU -->
+                <?php
+                //Pull in the PHP file that has the JS code that handles all the JS to do with placing an ad
+                $slideInMenu = \DGZ_library\DGZ_View::getInsideView('sideSlideInMenuPartial', $this->controller);
+                $slideInMenu->show();
+                ?>
+                <!-- END OF SIDE SLIDE-IN MENU --> 
+
 				<h2 class="hidden">Contact</h2>
 				<div class="row">
 

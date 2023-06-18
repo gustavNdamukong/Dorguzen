@@ -46,6 +46,15 @@ class register extends \DGZ_library\DGZ_HtmlView
 
              <!-- Contact Start -->
              <div class="container-xxl py-5">
+
+                <!-- START SIDE SLIDE-IN MENU -->
+                <?php
+                //Pull in the PHP file that has the JS code that handles all the JS to do with placing an ad
+                $slideInMenu = \DGZ_library\DGZ_View::getInsideView('sideSlideInMenuPartial', $this->controller);
+                $slideInMenu->show();
+                ?>
+                <!-- END OF SIDE SLIDE-IN MENU --> 
+
                  <div class="container px-lg-5">
                      <div class="row justify-content-center">
                          <div class="col-lg-7">

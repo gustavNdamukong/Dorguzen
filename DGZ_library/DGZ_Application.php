@@ -45,58 +45,30 @@ class DGZ_Application {
 			'useFullLayout' => $this->useFullLayout,
 		];
 
-		//Load all site config data. This can be gotten from all the config files (classes) in the 'configs/'
-		//directory. The class names must match their file names, and they must all have a getConfig() method that returns an array.
+		//Load all site config data. Module config class names must match the file names in 'configs/'
+		//They must all have a getConfig() method that returns an array.
 		$configDir = 'configs/';
 		$configFiles = scandir($configDir);
 		foreach ($configFiles as $file) {
 			if ($file !== '.' && $file !== '..') {
-			  /////$filePath = $configDir . '/' . $file;
 			  $filePath = $configDir . $file;
 		  
 			  // Check if the file is a PHP file
 			  if (is_file($filePath) && pathinfo($filePath, PATHINFO_EXTENSION) === 'php') {
-				//////////////////////////////require_once($filePath);
-				//die('class & path has been required '.$filePath);/////////// WORKS: 'configs/Config.php'
 
-				// Get the class name from the file assuming the class name matches the filename
+				// Get class name from file assuming the class name matches the filename
 				$className = pathinfo($filePath, PATHINFO_FILENAME);
-				//die('CLASS NAME IS: '.$className);/////////// WORKS: 'Config'
-				//---------------------------------------------
-				//set_include_path(get_include_path().":".$this->config->getFileRootPath().$configDir); // WE GET: '.:/Applications/XAMPP/xamppfiles/lib/php:/Dorguzen/configs/'
-				//echo get_include_path(); die('MY INCLUDE PATH');
-				//we want all other module config files but not the core Config file
 				if ($className !== 'Config') {
-					/////$realClassPath = $this->config->getFileRootPath().$configDir.$className; // '/Dorguzen/configs/Gustav'
-					//$realClassFilePath = $this->config->getFileRootPath().$filePath; // '/Dorguzen/configs/Gustav.php'
-					//die('/'.$filePath);//////// '/configs/Gustav.php'
-					//require_once('configs/Gustav.php');
-					////////require($filePath);
-					////////////$newInstance = new $className();//////////
-					//echo '<pre>';
-					//var_dump($newInstance);/////
-					//die('INSTANCE???');
+					continue;
+				} 
 
-					//die('ROOT PATH IS: '.$rootPath);
-					//var_dump(file_exists($filePath)); die('DOES FILE EXIST AT ALL???');
-					
-					/////$newInstance = new $className();
-					//echo '<pre>';
-					//var_dump($className);/////
-				} else { continue; }
-				//die('CLASS NAME IS: '.$className);/////////// WORKS: 'Config'
-				//$newInstance = new $className();//////////
-				//die('TESTING INSTANCE OF CLASS for appName: '.$newInstance->getConfig()['appName']);
-				//---------------------------------------------
 				if (class_exists($className)) {
 					$instance = new $className();
-					/////die('TESTING INSTANCE OF CLASS for appName: '.$instance->getConfig()['appName']);////////////
 					if (method_exists($instance, 'getConfig')) {
-						//die('IT EXISTS');///////////
 						//append the config data to the global config array as a sub-array
 						$this->config->setModuleConfigs(strtolower($className), $instance->getConfig());
 					}
-				} /////else { $instance = new $className(); die('TESTING INSTANCE OF CLASS for appName: '.$instance->getConfig()['appName']); }
+				}
 			  }
 			}
 		} 

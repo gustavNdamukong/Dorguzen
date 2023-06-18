@@ -4,19 +4,21 @@ namespace DGZ_library\DGZ_views;
 
 
 use configs\Config;
+use controllers\ExceptionController;
+
 
 /**
  * Displays a DGZ_library/Exception in HTML format
  *
  * @author Gustav Ndamukong
  */
-
 class DGZExceptionView  extends \DGZ_library\DGZ_View {
 	
 
 
 	public function show($exceptions = []) {
 		$config = new Config();
+        $controller = new ExceptionController();
 		$langClass = new \DGZ_library\DGZ_Translator();
         $lang = $langClass::getCurrentLang(); 
 		?>
@@ -24,6 +26,15 @@ class DGZExceptionView  extends \DGZ_library\DGZ_View {
 	<div class="main">
             <section class="content account" style="margin-top: 100px;">
                 <div class="container">
+
+                    <!-- START SIDE SLIDE-IN MENU -->
+                    <?php
+                    //Pull in the PHP file that has the JS code that handles all the JS to do with placing an ad
+                    $slideInMenu = \DGZ_library\DGZ_View::getInsideView('sideSlideInMenuPartial', $controller);
+                    $slideInMenu->show();
+                    ?>
+                    <!-- END OF SIDE SLIDE-IN MENU --> 
+
                     <div class="row">
                         <div class="jumbotron" style="">
                             <div class="well" style="">

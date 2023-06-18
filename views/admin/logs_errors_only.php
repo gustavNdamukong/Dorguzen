@@ -22,6 +22,14 @@ class logs_errors_only extends \DGZ_library\DGZ_HtmlView
 
                          <div class="container">
 
+                              <!-- START SIDE SLIDE-IN MENU -->
+                              <?php
+                              //Pull in the PHP file that has the JS code that handles all the JS to do with placing an ad
+                              $jsValidation = \DGZ_library\DGZ_View::getInsideView('sideSlideInMenuPartial', $this->controller);
+                              $jsValidation->show();
+                              ?>
+                              <!-- END OF SIDE SLIDE-IN MENU --> 
+
                               <div class="row">
                                   <h1 style="color:#000;" class="text-center">Runtime Error Logs</h1>
                                   <h3>Displaying

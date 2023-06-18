@@ -12,6 +12,7 @@
 				'menu-checkout' => 'Check out',
 				'menu-search' => 'Recherche',
 				'menu-headingGroup-pages' => 'Pages',
+				'menu-headingGroup-menu' => 'Menu',
 				'menu-home' => 'Accueil',
 				'menu-news' => 'Nouvelles',
 				'menu-privacyPolicy' => 'Politique de confidentialité',

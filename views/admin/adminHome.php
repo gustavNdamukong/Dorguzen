@@ -2,7 +2,7 @@
 
 namespace views\admin;
 
-
+use Users;
 
 class adminHome extends \DGZ_library\DGZ_HtmlView
 {
@@ -10,7 +10,10 @@ class adminHome extends \DGZ_library\DGZ_HtmlView
 
 
 function show()
-{ ?>
+{ 
+     $users = new Users(); 
+     ?>
+
      <!-- Hero Header Start -->
      <div class="container-xxl py-5 bg-primary hero-header mb-5">
           <div class="container my-5 py-5 px-lg-5">
@@ -64,6 +67,15 @@ function show()
 
                               <div class="col-sm-9">
                                    <article class="account-content">
+
+                                        <!-- START SIDE SLIDE-IN MENU -->
+                                        <?php
+                                        //Pull in the PHP file that has the JS code that handles all the JS to do with placing an ad
+                                        $jsValidation = \DGZ_library\DGZ_View::getInsideView('sideSlideInMenuPartial', $this->controller);
+                                        $jsValidation->show();
+                                        ?>
+                                        <!-- END OF SIDE SLIDE-IN MENU -->
+
                                         <h3>Welcome <span><?= $_SESSION['first_name'] ?></span></h3>
                                         <p>This is where you can manage everything on your site, like uploading images, uploading videos, manage your blog or news page,
                                              manage user accounts, and much more.</p>
@@ -122,6 +134,21 @@ function show()
                                                        </div>
                                                   </a>     
                                              </div>
+
+                                             <?php
+                                             if ((isset($_SESSION['authenticated'])) && ($users->isAdmin($_SESSION['custo_id']))) { ?>
+                                                  <div class="col-xs-6 col-md-3 card dashboard-cards">
+                                                       <a
+                                                       href="<?=$this->controller->config->getFileRootPath()?>admin/log">
+                                                            <div class="card-body">
+                                                                 <h5 class="card-title text-center"><i
+                                                                      class="fa fa-eye dash-icons"></i></h5>
+                                                                 <p class="card-text">System logs</p>
+                                                            </div>
+                                                       </a>     
+                                                  </div>
+                                             <?php
+                                             } ?>
 
                                              <div class="col-xs-6 col-md-3 card dashboard-cards">
                                                   <a

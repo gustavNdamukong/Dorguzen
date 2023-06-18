@@ -575,3 +575,68 @@ h6,
 #createUserForm input, #createUserForm select {
     margin-bottom: 1rem;
 }
+
+
+
+/*------------MAIN SIDE SLIDE-IN MENU-------------*/
+#side-menu {
+	background-color: #2124B1;
+	color: #fff;
+	width: 0;
+	position: fixed;
+	height: 100%;
+	z-index: 1;
+	top: 0;
+	left: 0;
+	overflow-x: hidden;
+	padding-top: 60px;
+	transition: margin-left 2.5s;
+	padding-left: 20px;
+}
+
+#side-menu ul {
+	margin: 50px 0 0 10px;
+	padding: 40px 0 0 0;
+	list-style: none;
+}
+
+
+#side-menu ul li {
+	cursor: pointer;
+	background: none;
+    margin-bottom:1.5rem;
+}
+
+#side-menu ul li a {
+	padding: 20px 0px 0px 0px;
+	text-decoration: none;
+	font-size: 22px;
+	color: #000;
+	display: block;
+	transition: 0.3s;
+	background: none;
+}
+
+#side-menu ul a:hover {
+	color: #2124B1;
+}
+
+
+#side-menu .btn-close /* Also in '#side-menu' but not a child of '#side-menu ul' */ { 
+	position: absolute;
+    background:none;
+	color: #fff;
+    font-size: 36px;
+    font-weight:bold;
+	top: 85px;
+	right: 10px;
+	margin: 0 0 50px 20px;
+}
+
+.list-group .list-group-item {
+    height: 3.5rem;
+    text-align: center;
+    padding-top: 1rem;
+}
+
+/*------------END OF MAIN SIDE SLIDE-IN MENU----------*/

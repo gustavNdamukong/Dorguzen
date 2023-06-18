@@ -74,7 +74,7 @@ use DGZ_library\DGZ_Router;
 				|
 				 */
 
-				'localUrl' => 'http://localhost:8888/dorguzApp/',
+				'localUrl' => 'http://localhost/Dorguzen/',
 				'liveUrl' => 'http://www.nolimitmedia.co.uk/',
 				'liveUrlSecure' => 'https://www.nolimitmedia.co.uk/',
 				'fileRootPathLocal' => '/Dorguzen/',

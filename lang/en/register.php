@@ -31,7 +31,7 @@
 				'emailAlreadyExists' => 'Sorry, that email is already in use in this system',
 				'usernameAvailable' => 'Username available',
 				'usernameInvalid' => 'Username invalid!',  
-				'emailInvalid' => 'Email non valide!',  
+				'emailInvalid' => 'Invalid email!',  
 				'usernameOrEmailAlreadyExists' => 'Either your username or email address is already registered to this website. Please try another or contact us',
 				'auth-activateYourAccount' => 'Activate your account',
 				'auth-congratulations' => 'Congratulations',

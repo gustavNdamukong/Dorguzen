@@ -31,6 +31,7 @@
 				'emailAlreadyExists' => 'Désolé, cet email est déjà utilisé dans ce système',
 				'usernameAvailable' => 'Nom d\'utilisateur disponible',
 				'usernameInvalid' => 'Nom d\'utilisateur invalide!',
+				'emailInvalid' => 'Email non valide!',
 				'usernameOrEmailAlreadyExists' => 'Votre nom d\'utilisateur ou votre adresse électronique est déjà enregistré sur ce site. Veuillez en essayer un autre ou nous contacter',
 				'auth-activateYourAccount' => 'Activez votre compte',
 				'auth-congratulations' => 'Félicitations',

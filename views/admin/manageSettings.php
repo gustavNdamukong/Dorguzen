@@ -50,6 +50,15 @@ class manageSettings extends \DGZ_library\DGZ_HtmlView
          <section>
              <div class="container">
                  <div class="row">
+
+                    <!-- START SIDE SLIDE-IN MENU -->
+                    <?php
+                    //Pull in the PHP file that has the JS code that handles all the JS to do with placing an ad
+                    $jsValidation = \DGZ_library\DGZ_View::getInsideView('sideSlideInMenuPartial', $this->controller);
+                    $jsValidation->show();
+                    ?>
+                    <!-- END OF SIDE SLIDE-IN MENU -->
+
                      <div class="col-sm-12 col-md-12">
 
                          <article class="account-content" style="height: auto;padding-bottom: 50%;">

@@ -50,25 +50,30 @@ class adminUserChangePw extends \DGZ_library\DGZ_HtmlView
          <section>
              <div class="container">
                  <div class="row">
-                     <div class="col-sm-12 col-md-12">
-                         <div>
-                             <div class="row">
-                                 <div class="form">
-                                     <form id="editUserForm" action="<?=$this->controller->config->getFileRootPath()?>admin/adminUserChangePw?change=1" method="post">
+                     <div class="col-sm-12 col-md-12"> 
+                        <!-- START SIDE SLIDE-IN MENU -->
+                        <?php
+                        //Pull in the PHP file that has the JS code that handles all the JS to do with placing an ad
+                        $jsValidation = \DGZ_library\DGZ_View::getInsideView('sideSlideInMenuPartial', $this->controller);
+                        $jsValidation->show();
+                        ?>
+                        <!-- END OF SIDE SLIDE-IN MENU -->       
+                        <div class="row">
+                            <div class="form">
+                                <form id="editUserForm" action="<?=$this->controller->config->getFileRootPath()?>admin/adminUserChangePw?change=1" method="post">
 
-                                         <input placeholder="Username" id="new_user_un" name="new_user_un" class="form-control" type="text" value="<?=$user[0]['users_email']?>" />
+                                    <input placeholder="Username" id="new_user_un" name="new_user_un" class="form-control" type="text" value="<?=$user[0]['users_email']?>" />
 
-                                         <input placeholder="Password" id="new_user_pwd" name="new_user_pwd" class="form-control" type="text" value="<?=$user[0]['pass']?>">
+                                    <input placeholder="Password" id="new_user_pwd" name="new_user_pwd" class="form-control" type="text" value="<?=$user[0]['pass']?>">
 
-                                         <input type="hidden" name="userId" value="<?=$userId?>" />
+                                    <input type="hidden" name="userId" value="<?=$userId?>" />
 
-                                         <a href="<?=$this->controller->config->getFileRootPath()?>admin/dashboard" class="btn btn-warning btn-sm" id="cancel" >Cancel</a>
-                                         <button type="submit" id="createUser" class="btn btn-primary btn-sm">Submit</button>
-                                     </form>
+                                    <a href="<?=$this->controller->config->getFileRootPath()?>admin/dashboard" class="btn btn-warning btn-sm" id="cancel" >Cancel</a>
+                                    <button type="submit" id="createUser" class="btn btn-primary btn-sm">Submit</button>
+                                </form>
 
-                                 </div>
-                             </div>
-                         </div>
+                            </div>
+                        </div>
                      </div>
                  </div>
                  </div>
