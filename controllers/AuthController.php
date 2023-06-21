@@ -312,12 +312,6 @@ class AuthController extends \DGZ_library\DGZ_Controller  {
     {
         $langClass = new DGZ_Translator();
         $lang = $langClass->getCurrentLang();
-        $callerOrigin = ((isset($_GET['caller-origin'])) && ($_GET['caller-origin'] == 'api'))?'api':'';
-        //'status' has a value of either 'true' or 'false', while 'message' has the error msg
-        $returnMessage = [
-            'status' => '',
-            'message' => ''
-        ];
 
         if (isset($_GET['em'])) {
             $user_model = new Users();
@@ -327,13 +321,12 @@ class AuthController extends \DGZ_library\DGZ_Controller  {
             $yes = 'yes';
 
             //we need to match their activation code
-            $selectCriteria = ["users_eactivationcode" => $code];
+            $selectCriteria = ["users_eactivationcode" => $code];  
             $fields = ['users_id', 'users_first_name', 'users_email'];
             $user = $user_model->selectWhere($fields, $selectCriteria);
 
             if ($user) {
                 /////$userId = $user[0]['users_id'];
-
                 $user_model->users_emailverified = $yes;
                 $user_model->users_eactivationcode = NULL;
                 $updateCriteria = ['users_eactivationcode' => $code];
@@ -341,10 +334,9 @@ class AuthController extends \DGZ_library\DGZ_Controller  {
 
                 if ($updated) {
                     //if this is an API call, send the success response now
-                    if ($callerOrigin == 'api') {
-                        $returnMessage['status'] = 'true';
-                        $returnMessage['message'] = $langClass->translate($lang, 'register.php', 'auth-emailActivated');
-                        return $returnMessage;
+                    if ($this->isApiRequest()) {
+                        $message = $langClass->translate($lang, 'register.php', 'auth-emailActivated');
+                        return $this->apiResponse(true, $message);
                     }
 
                     $this->addSuccess($langClass->translate($lang, 'register.php', 'auth-emailActivated'), $langClass->translate($lang, 'register.php', 'auth-great'));
@@ -354,10 +346,9 @@ class AuthController extends \DGZ_library\DGZ_Controller  {
                 }
                 else {
                     //if this is an API call, send the error response now
-                    if ($callerOrigin == 'api') {
-                        $returnMessage['status'] = 'false';
-                        $returnMessage['message'] = $langClass->translate($lang, 'register.php', 'auth-couldNotActivateEmail');
-                        return $returnMessage;
+                    if ($this->isApiRequest()) {
+                        $message = $langClass->translate($lang, 'register.php', 'auth-couldNotActivateEmail');
+                        return $this->apiResponse(false, $message);
                     }
 
                     $this->addErrors($langClass->translate($lang, 'register.php', 'auth-couldNotActivateEmail'), $langClass->translate($lang, 'register.php', 'auth-sorry'));
@@ -367,10 +358,9 @@ class AuthController extends \DGZ_library\DGZ_Controller  {
             }
             else {
                 //if this is an API call, send the error response now
-                if ($callerOrigin == 'api') {
-                    $returnMessage['status'] = 'false';
-                    $returnMessage['message'] = $langClass->translate($lang, 'register.php', 'auth-couldNotFindYourDetails');
-                    return $returnMessage;
+                if ($this->isApiRequest()) {
+                    $message = $langClass->translate($lang, 'register.php', 'auth-couldNotFindYourDetails');
+                    return $this->apiResponse(false, $message);
                 }
 
                 $this->addErrors($langClass->translate($lang, 'register.php', 'auth-couldNotFindYourDetails'), $langClass->translate($lang, 'register.php', 'auth-sorry'));

@@ -199,24 +199,26 @@ class manageSettings extends \DGZ_library\DGZ_HtmlView
                  </div>
                  </div>
          </section>
-     <?php
+        <?php
          }
          else
          { ?>
-             <div class="main">
-                 <section class="content account">
-                     <div class="container">
-                         <div class="row">
-                             <div class="col-sm-3">
-                             </div>
-                             <div class="col-sm-9">
-                                 <h3 style="color:red;">Sorry! You have no access to this page</h3>
-                             </div>
-                         </div>
-                     </div>
-                 </section>
-             </div>
-             <?php
-         }
+            <div class="main">
+                <section class="content account">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-sm-3">
+                            </div>
+                            <div class="col-sm-9">
+                            <h3 style="color:red;">Sorry! You have no access to this page 
+                            <a href="<?=$this->controller->config->getFileRootPath()?>auth" class="btn btn-info">Login</a>
+                            <a href="<?=$this->controller->config->getFileRootPath()?>" class="btn btn-info">Home</a></h3>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        <?php
+        }
      }
 } ?>

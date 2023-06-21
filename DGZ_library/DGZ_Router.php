@@ -149,13 +149,33 @@ class DGZ_Router {
         {
             $controllerNameString = ucfirst($get_input);
         }
-        $controller = 'controllers\\'. ucfirst($get_input).'Controller';
+
+        //DGZ runs all applications through controllers or modules. Therefore here, we load the target controller or module class
+        /////$controller = 'controllers\\'. ucfirst($get_input).'Controller';
+        /////$controllerPath = 'controllers\\'. ucfirst($get_input).'Controller.php';
+        $controllerPath = $_SERVER['DOCUMENT_ROOT'].'/'.$config->getFileRootPath().'/controllers/'. ucfirst($get_input).'Controller.php';
+        $modulePath = $_SERVER['DOCUMENT_ROOT'].'/'.$config->getFileRootPath().'/modules/'. strtolower($get_input).'/controllers/'.ucfirst($get_input) . 'Controller.php';
+        /////$fileName = $folder .'/'. basename($className) . '.php';
+		/////echo $fileName.'<br>';////////
+		if (file_exists($controllerPath))
+        {
+            $controller = 'controllers\\'. ucfirst($get_input).'Controller';
+            //die('IT EXISTS: '.'controllers\\'. ucfirst($get_input).'Controller');////////
+        }
+        else if (file_exists($modulePath))
+        {
+            $controller = 'modules\\'. strtolower($get_input).'\\controllers\\'.ucfirst($get_input).'Controller';
+            //die('IT EXISTS: '.'modules\\'. strtolower($get_input).'\\'.ucfirst($get_input));////////
+        }
+
+        /////die('Controller: '.$controllerPath.' - Modules: '.$modulePath);////////////////////////
 
         try {
             $classReflector = new ReflectionClass($controller);
 
             if (!(get_class($classReflector)))
             {
+                http_response_code(400);
                 throw new DGZ_Exception(
                     'Controller not found',
                     DGZ_Exception::CONTROLLER_CLASS_NOT_FOUND,
@@ -295,23 +315,24 @@ class DGZ_Router {
             $boot = $middleware->boot();
             if (array_key_exists($controllerInput, $boot)) {
                 $middleWareIntent = $middleware->boot()[$controllerInput];
-                if ($middleWareIntent == true) {
+                
+                if ($middleWareIntent === true) { 
                     //If its true, call the middleware method and proceed
-                    if (call_user_func([$middleware, $controllerInput], $method)) {
+                    if (call_user_func([$middleware, $controllerInput], $method)) { 
                     }
-                    else {
+                    else { die('IT WAS FALSE');
                         throw new DGZ_Exception('Not authorized', DGZ_Exception::PERMISSION_DENIED, 'You are trying to visit a restricted area of this application.');
                     }
                 }
-                if ($middleWareIntent == false) {
+                if ($middleWareIntent === false) {
                     //If its false, call the middleware method and proceed
-                    if (call_user_func([$middleware, $controllerInput], $method) != false) {
+                    if (call_user_func([$middleware, $controllerInput], $method) != false) { die($middleWareIntent.' - '.$controllerInput.' RETURNED === FALSE');
                         throw new DGZ_Exception('Not authorized', DGZ_Exception::PERMISSION_DENIED, 'You are trying to visit a restricted area of this application.');
                     }
                     else {
                     }
                 }
-                if ($middleWareIntent == 'divert') {
+                if ($middleWareIntent == 'divert') { 
                     //call the middleware method and proceed with a new controller & or, method
                     //$controller here will be sth like shopController, $newMethod is the desired method to call on shopController, & an optional array of args
                     // to pass to that method.
@@ -319,7 +340,15 @@ class DGZ_Router {
                     $con = new $controller();
                     $con->display($newMethod, $args);
                 }
-                exit();
+                if ($middleWareIntent === 'authorised') { 
+                    //Check if middleware authorised method returns true & proceed
+                    if (call_user_func([$middleware, $middleWareIntent], $method)) { 
+                        //The routing will proceed as normal with the requested controller & method
+                    }
+                    else { 
+                        throw new DGZ_Exception('Not authorized', DGZ_Exception::PERMISSION_DENIED, 'You are trying to visit a restricted area of this application.');
+                    }
+                }
             }
             //--------------------------- END MIDDLEWARE ---------------------------------//
 
@@ -335,6 +364,7 @@ class DGZ_Router {
                 $methodReflector = $classReflector->getMethod($method);
             }
             catch (ReflectionException $e) {
+                http_response_code(400);
                 throw new DGZ_Exception('No method to handle this request', DGZ_Exception::MISSING_HANDLER_FOR_ACTION, 'There is no method in your Controller class to handle handle "' . $method . '". ' . PHP_EOL . 'Check that the method name passed through is correct, and if required create a public function called "' . $method . '" in your ' . $controller . ' class.');
             }
 

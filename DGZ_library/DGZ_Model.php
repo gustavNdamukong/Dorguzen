@@ -67,26 +67,29 @@ class DGZ_Model
      */
     public function loadORM($model)
     {
+        //This does two things;
+        //    registers all the model's field types into a '_columns' array member, 
+        //    loads all model's data into a $data array member
         $table = $this->getTable();
         $db = $this->connect();
 
-        $query = 'DESCRIBE '.strtolower($table);
+        $schemaQuery = 'DESCRIBE '.strtolower($table);
+        $schemaResult = $db->query($schemaQuery);
 
-        $result = $db->query($query);
+        //Eager-load model data
+        $dataQuery = 'SELECT * FROM '.strtolower($table);
+        $dataResult = $db->query($dataQuery);
 
-        //check result if SELECTING
-        if ((isset($result->num_rows)) && ($result->num_rows > 0))
+        //check result if SELECTING the field types
+        if ((isset($schemaResult->num_rows)) && ($schemaResult->num_rows > 0))
         {
             $results = array();
-            while ($row = $result->fetch_assoc())
+            while ($row = $schemaResult->fetch_assoc())
             {
                 $results[] = $row;
             }
 
-
-
             $columns = $results;
-
 
             if (is_array($columns)) {
                 foreach ($columns as $column) {
@@ -122,12 +125,27 @@ class DGZ_Model
                 }
             }
         }
-        else {
+        //WE ARE ONLY SELECTING HERE, SO WE DONT NEED THIS PART
+        /*else {
             //check result if Updating/inserting/deleting
             if ((isset($result->affected_rows)) && ($result->affected_rows > 0)) {
                 return true;
             }
-        }
+        }*/
+
+         //load the model fields data
+         if ((isset($dataResult->num_rows)) && ($dataResult->num_rows > 0))
+         { 
+            $dataResults = array();
+            while ($dataRow = $dataResult->fetch_assoc())
+            {
+                $dataResults[] = $dataRow;
+            }
+
+            foreach ($dataResults as $field => $fieldValue) {
+                $model->data[$field] = $fieldValue;
+            }
+         }
     }
 
 
@@ -135,10 +153,7 @@ class DGZ_Model
     public function __set($member, $value)
     {
         if (array_key_exists($member, $this->_columns)) {
-            //echo 'comin in: '.$member.'<br>';//////
-            /////$this->$member = $value;
             $this->data[$member] = $value;
-            //echo 'Now set: '.$this->data[$member].'<br>';//////
         }
     }
 
@@ -150,9 +165,17 @@ class DGZ_Model
     public function __get($member)
     {
         if (array_key_exists($member, $this->_columns)) {
-            /////return $this->$member;
             return $this->data[$member];
         }
+    }
+
+
+    /**
+     * Grab & return the data of a model
+     */
+    public function getData()
+    {
+        return $this->data;
     }
 
 

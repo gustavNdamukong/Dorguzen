@@ -53,11 +53,11 @@ class ApiController extends \DGZ_library\DGZ_Controller
 
             $object = new $controller();
             $response = $object->$targetMethod();
-            if ($response['status'] == 'true') {
+            if ($response['status'] === true || $response['status'] == 200) {
                 http_response_code(200);
                 $response['response_code'] = 200;
             }
-            else if ($response['status'] == 'false') {
+            else if ($response['status'] === false) {
                 http_response_code(400);
                 $response['response_code'] = 400;
             }
@@ -83,17 +83,16 @@ class ApiController extends \DGZ_library\DGZ_Controller
 
             $object = new $controller();
             $response = $object->$targetMethod();
-            if ($response['status'] == 'true') {
+            if ($response['status'] === true || $response['status'] == 200) {
                 http_response_code(200);
                 $response['response_code'] = 200;
             }
-            else if ($response['status'] == 'false') {
+            else if ($response['status'] === false) {
                 http_response_code(400);
                 $response['response_code'] = 400;
             }
 
             die(json_encode($response));
-
         }
 
         //PATCH

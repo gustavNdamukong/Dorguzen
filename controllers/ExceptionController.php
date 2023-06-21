@@ -21,7 +21,7 @@ class ExceptionController extends \DGZ_library\DGZ_Controller
     }
 
     public function error()
-    {
+    { 
         $view = \DGZ_library\DGZ_View::getView('DGZExceptionView', $this, 'html');
         http_response_code(404);
         $this->setLayoutDirectory($this->getDefaultLayoutDirectory());

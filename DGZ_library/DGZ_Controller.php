@@ -2,7 +2,6 @@
 namespace DGZ_library;
 
 
-//////////use configs\Config;
 use Exception;
 use ReflectionClass;
 use middleware\Middleware;
@@ -542,7 +541,8 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 				$boot = $middleware->boot();
 				if (array_key_exists($controllerInput, $boot)) {
 					$middleWareIntent = $middleware->boot()[$controllerInput];
-					if ($middleWareIntent == true) {
+
+					if ($middleWareIntent === true) {
 						//call the middleware method and proceed if it returns true
 						if (call_user_func([$middleware, $controllerInput], $method)) {
 						}
@@ -550,7 +550,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 							throw new DGZ_Exception('Not authorized', DGZ_Exception::PERMISSION_DENIED, 'You are trying to visit a restricted area of this application.');
 						}
 					}
-					if ($middleWareIntent == false) {
+					if ($middleWareIntent === false) {
 						//call the middleware method and proceed if it returns false
 						if (call_user_func([$middleware, $controllerInput], $method) != false) {
 							throw new DGZ_Exception('Not authorized', DGZ_Exception::PERMISSION_DENIED, 'You are trying to visit a restricted area of this application.');
@@ -558,15 +558,21 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 						else {
 						}
 					}
-					if ($middleWareIntent == 'divert') {
+					if ($middleWareIntent === 'divert') {
 						//call the middleware method and proceed with a new controller & or, method
 						list($controller, $method, $inputParameters) = call_user_func([$middleware, $controllerInput], $method);
 					}
+                    if ($middleWareIntent === 'authorised') { 
+                        //Check if middleware authorised method returns true & proceed
+                        if (call_user_func([$middleware, $middleWareIntent], $method)) { 
+                            //The routing will proceed as normal with the requested controller & method
+                        }
+                        else { 
+                            throw new DGZ_Exception('Not authorized', DGZ_Exception::PERMISSION_DENIED, 'You are trying to visit a restricted area of this application.');
+                        }
+                    }
 				}
 				//--------------------------- END MIDDLEWARE -----------------------------//
-
-
-
 
 				if ($method == 'defaultAction')
 				{
@@ -720,14 +726,13 @@ abstract class DGZ_Controller implements DGZ_Displayable {
             $layout->setImageSlider($this->showImageSlider);
             $layout->display();
 
-        } catch (DGZ_Exception $e) {
+        } catch (DGZ_Exception $e) { 
             if($this->format == 'html') {
                 $e->display();
             } else {
                 throw $e;
             }
-        } catch (Exception $e) {
-
+        } catch (Exception $e) { 
             if($this->format == 'html') {
                 $layout = \DGZ_library\DGZ_Layout::getLayout(true, $this->appName, $this->defaultLayoutDirectory, $this->defaultLayout);
                 $view = DGZ_View::getView('ExceptionView', $this);
@@ -1015,6 +1020,25 @@ abstract class DGZ_Controller implements DGZ_Displayable {
     {
         echo '<pre>';
         die(var_dump($data));
+    }
+
+    public function isApiRequest()
+    {
+        return (isset($_GET['caller-origin'])) && ($_GET['caller-origin'] == 'api') ? true : false;
+    }
+
+    /**
+     * @status mixed (boolean or int) HTTP response code
+     * @message string custom response message
+     */
+    public function apiResponse($status = 200, $message = '')
+    {
+        $returnMessage = [];
+        $returnMessage['status'] = $status;
+        $returnMessage['message'] = $message;
+        return $returnMessage;
+
+
     }
 
 } ?>

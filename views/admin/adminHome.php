@@ -80,130 +80,152 @@ function show()
                                         <p>This is where you can manage everything on your site, like uploading images, uploading videos, manage your blog or news page,
                                              manage user accounts, and much more.</p>
                                         <div class="icon-nav row">
-                                             <div class="col-xs-6 col-md-3 card dashboard-cards">
-                                                  <a
-                                                      href="#">
-                                                       <div class="card-body">
-                                                            <h5 class="card-title text-center"><i
-                                                                     class="fa fa-newspaper-o dash-icons"></i></h5>
-                                                            <p class="card-text">News</p>
-                                                       </div>
-                                                  </a>     
-                                             </div>
 
                                              <div class="col-xs-6 col-md-3 card dashboard-cards">
                                                   <a
-                                                      href="#">
+                                                  href="<?=$this->controller->config->getFileRootPath()?>admin/adminUserChangePw?userId=<?=$_SESSION['custo_id']?>&change=0">
                                                        <div class="card-body">
                                                             <h5 class="card-title text-center"><i
-                                                                     class="fa fa-video-camera dash-icons"></i></h5>
-                                                            <p class="card-text">Videos</p>
-                                                       </div>
-                                                  </a>     
-                                             </div>
-
-                                             <div class="col-xs-6 col-md-3 card dashboard-cards">
-                                                  <a
-                                                      href="#">
-                                                       <div class="card-body">
-                                                            <h5 class="card-title text-center"><i
-                                                                     class="fa fa-envelope-o dash-icons"></i></h5>
-                                                            <p class="card-text">Newsletters</p>
-                                                       </div>
-                                                  </a>     
-                                             </div>
-
-                                             <div class="col-xs-6 col-md-3 card dashboard-cards">
-                                                  <a
-                                                      href="#">
-                                                       <div class="card-body">
-                                                            <h5 class="card-title text-center"><i
-                                                                     class="fa fa-thumbs-up dash-icons"></i></h5>
-                                                            <p class="card-text">Manage Testimonials</p>
-                                                       </div>
-                                                  </a>     
-                                             </div>
-
-                                             <div class="col-xs-6 col-md-3 card dashboard-cards">
-                                                  <a
-                                                      href="<?=$this->controller->config->getFileRootPath()?>admin/baseSettings?change=0">
-                                                       <div class="card-body">
-                                                            <h5 class="card-title text-center"><i
-                                                                     class="fa fa-gears dash-icons"></i></h5>
-                                                            <p class="card-text">Settings</p>
-                                                       </div>
-                                                  </a>     
-                                             </div>
-
-                                             <?php
-                                             if ((isset($_SESSION['authenticated'])) && ($users->isAdmin($_SESSION['custo_id']))) { ?>
-                                                  <div class="col-xs-6 col-md-3 card dashboard-cards">
-                                                       <a
-                                                       href="<?=$this->controller->config->getFileRootPath()?>admin/log">
-                                                            <div class="card-body">
-                                                                 <h5 class="card-title text-center"><i
-                                                                      class="fa fa-eye dash-icons"></i></h5>
-                                                                 <p class="card-text">System logs</p>
-                                                            </div>
-                                                       </a>     
-                                                  </div>
-                                             <?php
-                                             } ?>
-
-                                             <div class="col-xs-6 col-md-3 card dashboard-cards">
-                                                  <a
-                                                      href="#">
-                                                       <div class="card-body">
-                                                            <h5 class="card-title text-center"><i
-                                                                     class="fa fa-list dash-icons"></i></h5>
-                                                            <p class="card-text">Portfolio</p>
-                                                       </div>
-                                                  </a>     
-                                             </div>
-
-                                             <div class="col-xs-6 col-md-3 card dashboard-cards">
-                                                  <a
-                                                      href="<?=$this->controller->config->getFileRootPath()?>admin/manageUsers">
-                                                       <div class="card-body">
-                                                            <h5 class="card-title text-center"><i
-                                                                     class="fa fa-users dash-icons"></i></h5>
-                                                            <p class="card-text">Manage Users</p>
-                                                       </div>
-                                                  </a>     
-                                             </div>
-
-                                             <div class="col-xs-6 col-md-3 card dashboard-cards">
-                                                  <a
-                                                      href="<?=$this->controller->config->getFileRootPath()?>admin/contactMessages">
-                                                       <div class="card-body">
-                                                            <h5 class="card-title text-center"><i
-                                                                     class="fa fa-envelope-o dash-icons"></i></h5>
-                                                            <p class="card-text">Messages</p>
-                                                       </div>
-                                                  </a>     
-                                             </div>
-
-                                             <div class="col-xs-6 col-md-3 card dashboard-cards">
-                                                  <a
-                                                      href="<?=$this->controller->config->getFileRootPath()?>admin/adminUserChangePw?userId=<?=$_SESSION['custo_id']?>&change=0">
-                                                       <div class="card-body">
-                                                            <h5 class="card-title text-center"><i
-                                                                     class="fa fa-shield dash-icons"></i></h5>
+                                                                 class="fa fa-shield dash-icons"></i></h5>
                                                             <p class="card-text">Change Password</p>
                                                        </div>
                                                   </a>     
                                              </div>
 
-                                             <div class="col-xs-6 col-md-3 card dashboard-cards">
-                                                  <a
-                                                      href="#">
-                                                       <div class="card-body">
-                                                            <h5 class="card-title text-center"><i
-                                                                     class="fa fa-cc-diners-club dash-icons"></i></h5>
-                                                            <p class="card-text">Manage Blog</p>
+                                             <?php
+                                             if ($users->isAdmin($_SESSION['custo_id']))
+                                             { ?>
+
+                                                  <div class="col-xs-6 col-md-3 card dashboard-cards">
+                                                       <a
+                                                       href="#">
+                                                            <div class="card-body">
+                                                                 <h5 class="card-title text-center"><i
+                                                                      class="fa fa-newspaper-o dash-icons"></i></h5>
+                                                                 <p class="card-text">News</p>
+                                                            </div>
+                                                       </a>     
+                                                  </div>
+
+                                                  <div class="col-xs-6 col-md-3 card dashboard-cards">
+                                                       <a
+                                                       href="#">
+                                                            <div class="card-body">
+                                                                 <h5 class="card-title text-center"><i
+                                                                      class="fa fa-video-camera dash-icons"></i></h5>
+                                                                 <p class="card-text">Videos</p>
+                                                            </div>
+                                                       </a>     
+                                                  </div>
+
+                                                  <div class="col-xs-6 col-md-3 card dashboard-cards">
+                                                       <a
+                                                       href="#">
+                                                            <div class="card-body">
+                                                                 <h5 class="card-title text-center"><i
+                                                                      class="fa fa-envelope-o dash-icons"></i></h5>
+                                                                 <p class="card-text">Newsletters</p>
+                                                            </div>
+                                                       </a>     
+                                                  </div>
+
+                                                  <div class="col-xs-6 col-md-3 card dashboard-cards">
+                                                       <a
+                                                       href="#">
+                                                            <div class="card-body">
+                                                                 <h5 class="card-title text-center"><i
+                                                                      class="fa fa-thumbs-up dash-icons"></i></h5>
+                                                                 <p class="card-text">Manage Testimonials</p>
+                                                            </div>
+                                                       </a>     
+                                                  </div>
+
+                                                  <div class="col-xs-6 col-md-3 card dashboard-cards">
+                                                       <a
+                                                       href="<?=$this->controller->config->getFileRootPath()?>admin/baseSettings?change=0">
+                                                            <div class="card-body">
+                                                                 <h5 class="card-title text-center"><i
+                                                                      class="fa fa-gears dash-icons"></i></h5>
+                                                                 <p class="card-text">Settings</p>
+                                                            </div>
+                                                       </a>     
+                                                  </div>
+
+                                                  <?php
+                                                  if ((isset($_SESSION['authenticated'])) && ($users->isAdmin($_SESSION['custo_id']))) { ?>
+                                                       <div class="col-xs-6 col-md-3 card dashboard-cards">
+                                                            <a
+                                                            href="<?=$this->controller->config->getFileRootPath()?>admin/log">
+                                                                 <div class="card-body">
+                                                                      <h5 class="card-title text-center"><i
+                                                                           class="fa fa-eye dash-icons"></i></h5>
+                                                                      <p class="card-text">System logs</p>
+                                                                 </div>
+                                                            </a>     
                                                        </div>
-                                                  </a>     
-                                             </div>
+                                                  <?php
+                                                  } ?>
+
+                                                  <div class="col-xs-6 col-md-3 card dashboard-cards">
+                                                       <a
+                                                       href="#">
+                                                            <div class="card-body">
+                                                                 <h5 class="card-title text-center"><i
+                                                                      class="fa fa-list dash-icons"></i></h5>
+                                                                 <p class="card-text">Portfolio</p>
+                                                            </div>
+                                                       </a>     
+                                                  </div>
+
+                                                  <div class="col-xs-6 col-md-3 card dashboard-cards">
+                                                       <a
+                                                       href="<?=$this->controller->config->getFileRootPath()?>admin/manageUsers">
+                                                            <div class="card-body">
+                                                                 <h5 class="card-title text-center"><i
+                                                                      class="fa fa-users dash-icons"></i></h5>
+                                                                 <p class="card-text">Manage Users</p>
+                                                            </div>
+                                                       </a>     
+                                                  </div>
+
+                                                  <div class="col-xs-6 col-md-3 card dashboard-cards">
+                                                       <a
+                                                       href="<?=$this->controller->config->getFileRootPath()?>admin/contactMessages">
+                                                            <div class="card-body">
+                                                                 <h5 class="card-title text-center"><i
+                                                                      class="fa fa-envelope-o dash-icons"></i></h5>
+                                                                 <p class="card-text">Messages</p>
+                                                            </div>
+                                                       </a>     
+                                                  </div>
+
+                                                  <div class="col-xs-6 col-md-3 card dashboard-cards">
+                                                       <a
+                                                       href="#">
+                                                            <div class="card-body">
+                                                                 <h5 class="card-title text-center"><i
+                                                                      class="fa fa-cc-diners-club dash-icons"></i></h5>
+                                                                 <p class="card-text">Manage Blog</p>
+                                                            </div>
+                                                       </a>     
+                                                  </div>
+
+                                                  <hr />
+                                                  <h2>Modules</h2>
+                                                  <div class="icon-nav row">
+                                                       <div class="col-xs-6 col-md-3 card dashboard-cards">
+                                                            <a
+                                                            href="<?=$this->controller->config->getFileRootPath()?>seo">
+                                                                 <div class="card-body">
+                                                                      <h5 class="card-title text-center"><i
+                                                                           class="fa fa-bolt"></i></h5>
+                                                                      <p class="card-text">Typhoon SEO</p>
+                                                                 </div>
+                                                            </a>     
+                                                       </div>
+                                                  </div>
+                                             <?php
+                                             } ?>          
                                         </div>
                                    </article>
                               </div>
@@ -226,7 +248,9 @@ function show()
                               <div class="col-sm-3">
                               </div>
                               <div class="col-sm-9">
-                                   <h3 style="color:red;">Sorry! You have no access to this page <a href="<?=$this->controller->config->getFileRootPath()?>auth" class="btn btn-default">Login</a><a href="<?=$this->controller->config->getFileRootPath()?>home" class="btn btn-default">Home</a></h3>
+                                   <h3 style="color:red;">Sorry! You have no access to this page 
+                                   <a href="<?=$this->controller->config->getFileRootPath()?>auth" class="btn btn-default">Login</a>
+                                   <a href="<?=$this->controller->config->getFileRootPath()?>home" class="btn btn-default">Home</a></h3>
                               </div>
                          </div>
                     </div>

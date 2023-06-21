@@ -97,7 +97,7 @@ class createUser extends \DGZ_library\DGZ_HtmlView
                  </div>
                  </div>
          </section>
-     <?php
+        <?php
          }
          else
          { ?>
@@ -108,7 +108,9 @@ class createUser extends \DGZ_library\DGZ_HtmlView
                               <div class="col-sm-3">
                               </div>
                               <div class="col-sm-9">
-                                   <h3 style="color:red;">Sorry! You have no access to this page <a href="<?=$this->controller->config->getFileRootPath()?>auth" class="btn btn-default">Login</a><a href="<?=$this->controller->config->getFileRootPath()?>home" class="btn btn-default">Home</a></h3>
+                                   <h3 style="color:red;">Sorry! You have no access to this page 
+                                   <a href="<?=$this->controller->config->getFileRootPath()?>auth" class="btn btn-default">Login</a>
+                                   <a href="<?=$this->controller->config->getFileRootPath()?>home" class="btn btn-default">Home</a></h3>
                               </div>
                          </div>
                     </div>

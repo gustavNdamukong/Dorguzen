@@ -74,6 +74,8 @@ define('CWD', getcwd());
 
 
 
+
+//Before we dive into the app, lets load all your objects
 require_once('Autoloader.php');
 
 
@@ -135,7 +137,7 @@ TEXT;
 			throw new \DGZ_library\DGZ_Exception($errstr, $errorType, $hintstr);
 		}
 		catch (\Exception $e)
-		{
+		{  
 			$hint = '';
             $traceHint = '';
             $message = '';

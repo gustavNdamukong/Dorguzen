@@ -90,7 +90,9 @@ class adminUserChangePw extends \DGZ_library\DGZ_HtmlView
                                 <div class="row">
                                     <div class="col-lg-2"></div>
                                     <div class="form col-lg-8">
-                                        <h3 style="color:red;">Sorry! You have no access to this page</h3>
+                                        <h3 style="color:red;">Sorry! You have no access to this page 
+										<a href="<?=$this->controller->config->getFileRootPath()?>auth" class="btn btn-info">Login</a>
+										<a href="<?=$this->controller->config->getFileRootPath()?>" class="btn btn-info">Home</a></h3>
                                     </div>
                                 </div>
                             </div>
