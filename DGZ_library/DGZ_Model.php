@@ -627,10 +627,10 @@ class DGZ_Model
 
             array_unshift($where_values, $datatypes);
 
-            if ($orderBy != '') {
+            if ($orderBy != '') { 
                 $stmt = $db->prepare("SELECT {$columns_as_string} FROM {$table} WHERE {$where_placeholders} {$orderBy}");
             }
-            else {
+            else { 
                 $stmt = $db->prepare("SELECT {$columns_as_string} FROM {$table} WHERE {$where_placeholders}");
             }
 
@@ -1220,6 +1220,7 @@ class DGZ_Model
             return $result;
         }
     }
+
 
 
 

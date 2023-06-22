@@ -2,11 +2,6 @@
 
 namespace modules\seo\controllers;
 
-use DGZ_library\DGZ_Validate;
-use DGZ_library\DGZ_Translator;
-use ReflectionClass;
-use ReflectionException;
-use controllers\AuthController;
 use DGZ_library\DGZ_View;
 use Seo;
 use Seo_global;
@@ -31,8 +26,6 @@ class SeoController extends \DGZ_library\DGZ_Controller
         $seo = new Seo();
         $globalSeo = new Seo_global();
         
-        //echo '<pre>';
-        //die(print_r($seo->getData()));
         $seoData = $seo->getData();
         $globalSeoData = $globalSeo->getData();
         $globalData = ($globalSeoData ? $globalSeoData[0] : []);
@@ -58,7 +51,16 @@ class SeoController extends \DGZ_library\DGZ_Controller
         $data = $globalSeo->getAll();
     }
 
-	
+
+	public function getSeoByName($pageName)
+    {
+        $seo = new Seo();
+        $whereClause = [
+            'seo_page_name' => "$pageName"
+        ];
+
+        return $seo->selectWhere([],$whereClause);
+    }
 		
 }
 

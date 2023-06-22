@@ -7,18 +7,22 @@ namespace DGZ_library;
 /**
  * Base Class for Views. Also contains the static method getView which looks for a named view and decides whether to use
  * the base version or an overridden version
+ * 
+ * Make sure all getView() methods in here call the method 'loadSeoData($viewName)' on the target view's controller, 
+ * 	passing it the view name, so that before the view is displayed; any associated SEO data for that view is retrieved
+ *  and ready to be used. Do this unless it is a view you do not really need to be crawled by SEs eg internal admin views 
+ *  etc 
  *
  * @author Gustav Ndamukong
  */
 abstract class DGZ_View
 {
-
-
 	/**
 	 * Returns a View class for displaying things in the desired format as defined in the URL (default to HTML if not set).
-	 *
-	 * Checks for the target view in two locations:
+	 * 
+	 * Checks for the target view in three locations:
 	 *        i) views/[format]/[viewName]
+	 * 		  ii) views/admin/[viewName]
 	 *        ii) DGZ_library/DGZ_views/[viewName]
 	 *
 	 * @param string $viewName The name of the view you want
@@ -29,6 +33,7 @@ abstract class DGZ_View
 	 */
 	public static function getView($viewName, \DGZ_library\DGZ_Controller $pageController = null, $format = null)
 	{
+		$pageController->loadSeoData($viewName); 
 
 		if (is_null($format)) {
 			$format = isset($_REQUEST['format']) ? strtolower($_REQUEST['format']) : 'html';
@@ -86,7 +91,6 @@ abstract class DGZ_View
 	 */
 	public static function getAdminView($viewName, \DGZ_library\DGZ_Controller $viewController = null, $format = null)
 	{
-
 		if (is_null($format)) {
 			$format = isset($_REQUEST['format']) ? strtolower($_REQUEST['format']) : 'html';
 		}
@@ -138,23 +142,19 @@ abstract class DGZ_View
 	 */
 	public static function getModuleView($moduleName, $viewName, \DGZ_library\DGZ_Controller $viewController = null, $format = null)
 	{
-
 		if (is_null($format)) {
 			$format = isset($_REQUEST['format']) ? strtolower($_REQUEST['format']) : 'html';
 		}
 
 		$fileName = './modules/'.strtolower($moduleName).'/views/' . $viewName . '.php';
 
-		//die($fileName);/////////
-
-		if (file_exists($fileName)) { //die('FOUND IT');
-			include_once $fileName; //$fileName = './views/admin/' . $viewName . '.php';
+		if (file_exists($fileName)) { 
+			include_once $fileName; 
 			$viewClass = 'modules\\'.strtolower($moduleName).'\views\\' . $viewName;
 		}
 		else { 
 			throw new \DGZ_library\DGZ_Exception('DGZ_View "' . $viewName . '" not found', \DGZ_library\DGZ_Exception::NO_VIEW_FOUND, 'No view class could be found called "' . $viewName . '" for format "' . '"' . PHP_EOL . 'Please check that the class exists in either "' . $fileName . '" or in "');
 		}
-
 
 		$object = new $viewClass();
 
@@ -163,9 +163,6 @@ abstract class DGZ_View
 			if (!($viewController instanceof \DGZ_library\DGZ_Controller)) {
 				throw new \DGZ_library\DGZ_Exception('Controller Object Required for HtmlView', \DGZ_library\DGZ_Exception::MISSING_PARAMETERS, 'When creating a view which extends from //DGZ_library//DGZ_View, you must provide your DGZ_Controller object as the second parameter ' . 'into DGZ_View::getView()' . PHP_EOL . '(got "' . (is_object($viewController) ? get_class($viewController) : (is_array($viewController) ? 'array' : print_r($viewController, true))) . '")' . 'This is because HTML views may need to add their own styles and scripts into your controller object in order for them to work properly.');
 			}
-
-			/////echo '<pre>';
-			/////die(var_dump($object));/////////
 
 			$viewController->setPageTitle($viewName);
 			$viewController->setViewName($viewName);
@@ -196,7 +193,6 @@ abstract class DGZ_View
 	 */
 	public static function getInsideView($viewName, \DGZ_library\DGZ_Controller $viewController = null, $format = null)
 	{
-
 		if (is_null($format)) {
 			$format = isset($_REQUEST['format']) ? strtolower($_REQUEST['format']) : 'html';
 		}

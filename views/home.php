@@ -13,12 +13,13 @@ class home extends \DGZ_library\DGZ_HtmlView
 
      function show()
      {
-         $this->addMetadata(
+        /* $this->addMetadata(
              [
                  '<meta name="description" content="Welcome to DorguzApp (replace this with your application name).">',
                  '<meta name="keywords" content="DorguzApp (replace this with your application name) contact form. Separate multiple keywords by commas">',
                  '<meta name="author" content="Your name here">'
              ]);
+        */
          /* ?>
          <!-- ==========================
     	BREADCRUMB - START
@@ -95,7 +96,7 @@ class home extends \DGZ_library\DGZ_HtmlView
 
          <!------------------------------------------------------
             NAV WAS HERE BUT IS NOW IN HEADER.INC.PHP
-         <!------------------------------------------------------>
+         ------------------------------------------------------->
 
                  <div class="container-xxl py-5 bg-primary hero-header mb-5">
                      <div class="container my-5 py-5 px-lg-5">
@@ -122,7 +123,7 @@ class home extends \DGZ_library\DGZ_HtmlView
 
                                  <p class="text-white pb-3 animated zoomIn">
                                      <ul class="text-white pb-3 animated zoomIn">
-                                         <li>Very simple (as a matter of fact, over-simplified routing</li>
+                                         <li>Very simple as a matter of fact, over-simplified routing</li>
                                          <li>Simple HTTP API system-there are only a handful or character sets you can pass in the browser URL to make your web pages come alive</li>
                                          <li>Simple Object Relational Mapping (ORM) system built into its models</li>
                                          <li>A model-database chaining system based on the rule of 'convention over configuration' which if followed will give you a great head start</li>
@@ -155,7 +156,7 @@ class home extends \DGZ_library\DGZ_HtmlView
 
              <!------------------------------
                 SEARCH MODAL FORM WAS HERE
-             <!------------------------------
+             -------------------------------->
 
 
              <!-- About Start -->
@@ -193,6 +194,17 @@ class home extends \DGZ_library\DGZ_HtmlView
                  </div>
              </div>
              <!-- About End -->
+            <!---------------------------------------------->
+             <?php /*
+                //echo '<pre> IN VIEW IN VIEW :)';
+                //die(print_r($this->controller->getMetadata()));
+                //die(print_r($this->controller->getBodySeoData()));
+               
+                <h1><?=$this->controller->getBodySeoData()['seo_h1_text']?></h1>
+                <h2><?=$this->controller->getBodySeoData()['seo_h2_text']?></h2>
+                <P><?=$this->controller->getBodySeoData()['seo_page_content']?></P>
+             */?>
+             <!---------------------------------------------->
 
 
              <!-- Newsletter Start -->

@@ -7,9 +7,10 @@ use ReflectionClass;
 use middleware\Middleware;
 use Locations;
 use Products;
-use Favs;
-use Product_categories;
-
+//use Favs;
+//use Product_categories;
+use configs\Config;
+use modules\seo\controllers\SeoController;
 
 /**
  * Description of HtmlPage
@@ -79,6 +80,12 @@ abstract class DGZ_Controller implements DGZ_Displayable {
      * @var array An array of meta tags containing meta data of a specific view that will be included on this page.
      */
     protected $metadata;
+
+    /**
+     * @var array containing data for the body of the current view file eg h1 text, h2 text, body (text) content.
+     */
+    protected $bodySeoData;
+
 
     /**
      * @var array An array of custom CSS stylesheets which need to be included on this page.
@@ -169,6 +176,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
         $this->format = isset($_REQUEST['format']) ? $_REQUEST['format'] : 'html';
 
         $this->metadata = [];
+        $this->bodySeoData = [];
         $this->styles = [];
         $this->scripts = [];
         $this->exceptions = [];
@@ -379,6 +387,220 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 	 */
 	public function addMetadata($metadataTagsArray) {
 		$this->metadata = $metadataTagsArray;
+	}
+
+    public function getMetadata() {
+        return $this->metadata;
+    }
+
+
+    /**
+     * Call this method before calling getMetadata() or getBodySeoData() 
+     * because it fetches & makes all that data available to these methods.
+     * Here is what it does:
+     *  -Checks if $this->metadata is NOT null
+     *      -if $this->metadata is NOT null, 
+     *          -returns $this->metadata     
+     *  -else checks if $this->metadata is null, 
+     *      -checks if an SEO module exists
+     *      -if SEO module exists, 
+     *          -fetches SEO data of the target view class name in (lowercase)
+     *              -if SEO data for target view class is found, 
+     *                  fetches this data, builds the page SEO string taking into accopunt the currently active locale & returns it
+     *          -else if no SEO data is found in SEO module, returns nothing
+     *      else if no SEO module exists, returns nothing 
+     *      -When all else fails; because $this->metadata is null, it returns nothing
+     */
+    public function loadSeoData($viewName) {
+        if ($this->metadata == null)
+        {
+            //die('NULL');
+            //check if SEO module exists or is active
+            if (
+                (array_key_exists('seo', $this->config->getConfig()['modules'])) &&
+                ($this->config->getConfig()['modules']['seo'] == 'on')
+            )
+            {
+                //die('MODULE EXISTS YAA');
+                //The module exists, so get its controller
+                $seoController = new \modules\seo\controllers\SeoController();
+                $targetViewClass = strtolower($viewName);
+                //die($targetViewClass);//////
+                //get view SEO data
+                $seoData = $seoController->getSeoByName($targetViewClass);
+                //echo "<pre>";
+                //die(print_r($seoData[0]));/////
+                if ($seoData)
+                {
+                    //build page SEO data & pass it in
+                    $lang = $this->getLang();
+                    $pageHeaderSeoData = [];
+                    $pageBodySeoData = [];
+
+
+                    /*
+                    There are some bits which we cannot inject into the header of the target web page, like h1 text, h2 text, page_content etc.
+                    We will therefore create a new pair of getter/setter properties on this controller for these. We could call then eg bodySeoData. 
+                    We will also create the equivalent of these members on the layout object too. Down in the display() method of this controller where 
+                    the content of this getMetatag() method is being retrieved to be passed to the setMetadata() method of the layout class, we will also 
+                    call these getBodySeoData() method to pass through the SEO data for the web page body. These bodySeoData getter & setter properties 
+                    will be passed a simple associative array holding these values. Once in the view layout, they will then be available on the layout class
+                    to be called so their data is output to the relevant spots on the page body. 
+                    */
+
+
+                    //We only need 3 pieces of SEO data for the body section
+                    $pageBodySeoData['seo_h1_text'] = isset($seoData[0]['seo_h1_text_'.$lang]) ? $seoData[0]['seo_h1_text_'.$lang] : '';
+                    $pageBodySeoData['seo_h2_text'] = isset($seoData[0]['seo_h2_text_'.$lang]) ? $seoData[0]['seo_h2_text_'.$lang] : '';
+                    $pageBodySeoData['seo_page_content'] = isset($seoData[0]['seo_page_content_'.$lang]) ? $seoData[0]['seo_page_content_'.$lang] : '';
+                    $this->setBodySeoData($pageBodySeoData);  
+
+                    /////echo '<pre>';
+                    //die(print_r($this->controller->getMetadata()));
+                    /////die(print_r($this->getBodySeoData()));
+                    //--------------------------------------
+                    //build the heade tag SEO data
+                    if (isset($seoData[0]['seo_meta_desc_'.$lang]))
+                    {
+                        $pageHeaderSeoData[] = '<meta name="description" content="'.$seoData[0]['seo_meta_desc_'.$lang].'">';
+                        
+                    }
+                    if (isset($seoData[0]['seo_keywords_'.$lang]))
+                    {
+                        $pageHeaderSeoData[] = '<meta name="keywords" content="'.$seoData[0]['seo_keywords_'.$lang].'">';
+                        
+                    }
+
+                    //OG stuff
+                    if (isset($seoData[0]['seo_og_title_'.$lang]))
+                    {
+                        $pageHeaderSeoData[] = '<meta property="og:title" content="'.$seoData[0]['seo_og_title_'.$lang].'" />';
+                    }
+                    if (isset($seoData[0]['seo_og_desc_'.$lang]))
+                    {
+                        $pageHeaderSeoData[] = '<meta property="og:description" content="'.$seoData[0]['seo_og_desc_'.$lang].'" />';
+                    }
+                    if (isset($seoData[0]['seo_og_image']))
+                    {
+                        //TODO: It depends on how the path is saved in this DB field, we may have to append that to the root path string here
+                        $pageHeaderSeoData[] = '<meta property="og:image" content="'.$seoData[0]['seo_og_image'].'" />';
+                    }
+                    if (isset($seoData[0]['seo_og_image_width']))
+                    {
+                        $pageHeaderSeoData[] = '<meta property="og:image:width" content="'.$seoData[0]['seo_og_image_width'].'" />';
+                    }
+                    if (isset($seoData[0]['seo_og_image_height']))
+                    {
+                        $pageHeaderSeoData[] = '<meta property="og:image:height" content="'.$seoData[0]['seo_og_image_height'].'" />';
+                    }
+                    if (isset($seoData[0]['seo_og_type_'.$lang]))
+                    {
+                        $pageHeaderSeoData[] = '<meta property="og:type" content="'.$seoData[0]['seo_og_type_'.$lang].'" />';
+                    }
+                    if (isset($seoData[0]['seo_og_url']))
+                    {
+                        $pageHeaderSeoData[] = '<meta property="og:url" content="'.$seoData[0]['seo_og_url'].'" />';
+                    }
+
+
+                    //Twitter Card stuff
+                    if (isset($seoData[0]['seo_twitter_title_'.$lang]))
+                    {
+                        $pageHeaderSeoData[] = '<meta name="twitter:title" content="'.$seoData[0]['seo_twitter_title_'.$lang].'" />';
+                    }    
+                    if (isset($seoData[0]['seo_twitter_desc_'.$lang]))
+                    {
+                        $pageHeaderSeoData[] = '<meta name="twitter:description" content="'.$seoData[0]['seo_twitter_desc_'.$lang].'" />';
+                    } 
+                    if (isset($seoData[0]['seo_twitter_image']))
+                    {
+                        //TODO: It depends on how the path is saved in this DB field, we may have to append that to the root path string here
+                        $pageHeaderSeoData[] = '<meta name="twitter:image" content="'.$seoData[0]['seo_twitter_image'].'" />';
+                    } 
+                    if (
+                        (isset($seoData[0]['seo_canonical_href'])) &&
+                        ($seoData[0]['seo_canonical_href'] == 1)
+                    )    
+                    {
+                        //TODO: It depends on how the path is saved in this DB field, we may have to append that to the root path string here
+                        /////$pageHeaderSeoData[0]['seo_canonical_href'] = '<link rel="canonical" href="'.$seoData[0]['seo_canonical_href'].'" />';///////
+                        $pageHeaderSeoData[] = '<link rel="canonical" href="'.$seoData[0]['seo_canonical_href'].'" />';///////
+                    }
+                    if (
+                        (isset($seoData[0]['seo_no_index'])) &&
+                        ($seoData[0]['seo_no_index'] == 1)
+                    )    
+                    {
+                        /////$pageHeaderSeoData[0]['seo_canonical_href'] = '<meta name="robots" content="noindex">';
+                        $pageHeaderSeoData[] = '<meta name="robots" content="noindex">';
+                    }
+                    if (isset($seoData[0]['seo_meta_title_'.$lang]))
+                    {
+                        $pageHeaderSeoData[] = "<title>".$seoData[0]['seo_meta_title_'.$lang]."</title>";
+                    } 
+
+                    //save it to this class to be forwarded to the target view
+                    //Note: calling addMetadata() is the same method you would have used if you were manually adding SEO data straight from 
+                    //within view files without using the SEO module.
+                    $this->addMetadata($pageHeaderSeoData);
+                    //--------------------------------------
+
+                    
+                    /*
+                    $this->addMetadata(
+                    [
+                        '<meta name="description" content="'.$langClass->translate($lang, 'home.php', 'meta-description').'">',
+                        '<meta property="og:site_name" content="Camerooncom" />',
+                        '<meta property="og:description" content="'.$langClass->translate($lang, 'home.php', 'og-description').'" />',
+                        '<meta property="og:title" content="'.$langClass->translate($lang, 'home.php', 'og-title').'" />',
+                        '<meta property="og:type" content="website" />',
+                        '<meta property="og:image" content="'.$this->controller->settings->getHomePage().'assets/images/camerooncom1.png" />',
+                        '<meta property="og:image:secure_url" content="'.$this->controller->settings->getHomePageSecure().'assets/images/camerooncom1.png" />',
+                        '<meta property="og:image:width" content="1500" />',
+                        '<meta property="og:image:height" content="750" />',
+                        '<meta property="article:publisher" content="https://camerooncom.com" />',
+                        '<meta property="og:url" content="https://camerooncom.com/home/" />',
+                        '<meta property="fb:app_id" content="3611443708919124"/>',
+
+                        '<meta name="twitter:card" content="summary" />',
+                        '<meta name="twitter:site" content="@Camerooncom2" />',
+                        '<meta name="twitter:title" content="'.$langClass->translate($lang, 'home.php', 'twitter-title').'" />',
+                        '<meta name="twitter:description" content="'.$langClass->translate($lang, 'home.php', 'twitter-description').'" />',
+                        '<meta name="twitter:image" content="'.$this->controller->settings->getHomePage().'assets/images/logos/logo.svg" />',
+                        '<link rel="canonical" href="'.$this->controller->settings->getHomePage().'" />',
+                    ]);
+                    */
+
+                }
+                else
+                {
+                    return;
+                }
+            }
+            else
+            {
+                return;
+            }
+        }
+        else
+        {
+            return;
+        }
+	}
+
+
+    /**
+     * @$seoContent array of data to replace $this->bodySeoData array with
+     */
+    public function setBodySeoData($seoContent) {
+		$this->bodySeoData = $seoContent;  
+	}
+
+
+
+
+    public function getBodySeoData() {
+		return $this->bodySeoData;
 	}
 
 
@@ -712,7 +934,10 @@ abstract class DGZ_Controller implements DGZ_Displayable {
             $layout->setContentHtml($contentHtml);
 
             //set any META TAGS, CSS or JS files that the programmer has used on the specific view file
-            $layout->setMetadata($this->metadata);
+            //load SEO data
+            $this->loadSeodata($this->viewName);////////////////////////////
+            $layout->setMetadata($this->getMetadata());
+            $layout->setBodySeoData($this->getBodySeoData());
             $layout->setCssFiles($this->styles);
             $layout->setJavascriptFiles($this->scripts);
 

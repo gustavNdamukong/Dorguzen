@@ -98,6 +98,11 @@ abstract class DGZ_Layout
 	protected $metadata;
 
 
+	/**
+	 * @var array An array of data meant for the body of a specific web page for SEO purposes eg h1 text, h2 text, page (text) content.
+	 */
+	protected $bodySeoData;
+	
 
 	/**
 	 * @var array An array of extra javascript files (within the application's htdocs/js directory) to be loaded.
@@ -340,8 +345,8 @@ abstract class DGZ_Layout
 	 * @example $page->addMetadata(
 	 *					[
 	 * 						'<meta name="description" content="Free Web tutorials">',
-	'<meta name="keywords" content="HTML, CSS, JavaScript">',
-	'<meta name="author" content="John Doe">'
+	 *  					'<meta name="keywords" content="HTML, CSS, JavaScript">',
+	 *  					'<meta name="author" content="John Doe">'
 	 *
 	 * 					]);
 	 *
@@ -349,20 +354,6 @@ abstract class DGZ_Layout
 	public function setMetadata(array $metadataTagsArray)
 	{
 		$this->metadata = $metadataTagsArray;
-	}
-
-
-
-
-	/**
-	 * Sets the list of custom CSS files (from the applications htdocs/css folder)
-	 * which need to be included in the page
-	 *
-	 * @param array $fileArray An array of filenames to be included.
-	 */
-	public function setCssFiles(array $fileArray)
-	{
-		$this->cssFiles = array_unique(array_merge($this->cssFiles, $fileArray));
 	}
 
 
@@ -380,6 +371,35 @@ abstract class DGZ_Layout
 			$metatagHtml .= html_entity_decode($data) . PHP_EOL;
 		}
 		return $metatagHtml;
+	}
+
+
+
+    /**
+     * @$seoContent array of data to replace $this->bodySeoData array with
+     */
+    public function setBodySeoData($seoContent) {
+		$this->bodySeoData = $seoContent;  
+	}
+
+
+
+
+    public function getBodySeoData() {
+		return $this->bodySeoData;
+	}
+
+
+
+	/**
+	 * Sets the list of custom CSS files (from the applications htdocs/css folder)
+	 * which need to be included in the page
+	 *
+	 * @param array $fileArray An array of filenames to be included.
+	 */
+	public function setCssFiles(array $fileArray)
+	{
+		$this->cssFiles = array_unique(array_merge($this->cssFiles, $fileArray));
 	}
 
 
@@ -489,7 +509,5 @@ abstract class DGZ_Layout
 
 			return new $layoutClass();
 		}
-
-
 	}
 }
