@@ -1,54 +1,38 @@
 <?php
 
-namespace views;
+namespace modules\seo\views;
 
 
 /**
- * This class exposes various JS code snippets which you can reuse across many view files in your application.
- * Just use it by pulling it into any view files where u need it. Place the code to include it above in the show()
- * method as it is done in login.php
- *          $jsValidation = \DGZ_library\DGZ_View::getInsideView('jsCreateUserValidationPartial', $this->controller);
- *           $jsValidation->show();
- *
- * It is essentially a partial (a piece of code that is included), and a good example of how a view can be used
- *  inside of another in Dorguzen
- *
- * Class jsValidationPartial
- * @package views
+ * Class jsSeoValidationPartial
+ * @package modules/seo/views
  */
-class jsCreateUserValidationPartial extends \DGZ_library\DGZ_HtmlView
+class jsSeoValidationPartial extends \DGZ_library\DGZ_HtmlView
 {
 
     public function show()
     { ?>
         <script type="text/javascript">
             $(document).ready(function () { 
-                //make an ajax call-this calls the function 'checkEmail()' below 
-                $(document).on('blur', '#regis_form #email', function(e)
+                //make an ajax call-this calls the function 'checkPageName()' below  
+                $(document).on('blur', '#addPage #seo_page_name', function(e)
                 {  
                     e.preventDefault(); 
-                    checkEmail(this);
+                    checkPageName(this);
                 });
 
                 /**
-                 * Code to get you started making ajax calls form your application.
-                 * Create a controller called AuthController with a method checkEmail()
-                 * You pass it a email from a form, and it calls the checkEmail() method
-                 * The checkEmail() method checks in the DB if that email is already in use.
-                 * It returns some text like 'email available' or 'email already taken' which you can display in a span
-                 *    element next to the email input field
-
-                 * @param email
+                 * @param pageName
                  */
-                function checkEmail(email) {
-                    if (email.value == '') {
+                function checkPageName(pageName) {
+                    if (pageName.value == '') {
                         document.getElementById('info').innerHTML = '';
                         return
                     }
 
-                    params = "email=" + email.value
+                    params = "pageName=" + pageName.value
                     request = new ajaxRequest()
-                    request.open("POST", "auth/checkEmail", true)
+                    request.open("POST", "seo/checkPageName", true)
                     request.setRequestHeader("Content-type",
                         "application/x-www-form-urlencoded")
 

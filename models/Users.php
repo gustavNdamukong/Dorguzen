@@ -155,7 +155,7 @@ use DGZ_library\DGZ_Model;
             $this->users_pass = $new_pwd;
 
             $where = ['users_id' => $reset_user_id, 'users_email' => $reset_email];
-            $updated = $this->updateObject($where);
+            $updated = $this->update($where);
 
             if ($updated) {
                 return true;

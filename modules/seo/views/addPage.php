@@ -6,15 +6,17 @@ namespace modules\seo\views;
 use DGZ_library\DGZ_Form;
 use modules\seo\Seo;
 
-class editPage extends \DGZ_library\DGZ_HtmlView
+class addPage extends \DGZ_library\DGZ_HtmlView
 {
 
 
-	function show($pageData = [])
+	function show()
 	{ 
 		$form = new DGZ_Form();
 		$this->addStyle('seo.css');
 		?>
+		<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+        <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
 		<!-- ==========================
 			BREADCRUMB - START
 			=========================== -->
@@ -29,7 +31,7 @@ class editPage extends \DGZ_library\DGZ_HtmlView
 										<li class="breadcrumb-item"><a class="text-white" href="<?= $this->controller->config->getFileRootPath() ?>">Home</a></li>
 										<li class="breadcrumb-item"><a class="text-white" href="<?= $this->controller->config->getFileRootPath()?>admin/dashboard">Dashboard</a></li>
 										<li class="breadcrumb-item"><a class="text-white" href="<?= $this->controller->config->getFileRootPath()?>seo">Seo</a></li>
-										<li class="breadcrumb-item text-white active" aria-current="page">Edit</li>
+										<li class="breadcrumb-item text-white active" aria-current="page">Create</li>
 									</ol>
 								</nav>
 							</div>
@@ -58,29 +60,37 @@ class editPage extends \DGZ_library\DGZ_HtmlView
 					?>
 					<!-- END OF SIDE SLIDE-IN MENU --> 
 
+					<?php
+					//Pull in the PHP file that has the JS validation codes
+					$jsValidation = \DGZ_library\DGZ_View::getModuleInsideView('seo', 'jsSeoValidationPartial', $this->controller);
+					$jsValidation->show(); ?>
+
 					<div class="row">
 						<div class="col-sm-12 col-lg-12">
-							<h2 style="text-align:center;">Edit SEO data for the '<?=$pageData['seo_page_name'] ?? ''?>' page</h2>
-							<?php
-							if ($pageData)
-							{ ?>
-
+							<h2 style="text-align:center;">Create SEO data for a webpage</h2>
                                 <div class="panel panel-primary">
-										
-											<div class="panel-heading">
-												<h4>
-													<i class="fa fa-bullhorn section-title-icon"></i>&nbsp;
-													<span class="col-form-label">
-														<small>See label text above form fields for hints on how these SEO elements work</small>
-													</span>
-												</h4>
-											</div>
+									<div class="panel-heading">
+										<h4>
+											<i class="fa fa-bullhorn section-title-icon"></i>&nbsp;
+											<span class="col-form-label">
+												<small>See label text above form fields for hints on how these SEO elements work</small>
+											</span>
+										</h4>
+									</div>
 									<?php
-									$form::open('editShop', $this->controller->config->getFileRootPath().'seo/savePageEdit', 'post', ['enctype' => 'multipart/form-data']); ?>
+									$form::open('addPage', $this->controller->config->getFileRootPath().'seo/saveNewPage', 'post', ['enctype' => 'multipart/form-data']); ?>
 										<div class="panel-body panel-primary">
 											<div class="container bg-light p-2">
 												<fieldset>
 													<legend>Page specifics</legend>
+													    <div class="col-sm-12 col-md-12 col-lg-12 form-group">
+															<?php 
+															$form::label('seo_page_name', 'Page Name');
+															echo "<span id='info'></span>";
+									                        $form::input('seo_page_name', 'text', ['class' => 'form-control']); 
+															?>
+														</div>
+
 														<div class="col-sm-12 col-md-12 col-lg-12 form-group">
 														    <span class="font-weight-bold section-title"><small>Meta titles should take a MAX of 60 characters. Try & put in the most important 
 																keywords of this page in there. A great tip is to split keywords/phrases/categories/sections (depending on the type of 
@@ -90,13 +100,13 @@ class editPage extends \DGZ_library\DGZ_HtmlView
 															</small></span>
 															<?php
 															$form::label('seo_meta_title_en', 'Title (en)');
-									                        $form::input('seo_meta_title_en', 'text', ['class' => 'form-control', 'value' => $pageData['seo_meta_title_en'] ?? '---']); 
+									                        $form::input('seo_meta_title_en', 'text', ['class' => 'form-control']); 
 
 															$form::label('seo_meta_title_fre', 'Title (fre)');
-									                        $form::input('seo_meta_title_fre', 'text', ['class' => 'form-control', 'value' => $pageData['seo_meta_title_fre'] ?? '---']);
+									                        $form::input('seo_meta_title_fre', 'text', ['class' => 'form-control']);
 
 															$form::label('seo_meta_title_es', 'Title (es)');
-									                        $form::input('seo_meta_title_es', 'text', ['class' => 'form-control', 'value' => $pageData['seo_meta_title_es'] ?? '---']);
+									                        $form::input('seo_meta_title_es', 'text', ['class' => 'form-control']);
 															?>
 														</div>
 
@@ -108,13 +118,13 @@ class editPage extends \DGZ_library\DGZ_HtmlView
 															</small></span>
 															<?php 
 															$form::label('seo_meta_desc_en', 'Meta description (en)');
-									                        $form::input('seo_meta_desc_en', 'text', ['class' => 'form-control', 'value' => $pageData['seo_meta_desc_en'] ?? '---']); 
+									                        $form::input('seo_meta_desc_en', 'text', ['class' => 'form-control']); 
 
 															$form::label('seo_meta_desc_fre', 'Meta description (fre)');
-									                        $form::input('seo_meta_desc_fre', 'text', ['class' => 'form-control', 'value' => $pageData['seo_meta_desc_fre'] ?? '---']);
+									                        $form::input('seo_meta_desc_fre', 'text', ['class' => 'form-control']);
 
 															$form::label('seo_meta_desc_es', 'Meta description (es)');
-									                        $form::input('seo_meta_desc_es', 'text', ['class' => 'form-control', 'value' => $pageData['seo_meta_desc_es'] ?? '---']);
+									                        $form::input('seo_meta_desc_es', 'text', ['class' => 'form-control']);
 															?>
 														</div>
 
@@ -129,7 +139,7 @@ class editPage extends \DGZ_library\DGZ_HtmlView
 															</small></span>
 															<?php 
 															$form::label('seo_dynamic', 'SEO Dynamic');
-									                        $form::select('seo_dynamic', [0, 1], [$pageData['seo_dynamic'] ?? ''], false, ['class' => 'form-control']); 
+									                        $form::select('seo_dynamic', [0, 1], [0], false, ['class' => 'form-control']);
 															?>
 														</div>
 
@@ -137,13 +147,13 @@ class editPage extends \DGZ_library\DGZ_HtmlView
 														    <span class="font-weight-bold section-title">Meta Keywords</span>
 															<?php 
 															$form::label('seo_keywords_en', 'Meta keywords (en)');
-									                        $form::input('seo_keywords_en', 'text', ['class' => 'form-control', 'value' => $pageData['seo_keywords_en'] ?? '---']); 
+									                        $form::input('seo_keywords_en', 'text', ['class' => 'form-control']); 
 
 															$form::label('seo_keywords_fre', 'Meta keywords (fre)');
-									                        $form::input('seo_keywords_fre', 'text', ['class' => 'form-control', 'value' => $pageData['seo_keywords_fre'] ?? '---']);
+									                        $form::input('seo_keywords_fre', 'text', ['class' => 'form-control']);
 
 															$form::label('seo_keywords_es', 'Meta keywords (es)');
-									                        $form::input('seo_keywords_es', 'text', ['class' => 'form-control', 'value' => $pageData['seo_keywords_es'] ?? '---']);
+									                        $form::input('seo_keywords_es', 'text', ['class' => 'form-control']);
 															?>
 														</div>
 
@@ -152,11 +162,11 @@ class editPage extends \DGZ_library\DGZ_HtmlView
 																that has the authority on the content of this page. On a product seach results page, for example; the 
 																canonical link will be the link path to the full product catalog page. DGZ will use this link to generate 
 																the canonical tag for you. Just provide the full URL path to the target parent page like so:
-																'https://yoursite/products/catalog'.	
+																'https://yoursite/products/catalog'.
 															</small></span>
 															<?php 
 															$form::label('seo_canonical_href', 'Canonical link');
-									                        $form::input('seo_canonical_href', 'text', ['class' => 'form-control', 'value' => $pageData['seo_canonical_href'] ?? '---']); 
+									                        $form::input('seo_canonical_href', 'text', ['class' => 'form-control']); 
 															?>
 														</div>
 
@@ -175,17 +185,16 @@ class editPage extends \DGZ_library\DGZ_HtmlView
 
 														<div class="col-sm-12 col-md-12 col-lg-12 form-group">
 														    <span class="font-weight-bold section-title">H1 Text. You only need one h1 tag per page. That h1 should describe the 
-																content of the page. An h1 tag should contain characters from 20 to a MAX of 70. 
-															</span>
+																content of the page. An h1 tag should contain characters from 20 to a MAX of 70.</span>
 															<?php 
 															$form::label('seo_h1_text_en', 'H1 Text (en)');
-									                        $form::input('seo_h1_text_en', 'text', ['class' => 'form-control', 'value' => $pageData['seo_h1_text_en'] ?? '---']); 
+									                        $form::input('seo_h1_text_en', 'text', ['class' => 'form-control']); 
 
 															$form::label('seo_h1_text_fre', 'H1 Text (fre)');
-									                        $form::input('seo_h1_text_fre', 'text', ['class' => 'form-control', 'value' => $pageData['seo_h1_text_fre'] ?? '---']);
+									                        $form::input('seo_h1_text_fre', 'text', ['class' => 'form-control']);
 
 															$form::label('seo_h1_text_es', 'H1 Text (es)');
-									                        $form::input('seo_h1_text_es', 'text', ['class' => 'form-control', 'value' => $pageData['seo_h1_text_es'] ?? '---']);
+									                        $form::input('seo_h1_text_es', 'text', ['class' => 'form-control']);
 															?>
 														</div>
 
@@ -193,13 +202,13 @@ class editPage extends \DGZ_library\DGZ_HtmlView
 														    <span class="font-weight-bold section-title">H2 Text</span>
 															<?php 
 															$form::label('seo_h2_text_en', 'H2 Text (en)');
-									                        $form::input('seo_h2_text_en', 'text', ['class' => 'form-control', 'value' => $pageData['seo_h2_text_en'] ?? '---']); 
+									                        $form::input('seo_h2_text_en', 'text', ['class' => 'form-control']); 
 
 															$form::label('seo_h2_text_fre', 'H2 Text (fre)');
-									                        $form::input('seo_h2_text_fre', 'text', ['class' => 'form-control', 'value' => $pageData['seo_h2_text_fre'] ?? '---']);
+									                        $form::input('seo_h2_text_fre', 'text', ['class' => 'form-control']);
 
 															$form::label('seo_h2_text_es', 'H2 Text (es)');
-									                        $form::input('seo_h2_text_es', 'text', ['class' => 'form-control', 'value' => $pageData['seo_h2_text_es'] ?? '---']);
+									                        $form::input('seo_h2_text_es', 'text', ['class' => 'form-control']);
 															?>
 														</div>
 
@@ -207,13 +216,13 @@ class editPage extends \DGZ_library\DGZ_HtmlView
 														    <span class="font-weight-bold section-title">Page Content</span>
 															<?php 
 															$form::label('seo_page_content_en', 'Page content (en)');
-									                        $form::input('seo_page_content_en', 'textarea', ['class' => 'form-control'], $pageData['seo_page_content_en'] ?? '---'); 
+									                        $form::input('seo_page_content_en', 'textarea', ['class' => 'form-control']); 
 
 															$form::label('seo_page_content_fre', 'Page content (fre)');
-									                        $form::input('seo_page_content_fre', 'textarea', ['class' => 'form-control'], $pageData['seo_page_content_fre'] ?? '---');
+									                        $form::input('seo_page_content_fre', 'textarea', ['class' => 'form-control']);
 
 															$form::label('seo_page_content_es', 'Page content (es)');
-									                        $form::input('seo_page_content_es', 'textarea', ['class' => 'form-control'], $pageData['seo_page_content_es'] ?? '---');
+									                        $form::input('seo_page_content_es', 'textarea', ['class' => 'form-control']);
 															?>
 														</div>
 							                        </fieldset>
@@ -225,29 +234,28 @@ class editPage extends \DGZ_library\DGZ_HtmlView
 															your meta title tag. </span>
 														   <?php 
 														    $form::label('seo_og_title_en', 'Og title (en)');
-									                        $form::input('seo_og_title_en', 'text', ['class' => 'form-control', 'value' => $pageData['seo_og_title_en'] ?? '---']); 
+									                        $form::input('seo_og_title_en', 'text', ['class' => 'form-control']); 
 
 														    $form::label('seo_og_title_fre', 'Og title (fre)');
-									                        $form::input('seo_og_title_fre', 'text', ['class' => 'form-control', 'value' => $pageData['seo_og_title_fre'] ?? '---']);
+									                        $form::input('seo_og_title_fre', 'text', ['class' => 'form-control']);
 
 															$form::label('seo_og_title_es', 'Og title (es)');
-									                        $form::input('seo_og_title_es', 'text', ['class' => 'form-control', 'value' => $pageData['seo_og_title_es'] ?? '---']);
+									                        $form::input('seo_og_title_es', 'text', ['class' => 'form-control']);
 															?>
 														</div>
 
                                                         <div class="col-sm-12 col-md-12 col-lg-12 form-group">
-														   <span class="font-weight-bold section-title">OG:description. This can, and is usually the same as the text in 
-															your meta desciption. 
-														   </span>
+														   <span class="font-weight-bold section-title">OG:description. This can be, and is usually the same as the text in 
+															your meta desciption. </span>
 														   <?php 
 														    $form::label('seo_og_desc_en', 'Og description (en)');
-									                        $form::input('seo_og_desc_en', 'text', ['class' => 'form-control', 'value' => $pageData['seo_og_desc_en'] ?? '---']); 
+									                        $form::input('seo_og_desc_en', 'text', ['class' => 'form-control']); 
 
 														    $form::label('seo_og_desc_fre', 'Og description (fre)');
-									                        $form::input('seo_og_desc_fre', 'text', ['class' => 'form-control', 'value' => $pageData['seo_og_desc_fre'] ?? '---']);
+									                        $form::input('seo_og_desc_fre', 'text', ['class' => 'form-control']);
 
 															$form::label('seo_og_desc_es', 'Og description (es)');
-									                        $form::input('seo_og_desc_es', 'text', ['class' => 'form-control', 'value' => $pageData['seo_og_desc_es'] ?? '---']);
+									                        $form::input('seo_og_desc_es', 'text', ['class' => 'form-control']);
 															?>
 														</div>
 
@@ -262,7 +270,7 @@ class editPage extends \DGZ_library\DGZ_HtmlView
 															</span>
 															<?php 
 															$form::label('seo_og_image', 'Og:Image (Fully qualified image path eg https://yourSite/assets/images/social/og-image.png)');
-									                        $form::input('seo_og_image', 'text', ['class' => 'form-control', 'value' => $pageData['seo_og_image'] ?? '---']); 
+									                        $form::input('seo_og_image', 'text', ['class' => 'form-control']); 
 															?>
 														</div>
 
@@ -272,7 +280,7 @@ class editPage extends \DGZ_library\DGZ_HtmlView
 															</small></span>
 															<?php 
 															$form::label('seo_og_image_width', 'Og:Image width');
-									                        $form::input('seo_og_image_width', 'text', ['class' => 'form-control', 'placeholder' => 'recommended: 1200', 'value' => $pageData['seo_og_image_width'] ?? '---']); 
+									                        $form::input('seo_og_image_width', 'text', ['class' => 'form-control', 'placeholder' => 'recommended: 1200']); 
 															?>
 														</div>
 
@@ -282,7 +290,7 @@ class editPage extends \DGZ_library\DGZ_HtmlView
 															</small></span>
 															<?php 
 															$form::label('seo_og_image_height', 'Og:Image height');
-									                        $form::input('seo_og_image_height', 'text', ['class' => 'form-control', 'placeholder' => 'recommended: 630', 'value' => $pageData['seo_og_image_height'] ?? '---']); 
+									                        $form::input('seo_og_image_height', 'text', ['class' => 'form-control', 'placeholder' => 'recommended: 630']); 
 															?>
 														</div>
 
@@ -291,7 +299,7 @@ class editPage extends \DGZ_library\DGZ_HtmlView
 																<small>e.g. https://yourSite/assets/images/social/image.svg</small></span>
 															<?php 
 															$form::label('seo_og_image_secure_url', 'Og:Image secure/SSL link');
-									                        $form::input('seo_og_image_secure_url', 'text', ['class' => 'form-control', 'value' => $pageData['seo_og_image_secure_url'] ?? '---']); 
+									                        $form::input('seo_og_image_secure_url', 'text', ['class' => 'form-control']); 
 															?>
 														</div>
 
@@ -299,20 +307,20 @@ class editPage extends \DGZ_library\DGZ_HtmlView
 														   <span class="font-weight-bold section-title">OG:Type <small>e.g. article, profile etc</small></span>
 														   <?php 
 														    $form::label('seo_og_type_en', 'Og type (en)');
-									                        $form::input('seo_og_type_en', 'text', ['class' => 'form-control', 'value' => $pageData['seo_og_type_en'] ?? '---']); 
+									                        $form::input('seo_og_type_en', 'text', ['class' => 'form-control']); 
 
 														    $form::label('seo_og_type_fre', 'Og type (fre)');
-									                        $form::input('seo_og_type_fre', 'text', ['class' => 'form-control', 'value' => $pageData['seo_og_type_fre'] ?? '---']);
+									                        $form::input('seo_og_type_fre', 'text', ['class' => 'form-control']);
 
 															$form::label('seo_og_type_es', 'Og type (es)');
-									                        $form::input('seo_og_type_es', 'text', ['class' => 'form-control', 'value' => $pageData['seo_og_type_es'] ?? '---']);
-															?>seo_
+									                        $form::input('seo_og_type_es', 'text', ['class' => 'form-control']);
+															?>
 														</div>
 
 														<div class="col-sm-12 col-md-12 col-lg-12 form-group">
 															<?php 
 															$form::label('seo_og_url', 'Og:URL (The full path to this page)');
-									                        $form::input('seo_og_url', 'text', ['class' => 'form-control', 'value' => $pageData['seo_og_url'] ?? '---']); 
+									                        $form::input('seo_og_url', 'text', ['class' => 'form-control']); 
 															?>
 														</div>
 
@@ -321,7 +329,7 @@ class editPage extends \DGZ_library\DGZ_HtmlView
 																<small>Fully qualified URL path to a video if there is one, for the content of this page</small></span>
 															<?php 
 															$form::label('seo_og_video', 'Og:video (e.g. https://yoursite/assets/videos/myVideo.mp4)');
-									                        $form::input('seo_og_video', 'text', ['class' => 'form-control', 'value' => $pageData['seo_og_video'] ?? '---']); 
+									                        $form::input('seo_og_video', 'text', ['class' => 'form-control', 'value' => $pageData['seo_og_video'] ?? ' ']); 
 															?>
 														</div>
 							                        </fieldset>	
@@ -333,13 +341,13 @@ class editPage extends \DGZ_library\DGZ_HtmlView
 															your meta title tag. </span>
 														   <?php 
 														    $form::label('seo_twitter_title_en', 'Twitter Title (en)');
-									                        $form::input('seo_twitter_title_en', 'text', ['class' => 'form-control', 'value' => $pageData['seo_twitter_title_en'] ?? '---']); 
+									                        $form::input('seo_twitter_title_en', 'text', ['class' => 'form-control']); 
 
 														    $form::label('seo_twitter_title_fre', 'Twitter Title (fre)');
-									                        $form::input('seo_twitter_title_fre', 'text', ['class' => 'form-control', 'value' => $pageData['seo_twitter_title_fre'] ?? '---']);
+									                        $form::input('seo_twitter_title_fre', 'text', ['class' => 'form-control']);
 
 															$form::label('seo_twitter_title_es', 'Twitter Title (es)');
-									                        $form::input('seo_twitter_title_es', 'text', ['class' => 'form-control', 'value' => $pageData['seo_twitter_title_es'] ?? '---']);
+									                        $form::input('seo_twitter_title_es', 'text', ['class' => 'form-control']);
 															?>
 													    </div>
 
@@ -348,13 +356,13 @@ class editPage extends \DGZ_library\DGZ_HtmlView
 															your meta desciption. </span>
 														   <?php 
 														    $form::label('seo_twitter_desc_en', 'Twitter description (en)');
-									                        $form::input('seo_twitter_desc_en', 'text', ['class' => 'form-control', 'value' => $pageData['seo_twitter_desc_en'] ?? '---']); 
+									                        $form::input('seo_twitter_desc_en', 'text', ['class' => 'form-control']); 
 
 														    $form::label('seo_twitter_desc_fre', 'Twitter description (fre)');
-									                        $form::input('seo_twitter_desc_fre', 'text', ['class' => 'form-control', 'value' => $pageData['seo_twitter_desc_fre'] ?? '---']);
+									                        $form::input('seo_twitter_desc_fre', 'text', ['class' => 'form-control']);
 
 															$form::label('seo_twitter_desc_es', 'Twitter description (es)');
-									                        $form::input('seo_twitter_desc_es', 'text', ['class' => 'form-control', 'value' => $pageData['seo_twitter_desc_es'] ?? '---']);
+									                        $form::input('seo_twitter_desc_es', 'text', ['class' => 'form-control']);
 															?>
 													    </div>
 
@@ -372,7 +380,7 @@ class editPage extends \DGZ_library\DGZ_HtmlView
 															</span>
 															<?php 
 															$form::label('seo_twitter_image', 'Twitter Image');
-									                        $form::input('seo_twitter_image', 'text', ['class' => 'form-control', 'value' => $pageData['seo_twitter_image'] ?? '---']); 
+									                        $form::input('seo_twitter_image', 'text', ['class' => 'form-control']); 
 															?>
 														</div>
 							                        </fieldset>
@@ -382,7 +390,7 @@ class editPage extends \DGZ_library\DGZ_HtmlView
 											    <div class="form-group">
 													<?php
 									                $form::submit('button', 'Cancel', ['class' => 'btn btn-warning btn-sm', 'href' => $this->controller->config->getFileRootPath().'seo']);
-									                $form::submit('submit', 'Save Changes', ['class' => 'btn btn-primary btn-sm ml-3']);
+									                $form::submit('submit', 'Create Page', ['class' => 'btn btn-primary btn-sm ml-3']);
 													?>
 									            </div>		
 											</div>		
@@ -391,18 +399,6 @@ class editPage extends \DGZ_library\DGZ_HtmlView
 								    $form::close();
 									?>
 								</div>
-							<?php		
-							}
-							else 
-							{ ?>
-								<p style="color:red;text-align: center;">
-									 <b>Page SEO data not found!</b>
-								</p>
-								<h3 style="font-weight:bold;color:#3d78d8;">
-									 <a href="<?=$this->controller->config->getFileRootPath()?>seo" class="btn btn-primary btn-sm">Return to Seo page</a>
-								</h3>
-								<?php
-						   } ?>
 						</div>
 					</div>
 				</div>

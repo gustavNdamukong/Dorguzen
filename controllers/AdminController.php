@@ -285,7 +285,7 @@ class AdminController extends \DGZ_library\DGZ_Controller  {
                 ];
 
                 $where = ['users_id' => $userId];
-                $updated = $user->update($data, $where);
+                $updated = $user->updateObject($data, $where);
 
                 if ($updated)
                 {

@@ -13,13 +13,13 @@ class home extends \DGZ_library\DGZ_HtmlView
 
      function show()
      {
-        /* $this->addMetadata(
+         $this->addMetadata(
              [
                  '<meta name="description" content="Welcome to DorguzApp (replace this with your application name).">',
                  '<meta name="keywords" content="DorguzApp (replace this with your application name) contact form. Separate multiple keywords by commas">',
                  '<meta name="author" content="Your name here">'
              ]);
-        */
+        
          /* ?>
          <!-- ==========================
     	BREADCRUMB - START
@@ -186,6 +186,21 @@ class home extends \DGZ_library\DGZ_HtmlView
                                  <a class="btn btn-outline-primary btn-square me-3" href=""><i class="fab fa-instagram"></i></a>
                                  <a class="btn btn-outline-primary btn-square" href=""><i class="fab fa-linkedin-in"></i></a>
                              </div>
+
+                             <?php ?><div>
+                                <!---------------------------------------------->
+                                <?php 
+                                    //echo '<pre> IN VIEW IN VIEW :)';
+                                    //die(print_r($this->controller->getMetadata()));
+                                    //die(print_r($this->controller->getBodySeoData()));?>
+                                
+                                    <h1><?=$this->controller->getBodySeoData()['seo_h1_text'] ?? ''?></h1>
+                                    <h2><?=$this->controller->getBodySeoData()['seo_h2_text'] ?? ''?></h2>
+                                    <P><?=$this->controller->getBodySeoData()['seo_page_content'] ?? ''?></P>
+                                
+                                <!---------------------------------------------->
+                             </div>
+
                          </div>
                          <div class="col-lg-6">
                              <img class="img-fluid wow zoomIn" data-wow-delay="0.5s" src="<?=$this->controller->config->getFileRootPath()?>assets/images/about.jpg">
@@ -194,17 +209,7 @@ class home extends \DGZ_library\DGZ_HtmlView
                  </div>
              </div>
              <!-- About End -->
-            <!---------------------------------------------->
-             <?php /*
-                //echo '<pre> IN VIEW IN VIEW :)';
-                //die(print_r($this->controller->getMetadata()));
-                //die(print_r($this->controller->getBodySeoData()));
-               
-                <h1><?=$this->controller->getBodySeoData()['seo_h1_text']?></h1>
-                <h2><?=$this->controller->getBodySeoData()['seo_h2_text']?></h2>
-                <P><?=$this->controller->getBodySeoData()['seo_page_content']?></P>
-             */?>
-             <!---------------------------------------------->
+            
 
 
              <!-- Newsletter Start -->

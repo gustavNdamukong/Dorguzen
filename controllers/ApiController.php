@@ -71,7 +71,6 @@ class ApiController extends \DGZ_library\DGZ_Controller
             /*
              * -logout
              */
-
             $this->setHeaders();
             $controllerName = ucfirst($targetController).'Controller';
 

@@ -75,9 +75,13 @@ abstract class DGZ_Controller implements DGZ_Displayable {
     protected $useFullLayout = true;
 
 
+    /**
+     * @var array An array of meta tags containing meta data shared by all views, to be injected via the layout template.
+     */
+    protected $globalSeoData;
 
     /**
-     * @var array An array of meta tags containing meta data of a specific view that will be included on this page.
+     * @var array An array of meta tags containing meta data to be injected into the specific view about to be displayed.
      */
     protected $metadata;
 
@@ -175,6 +179,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
         $this->format = isset($_REQUEST['format']) ? $_REQUEST['format'] : 'html';
 
+        $this->globalSeoData = [];
         $this->metadata = [];
         $this->bodySeoData = [];
         $this->styles = [];
@@ -367,6 +372,25 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
 
 
+
+    public function setGlobalSeoData($appGlobalSeoData)
+    {
+        //$this->globalSeoData = []; ////////////// REMOVE THIS - IT DISN'T CHANGE ANYTHING
+        $this->globalSeoData = $appGlobalSeoData;
+        /////echo '<pre>';
+        //$this->showArray($this->globalSeoData);///////////////
+        /////$this->showArray($this->getGlobalSeoData());///////////////Î
+    }
+
+
+    public function getGlobalSeoData()
+    {
+        //$this->showArray($this->globalSeoData);/////////////// REMOVE - DIDN'T CHANGE A THING
+        return $this->globalSeoData;
+    }
+
+
+
 	/**
 	 * Adds meta tags for a specific view to be injected directly into the head tag of the layout page.
 	 * Other generic meta data have been preset in the layout file and are applied to all pages with the exception of the following:
@@ -394,8 +418,25 @@ abstract class DGZ_Controller implements DGZ_Displayable {
     }
 
 
+
+
     /**
-     * Call this method before calling getMetadata() or getBodySeoData() 
+     * @$seoContent array of data to replace $this->bodySeoData array with
+     */
+    public function setBodySeoData($seoContent) {
+		$this->bodySeoData = $seoContent;  
+	}
+
+
+
+
+    public function getBodySeoData() {
+		return $this->bodySeoData;
+	}
+
+
+    /**
+     * Call this method before calling getGlobalSeoData(), getMetadata(), & getBodySeoData()
      * because it fetches & makes all that data available to these methods.
      * Here is what it does:
      *  -Checks if $this->metadata is NOT null
@@ -403,40 +444,108 @@ abstract class DGZ_Controller implements DGZ_Displayable {
      *          -returns $this->metadata     
      *  -else checks if $this->metadata is null, 
      *      -checks if an SEO module exists
-     *      -if SEO module exists, 
+     *      -if SEO module exists-at the meoment, that is if its turned on in the config, 
+     *          -fetches the global SEO data for your whole application
      *          -fetches SEO data of the target view class name in (lowercase)
      *              -if SEO data for target view class is found, 
-     *                  fetches this data, builds the page SEO string taking into accopunt the currently active locale & returns it
+     *                  fetches this data, builds the page SEO string taking into account the currently active locale & returns it
      *          -else if no SEO data is found in SEO module, returns nothing
      *      else if no SEO module exists, returns nothing 
      *      -When all else fails; because $this->metadata is null, it returns nothing
      */
-    public function loadSeoData($viewName) {
+    public function loadSeoData($viewName) { 
         if ($this->metadata == null)
         {
-            //die('NULL');
             //check if SEO module exists or is active
             if (
                 (array_key_exists('seo', $this->config->getConfig()['modules'])) &&
                 ($this->config->getConfig()['modules']['seo'] == 'on')
             )
             {
-                //die('MODULE EXISTS YAA');
                 //The module exists, so get its controller
                 $seoController = new \modules\seo\controllers\SeoController();
                 $targetViewClass = strtolower($viewName);
-                //die($targetViewClass);//////
+                $lang = $this->getLang();
+
                 //get view SEO data
                 $seoData = $seoController->getSeoByName($targetViewClass);
-                //echo "<pre>";
-                //die(print_r($seoData[0]));/////
+                $globalSeoData = $seoController->getGlobalSeoData();
+
+                if ($globalSeoData)
+                { 
+                    //build your app's global SEO HTML elements
+                    $appGlobalSeoData = [];
+
+                    if (isset($globalSeoData[0]['seo_global_og_locale']))
+                    { 
+                        $appGlobalSeoData[] = '<meta property="og:locale:alternate" content="'.$globalSeoData[0]['seo_global_og_locale'].'" />';
+                    }
+                    if (isset($globalSeoData[0]['seo_global_og_site']))
+                    {
+                        $appGlobalSeoData[] = '<meta property="og:site_name" content="'.$globalSeoData[0]['seo_global_og_site'].'" />';
+                    }
+                    if (isset($globalSeoData[0]['seo_global_og_article_publisher']))
+                    {
+                        //This is the https fully qualified path to the personal/business facebook page of this site owner
+                        $appGlobalSeoData[] = '<meta property="article:publisher" content="'.$globalSeoData[0]['seo_global_og_article_publisher'].'" />';
+                    }
+                    if (isset($globalSeoData[0]['seo_global_og_author']))
+                    {
+                        //This is the https fully qualified path to the personal facebook page of this site owner 
+                        $appGlobalSeoData[] = '<meta property="article:author" content="'.$globalSeoData[0]['seo_global_og_author'].'" />';
+                    }
+                    if (isset($globalSeoData[0]['seo_global_geo_placename'])) 
+                    {
+                        //The example values here can be 'England', or 'London'
+                        $appGlobalSeoData[] = '<meta name="geo.placename" content="'.$globalSeoData[0]['seo_global_geo_placename'].'" />';
+                    }
+                    if (isset($globalSeoData[0]['seo_global_geo_region'])) 
+                    {
+                        //The international abbreviation for the location country eg 'UK'
+                        $appGlobalSeoData[] = '<meta name="geo.region" content="'.$globalSeoData[0]['seo_global_geo_region'].'" />';
+                    }
+                    if (isset($globalSeoData[0]['seo_global_geo_position']))   
+                    {
+                        //This will be the geo coordinates of the site location eg '7.369722;12.354722'
+                        $appGlobalSeoData[] = '<meta name="geo.position" content="'.$globalSeoData[0]['seo_global_geo_position'].'" />';
+                    }
+                    if (isset($globalSeoData[0]['seo_global_fb_id']))    
+                    {
+                        $appGlobalSeoData[] = '<meta property="fb:app_id" content="'.$globalSeoData[0]['seo_global_fb_id'].'" />';
+                    }
+                    if (isset($globalSeoData[0]['seo_global_twitter_card']))    
+                    {
+                        //An example value could be 'summary', or 'article' etc
+                        $appGlobalSeoData[] = '<meta name="twitter:card" content="'.$globalSeoData[0]['seo_global_twitter_card'].'" />';
+                    }
+                    if (isset($globalSeoData[0]['seo_global_twitter_site']))    
+                    {
+                        //This is the ID of the Twitter account of this website
+                        $appGlobalSeoData[] = '<meta name="twitter:site" content="'.$globalSeoData[0]['seo_global_twitter_site'].'" />';  
+                    }
+                    if (isset($globalSeoData[0]['seo_global_reflang_alternate1']))    
+                    {
+                        //If your site has alternative versions in different languages. The values can be 'en-ca', or 'fr-ca' 
+                        //for a Canadian site in French and English etc
+                        $appGlobalSeoData[] = '<link rel="alternate" href="$this->config()->getHomePage()" hreflang="'.$globalSeoData[0]['seo_global_reflang_alternate1'].'" />';
+                    }
+                    if (isset($globalSeoData[0]['seo_global_reflang_alternate2']))    
+                    {
+                        //If your site has alternative versions in different languages. The values can be 'en-ca', or 'fr-ca' 
+                        //for a Canadian site in French and English etc
+                        $appGlobalSeoData[] = '<link rel="alternate" href="$this->config()->getHomePage()" hreflang="'.$globalSeoData[0]['seo_global_reflang_alternate2'].'" />';
+                    }
+
+                    //save it to this class to be forwarded to the target view via the layout template
+                    $this->setGlobalSeoData($appGlobalSeoData);
+                    //--------------------------------------
+                } 
+
                 if ($seoData)
                 {
                     //build page SEO data & pass it in
-                    $lang = $this->getLang();
                     $pageHeaderSeoData = [];
                     $pageBodySeoData = [];
-
 
                     /*
                     There are some bits which we cannot inject into the header of the target web page, like h1 text, h2 text, page_content etc.
@@ -448,17 +557,13 @@ abstract class DGZ_Controller implements DGZ_Displayable {
                     to be called so their data is output to the relevant spots on the page body. 
                     */
 
-
                     //We only need 3 pieces of SEO data for the body section
                     $pageBodySeoData['seo_h1_text'] = isset($seoData[0]['seo_h1_text_'.$lang]) ? $seoData[0]['seo_h1_text_'.$lang] : '';
                     $pageBodySeoData['seo_h2_text'] = isset($seoData[0]['seo_h2_text_'.$lang]) ? $seoData[0]['seo_h2_text_'.$lang] : '';
                     $pageBodySeoData['seo_page_content'] = isset($seoData[0]['seo_page_content_'.$lang]) ? $seoData[0]['seo_page_content_'.$lang] : '';
                     $this->setBodySeoData($pageBodySeoData);  
-
-                    /////echo '<pre>';
-                    //die(print_r($this->controller->getMetadata()));
-                    /////die(print_r($this->getBodySeoData()));
                     //--------------------------------------
+                    
                     //build the heade tag SEO data
                     if (isset($seoData[0]['seo_meta_desc_'.$lang]))
                     {
@@ -468,7 +573,6 @@ abstract class DGZ_Controller implements DGZ_Displayable {
                     if (isset($seoData[0]['seo_keywords_'.$lang]))
                     {
                         $pageHeaderSeoData[] = '<meta name="keywords" content="'.$seoData[0]['seo_keywords_'.$lang].'">';
-                        
                     }
 
                     //OG stuff
@@ -483,7 +587,16 @@ abstract class DGZ_Controller implements DGZ_Displayable {
                     if (isset($seoData[0]['seo_og_image']))
                     {
                         //TODO: It depends on how the path is saved in this DB field, we may have to append that to the root path string here
+                        //instruct the user to put the fully qualified image URL in the form field. They should test in browser first to confirm
+                        //sp that it would just work here eg 'http://dorguzen/assets/social/site.png'
                         $pageHeaderSeoData[] = '<meta property="og:image" content="'.$seoData[0]['seo_og_image'].'" />';
+                    }
+                    if (isset($seoData[0]['seo_og_image_secure_url']))
+                    {
+                        //TODO: It depends on how the path is saved in this DB field, we may have to append that to the root path string here
+                        //instruct the user to put the fully qualified image URL in the form field. They should test in browser first to confirm
+                        //sp that it would just work here eg: 'https://dorguzen/assets/social/site.png'
+                        $pageHeaderSeoData[] = '<meta property="og:image:secure_url" content="'.$seoData[0]['seo_og_image_secure_url'].'" />';
                     }
                     if (isset($seoData[0]['seo_og_image_width']))
                     {
@@ -492,6 +605,11 @@ abstract class DGZ_Controller implements DGZ_Displayable {
                     if (isset($seoData[0]['seo_og_image_height']))
                     {
                         $pageHeaderSeoData[] = '<meta property="og:image:height" content="'.$seoData[0]['seo_og_image_height'].'" />';
+                    }
+                    if (isset($seoData[0]['seo_og_video']))
+                    {
+                        //Advice the user when entering this data in trhe form to provide the 'https' version of the video URL, else FB will reject it
+                        $pageHeaderSeoData[] = '<meta property="og:video" content="'.$seoData[0]['seo_og_video'].'" />';
                     }
                     if (isset($seoData[0]['seo_og_type_'.$lang]))
                     {
@@ -522,9 +640,8 @@ abstract class DGZ_Controller implements DGZ_Displayable {
                         ($seoData[0]['seo_canonical_href'] == 1)
                     )    
                     {
-                        //TODO: It depends on how the path is saved in this DB field, we may have to append that to the root path string here
-                        /////$pageHeaderSeoData[0]['seo_canonical_href'] = '<link rel="canonical" href="'.$seoData[0]['seo_canonical_href'].'" />';///////
-                        $pageHeaderSeoData[] = '<link rel="canonical" href="'.$seoData[0]['seo_canonical_href'].'" />';///////
+                        //the full qualified URL path comes from the DB, so we just insert it into the href attribute
+                        $pageHeaderSeoData[] = '<link rel="canonical" href="'.$seoData[0]['seo_canonical_href'].'" />';
                     }
                     if (
                         (isset($seoData[0]['seo_no_index'])) &&
@@ -544,33 +661,6 @@ abstract class DGZ_Controller implements DGZ_Displayable {
                     //within view files without using the SEO module.
                     $this->addMetadata($pageHeaderSeoData);
                     //--------------------------------------
-
-                    
-                    /*
-                    $this->addMetadata(
-                    [
-                        '<meta name="description" content="'.$langClass->translate($lang, 'home.php', 'meta-description').'">',
-                        '<meta property="og:site_name" content="Camerooncom" />',
-                        '<meta property="og:description" content="'.$langClass->translate($lang, 'home.php', 'og-description').'" />',
-                        '<meta property="og:title" content="'.$langClass->translate($lang, 'home.php', 'og-title').'" />',
-                        '<meta property="og:type" content="website" />',
-                        '<meta property="og:image" content="'.$this->controller->settings->getHomePage().'assets/images/camerooncom1.png" />',
-                        '<meta property="og:image:secure_url" content="'.$this->controller->settings->getHomePageSecure().'assets/images/camerooncom1.png" />',
-                        '<meta property="og:image:width" content="1500" />',
-                        '<meta property="og:image:height" content="750" />',
-                        '<meta property="article:publisher" content="https://camerooncom.com" />',
-                        '<meta property="og:url" content="https://camerooncom.com/home/" />',
-                        '<meta property="fb:app_id" content="3611443708919124"/>',
-
-                        '<meta name="twitter:card" content="summary" />',
-                        '<meta name="twitter:site" content="@Camerooncom2" />',
-                        '<meta name="twitter:title" content="'.$langClass->translate($lang, 'home.php', 'twitter-title').'" />',
-                        '<meta name="twitter:description" content="'.$langClass->translate($lang, 'home.php', 'twitter-description').'" />',
-                        '<meta name="twitter:image" content="'.$this->controller->settings->getHomePage().'assets/images/logos/logo.svg" />',
-                        '<link rel="canonical" href="'.$this->controller->settings->getHomePage().'" />',
-                    ]);
-                    */
-
                 }
                 else
                 {
@@ -588,20 +678,6 @@ abstract class DGZ_Controller implements DGZ_Displayable {
         }
 	}
 
-
-    /**
-     * @$seoContent array of data to replace $this->bodySeoData array with
-     */
-    public function setBodySeoData($seoContent) {
-		$this->bodySeoData = $seoContent;  
-	}
-
-
-
-
-    public function getBodySeoData() {
-		return $this->bodySeoData;
-	}
 
 
 
@@ -782,7 +858,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 					}
 					if ($middleWareIntent === 'divert') {
 						//call the middleware method and proceed with a new controller & or, method
-						list($controller, $method, $inputParameters) = call_user_func([$middleware, $controllerInput], $method);
+						list($controller, $method, $inputParameters) = call_user_func([$middleware, $middleWareIntent], $method);
 					}
                     if ($middleWareIntent === 'authorised') { 
                         //Check if middleware authorised method returns true & proceed
@@ -791,6 +867,15 @@ abstract class DGZ_Controller implements DGZ_Displayable {
                         }
                         else { 
                             throw new DGZ_Exception('Not authorized', DGZ_Exception::PERMISSION_DENIED, 'You are trying to visit a restricted area of this application.');
+                        }
+                    }
+                    if ($middleWareIntent === 'authenticated') { 
+                        //Check if middleware authorised method returns true & proceed
+                        if (call_user_func([$middleware, $middleWareIntent], $method)) { 
+                            //The routing will proceed as normal with the requested controller & method
+                        }
+                        else { 
+                            throw new DGZ_Exception('Not authorized', DGZ_Exception::PERMISSION_DENIED, 'You must be logged in to access this section.');
                         }
                     }
 				}
@@ -935,9 +1020,10 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
             //set any META TAGS, CSS or JS files that the programmer has used on the specific view file
             //load SEO data
-            $this->loadSeodata($this->viewName);////////////////////////////
+            $this->loadSeodata($this->viewName);
+            $layout->setGlobalSeoData($this->globalSeoData);
             $layout->setMetadata($this->getMetadata());
-            $layout->setBodySeoData($this->getBodySeoData());
+            /////////////////////$layout->setBodySeoData($this->getBodySeoData()); /////THIS IS NO LONGER NEEDED HERE RIGHT??? NOW DONE JUST BETWEEN CONTROLLER & DGZ_View()
             $layout->setCssFiles($this->styles);
             $layout->setJavascriptFiles($this->scripts);
 

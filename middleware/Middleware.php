@@ -4,6 +4,7 @@ namespace middleware;
 
 
 use configs\Config;
+use Users;
 
 /**
  * Validate or divert requests
@@ -18,22 +19,33 @@ class Middleware
 
     private $controller;
 
+    private $config;
+
     private $method;
+
+    private $users;
 
 
     public function __construct($controller, $method)
     {
         $this->controller = $controller;
+        $this->config = new Config();
         $this->method = $method;
+        $this->users = new Users();
     }
 
 
     /**
      * This middleware's boot() method contains an associative array of key-action pairs, where if a key matches the current controller
      *      (in its lowercase name without the 'Controller' suffix) the outcome is that the routing will be handled according to the value 
-     *      of the key
-     *      To achieve this outcome, this class MUST have a method with the matched key in boot(), which essentially is the controller name.
-     *  Here is an example of the content of boot() and what it content means:
+     *      of the key.
+     *      To achieve this outcome, this class MUST have a method matching a value of the key in the boot() method. 
+     *      Note that the keys in boot() represent controller names. At every request, thes keys here will be checked for a key that matches 
+     *      the current request controller. 
+     *      -There is an exception-if the value of the key is a boolean (true/false), then a method in this class matching the name of the 
+     *       key wil be looked for and called. This method is then expected to return that boolean.
+     *  
+     *      Here is an example of the content of boot() and what it content means:
      * 
      *          public function boot()
      *           { 
@@ -42,34 +54,32 @@ class Middleware
      *                   'jump' => false,
      *                   'api' => 'divert',
      *                   'seo' => 'authorised',
+     *                   'admin' => 'authenticated'
      *               ];
      *           }
      * 
-     *      -First of all, we need to understand that this middle class is instantiated with a controller and method that the routing was intended 
-     *          for. This could look like this: 
+     *      -First of all, we need to understand that this middleware class is instantiated with two arguments; a controller and method which
+     *         represent the exact target controller & method of the current request. 
+     *         This could look like this: 
      * 
      *          Controller: 'controllers\TestController 
      *          Method:     'defaultAction'
      * 
-     *      -Then for each key in boot() there must be a method in this Middleware class by that name. So in this Middleware class,
-     *          we must have the following methods:
+     *      -According to the above example; there must be methods test() and jump() in this middleware class which return true and false 
+     *       respectively. Following the above example again, of keys in the boot() methods, the following methods will have to me in the class:
      * 
      *          test()
      *          jump()
-     *          api()
-     *          seo() 
+     *          divert()
+     *          authorised() 
+     *          authenticated()
      * 
-     *      -There are 4 possible outcomes for your Middleware methods.
-     *          -true
-     *          -false
-     *          -divert
-     *          -authorised
+     *      -The above methods are for demonstrative purposes only. Feel free to add more options as your 
+     *          application demands. Just remember to add an if statement block in DGZ_Router.php and DGZ_Controller where the
+     *          Middleware call is being made, so you can capture and handle the response from your methods. 
      * 
-     *          I have listed 4 keys (methods) to demonstrate the 4 possible outcomes. feel free to add mode options as your 
-     *          application demands. Juest remember to add an if statement block in DGZ_Router.php and DGZ_Controller where the
-     *          Middleware call is being made and then capture and handle the response. 
-     * 
-     *      -Remember that the logic of that method must result in an outcome described by the value of that key in booth()
+     *      -Remember that the logic in the methods should ideally result in an outcome described by the name of that value in the 
+     *       booth() method. This will help make what the function is doing reasonable an clear for potential colleague developers.
      * 
      *      -As we know in DGZ, when making the request to a controller named TestController, the input in the URL would be 'test'
      *          So here in boot(), we have a 'test' key that will match this. Because its value is true, it implies that we should 
@@ -79,10 +89,10 @@ class Middleware
      * 
      *      -If the value of the test key in boot() was false, then the opposite would have been true, as in, the intended request 
      *          will ONLY proceed with the request to TestController and defaultAction() if the outcome of test() is false. This 
-     *          boolean true or false may be used for example to validate a request to a shop management pasge, whereby you run a
+     *          boolean true or false may be used for example to validate a request to a shop management page, whereby you run a
      *          check to see if the ID of the currently logged-in user matches that of the owner ID of the shop in question. You 
-     *          would then return a true or false and in the calling script, handle that outcome and reject or proceed with the 
-     *          request accordingly.
+     *          would then return a true or false and in the calling script (in in DGZ_Router.php and DGZ_Controller), handle that 
+     *          outcome and reject or proceed with the request accordingly.
      * 
      *      -If the value of the key in boot() is 'divert', it means that the outcome of the method here in the middleware should
      *          modify the original target controller and method before returning them to the caller. It does this by simply 
@@ -94,21 +104,18 @@ class Middleware
      *          controller & method from those of the original request. That is why we call it divert, because it is essentially 
      *          a re-routing, or diversion. 
      * 
-     *      -However, this approach of having each key in boot() represent a method in this Middleware class is limiting because it
-     *          does that one controller at a time. That is great, but as your application grows, it may lead to a huge number of 
-     *          methods needed to be added to the Middleware for as many controllers you want to add restrictions on. There is a 
-     *          better way you can use to optionally make multiple requests to different controllers target only one method in this 
-     *          middleware class. This will work for cases where for example you want to apply the same logic for many different 
-     *          request, say user authentication. It would be messy to write the same authentication function inside many different
-     *          middleware methods that match different controller names. This can be done by making the value of the boot() key the
-     *          target method in the middleware to be called. 
+     *      -You can very easily make multiple requests to different controllers all target the same method in this 
+     *          middleware class. This will work for cases where for example, you want to apply the same logic for many different 
+     *          requests, say for example user authentication. It would be messy to write the same authentication function inside many 
+     *          different middleware methods. This can be done by making the value of the boot() key match the method name to be called 
+     *          in this middleware class. 
      *          -This is possible because before calling the Middleware class, the caller always makes two calls;
      * 
      *              i) one to get the value of the boot() key to know what the expected outcome of the routing should be
-     *              ii) then it calles the middleware's method that matches the name of the key, using a conditional if statement 
+     *              ii) then it calls the middleware's method that matches the name of the key, using a conditional if statement 
      *                  to verify if the response matches what it knows to be the expected outcome. 
      *                  We can change this by making the value of the key the method to be called by simple switching the method
-     *                  paremeter being yused in the caller from the controller to the boot() key value as a string. This means that
+     *                  paremeter being used in the caller from the controller to the boot() key value as a string. This means that
      *                  instead of limiting that call to one controller in your application, we can have multiple request from 
      *                  different controllers have that one and the same string value, which represents a single method in this middleware 
      *                  class that will be called for all of them. here is an example:
@@ -123,7 +130,7 @@ class Middleware
      *                 ];
      *              }
      * 
-     *              You will then make a modification in Middleware caller so requests to jumpController, adminController & seoController 
+     *              You will then make a modification in the Middleware caller so requests to jumpController, adminController & seoController 
      *              are all calling the authorised() middleware method like so
      * 
      *              $boot = $middleware->boot();
@@ -155,16 +162,29 @@ class Middleware
     { 
         return [
             'api' => 'divert',
-            'admin' => 'authorised',
+            'admin' => 'authenticated',
             'seo' => 'authorised',
         ];
     }
 
 
-    public function shop($methodOrShopName = '')
+    /**
+     * Only to be accessed when logged in
+     */
+    public function authenticated()
     {
-        return [$this->controller, 'shop', [$methodOrShopName]];
+        if (
+            (isset($_SESSION['authenticated'])) && 
+            ($_SESSION['authenticated'] == 'Let Go-'.$this->config->getConfig()['appName'])
+        ) {
+            return true;
+        }
+        else
+        { 
+            return false;
+        }
     }
+
 
     /**
      * This method is for demonstration of this middleware.
@@ -174,8 +194,11 @@ class Middleware
      */
     public function authorised()
     {
-        $config = new Config();
-        if ((isset($_SESSION['authenticated'])) && ($_SESSION['authenticated'] == 'Let Go-'.$config->getConfig()['appName'])) {
+        if (
+            (isset($_SESSION['authenticated'])) && 
+            ($_SESSION['authenticated'] == 'Let Go-'.$this->config->getConfig()['appName']) &&
+            ($this->users->isAdmin($_SESSION['custo_id']))
+        ) {
             return true;
         }
         else
@@ -187,12 +210,12 @@ class Middleware
 
     /**
      * This method is provided to you for your API development. It needs an ApiController in your controllers directory.
-     * DGZ ships with an ApiController setup for you. This also demonstrates the second behaviour on the DGZ middelware-diversion.
+     * DGZ ships with an ApiController setup for you. This also demonstrates DGZ middelware divert behaviour.
      * @param $targetController
      * @return array
      * 
      */
-    public function api($targetController) {
+    public function divert($targetController) { 
         if (preg_match('/-/', $targetController)) {
             $control = explode('-', $targetController);
             return [$this->controller, 'api', [$control[0], $control[1]]];

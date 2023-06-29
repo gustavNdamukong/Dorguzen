@@ -124,7 +124,7 @@ use DGZ_library\DGZ_Router;
 				*/
 
 				'modules' => [
-					'seo' => 'off'
+					'seo' => 'on'
 				],
 
 

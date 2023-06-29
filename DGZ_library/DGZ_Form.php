@@ -99,9 +99,9 @@ class DGZ_Form
 
             // Add the value to the textarea:
             if ($input_value)
-            {
+            { 
                 $str .= htmlentities($input_value, ENT_COMPAT, 'UTF-8');
-            }
+            } 
 
             // Complete the textarea:
             $str .= '</textarea>';

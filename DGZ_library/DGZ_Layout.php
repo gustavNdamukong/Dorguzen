@@ -93,15 +93,15 @@ abstract class DGZ_Layout
 
 
 	/**
-	 * @var array An array of meta tags containing meta data of a specific view that will be included on this page.
+	 * @var array An array of meta tags containing meta data shared by all views, to be injected via the layout template.
 	 */
-	protected $metadata;
+	protected $globalSeoData;
 
 
 	/**
-	 * @var array An array of data meant for the body of a specific web page for SEO purposes eg h1 text, h2 text, page (text) content.
+	 * @var array An array of meta tags containing meta data of a specific view that will be included on this page.
 	 */
-	protected $bodySeoData;
+	protected $metadata;
 	
 
 	/**
@@ -133,9 +133,10 @@ abstract class DGZ_Layout
 
 	public function __construct()
 	{
-		$this->metadata = array();
-		$this->jsFiles = array();
-		$this->cssFiles = array();
+		$this->globalSeoData = [];
+        $this->metadata = [];
+		$this->jsFiles = [];
+		$this->cssFiles = [];
 		$this->config = new Config();
 	}
 
@@ -333,6 +334,30 @@ abstract class DGZ_Layout
 
 
 
+	public function setGlobalSeoData(array $appGlobalSeoData)
+	{
+		$this->globalSeoData = $appGlobalSeoData;
+	}
+
+
+
+
+	/**
+	 * Returns a block of <meta html tags to be injected amongst the layout's already existing meta tags
+	 *
+	 * @return string A set of meta tags with break tags at the end of each one, ready for inserting into the layout's head tag.
+	 */
+	public function getGlobalSeoData()
+	{
+		$metatagHtml = '';
+		foreach ($this->globalSeoData as $data) {
+			$metatagHtml .= html_entity_decode($data) . PHP_EOL; 
+		}
+		return $metatagHtml;
+	}
+
+
+
 
 	/**
 	 * Adds meta tags for a specific view be injected directly into the head tag of the layout page.
@@ -378,7 +403,7 @@ abstract class DGZ_Layout
     /**
      * @$seoContent array of data to replace $this->bodySeoData array with
      */
-    public function setBodySeoData($seoContent) {
+    /*public function setBodySeoData($seoContent) {
 		$this->bodySeoData = $seoContent;  
 	}
 
@@ -387,7 +412,7 @@ abstract class DGZ_Layout
 
     public function getBodySeoData() {
 		return $this->bodySeoData;
-	}
+	}*/
 
 
 

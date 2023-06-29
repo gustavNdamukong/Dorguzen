@@ -286,7 +286,13 @@ class DGZ_Model
 
 
     /**
-     * This method takes a 'where' clause array of 'fieldName' => 'value' pairs.
+     * This method takes an optional 'where' array of 'fieldName' => 'value' pairs.
+     * The data in this array will be added to the generated SQL's WHERE clause.
+     * If the where array is empty, it will check the active object for the existence of
+     * an ID field. If it finds the ID field, & its value is not null, it will use that
+     * ID field as the record to update in the SQL where clause.
+     * 
+     * If the where clause is empty & there is no ID field on the object, return false
      *
      * @example:
      *         $products = new Products();
@@ -295,22 +301,31 @@ class DGZ_Model
      *         $products->products_authorized_by = $authorizerId;
      *
      *         $where = ['products_id' => $adId];
+     *         $updated = $products->update($where);
+     * 
+     *      OR
+     * 
+     *         $products = new Products();
+     *         $products->id = '$adId; 
+     *         $products->products_authorized = 'yes';
+     *         $products->products_authorized_date = date("Y-m-d H:i:s");
+     *         $products->products_authorized_by = $authorizerId;
      *
-     *         $updated = $products->updateObject($where);
+     *         $updated = $products->update($where); 
      *
      * @param $where
      * @return bool|string
      */
-    public function updateObject($where)
-    {
+    public function update($where = []) 
+    { 
         $model = new $this->whoCalledMe;
         $table = $model->getTable();
-
-        $data = array();
         $newData = [];
         $dataTypes = '';
+        $where_clause = '';
+        $where_values = [];
 
-        foreach (get_object_vars($this) as $property => $value) {
+        foreach ($this->data as $property => $value) {    
             if (array_key_exists($property, $model->_columns)) {
                 $newData[$property] = $value;
                 if (in_array($property, $this->passwordField)) {
@@ -321,38 +336,52 @@ class DGZ_Model
                     $dataTypes .= $model->_columns[$property];
                 }
             }
-
-        }
-
-        foreach ($where as $field => $val)
-        {
-            if (array_key_exists($field, $model->_columns)) {
-                $dataTypes .= $model->_columns[$field];
-            }
         }
 
         $db = $this->connect();
         list( $fields, $placeholders, $values ) = $this->insert_update_prep_query($newData, 'update');
 
-        $where_clause = '';
-        $where_values = [];
-        $count = 0;
-
-        foreach ( $where as $field => $value )
+        //--------------------------------------------------------------------
+        //Prepare the where clause
+        if (!empty($where))
         {
-            if ( $count > 0 ) {
-                $where_clause .= ' AND ';
+            $count = 0;
+            foreach ($where as $field => $value )
+            {
+                if (array_key_exists($field, $model->_columns)) {
+                    $dataTypes .= $model->_columns[$field];
+                }
+                
+                if ( $count > 0 ) {
+                    $where_clause .= ' AND ';
+                }
+
+                $where_clause .= $field . '=?';
+                $where_values[] = $value;
+
+                $count++;
             }
-
-            $where_clause .= $field . '=?';
-            $where_values[] = $value;
-
-            $count++;
         }
+        else if (
+            ($this->getIdFieldName($model)) &&
+            (array_key_exists($this->getIdFieldName($model), $this->data))
+        )
+        {
+            $idFieldName = $this->getIdFieldName($model);
+            $dataTypes .= $model->_columns[$idFieldName];
+
+            $where_clause .= $idFieldName . '=?';
+            $where_values[] = $this->data[$idFieldName];
+        }
+        else
+        {
+            //There is nothing to update, so return false
+            return false;
+        }
+        //--------------------------------------------------------------------
 
         array_unshift($values, $dataTypes);
         $values = array_merge($values, $where_values);
-
         $stmt = $db->prepare("UPDATE {$table} SET {$placeholders} WHERE {$where_clause}");
 
         call_user_func_array( array( $stmt, 'bind_param'), $this->ref_values($values));
@@ -740,13 +769,13 @@ class DGZ_Model
      *  ];
      *
      * $where = ['blog_id' => $blog_id];
-     * $updated = $blog->update($data, $where);
+     * $updated = $blog->updateObject($data, $where);
      *
      * @param array $data an array of 'fieldName' => 'value' pairs for the DB table fields to be updated
      * @param array $where. An array of 'key' - 'value' pairs which will be used to build the 'WHERE' clause
      * @return bool
      */
-    public function update($data, $where)
+    public function updateObject($data, $where)
     {
         $model = new $this->whoCalledMe;
         $table = $model->getTable();
@@ -1085,6 +1114,32 @@ class DGZ_Model
     }
 
 
+    /**
+     * Sometimes this parent model needs to know what field is the ID field
+     * of a child model 
+     *
+     * @params $model the model whose ID field we want to know
+     *
+     * @return mixed a string of the ID field name of false if not found
+     */
+    public function getIdFieldName($model)
+    {
+        $table = $model->getTable();
+        $idFieldName = false;
+
+        if (property_exists($model, 'idField'))
+        {
+            $idFieldName = $model->idField; 
+        }
+        else if (isset($model->_columns["{$table}_id"]))
+        {
+            $idFieldName = $table.'_id';
+        }
+
+        return $idFieldName;
+    }
+
+
 
     public function getNameFromId($id, $lang)
     {
@@ -1111,22 +1166,22 @@ class DGZ_Model
      * specified the id field of your model in a 'idField' property & use it, otherwise, it assumes that
      * your model table's id field is just 'id'.
      *
-     * @param int $id the value to match on the table's given ID field
+     * @param int $id the record value needed to be fetched from the table's ID field
      * @param bool $tablePrefixed if the id field is named with a prefix of the table name, default true
      *     This will be the field name used as the ID field if $fieldName is a blank string
-     * @param string $fieldName if the id field is named something else-not 'id' or table name-prefixed,
+     * @param string $idFieldName if the id field is named something else-not 'id' or table name-prefixed,
      *     default '' (blank string). If this is not blank, this is the field that will be used as the ID field. Use it to
      *     override all other choices and specify the exact table field name to match.
      * @return array
      */
-    public function getById($id, $tablePrefixed = true, $fieldName = '')
+    public function getById($id, $tablePrefixed = true, $idFieldName = '')
     {
         $table = $this->getTable();
         $db = $this->connect();
         $model = new $this->whoCalledMe;
 
-        if ($fieldName != '') {
-            $stmt = $db->prepare("SELECT * FROM {$table} WHERE {$fieldName} = ?");
+        if ($idFieldName != '') {
+            $stmt = $db->prepare("SELECT * FROM {$table} WHERE {$idFieldName} = ?");
         }
         else if ($tablePrefixed)
         {
@@ -1380,6 +1435,30 @@ class DGZ_Model
     public function timeNow()
     {
         return date("Y-m-d:H:i:s");
+    }
+
+
+    /**
+     * Used to see the contents of an array for debugging purposes
+     * @param $array
+     * @return void
+     */
+    public function showArray($array)
+    {
+        echo '<pre>';
+        die(print_r($array));
+    }
+
+
+    /**
+     * Aka dump and die. Used to dump to screen the contents of a data construct & exit execution-for debugging purposes
+     * @param $data
+     * @return void
+     */
+    public function dd($data)
+    {
+        echo '<pre>';
+        die(var_dump($data));
     }
 }
 

@@ -70,6 +70,11 @@ use DGZ_library\DGZ_Model;
 
         }
 
+        public function getGlobalSeo($globalId)
+        {
+            return $this->getById($globalId, true);
+        }
+
 }
 
 

@@ -33,8 +33,12 @@ abstract class DGZ_View
 	 */
 	public static function getView($viewName, \DGZ_library\DGZ_Controller $pageController = null, $format = null)
 	{
-		$pageController->loadSeoData($viewName); 
-
+		 //Load any required SEO data for the target view on its controller so the view file 
+		//can access it (within its show() method). Only if $pageController is not NULL though.
+		if ($pageController != null) { 
+			$pageController->loadSeoData($viewName);
+		}
+		
 		if (is_null($format)) {
 			$format = isset($_REQUEST['format']) ? strtolower($_REQUEST['format']) : 'html';
 		}
@@ -68,7 +72,6 @@ abstract class DGZ_View
 		}
 
 		return $object;
-
 	}
 
 
@@ -159,13 +162,52 @@ abstract class DGZ_View
 		$object = new $viewClass();
 
 		if ($object instanceof \DGZ_library\DGZ_HtmlView) {
-
 			if (!($viewController instanceof \DGZ_library\DGZ_Controller)) {
 				throw new \DGZ_library\DGZ_Exception('Controller Object Required for HtmlView', \DGZ_library\DGZ_Exception::MISSING_PARAMETERS, 'When creating a view which extends from //DGZ_library//DGZ_View, you must provide your DGZ_Controller object as the second parameter ' . 'into DGZ_View::getView()' . PHP_EOL . '(got "' . (is_object($viewController) ? get_class($viewController) : (is_array($viewController) ? 'array' : print_r($viewController, true))) . '")' . 'This is because HTML views may need to add their own styles and scripts into your controller object in order for them to work properly.');
 			}
 
 			$viewController->setPageTitle($viewName);
 			$viewController->setViewName($viewName);
+			$object->setContext($viewController);
+		}
+
+		return $object;
+	}
+
+
+
+	/**
+	 * @param string $moduleName The name of the specific module class
+	 * @param string $viewName The name of the view you want
+	 * @param $viewController [Optional] If calling a view which descends from HtmlView, pass in a reference to the controller (view container) in which this view will be displayed.
+	 * @param string $format [Optional] Specify a format if necessary, otherwise it uses the format of the url
+	 *
+	 * @return object A DGZ_View object if found,
+	 * @throws /Exception if a view object cannot be found in the desired format.
+	 */
+	public static function getModuleInsideView($moduleName, $viewName, \DGZ_library\DGZ_Controller $viewController = null, $format = null)
+	{
+		if (is_null($format)) {
+			$format = isset($_REQUEST['format']) ? strtolower($_REQUEST['format']) : 'html';
+		}
+
+		$fileName = './modules/'.strtolower($moduleName).'/views/' . $viewName . '.php';
+
+		if (file_exists($fileName)) { 
+			include_once $fileName; 
+			$viewClass = 'modules\\'.strtolower($moduleName).'\views\\' . $viewName;
+		}
+		else {
+			throw new \DGZ_library\DGZ_Exception('DGZ_View "' . $viewName . '" not found', \DGZ_library\DGZ_Exception::NO_VIEW_FOUND, 'No view class could be found called "' . $viewName . '" for format "' . '"' . PHP_EOL . 'Please check that the class exists in either "' . $fileName . '" or in "');
+		}
+
+		$object = new $viewClass();
+
+		if ($object instanceof \DGZ_library\DGZ_HtmlView) {
+			if (!($viewController instanceof \DGZ_library\DGZ_Controller)) {
+				throw new \DGZ_library\DGZ_Exception('Controller Object Required for HtmlView', \DGZ_library\DGZ_Exception::MISSING_PARAMETERS, 'When creating a view which extends from //DGZ_library//DGZ_View, you must provide your DGZ_Controller object as the second parameter ' . 'into DGZ_View::getView()' . PHP_EOL . '(got "' . (is_object($viewController) ? get_class($viewController) : (is_array($viewController) ? 'array' : print_r($viewController, true))) . '")' . 'This is because HTML views may need to add their own styles and scripts into your controller object in order for them to work properly.');
+			}
+
 			$object->setContext($viewController);
 		}
 

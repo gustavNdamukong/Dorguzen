@@ -2,9 +2,7 @@
 
 namespace controllers;
 
-/*
-use Subscribers;
-*/
+
 use DGZ_library\DGZ_Translator;
 use DGZ_library\DGZ_Messenger;
 use DGZ_library\DGZ_CheckPassword;
@@ -326,11 +324,10 @@ class AuthController extends \DGZ_library\DGZ_Controller  {
             $user = $user_model->selectWhere($fields, $selectCriteria);
 
             if ($user) {
-                /////$userId = $user[0]['users_id'];
                 $user_model->users_emailverified = $yes;
                 $user_model->users_eactivationcode = NULL;
                 $updateCriteria = ['users_eactivationcode' => $code];
-                $updated = $user_model->updateObject($updateCriteria);
+                $updated = $user_model->update($updateCriteria);
 
                 if ($updated) {
                     //if this is an API call, send the success response now
@@ -412,7 +409,11 @@ class AuthController extends \DGZ_library\DGZ_Controller  {
 
 
 
-
+    /**
+     * This method receives an AJAX call to verify & relay back to the calling
+     * view code if a given email address (which should be unique) is already
+     * taken or not
+     */
     public function checkEmail()
     {
         $langClass = new DGZ_Translator();
@@ -798,8 +799,11 @@ class AuthController extends \DGZ_library\DGZ_Controller  {
             setcookie('rem_me', '', time()-86400);
         }
 
-        session_destroy();
-
+        if(session_status() === PHP_SESSION_ACTIVE) 
+        {
+            session_destroy();
+        }
+        
         $this->redirect('home');
         exit();
     }

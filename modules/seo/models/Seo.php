@@ -73,9 +73,6 @@ use DGZ_library\DGZ_Model;
         {
             return $this->getById($pageId, true);
         }
-
-	
-		
 }
 
 

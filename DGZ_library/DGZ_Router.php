@@ -299,6 +299,9 @@ class DGZ_Router {
             // Determine the controller and method to load.
             // Primarily based on the URL but will substitute defaults if not set.
             list($controller, $method, $controllerInput, $straightUrlId) = self::getControllerAndMethod();
+            /////DIE($controller.'-'.$method.'-'.$controllerInput.'-'.$straightUrlId);//////////
+
+            //controllers\ApiController - seo - api -
 
             //check if $straightUrlId is applicable & if so, pass an 'id' param into the $_REQUEST object
             //It's then up to the target method to optionally have an $id argument to capture its value
@@ -314,19 +317,19 @@ class DGZ_Router {
 
             $boot = $middleware->boot();
             if (array_key_exists($controllerInput, $boot)) {
-                $middleWareIntent = $middleware->boot()[$controllerInput];
+                $middleWareIntent = $middleware->boot()[$controllerInput]; 
                 
                 if ($middleWareIntent === true) { 
                     //If its true, call the middleware method and proceed
                     if (call_user_func([$middleware, $controllerInput], $method)) { 
                     }
-                    else { die('IT WAS FALSE');
+                    else { 
                         throw new DGZ_Exception('Not authorized', DGZ_Exception::PERMISSION_DENIED, 'You are trying to visit a restricted area of this application.');
                     }
                 }
                 if ($middleWareIntent === false) {
                     //If its false, call the middleware method and proceed
-                    if (call_user_func([$middleware, $controllerInput], $method) != false) { die($middleWareIntent.' - '.$controllerInput.' RETURNED === FALSE');
+                    if (call_user_func([$middleware, $controllerInput], $method) != false) { 
                         throw new DGZ_Exception('Not authorized', DGZ_Exception::PERMISSION_DENIED, 'You are trying to visit a restricted area of this application.');
                     }
                     else {
@@ -336,9 +339,10 @@ class DGZ_Router {
                     //call the middleware method and proceed with a new controller & or, method
                     //$controller here will be sth like shopController, $newMethod is the desired method to call on shopController, & an optional array of args
                     // to pass to that method.
-                    list($controller, $newMethod, $args) = call_user_func([$middleware, $controllerInput], $method);
+                    list($controller, $newMethod, $args) = call_user_func([$middleware, $middleWareIntent], $method);
+
                     $con = new $controller();
-                    $con->display($newMethod, $args);
+                    $con->display($newMethod, $args); 
                 }
                 if ($middleWareIntent === 'authorised') { 
                     //Check if middleware authorised method returns true & proceed
@@ -347,6 +351,15 @@ class DGZ_Router {
                     }
                     else { 
                         throw new DGZ_Exception('Not authorized', DGZ_Exception::PERMISSION_DENIED, 'You are trying to visit a restricted area of this application.');
+                    }
+                }
+                if ($middleWareIntent === 'authenticated') { 
+                    //Check if middleware authorised method returns true & proceed
+                    if (call_user_func([$middleware, $middleWareIntent], $method)) { 
+                        //The routing will proceed as normal with the requested controller & method
+                    }
+                    else { 
+                        throw new DGZ_Exception('Not authorized', DGZ_Exception::PERMISSION_DENIED, 'You must be logged in to access this section.');
                     }
                 }
             }
