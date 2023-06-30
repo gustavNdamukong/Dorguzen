@@ -71,8 +71,18 @@ class jsSeoValidationPartial extends \DGZ_library\DGZ_HtmlView
                     }
                     return request
                 }
+
+
+                
             });
 
+            function confirmDelete(event) { 
+                    event.preventDefault(); 
+
+                    if (confirm("Are you sure you want to delete this item?")) {
+                        document.getElementById("deleteForm").submit(); 
+                    }
+                }
         </script>
         <?php
     }

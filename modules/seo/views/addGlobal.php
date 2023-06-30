@@ -72,7 +72,7 @@ class addGlobal extends \DGZ_library\DGZ_HtmlView
 										</h4>
 									</div>
 									<?php
-									$form::open('editShop', $this->controller->config->getFileRootPath().'seo/saveNewGlobal', 'post'); ?>
+									$form::open('addGlobal', $this->controller->config->getFileRootPath().'seo/saveNewGlobal', 'post'); ?>
 										<div class="panel-body panel-primary">
 											<div class="container bg-light p-2">
 												<fieldset>

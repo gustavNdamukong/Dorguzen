@@ -2,34 +2,34 @@
     margin: 2rem 0 2rem 0;
 }
 
-#editShop fieldset {
+#addGlobal fieldset, #addPage fieldset {
     margin-bottom: 2.5rem;
 }
 
-#editShop fieldset legend {
+#addGlobal fieldset legend, #addPage fieldset legend {
     color: black;
 }
 
-#editShop fieldset .form-group {
+#addGlobal fieldset .form-group, #addPage fieldset .form-group {
     margin: 2rem 0 2rem 0;
 }
 
-#editShop input {
+#addGlobal input, #addPage input {
     margin: 0.5rem 0 0.5rem 0;
 }
 
 /* the span above field labels contianing info about the field */
-#editShop .section-title, .section-title, .card-header .label {
+#addGlobal .section-title, #addPage .section-title, .section-title, .card-header .label {
     color: #2124B1;
 }
 
-#editShop label {
+#addGlobal label, #addPage label {
     display: block;
     color: black;
     font-weight:bold;
 }
 
-#editShop input[type="submit"], #addPage input[type="submit"] {
+#addGlobal input[type="submit"], #addPage input[type="submit"] {
     margin-left: 0.5rem;
 }
 

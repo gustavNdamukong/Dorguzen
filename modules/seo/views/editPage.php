@@ -76,11 +76,19 @@ class editPage extends \DGZ_library\DGZ_HtmlView
 												</h4>
 											</div>
 									<?php
-									$form::open('editShop', $this->controller->config->getFileRootPath().'seo/savePageEdit', 'post', ['enctype' => 'multipart/form-data']); ?>
+									$form::open('addPage', $this->controller->config->getFileRootPath().'seo/savePageEdit', 'post', ['enctype' => 'multipart/form-data']); ?>
 										<div class="panel-body panel-primary">
 											<div class="container bg-light p-2">
 												<fieldset>
 													<legend>Page specifics</legend>
+														<div class="col-sm-12 col-md-12 col-lg-12 form-group">
+															<?php 
+															$form::label('seo_page_name', 'Page Name');
+															echo "<span id='info'></span>";
+									                        $form::input('seo_page_name', 'text', ['class' => 'form-control', 'value' => $pageData['seo_page_name'] ?? '---']); 
+															?>
+														</div>
+
 														<div class="col-sm-12 col-md-12 col-lg-12 form-group">
 														    <span class="font-weight-bold section-title"><small>Meta titles should take a MAX of 60 characters. Try & put in the most important 
 																keywords of this page in there. A great tip is to split keywords/phrases/categories/sections (depending on the type of 
@@ -381,6 +389,7 @@ class editPage extends \DGZ_library\DGZ_HtmlView
 											<div class="panel-footer">
 											    <div class="form-group">
 													<?php
+													$form::hidden('seo_id', $pageData['seo_id']);
 									                $form::submit('button', 'Cancel', ['class' => 'btn btn-warning btn-sm', 'href' => $this->controller->config->getFileRootPath().'seo']);
 									                $form::submit('submit', 'Save Changes', ['class' => 'btn btn-primary btn-sm ml-3']);
 													?>

@@ -5,7 +5,6 @@
 				'login-panelTitle' => 'Connexion',
 				'login-signInWithGoogle' => 'Se connecter avec Google',
 				'login-or' => 'OR',
-				'login-signInToCamcom' => 'connectez-vous à Camerooncom',
 				'login-unField' => 'nom d\'utilisateur',
 				'login-notYetAMember' => 'Pas membre ? Inscrivez-vous',
 				'login-pwField' => 'Mot de passe',

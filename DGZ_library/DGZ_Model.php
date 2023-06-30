@@ -341,7 +341,6 @@ class DGZ_Model
         $db = $this->connect();
         list( $fields, $placeholders, $values ) = $this->insert_update_prep_query($newData, 'update');
 
-        //--------------------------------------------------------------------
         //Prepare the where clause
         if (!empty($where))
         {
@@ -351,7 +350,7 @@ class DGZ_Model
                 if (array_key_exists($field, $model->_columns)) {
                     $dataTypes .= $model->_columns[$field];
                 }
-                
+
                 if ( $count > 0 ) {
                     $where_clause .= ' AND ';
                 }
@@ -378,7 +377,6 @@ class DGZ_Model
             //There is nothing to update, so return false
             return false;
         }
-        //--------------------------------------------------------------------
 
         array_unshift($values, $dataTypes);
         $values = array_merge($values, $where_values);
@@ -1120,7 +1118,7 @@ class DGZ_Model
      *
      * @params $model the model whose ID field we want to know
      *
-     * @return mixed a string of the ID field name of false if not found
+     * @return mixed a string of the ID field name, or false if not found
      */
     public function getIdFieldName($model)
     {
