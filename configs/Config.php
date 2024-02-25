@@ -115,6 +115,15 @@ use DGZ_library\DGZ_Router;
 					'key' => 'takeThisWith@PinchOfSalt'
 				],
 
+				/**
+				|--------------------------------------------------------------------------
+				| JWT
+				| Place your JWT secret key here
+				|--------------------------------------------------------------------------
+				*/
+				'jwt-secret-key' => 'owl5LH9CsQMdrplqhVhNtHhQlZvESgnaVjtOisjjQcQ=',//old
+				////'jwt-secret-key' => 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3lvdXJBcHBuYW1lLWFwaS5uZXQiLCJhdWQiOiJodHRwczovL3lvdXJBcHBuYW1lLWFwaS5jb20iLCJpYXQiOjE3MDg3NzA2MDYsIm5iZiI6MTcwODc3MDYwNiwiZGF0YSI6eyJ1c2VybmFtZSI6Imd1c3RhdmZuIiwicGxhbiI6Imd1c3RhdmZuIn19.gXShVqmJAVN22ZiywybX19lkkPnQbymBAPQQISV3Rb4',//encoded
+
 
 				/**
 				|--------------------------------------------------------------------------

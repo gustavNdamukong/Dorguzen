@@ -8,13 +8,32 @@
 
 
 
+SETUP:
+    -In your API request, the Authorization header is needed for the JWT validation, otherwise 
+        the request will be rejected.
 
-All API requests come in and out through this class.
+        Bearer Token: 'yourApplicationSecretKeyHere'
+
+    -Data submitted should be in json format. So set the right request header to handle it
+
+        Content Type: application/json
+
+    -For POST requests to work, you need to add the following header:
+
+        Content Type: application/x-www-form-urlencoded
+
+
+All API requests come in and out through this class. Here is the request URI:
+
+    http://yourAppName/api/className/methodName
+
 We get the request, and call the relevant controller for the resource.
 All headers and data type conversions are handled here too.
-In the case of controller methods that return values; it is easy-we call them, get their data back, and return the response to the caller here.
-In the the case of controller methods that return nothing, we'll send a 'caller-origin' key with a value of 'api' via POST or GET so the controller
-method will check for in order to know when to send back the appropriate response. Examples of such methods that send back no response are
+In the case of controller methods that return values; it is easy-we call them, get their data 
+back, and return the response to the caller here. In the the case of controller methods that 
+return nothing, we'll send a 'caller-origin' key with a value of 'api' via POST or GET so the 
+controller method will check for in order to know when to send back the appropriate response. 
+Examples of such methods that send back no response are:
     -login
     -logout
     -registration
@@ -29,7 +48,8 @@ method will check for in order to know when to send back the appropriate respons
        "response_code":200
     }
 
-    The 'status' field has a value of either 'true' or 'false', while 'message' has the error/success msg
+    The 'status' field has a value of either 'true' or 'false', while 'message' has the 
+        error/success msg
 
 -------------------------------------------------------------------------------------------------
 LOGIN REQUEST (POST)
@@ -37,9 +57,8 @@ LOGIN REQUEST (POST)
     Endpoint: https://dorguzen/api/auth-doLogin
 
    {
-       "method":"POST",
-       "email":"emailAddressHere",
-       "pwd": "passwordHere",
+       "login_email":"dorguzen@dorguzen.com",
+       "login_pwd": "dorguzen",
        "forgotstatus": "no",
        "caller-origin": "api",
        "credentials": "include"
@@ -73,8 +92,8 @@ LOGIN REQUEST (POST)
 -------------------------------------------------------------------------------------------------
 LOGOUT REQUEST  (POST/GET)
 -------------------------------------------------------------------------------------------------
-Endpoint POST: https://dorguzen/api/auth-logout)
-Endpoint GET: https://dorguzen/api/auth-logout?caller-origin=api)
+Endpoint POST: https://dorguzen/api/auth-logout
+Endpoint GET: https://dorguzen/api/auth-logout?caller-origin=api
 
     //POST request data
        {
@@ -85,6 +104,7 @@ Endpoint GET: https://dorguzen/api/auth-logout?caller-origin=api)
     //GET request data
       {
           "method":"GET",
+          "caller-origin": "api"
       }
 
     //Logout response:
@@ -114,8 +134,8 @@ PASSWORD RESET REQUEST (POST)
        "resetLink":"http:\/\/dorguzen\/auth\/reset?em=90886bc4d0f723a1299ed9b3360f48e8"
    }
 
-   -The 'forgotstatus' field needs to be 'yes' if you want to reset your password. The response will contain the
-    link to visit to re-set your password.
+   -The 'forgotstatus' field needs to be 'yes' if you want to reset your password. The response 
+    will contain the link to visit to re-set your password.
 --------------------------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------------------------

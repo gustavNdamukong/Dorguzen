@@ -60,8 +60,6 @@ class DGZExceptionView  extends \DGZ_library\DGZ_View {
                                 <a href="<?=$config->getFileRootPath()?>admin/dashboard" class="btn btn-outline-info btn-lg">
                                     <?=$langClass->translate($lang, 'menu.php', 'menu-dashboard')?>
                                 </a>
-                                <a target="_blank" class="btn btn-primary btn-lg" href="<?=$config->getFileRootPath()?>mall/">
-                                    <i class="fa fa-building"> <?=$langClass->translate($lang, 'menu.php', 'menu-mall')?></i></a>
 
                                 <?php
                                 if($config->getConfig()['live'] == true)

@@ -13,13 +13,13 @@ class contact extends \DGZ_library\DGZ_HtmlView
 
 	function show()
 	{
-		$this->addMetadata(
+		/*$this->addMetadata(
 			[
 				'<meta name="description" content="The DorguzApp (replace this with your application name) contact us page. Send us a quick message and we will get back 
 					to you as soon as possible.">',
 				'<meta name="keywords" content="DorguzApp (replace this with your application name) contact form, get quote, more information.">',
 				'<meta name="author" content="Your name here">'
-			]);
+			]);*/
 		?>
 
 		<!-- ==========================

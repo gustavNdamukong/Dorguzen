@@ -469,7 +469,7 @@ class AuthController extends \DGZ_library\DGZ_Controller  {
         $val = new DGZ_Validate();
 
         if ((isset($_POST['login_email'])) && (($_POST['forgotstatus']) == 'no'))
-        {
+        { 
             if(isset($_POST['login_email']))
             {
                 $email = $val->fix_string($_POST['login_email']);
@@ -787,6 +787,15 @@ class AuthController extends \DGZ_library\DGZ_Controller  {
 
     public function logout()
     {
+        $callerOrigin = isset($_GET['caller-origin']) && $_GET['caller-origin'] == 'api'? 'api':
+            (isset($_POST['caller-origin']) && $_POST['caller-origin'] == 'api'?'api':'');
+
+        //'status' has a value of either 'true' or 'false', while 'message' has the error msg
+        $returnMessage = [
+            'status' => '',
+            'message' => ''
+        ];
+
         $_SESSION = array();
 
         if (isset($_COOKIE[session_name()]))
@@ -802,6 +811,13 @@ class AuthController extends \DGZ_library\DGZ_Controller  {
         if(session_status() === PHP_SESSION_ACTIVE) 
         {
             session_destroy();
+        }
+
+        //if this is an API call
+        if ($callerOrigin == 'api') {
+            $returnMessage['status'] = 'true';
+            $returnMessage['message'] = 'Logout successful';
+            return $returnMessage;
         }
         
         $this->redirect('home');
