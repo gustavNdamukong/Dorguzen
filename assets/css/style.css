@@ -576,7 +576,9 @@ h6,
     margin-bottom: 1rem;
 }
 
-
+.hidden {
+    display: none;
+}
 
 /*------------MAIN SIDE SLIDE-IN MENU-------------*/
 #side-menu {
@@ -640,3 +642,21 @@ h6,
 }
 
 /*------------END OF MAIN SIDE SLIDE-IN MENU----------*/
+
+/*------------------COOKIE CONSENT POPUP--------------*/
+#consent-popup {
+    position: fixed;
+    bottom: 0;
+    /*make it span the full length of the page*/
+    left: 0;
+    right: 0;
+    padding: 2rem;
+    background-color: #fff;
+    opacity: 1;
+    transition: opacity .8s ease;
+
+    &.consent-hidden {
+        opacity: 0;
+    }
+}
+/*--------------END OF COOKIE CONSENT POPUP-----------*/

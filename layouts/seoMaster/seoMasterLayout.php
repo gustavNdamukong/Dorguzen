@@ -106,6 +106,11 @@ class seoMasterLayout extends \DGZ_library\DGZ_Layout {
 
 			<section>
 				<div class="well">
+					<div id="consent-popup" class="consent-hidden">
+						<p>Be aware that we use cookies to improve your experience, and nothing more <a href="#">Link to your Terms & Conditions or Data Policy here</a>.
+							<a href="#" id="accept-cookie-use" class="btn btn-primary rounded-pill animated slidInRight">Okay</a>
+						</p>
+					</div>
 					<!-- ==========================
 						  FOOTER - START
 					  =========================== -->

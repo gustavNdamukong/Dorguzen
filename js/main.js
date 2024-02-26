@@ -104,6 +104,66 @@
 
         portfolioIsotope.isotope({filter: $(this).data('filter')});
     });
+
+    //cookie consent popup
+    //----------------------------------------------------------------------------------
+    //Using Local storage
+    //const storageType = localStorage; (UNCOMMENT THIS LINE TO USE LOCAL STORAGE)
+
+    //OR
+    //Use Session storage
+    //works exactly the same way as local storage with same methods & all. Only diff is;
+    //session variables get wiped out if the browser gets closed
+    //const storageType = sessionStorage; (UNCOMMENT THIS LINE TO USE SESSION STORAGE)
+
+    //OR
+    //Using Cookies
+    //cookies are written differently, so we can write custom get/setItem functions to 
+    //make it work just like Session & Local storage  
+    const cookieStorage = {
+        getItem: (key) => {
+            //get list of all cookies & capture the values into an object (key)
+            const cookies = document.cookie
+                    .split(';')
+                    .map(cookie => cookie.split('='))
+                    .reduce(
+                        //2nd arg here ({}) initialises the return value as an object
+                        (acc, [key, value]) => ({ ...acc, [key.trim()]:value }), {} 
+                    );
+            return cookies[key];
+        },
+        setItem: (key, value) => {
+            document.cookie = `${key} = ${value}`;
+        }
+    } // (UNCOMMENT THIS BLOCK TO USE COOKIES FOR STORAGE)
+
+    //we can then say 
+    const storageType = cookieStorage; 
+    //----------------------------------------------------------------------------------
+
+    const consentPropertyName = 'jdc_consent';
+
+    const shouldShowPopup = () => !storageType.getItem(consentPropertyName);
+    const saveToStorage = () => storageType.setItem(consentPropertyName, true);
+
+    const consentPopup = document.getElementById('consent-popup');
+    const consentAcceptBtn = document.getElementById('accept-cookie-use');
+
+    //when accept btn is clicked
+    const acceptFunc = event => {
+        saveToStorage(storageType);
+        consentPopup.classList.add('consent-hidden');
+    }
+
+    consentAcceptBtn.addEventListener('click', acceptFunc);
+
+    if (shouldShowPopup(storageType))
+    {
+        //Delay the consent popup by 2 secs
+        setTimeout(() => {
+            consentPopup.classList.remove('consent-hidden');
+        }, 2000);
+    }
     
 })(jQuery);
 
