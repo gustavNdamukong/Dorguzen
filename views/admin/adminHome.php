@@ -223,6 +223,16 @@ function show()
                                                                  </div>
                                                             </a>     
                                                        </div>
+                                                       <div class="col-xs-6 col-md-3 card dashboard-cards">
+                                                            <a
+                                                            href="<?=$this->controller->config->getFileRootPath()?>payments">
+                                                                 <div class="card-body">
+                                                                      <h5 class="card-title text-center"><i
+                                                                           class="fa fa-money"></i></h5>
+                                                                      <p class="card-text">Payments</p>
+                                                                 </div>
+                                                            </a>     
+                                                       </div>
                                                   </div>
                                              <?php
                                              } ?>          

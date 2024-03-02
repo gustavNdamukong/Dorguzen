@@ -168,7 +168,7 @@ class DGZ_Router {
             //die('IT EXISTS: '.'modules\\'. strtolower($get_input).'\\'.ucfirst($get_input));////////
         }
 
-        /////die('Controller: '.$controllerPath.' - Modules: '.$modulePath);////////////////////////
+        //die('Controller: '.$controllerPath.' - Modules: '.$modulePath);////////////////////////
 
         try {
             $classReflector = new ReflectionClass($controller);
@@ -272,7 +272,7 @@ class DGZ_Router {
             elseif (method_exists($object, $method_camelCased))
             {
                 //override the method
-                $method = $method_camelCased;
+                $method = $method_camelCased; 
             }
         }
 

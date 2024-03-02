@@ -78,7 +78,7 @@ define('CWD', getcwd());
 //Before we dive into the app, lets load all your objects
 require_once('Autoloader.php');
 //require the vendor/autoload.php file if it exists. We do this separately because a project does not have to come with a vendor dir.
-//in this case, u are not using Composer-tat shouldn't stop you using this framework
+//in this case, if you are not using Composer, that shouldn't stop from you using this framework
 if (file_exists(__DIR__ . '/vendor/autoload.php'))
 {
 	include_once(__DIR__ . '/vendor/autoload.php');
