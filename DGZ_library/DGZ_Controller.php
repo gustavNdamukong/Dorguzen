@@ -456,7 +456,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
     public function loadSeoData($viewName) { 
         if ($this->metadata == null)
         {
-            //check if SEO module exists or is active
+            //check if SEO module exists & is active
             if (
                 (array_key_exists('seo', $this->config->getConfig()['modules'])) &&
                 ($this->config->getConfig()['modules']['seo'] == 'on')
@@ -840,6 +840,15 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 				if (array_key_exists($controllerInput, $boot)) {
 					$middleWareIntent = $middleware->boot()[$controllerInput];
 
+                    if ($middleWareIntent === 'isActiveModule') { 
+                        //Check if a module is active & deny user access if not
+                        if (call_user_func([$middleware, $middleWareIntent], $controllerInput)) {  
+                            //The given module is active, so allow to proceed
+                        }
+                        else { 
+                            throw new DGZ_Exception('Not authorized', DGZ_Exception::PERMISSION_DENIED, 'You are trying access a non-existent module.');
+                        }
+                    }
 					if ($middleWareIntent === true) {
 						//call the middleware method and proceed if it returns true
 						if (call_user_func([$middleware, $controllerInput], $method)) {

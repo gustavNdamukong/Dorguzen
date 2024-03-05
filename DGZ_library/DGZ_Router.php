@@ -319,9 +319,19 @@ class DGZ_Router {
             if (array_key_exists($controllerInput, $boot)) {
                 $middleWareIntent = $middleware->boot()[$controllerInput]; 
                 
+                if ($middleWareIntent === 'isActiveModule') { 
+                    //Check if a module is active & deny user access if not
+                    if (call_user_func([$middleware, $middleWareIntent], $controllerInput)) {  
+                        //The given module is active, so allow to proceed
+                    }
+                    else { 
+                        throw new DGZ_Exception('Not authorized', DGZ_Exception::PERMISSION_DENIED, 'You are trying access a non-existent module.');
+                    }
+                }
                 if ($middleWareIntent === true) { 
                     //If its true, call the middleware method and proceed
                     if (call_user_func([$middleware, $controllerInput], $method)) { 
+                        //it returns true as expected, so do nothing & proceed as normal
                     }
                     else { 
                         throw new DGZ_Exception('Not authorized', DGZ_Exception::PERMISSION_DENIED, 'You are trying to visit a restricted area of this application.');

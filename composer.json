@@ -12,6 +12,7 @@
     "minimum-stability": "stable",
     "require": {
         "firebase/php-jwt": "^6.10",
-        "stripe/stripe-php": "^13.12"
+        "stripe/stripe-php": "^13.12",
+        "twilio/sdk": "^7.16"
     }
 }

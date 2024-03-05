@@ -40,12 +40,12 @@ class Middleware
      *      (in its lowercase name without the 'Controller' suffix) the outcome is that the routing will be handled according to the value 
      *      of the key.
      *      To achieve this outcome, this class MUST have a method matching a value of the key in the boot() method. 
-     *      Note that the keys in boot() represent controller names. At every request, thes keys here will be checked for a key that matches 
+     *      Note that the keys in boot() represent controller names. At every request, these keys here will be checked for a key that matches 
      *      the current request controller. 
      *      -There is an exception-if the value of the key is a boolean (true/false), then a method in this class matching the name of the 
      *       key wil be looked for and called. This method is then expected to return that boolean.
      *  
-     *      Here is an example of the content of boot() and what it content means:
+     *      Here is an example of the content of boot() and what its contents mean:
      * 
      *          public function boot()
      *           { 
@@ -66,7 +66,7 @@ class Middleware
      *          Method:     'defaultAction'
      * 
      *      -According to the above example; there must be methods test() and jump() in this middleware class which return true and false 
-     *       respectively. Following the above example again, of keys in the boot() methods, the following methods will have to me in the class:
+     *       respectively. Following the above example again, of keys in the boot() method, the following methods will have to me in this class:
      * 
      *          test()
      *          jump()
@@ -76,10 +76,10 @@ class Middleware
      * 
      *      -The above methods are for demonstrative purposes only. Feel free to add more options as your 
      *          application demands. Just remember to add an if statement block in DGZ_Router.php and DGZ_Controller where the
-     *          Middleware call is being made, so you can capture and handle the response from your methods. 
+     *          Middleware call is being made, so you can capture and handle the response from your new Middleware methods. 
      * 
      *      -Remember that the logic in the methods should ideally result in an outcome described by the name of that value in the 
-     *       booth() method. This will help make what the function is doing reasonable an clear for potential colleague developers.
+     *       booth() method. This will help make what the function is doing reasonable & clear for potential colleague developers.
      * 
      *      -As we know in DGZ, when making the request to a controller named TestController, the input in the URL would be 'test'
      *          So here in boot(), we have a 'test' key that will match this. Because its value is true, it implies that we should 
@@ -107,18 +107,21 @@ class Middleware
      *      -You can very easily make multiple requests to different controllers all target the same method in this 
      *          middleware class. This will work for cases where for example, you want to apply the same logic for many different 
      *          requests, say for example user authentication. It would be messy to write the same authentication function inside many 
-     *          different middleware methods. This can be done by making the value of the boot() key match the method name to be called 
-     *          in this middleware class. 
+     *          different middleware methods. This can be done by making the value of the boot() key for multiple request controller 
+     *          names all match the same Middleware method (boot() key value). 
      *          -This is possible because before calling the Middleware class, the caller always makes two calls;
      * 
      *              i) one to get the value of the boot() key to know what the expected outcome of the routing should be
-     *              ii) then it calls the middleware's method that matches the name of the key, using a conditional if statement 
+     *              ii) then it calls the Middleware's method that matches that value, using a conditional if statement 
      *                  to verify if the response matches what it knows to be the expected outcome. 
-     *                  We can change this by making the value of the key the method to be called by simple switching the method
-     *                  paremeter being used in the caller from the controller to the boot() key value as a string. This means that
-     *                  instead of limiting that call to one controller in your application, we can have multiple request from 
-     *                  different controllers have that one and the same string value, which represents a single method in this middleware 
-     *                  class that will be called for all of them. here is an example:
+     * 
+     *                  We can change this by making the value of boot() key the method to be called, instead of the the boot() key 
+     *                  by simply switching the method paremeter being used in the caller from the boot() key to the boot() key value 
+     *                  as a string. This means that instead of limiting that call to one controller in your application, as would have 
+     *                  been the case if the Middleware function had to match the boot() key name-since array key names are unique; 
+     *                  we can make the middleware method to call match the boot() key value instead, which allows us to have that 
+     *                  same value repeated for multiple boot() keys if needed. We are therefore able to call the same middleware 
+     *                  method for multiple requests from different controllers. Here is an example:
      * 
      *              public function boot()
      *              { 
@@ -138,10 +141,13 @@ class Middleware
      *                 $middleWareIntent = $middleware->boot()[$controllerInput];
 
      *                 if ($middleWareIntent === authorised) { 
-     *                   //If its authorised, call the value of the method matching the controller key (in this case authorised()) not the key itself
-     *                   //CHANGE: if (call_user_func([$middleware, $controllerInput], $method)) { 
+     *                   //If its authorised, call the middleware method matching the value of the controller key (in this case authorised()) 
+     *                      //not the key itself
+     *                   //CHANGE: if (call_user_func([$middleware, $controllerInput], $method)) { ... 
+     *                          //which will call $boot->jump() 
      *                   //TO
-     *                   if (call_user_func([$middleware, $middleWareIntent], $method)) {
+     *                   if (call_user_func([$middleware, $middleWareIntent], $method)) { ... 
+     *                          //which will call $boot->authorised()
      *                      //Request is authorised
      *                   }   
      *                   else { 
@@ -163,13 +169,16 @@ class Middleware
         return [
             'api' => 'divert',
             'admin' => 'authenticated',
-            'seo' => 'authorised',
+            //-----Modules (list all here to activate their config restrictions) ------//
+            'seo' => 'isActiveModule',
+            'payments' => 'isActiveModule',
+            'sms' => 'isActiveModule',
         ];
     }
 
 
     /**
-     * Only to be accessed when logged in
+     * Use this to restrict a resource to logged-in users
      */
     public function authenticated()
     {
@@ -199,6 +208,27 @@ class Middleware
             ($_SESSION['authenticated'] == 'Let Go-'.$this->config->getConfig()['appName']) &&
             ($this->users->isAdmin($_SESSION['custo_id']))
         ) {
+            return true;
+        }
+        else
+        { 
+            return false;
+        }
+    }
+
+
+    /**
+     * Checks in the site config if the given module in $moduleName is active
+     * @param string $moduleName
+     * @return boolean
+     */
+    public function isActiveModule($moduleName)
+    { 
+        if (
+            (array_key_exists($moduleName, $this->config->getConfig()['modules'])) &&
+            ($this->config->getConfig()['modules'][$moduleName] == 'on')
+        )
+        { 
             return true;
         }
         else
