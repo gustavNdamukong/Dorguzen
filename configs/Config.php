@@ -359,19 +359,6 @@ use DGZ_library\DGZ_Router;
 			return array_merge($this->module_configs, $this->getConfig());
 		}
 
-		/*public function loadModuleConfigs()
-		{
-			$gus = new Gustav();
-			echo '<pre>';
-			die(var_dump($gus));
-			///Applications/XAMPP/xamppfiles/htdocs/Dorguzen/configs/Config.php
-			/////include_once($_SERVER['DOCUMENT_ROOT'].'/Dorguzen/models/Users.php');
-			if (class_exists('Gustav')) {
-				echo 'Users exists';
-				die(var_dump('Gustav'));
-			} else { die('Gustav DOES NOT EXIST'); }
-		}*/
-
 
 		/**
 		 * This will specifically grab and return from the baseSettings, only the color theme of your application.

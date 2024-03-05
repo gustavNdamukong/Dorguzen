@@ -3,8 +3,6 @@
 namespace modules\payments\views;
 
 
-/////use modules\seo\Seo;
-
 class index extends \DGZ_library\DGZ_HtmlView
 {
 
