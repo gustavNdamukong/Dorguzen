@@ -16,7 +16,7 @@ class DGZExceptionView  extends \DGZ_library\DGZ_View {
 	
 
 
-	public function show($exceptions = []) {
+	public function show($exceptions = null) {
 		$config = new Config();
         $controller = new ExceptionController();
 		$langClass = new \DGZ_library\DGZ_Translator();
@@ -40,18 +40,21 @@ class DGZExceptionView  extends \DGZ_library\DGZ_View {
                             <div class="well" style="">
                                 <h3>Sorry, there was an error</h3>
 								<?php
-								if ($exceptions)
+								if ((is_array($exceptions)) && ($exceptions))
 								{ ?>
 									<ul>
 									<?php
 									foreach ($exceptions as $exception)
 									{ ?>
-										<li><?=$exception?></li>
+										<li style='color:red;'><?=$exception?></li>
 									<?php
 									} ?>
 									</ul>
 								<?php
-								} ?>
+								}
+                                else {
+                                    echo "<p style='color:red;'><b><i>$exceptions</i></b></p>";
+                                } ?>
                                 <h3><?=$langClass->translate($lang, 'errors.php', 'sorry-about-this')?>:
                                     <i><small>The error was logged and we will fix it ASAP</small></i></h3>
                                 <a href="<?=$config->getFileRootPath()?>" class="btn btn-outline-info btn-lg">
