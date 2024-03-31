@@ -103,6 +103,30 @@ class Middleware
      *          The idea is that the DGZ's routing process goes through this middleware, and the return value is a different
      *          controller & method from those of the original request. That is why we call it divert, because it is essentially 
      *          a re-routing, or diversion. 
+     *      -If the rerouting is to a different method within the same controller, your custom function in here will return  
+     *               to the caller the current controller and new method like so: 
+     * 
+     *                  return [$this->controller, 'newMethodName', [$argument(s)...]];
+     * 
+     *              Here's how the full custom function will look like:
+     * 
+     *                  public function myFunc($methodOptionalArgument = '')
+     *                   {
+     *                       return [$this->controller, 'newMethodName', [$methodOptionalArgument]];
+     *                   }
+     * 
+     *          -You can also reroute to an entirely different controller from the current one. To do that; 
+     *                  a) make sure you pull into this class file at the top, the new controller you will want to redirect to 
+     *                      like so:
+     * 
+     *                      use controllers\DifferentController;
+     * 
+     *                  b) Then reroute in your custom function to the new controller like so:
+     * 
+     *                      public function myFunc($methodOptionalArgument = null)
+     *                       {
+     *                           return [DifferentController::class, 'newMethodName', [$methodOptionalArgument]];
+     *                       }  
      * 
      *      -You can very easily make multiple requests to different controllers all target the same method in this 
      *          middleware class. This will work for cases where for example, you want to apply the same logic for many different 

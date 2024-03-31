@@ -100,13 +100,13 @@ class addPage extends \DGZ_library\DGZ_HtmlView
 															</small></span>
 															<?php
 															$form::label('seo_meta_title_en', 'Title (en)');
-									                        $form::input('seo_meta_title_en', 'text', ['class' => 'form-control']); 
+									                        $form::input('seo_meta_title_en', 'text', ['class' => 'form-control', 'maxlength' => '60']); 
 
 															$form::label('seo_meta_title_fre', 'Title (fre)');
-									                        $form::input('seo_meta_title_fre', 'text', ['class' => 'form-control']);
+									                        $form::input('seo_meta_title_fre', 'text', ['class' => 'form-control', 'maxlength' => '60']);
 
 															$form::label('seo_meta_title_es', 'Title (es)');
-									                        $form::input('seo_meta_title_es', 'text', ['class' => 'form-control']);
+									                        $form::input('seo_meta_title_es', 'text', ['class' => 'form-control', 'maxlength' => '60']);
 															?>
 														</div>
 
@@ -118,13 +118,13 @@ class addPage extends \DGZ_library\DGZ_HtmlView
 															</small></span>
 															<?php 
 															$form::label('seo_meta_desc_en', 'Meta description (en)');
-									                        $form::input('seo_meta_desc_en', 'text', ['class' => 'form-control']); 
+									                        $form::input('seo_meta_desc_en', 'text', ['class' => 'form-control', 'maxlength' => '150']); 
 
 															$form::label('seo_meta_desc_fre', 'Meta description (fre)');
-									                        $form::input('seo_meta_desc_fre', 'text', ['class' => 'form-control']);
+									                        $form::input('seo_meta_desc_fre', 'text', ['class' => 'form-control', 'maxlength' => '150']);
 
 															$form::label('seo_meta_desc_es', 'Meta description (es)');
-									                        $form::input('seo_meta_desc_es', 'text', ['class' => 'form-control']);
+									                        $form::input('seo_meta_desc_es', 'text', ['class' => 'form-control', 'maxlength' => '150']);
 															?>
 														</div>
 
@@ -147,13 +147,13 @@ class addPage extends \DGZ_library\DGZ_HtmlView
 														    <span class="font-weight-bold section-title">Meta Keywords</span>
 															<?php 
 															$form::label('seo_keywords_en', 'Meta keywords (en)');
-									                        $form::input('seo_keywords_en', 'text', ['class' => 'form-control']); 
+									                        $form::input('seo_keywords_en', 'text', ['class' => 'form-control', 'maxlength' => '200']); 
 
 															$form::label('seo_keywords_fre', 'Meta keywords (fre)');
-									                        $form::input('seo_keywords_fre', 'text', ['class' => 'form-control']);
+									                        $form::input('seo_keywords_fre', 'text', ['class' => 'form-control', 'maxlength' => '200']);
 
 															$form::label('seo_keywords_es', 'Meta keywords (es)');
-									                        $form::input('seo_keywords_es', 'text', ['class' => 'form-control']);
+									                        $form::input('seo_keywords_es', 'text', ['class' => 'form-control', 'maxlength' => '200']);
 															?>
 														</div>
 
@@ -188,13 +188,13 @@ class addPage extends \DGZ_library\DGZ_HtmlView
 																content of the page. An h1 tag should contain characters from 20 to a MAX of 70.</span>
 															<?php 
 															$form::label('seo_h1_text_en', 'H1 Text (en)');
-									                        $form::input('seo_h1_text_en', 'text', ['class' => 'form-control']); 
+									                        $form::input('seo_h1_text_en', 'text', ['class' => 'form-control', 'maxlength' => '70']); 
 
 															$form::label('seo_h1_text_fre', 'H1 Text (fre)');
-									                        $form::input('seo_h1_text_fre', 'text', ['class' => 'form-control']);
+									                        $form::input('seo_h1_text_fre', 'text', ['class' => 'form-control', 'maxlength' => '70']);
 
 															$form::label('seo_h1_text_es', 'H1 Text (es)');
-									                        $form::input('seo_h1_text_es', 'text', ['class' => 'form-control']);
+									                        $form::input('seo_h1_text_es', 'text', ['class' => 'form-control', 'maxlength' => '70']);
 															?>
 														</div>
 
@@ -202,13 +202,13 @@ class addPage extends \DGZ_library\DGZ_HtmlView
 														    <span class="font-weight-bold section-title">H2 Text</span>
 															<?php 
 															$form::label('seo_h2_text_en', 'H2 Text (en)');
-									                        $form::input('seo_h2_text_en', 'text', ['class' => 'form-control']); 
+									                        $form::input('seo_h2_text_en', 'text', ['class' => 'form-control', 'maxlength' => '70']); 
 
 															$form::label('seo_h2_text_fre', 'H2 Text (fre)');
-									                        $form::input('seo_h2_text_fre', 'text', ['class' => 'form-control']);
+									                        $form::input('seo_h2_text_fre', 'text', ['class' => 'form-control', 'maxlength' => '70']);
 
 															$form::label('seo_h2_text_es', 'H2 Text (es)');
-									                        $form::input('seo_h2_text_es', 'text', ['class' => 'form-control']);
+									                        $form::input('seo_h2_text_es', 'text', ['class' => 'form-control', 'maxlength' => '70']);
 															?>
 														</div>
 

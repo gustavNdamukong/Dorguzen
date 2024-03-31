@@ -305,6 +305,26 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 	}
 
 
+    /**
+    * Create a title within a custom controller just before it reders a view file 
+    *   $view = DGZ_View::getView('myViewName', $this, 'html');
+    *   $this->setPageTitle('My view page custom title');
+    *   $view->show();
+    *
+    * Then grab this title and use within the show() method of the view file, ideally at the top, 
+    *    like so:  
+    * 
+    *   $this->addMetadata(
+    *    [
+    *         ...
+    *         '<link rel="canonical" href="'.$this->controller->config->getHomePage().'myViewName" />',
+    *         '<title>'.$this->controller->getPageTitle().'</title>'
+    *    ]);
+    */         
+    public function getPageTitle()
+	{
+		return $this->pageTitle;
+	}
 
 
 	/**
@@ -375,17 +395,12 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
     public function setGlobalSeoData($appGlobalSeoData)
     {
-        //$this->globalSeoData = []; ////////////// REMOVE THIS - IT DISN'T CHANGE ANYTHING
         $this->globalSeoData = $appGlobalSeoData;
-        /////echo '<pre>';
-        //$this->showArray($this->globalSeoData);///////////////
-        /////$this->showArray($this->getGlobalSeoData());///////////////Î
     }
 
 
     public function getGlobalSeoData()
     {
-        //$this->showArray($this->globalSeoData);/////////////// REMOVE - DIDN'T CHANGE A THING
         return $this->globalSeoData;
     }
 
@@ -564,7 +579,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
                     $this->setBodySeoData($pageBodySeoData);  
                     //--------------------------------------
                     
-                    //build the heade tag SEO data
+                    //build the head tag SEO data
                     if (isset($seoData[0]['seo_meta_desc_'.$lang]))
                     {
                         $pageHeaderSeoData[] = '<meta name="description" content="'.$seoData[0]['seo_meta_desc_'.$lang].'">';
@@ -1258,16 +1273,18 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
     /**
      * Gets the name of a controller class.
-     * A Controller name looks like: 'controllers\BamendaController', so it strips of the 'controllers\'
+     * A Controller name looks like: 'controllers\BamendaController', 
+     *  so, first it strips of the 'Controller' at the end of the name,
+     *  then it strips off the 'controllers\' prefix, & returns the string 'Bamenda'
      *  from the name
      * @return mixed
      */
-    public function getControllerName()
-    {
-        $controllerName = get_class($this);
-        $first = substr($controllerName, 0, strpos($controllerName, 'Controller'));
-        return substr($first, 12);
-    }
+    public function getNameFromController($controller)
+	{
+		$first = substr($controller, 0, strpos($controller, 'Controller'));
+		return substr($first, 12);
+	}
+
 
 
     /**
