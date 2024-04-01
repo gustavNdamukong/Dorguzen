@@ -78,7 +78,7 @@ class DGZ_Model
 
         //Eager-load model data
         $dataQuery = 'SELECT * FROM '.strtolower($table);
-        $dataResult = $db->query($dataQuery);
+        $dataResult = $db->query($dataQuery, MYSQLI_USE_RESULT);
 
         //check result if SELECTING the field types
         if ((isset($schemaResult->num_rows)) && ($schemaResult->num_rows > 0))
