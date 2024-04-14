@@ -1,0 +1,90 @@
+@font-face {
+  font-family: 'icomoon';
+  src:  url('fonts/icomoon.eot?orkqwr');
+  src:  url('fonts/icomoon.eot?orkqwr#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?orkqwr') format('truetype'),
+    url('fonts/icomoon.woff?orkqwr') format('woff'),
+    url('fonts/icomoon.svg?orkqwr#icomoon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'icomoon' !important;
+  speak: never;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-magnifying-glass:before {
+  content: "\e900";
+}
+.icon-shopping-cart:before {
+  content: "\e901";
+}
+.icon-chat:before {
+  content: "\e902";
+}
+.icon-right-arrow:before {
+  content: "\e903";
+}
+.icon-fast-food:before {
+  content: "\e904";
+}
+.icon-water:before {
+  content: "\e905";
+}
+.icon-health-check:before {
+  content: "\e906";
+}
+.icon-heart:before {
+  content: "\e907";
+}
+.icon-charity:before {
+  content: "\e908";
+}
+.icon-generous:before {
+  content: "\e909";
+}
+.icon-fundraiser:before {
+  content: "\e90a";
+}
+.icon-message:before {
+  content: "\e90b";
+}
+.icon-address:before {
+  content: "\e90c";
+}
+.icon-college-graduation:before {
+  content: "\e90d";
+}
+.icon-coin:before {
+  content: "\e90e";
+}
+.icon-dove:before {
+  content: "\e90f";
+}
+.icon-cheque:before {
+  content: "\e910";
+}
+.icon-donation:before {
+  content: "\e911";
+}
+.icon-handshake:before {
+  content: "\e912";
+}
+.icon-adoption:before {
+  content: "\e913";
+}
+.icon-donation-1:before {
+  content: "\e914";
+}

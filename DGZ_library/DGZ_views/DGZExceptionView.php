@@ -53,7 +53,7 @@ class DGZExceptionView  extends \DGZ_library\DGZ_View {
 								<?php
 								}
                                 else {
-                                    echo "<p style='color:red;'><b><i>$exceptions</i></b></p>";
+                                    echo "<p style='color:red;'><b><i>".var_dump($exceptions)."</i></b></p>";
                                 } ?>
                                 <h3><?=$langClass->translate($lang, 'errors.php', 'sorry-about-this')?>:
                                     <i><small>The error was logged and we will fix it ASAP</small></i></h3>
