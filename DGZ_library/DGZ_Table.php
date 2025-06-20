@@ -212,10 +212,10 @@ class DGZ_Table
     /**
      * Each time you call this method, pass it the number of items you want displayed on the page, and the current page number
      *
-     * @param limit-which is the number of records you want displayed on a page. It could be one of two values; a number for number of pages, or 'all'
+     * @param $limit which is the number of records you want displayed on a page. It could be one of two values; a number for number of pages, or 'all'
      *      for all records to be displayed in one page and no pagination
-     * @param page-which is the current page number
-     * @return data
+     * @param $page which is the current page number
+     * @return mixed
      */
     public function getData( $limit = 20, $page = 1 ) {
 
@@ -319,10 +319,10 @@ class DGZ_Table
                     else {
                         $sort = $this->_sort;
                     }
-                    $HTMLTable .= "<th class='text-center'><a href='$sortLinkTarget?ord=$result&s=$sort'>" . $heading . " <i class='fa fa-fw fa-sort'></i></a></th>";
+                    $HTMLTable .= "<th class='text-center'><a style='color:#fff'; href='$sortLinkTarget?ord=$result&s=$sort'>" . $heading . " <i class='fa fa-fw fa-sort'></i></a></th>";
                 }
                 else {
-                    $HTMLTable .= "<th class='text-center'><a href='$sortLinkTarget?ord=$result&s=$this->_sort'>" . $heading . " <i class='fa fa-fw fa-sort'></i></a></th>";
+                    $HTMLTable .= "<th class='text-center'><a style='color:#fff'; href='$sortLinkTarget?ord=$result&s=$this->_sort'>" . $heading . " <i class='fa fa-fw fa-sort'></i></a></th>";
                 }
             }
             else
@@ -429,7 +429,7 @@ class DGZ_Table
                             //If its a date field, convert the date from DB to a regular (human-readable) format
                             if (preg_match('/date/', strtolower($col)))
                             {
-                                $HTMLTable .= "<td id='".$recId."_".$col."'><a href='$linkTarget'>" . $this->_dateClass->YYYYMMDDtoDDMMYYYY($val) . "</a></td>";
+                                $HTMLTable .= "<td id='".$recId."_".$col."'><a href='$linkTarget'>" . ($val != "" ? $this->_dateClass->YYYYMMDDtoDDMMYYYY($val) : "") . "</a></td>";
                             }
                             else {
                                 $HTMLTable .= "<td id='".$recId."_".$col."'><a href='$linkTarget'>" . wordwrap($val ?? '', 75, "<br>\n", true) . "</a></td>";
@@ -450,7 +450,7 @@ class DGZ_Table
                         //If its a date field, convert the date from DB to a regular (human-readable) format
                         if (preg_match('/date/', strtolower($col)))
                         {
-                            $HTMLTable .= "<td id='".$recId."_".$col."'>" . $this->_dateClass->YYYYMMDDtoDDMMYYYY($val) . "</td>";
+                            $HTMLTable .= "<td id='".$recId."_".$col."'>" . ($val != "" ? $this->_dateClass->YYYYMMDDtoDDMMYYYY($val) : "") . "</td>";
                         }
                         else { 
                             $HTMLTable .= "<td id='".$recId."_".$col."'>" . wordwrap($val ?? '', 75, "<br>\n", true) . "</td>";}

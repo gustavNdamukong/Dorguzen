@@ -2,7 +2,10 @@
 
 namespace DGZ_library;
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 use configs\Config;
+use Logs;
 
 class DGZ_Messenger
 {
@@ -24,11 +27,32 @@ class DGZ_Messenger
 
     protected $_appURL;
 
+    protected $_phpMailer;
+    protected $_logger;
+
 
 
     public function __construct()
     {
         $config = new Config();
+
+        $this->_logger = new Logs();
+        $this->_phpMailer = new PHPMailer(true);
+        // SMTP settings
+    	$this->_phpMailer->isSMTP();
+    	$this->_phpMailer->Host       = 'smtp.mailgun.org'; // or Sendgrid host address etc
+    	$this->_phpMailer->SMTPAuth   = true;
+
+        // For the Username, enter the user you created in your SMTP service account
+        // replace 'admin.your-domain.com' below with a host you created in your SMTP service account
+        // the password is the one you created for the user in your SMTP account 
+    	$this->_phpMailer->Username   = 'your-smtp-user@admin.your-domain.com'; 
+    	$this->_phpMailer->Password   = 'password-for-your-smtp-user';    
+    
+		$this->_phpMailer->SMTPSecure = 'tls'; // or 'ssl'
+    	$this->_phpMailer->Port       = 587; // or 465 if using ssl
+        $this->_phpMailer->setFrom('noreply@admin.your-domain.com', 'Your application name');
+
 
         $this->_config = $config;
 
@@ -61,154 +85,39 @@ class DGZ_Messenger
 
     public function sendContactFormMsgToAdmin($name, $visitorEmail, $phone, $message)
     {
-        // Add your "sending" email below, better to get this from the config file
-        $headers  = "From: $this->_headerFrom\r\n";
-        $headers .= "Reply-To: $visitorEmail\r\n";
-        $headers .= "Content-type: text/html; charset=utf-8\r\n";
-
-        // We'll set the email "to" address to the database record
-        //$to = $email;
-        $to = $this->_appEmail.','.$this->_appEmailOther;
-        $subject = "Inquiry from your website contact form";
-
-        $msg = $this->sendContactFormMsgToAdminTemplate($name, $visitorEmail, $phone, $message);
-
-        // And send the email!
-        $send = mail($to, $subject, $msg, $headers);
-        if ($send)
-        {
+        try { 
+            $msg = $this->sendContactFormMsgToAdminTemplate($name, $visitorEmail, $phone, $message);
+    		$this->_phpMailer->addAddress($this->_appEmail, 'Admin');
+            $this->_phpMailer->addReplyTo($visitorEmail);
+            $this->_phpMailer->isHTML(true);
+    		$this->_phpMailer->Subject = "From website contact form";
+    		$this->_phpMailer->Body    = $msg;
+    		$this->_phpMailer->send();
             return true;
-        }
-        else
-        {
+        } catch (Exception $e) {
+            $this->_logger->log('The email: sendContactFormMsgToAdmin() failed to send', "Mailer Error: {$this->_phpMailer->ErrorInfo}");
             return false;
         }
 
     }
 
-
-
-
-    public function sendShopContactMsgToShopOwner($name, $shopOwnerEmail, $phone, $message)
-    {
-        // Add your "sending" email below, better to get this from the config file
-        $headers  = "From: $this->_headerFrom\r\n";
-        $headers .= "Reply-To: $shopOwnerEmail\r\n";
-        $headers .= "Content-type: text/html; charset=utf-8\r\n";
-
-        // We'll set the email "to" address to the database record
-        //$to = $email;
-        $to = $this->_appEmail.','.$this->_appEmailOther;
-        $subject = "Message from your Camerooncom Shop contact form";
-
-        $msg = $this->sendContactFormMsgToAdminTemplate($name, $shopOwnerEmail, $phone, $message);
-
-        // And send the email!
-        $send = mail($to, $subject, $msg, $headers);
-        if ($send)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-
-    }
-
-
-    /**
-     * TODO: This is for a newsletter (e-mail marketing) module to come
-     */
-    /*public function sendNewsletterWelcomeMsg($name, $email, $letterName)
-    {
-        //Get the newsletter data from the DB
-        $newsletterWelcome = new Newsletter();
-        $sql = "SELECT * FROM newsletter WHERE newsletter_name = '$letterName'";
-        $welcomeletterData = $newsletterWelcome->query($sql);
-
-        $subject = $welcomeletterData[0]['newsletter_subject'];
-
-        // Add your "sending" email below, better to get this fron the config file
-        $headers  = "From: $this->_headerFrom\r\n";
-        $headers .= "Reply-To: $this->_headerReplyTo\r\n";
-        $headers .= "Content-type: text/html; charset=utf-8\r\n";
-
-        // We'll set the email "to" address to the database record
-        $to = "$email";
-
-        $msg = $this->sendNewsletterWelcomeMsgTemplate($welcomeletterData[0]['newsletter_heading'], $name, $welcomeletterData[0]['newsletter_message'], $welcomeletterData[0]['newsletter_image'], $welcomeletterData[0]['newsletter_image_caption']);
-
-        // And send the email!
-        $send = mail($to, $subject, $msg, $headers);
-        if ($send)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-
-
-
-    public function sendNewsletterMsg($name, $email, $newsletterId)
-    {
-        $newsletter = new Newsletter();
-        $sql = "SELECT * FROM newsletter WHERE newsletter_id = $newsletterId";
-        $newsletterData = $newsletter->query($sql);
-
-        $subject = $newsletterData[0]['newsletter_subject'];
-
-        // Add your "sending" email below, better to get this fron the config file
-        $headers  = "From: $this->_headerFrom\r\n";
-        $headers .= "Reply-To: $this->_headerReplyTo\r\n";
-        $headers .= "Content-type: text/html; charset=utf-8\r\n";
-
-        // We'll set the email "to" address to the database record
-        $to = "$email";
-
-        $msg = $this->sendNewsletterMsgTemplate($newsletterData[0]['newsletter_heading'], $name, $newsletterData[0]['newsletter_message'], $newsletterData[0]['newsletter_image'], $newsletterData[0]['newsletter_image_caption']);
-
-        // And send the email!
-        $send = mail($to, $subject, $msg, $headers);
-        if ($send)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-
-    }*/
 
 
 
 
     public function sendEmailActivationEmail($name, $email, $subject, $message)
     {
-        //prepare to send an email to the new user with a link to activate their account
-        //Time to send a welcome email to the new member with an account activation code
-        $to = "$email";
-
-        // Add your "sending" email below, notice we are getting this from the config file
-        $headers  = "From: $this->_headerFrom\r\n";
-        $headers .= "Reply-To: $this->_headerReplyTo\r\n";
-        $headers .= "Content-type: text/html; charset=utf-8\r\n";
-
-        $msg = $this->createNewMemberTemplate($name, $message);
-
-        // And send the email!
-        $send = mail($to, $subject, $msg, $headers);
-        if ($send)
-        {
+        try {
+            $msg = $this->createNewMemberTemplate($name, $message);
+    		$this->_phpMailer->addAddress($email);
+            $this->_phpMailer->isHTML(true);
+    		$this->_phpMailer->Subject = $subject;
+    		$this->_phpMailer->Body    = $msg;
+    		$this->_phpMailer->send();
             return true;
-        }
-        else
-        {
+        } catch (Exception $e) {
+            // Log this error
+            $this->_logger->log('Email failed to send from: : sendEmailActivationEmail()', "Mailer Error: {$this->_phpMailer->ErrorInfo}");
             return false;
         }
     }
@@ -218,25 +127,17 @@ class DGZ_Messenger
 
     public function sendWelcomeEmail($name, $email, $subject, $message)
     {
-        //prepare to send an email to the new user with a link to activate their account
-        //Time to send a welcome email to the new member with an account activation code
-        $to = "$email";
-
-        // Add your "sending" email below, notice we are getting this from the config file
-        $headers  = "From: $this->_headerFrom\r\n";
-        $headers .= "Reply-To: $this->_headerReplyTo\r\n";
-        $headers .= "Content-type: text/html; charset=utf-8\r\n";
-
-        $msg = $this->createNewMemberTemplate($name, $message);
-
-        // And send the email!
-        $send = mail($to, $subject, $msg, $headers);
-        if ($send)
-        {
+        try {
+            $msg = $this->createNewMemberTemplate($name, $message);
+    		$this->_phpMailer->addAddress($email);
+            $this->_phpMailer->isHTML(true);
+    		$this->_phpMailer->Subject = $subject;
+    		$this->_phpMailer->Body    = $msg;
+    		$this->_phpMailer->send();
             return true;
-        }
-        else
-        {
+        } catch (Exception $e) {
+            // Log this error
+            $this->_logger->log('Email failed to send from: : sendWelcomeEmail()', "Mailer Error: {$this->_phpMailer->ErrorInfo}");
             return false;
         }
     }
@@ -249,51 +150,40 @@ class DGZ_Messenger
     {
         $subject = "Reset your password at ".$this->_appBusinessName;
 
-        $to = "$email";
-
-        // Add your "sending" email below, notice we are getting this from the config file
-        $headers  = "From: $this->_headerFrom\r\n";
-        $headers .= "Reply-To: $this->_headerReplyTo\r\n";
-        $headers .= "Content-type: text/html; charset=utf-8\r\n";
-
-        $msg = $this->passwordResetTemplate($firstname, $resetCode);
-
-        // And send the email!
-        $send = mail($to, $subject, $msg, $headers);
-
-        if ($send)
-        {
+        try {
+            $msg = $this->passwordResetTemplate($firstname, $resetCode);
+    		$this->_phpMailer->addAddress($email);
+            $this->_phpMailer->isHTML(true);
+    		$this->_phpMailer->Subject = $subject;
+    		$this->_phpMailer->Body    = $msg;
+    		$this->_phpMailer->send();
             return true;
-        }
-        else
-        {
+        } catch (Exception $e) {
+            // Log this error
+            $this->_logger->log('Email failed to send from: : sendPasswordResetEmail()', "Mailer Error: {$this->_phpMailer->ErrorInfo}");
             return false;
         }
     }
 
 
+
+
     public function sendErrorLogMsgToAdmin($message)
     {
-        // Add your "sending" email below, better to get this from the config file
-        $headers  = "From: $this->_headerFrom\r\n";
-        $headers .= "Reply-To: $this->_headerReplyTo\r\n";
-        $headers .= "Content-type: text/html; charset=utf-8\r\n";
-
-        // We'll set the email "to" address to the database record
-        //$to = $email;
         $to = $this->_appEmail.','.$this->_appEmailOther;
         $subject = "An error has occurred on live and has been logged";
 
-        $msg = $this->sendErrorLogMsgToAdminTemplate($message);
-
-        // And send the email!
-        $send = mail($to, $subject, $msg, $headers);
-        if ($send)
-        {
+        try {
+            $msg = $this->sendErrorLogMsgToAdminTemplate($message);
+    		$this->_phpMailer->addAddress($to);
+            $this->_phpMailer->isHTML(true);
+    		$this->_phpMailer->Subject = $subject;
+    		$this->_phpMailer->Body    = $msg;
+    		$this->_phpMailer->send();
             return true;
-        }
-        else
-        {
+        } catch (Exception $e) {
+            // Log this error
+            $this->_logger->log('Email failed to send from: : sendErrorLogMsgToAdmin()', "Mailer Error: {$this->_phpMailer->ErrorInfo}");
             return false;
         }
     }
@@ -439,7 +329,7 @@ class DGZ_Messenger
                                             	<td width="100%" height="5"></td>
                                             </tr>
                                             <tr>
-                                            	<td width="100%" align="center" style="color:#FFFFFF;font-family:Verdana,Geneva,sans-serif;font-size:50px;line-height:150%;">Camerooncom</td>
+                                            	<td width="100%" align="center" style="color:#FFFFFF;font-family:Verdana,Geneva,sans-serif;font-size:50px;line-height:150%;">'.$this->_appBusinessName.'</td>
                                             </tr>
                                             <tr>
                                             	<td width="100%" align="center" style="color:#888888;font-family:Helvetica,Arial,sans-serif;font-size:18px;line-height:150%;">'.$heading.'</td>
@@ -546,7 +436,7 @@ class DGZ_Messenger
                                             </tr>
                                             <tr>
                                                 <td align="center">
-                                                    <p style="color:#FFFFFF;font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:150%;">CAMEROONCOM.COM Cameroon\'s Online Market Place</p>
+                                                    <p style="color:#FFFFFF;font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:150%;">'.$this->_appBusinessName.' '.$this->_appSlogan.'</p>
                                                 </td>
                                             </tr>
                                             <tr>
@@ -585,7 +475,7 @@ class DGZ_Messenger
                                             </tr>
                                             <tr>
                                             	<td align="center">
-                                                	<p style="color:#999999;font-family:Helvetica,Arial,sans-serif;font-size:14px;margin-top:0;">© CAMEROONCOM All right reserved. Designed by <a href="https://www.nolimitmedia.co.uk/" target="_blank" style="color:#E87169;text-decoration:none;">NoLimit Media.</a></p>
+                                                	<p style="color:#999999;font-family:Helvetica,Arial,sans-serif;font-size:14px;margin-top:0;">© '.$this->_appName.' All right reserved. Designed by <a href="https://www.nolimitmedia.co.uk/" target="_blank" style="color:#E87169;text-decoration:none;">NoLimit Media.</a></p>
                                             	</td>
                                             </tr>
                                             <tr>
@@ -669,7 +559,7 @@ class DGZ_Messenger
                                             	<td width="100%" height="5"></td>
                                             </tr>
                                             <tr>
-                                            	<td width="100%" align="center" style="color:#FFFFFF;font-family:Verdana,Geneva,sans-serif;font-size:50px;line-height:150%;">Camerooncom</td>
+                                            	<td width="100%" align="center" style="color:#FFFFFF;font-family:Verdana,Geneva,sans-serif;font-size:50px;line-height:150%;">'.$this->_appName.'</td>
                                             </tr>
                                             <tr>
                                             	<td width="100%" align="center" style="color:#888888;font-family:Helvetica,Arial,sans-serif;font-size:18px;line-height:150%;">'.$heading.'</td>
@@ -699,7 +589,7 @@ class DGZ_Messenger
                                                 <p></p>
                                                 <h3>Dear '.$name.'</h3>
                                             	<td align="center">
-                                                	<h3 style="color:#555555;font-family:Helvetica,Arial,sans-serif;font-size:24px;line-height:150%;margin-bottom:0">The Camerooncom Newsletter</h3>
+                                                	<h3 style="color:#555555;font-family:Helvetica,Arial,sans-serif;font-size:24px;line-height:150%;margin-bottom:0">The '.$this->_appName.' Newsletter</h3>
                                                     <p style="color:#999999;font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:150%;">'.$message.'</p>
                                                 </td>
                                             </tr>';
@@ -778,7 +668,7 @@ class DGZ_Messenger
                                             </tr>
                                             <tr>
                                                 <td align="center">
-                                                    <p style="color:#FFFFFF;font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:150%;">CAMEROONCOM.COM Cameroon\'s Online Market Place</p>
+                                                    <p style="color:#FFFFFF;font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:150%;">'.$this->_appName.' '.$this->_appSlogan.'</p>
                                                 </td>
                                             </tr>
                                             <tr>
@@ -817,7 +707,7 @@ class DGZ_Messenger
                                             </tr>
                                             <tr>
                                             	<td align="center">
-                                                	<p style="color:#999999;font-family:Helvetica,Arial,sans-serif;font-size:14px;margin-top:0;">© CAMEROONCOM 2017 All right reserved. Designed by <a href="http://www.nolimitmedia.com/" target="_blank" style="color:#E87169;text-decoration:none;">NoLimit Media.</a></p>
+                                                	<p style="color:#999999;font-family:Helvetica,Arial,sans-serif;font-size:14px;margin-top:0;">© '.$this->_appBusinessName.' 2017 All right reserved. Designed by <a href="http://www.nolimitmedia.com/" target="_blank" style="color:#E87169;text-decoration:none;">NoLimit Media.</a></p>
                                             	</td>
                                             </tr>
                                             <tr>
@@ -888,7 +778,7 @@ class DGZ_Messenger
         <body>
              <div id='maincontent' class='column'> 
                   <br />
-                  <h1 id='heading'>Welcome to Camerooncom</h1>
+                  <h1 id='heading'>Welcome to '.$this->_appBusinessName.'</h1>
                   <h3>Dear $name,</h3>
                   <p>$message</p>
                   <br />";

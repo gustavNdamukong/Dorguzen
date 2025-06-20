@@ -256,24 +256,31 @@ class DGZ_Router {
 
 
         //Handle any hyphens in the URL method param by referring the handling to a matching underscored or camel-cased controller method
-        if (preg_match('/-/', $method))
+        /////////////die('METHOD IS: '.$method); ////////
+        if (($method) && ($method != null)) { //die('NOT NULL OOH: '.$method); } else { die('IT IS NULL YAA'); }
+            if (preg_match('/-/', $method)) //////////// PGREGOO
+            {
+                $methodPieces = explode('-', $method);
+                $method_underscored = implode('_', $methodPieces);
+
+                $newMethodPieces = array_map('ucfirst', $methodPieces);
+                $method_camelCased = implode($newMethodPieces);
+
+                if (method_exists($object, $method_underscored))
+                {
+                    //override the method
+                    $method = $method_underscored;
+                }
+                elseif (method_exists($object, $method_camelCased))
+                {
+                    //override the method
+                    $method = $method_camelCased; 
+                }
+            }
+        }
+        else
         {
-            $methodPieces = explode('-', $method);
-            $method_underscored = implode('_', $methodPieces);
-
-            $newMethodPieces = array_map('ucfirst', $methodPieces);
-            $method_camelCased = implode($newMethodPieces);
-
-            if (method_exists($object, $method_underscored))
-            {
-                //override the method
-                $method = $method_underscored;
-            }
-            elseif (method_exists($object, $method_camelCased))
-            {
-                //override the method
-                $method = $method_camelCased; 
-            }
+            $method = 'defaultAction'; /////////////////// I ADDED THIS LINE OX '$method' WAS BEING REPORTED DOWN THE LINE AS NULL
         }
 
         if ($stringFormat == true)

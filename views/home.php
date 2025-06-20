@@ -18,566 +18,919 @@ class home extends \DGZ_library\DGZ_HtmlView
                  '<meta name="description" content="Welcome to DorguzApp (replace this with your application name).">',
                  '<meta name="keywords" content="DorguzApp (replace this with your application name) contact form. Separate multiple keywords by commas">',
                  '<meta name="author" content="Your name here">'
-             ]);
+             ]); ?>
+
+<!--<div class="preloader">
+        <img class="preloader__image" width="60" src="assets/halpes/images/loader.png" alt="" />
+    </div>-->
+
+    <!-- /.preloader -->
+    <!--<div class="page-wrapper">-->
+        <!--REMOVED HEADER CODE FROM HERE-->
+
         
-         /* ?>
-         <!-- ==========================
-    	BREADCRUMB - START
-		=========================== -->
-         <section class="breadcrumb-wrapper" xmlns="http://www.w3.org/1999/html">
-             <div class="container">
-                 <div class="row">
-                     <div class="col-xs-6">
-                     </div>
-                     <div class="col-xs-6">
-                         <ol class="breadcrumb">
-                             <li><a></a></li>
-                         </ol>
-                     </div>
-                 </div>
-             </div>
-         </section>
-         <!-- ==========================
-             BREADCRUMB - END
-         =========================== -->
 
-         <!-- ==========================
-             MAIN PAGE - START
-         =========================== -->
-         <section class="content news">
-             <div class="container">
-                 <h2 class="hidden">Home</h2>
-                 <div class="row">
+        <!--Welcome One Start-->
+        <section class="welcome-one">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6">
+                        <div class="welcome-one__left">
+                            <div class="welcome-one__img-box">
+                                <img src="assets/halpes/images/resources/welcome-one-img-1.jpg" alt="">
+                                <div class="welcome-one__img-box-2">
+                                    <img src="assets/halpes/images/resources/welcome-one-img-2.jpg" alt="">
+                                </div>
+                                <h2 class="welcome-one__bottom-text">Helping Today</h2>
+                                <div class="welcome-one__heart-icon">
+                                    <img src="assets/halpes/images/resources/welcome-one-heart-icon.png" alt="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-6 col-lg-6">
+                        <div class="welcome-one__right">
+                            <div class="section-title text-left">
+                                <span class="section-title__tagline">Welcome to Charity</span>
+                                <h2 class="section-title__title">Helping each other can make world better</h2>
+                            </div>
+                            <p class="welcome-one__right-text">Lorem ipsum dolor sit amet, consectetur notted
+                                adipisicing elit sed do eiusmod tempor incididunt ut labore et simply free text dolore
+                                magna aliqua lonm andhn.</p>
+                            <div class="welcome-one__our-mission-and-story">
+                                <div class="welcome-one__mission-and-story-single">
+                                    <h3><i class="fas fa-arrow-circle-right"></i>Our Mission</h3>
+                                    <p class="welcome-one__our-mission-and-story-text">Lorem ipsum dolor sit amet not is
+                                        consectetur notted.</p>
+                                </div>
+                                <div class="welcome-one__mission-and-story-single">
+                                    <h3><i class="fas fa-arrow-circle-right"></i>Our Story</h3>
+                                    <p class="welcome-one__our-mission-and-story-text">Lorem ipsum dolor sit amet not is
+                                        consectetur notted.</p>
+                                </div>
+                            </div>
+                            <div class="welcome-one__progress">
+                                <div class="welcome-one__progress-single">
+                                    <h4 class="welcome-one__progress-title">Charity</h4>
+                                    <div class="bar">
+                                        <div class="bar-inner count-bar" data-percent="83%">
+                                            <div class="count-text">83%</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="welcome-one__progress-single">
+                                    <h4 class="welcome-one__progress-title">Donations</h4>
+                                    <div class="bar">
+                                        <div class="bar-inner count-bar" data-percent="38%">
+                                            <div class="count-text">38%</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="#" class="welcome-one__btn thm-btn"><i class="fas fa-arrow-circle-right"></i>Learn
+                                More</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!--Welcome One End-->
 
-                     <div class="viewText">
-                         <h2>Welcome to the Dorguzen Framework</h2>
+        <!--Causes One Start-->
+        <section class="causes-one">
+            <div class="container">
+                <h1>WELCOME TO THE NEW LAYOUT (HALPES)</h1>
+                <div class="section-title text-center">
+                    <span class="section-title__tagline">Latest Causes</span>
+                    <h2 class="section-title__title">Find the popular cause <br> and donate them</h2>
+                </div>
+                <div class="row">
+                    <div class="col-xl-12">
+                        <div class="causes-one__carousel owl-theme owl-carousel">
+                            <div class="causes-one__single wow fadeInLeft" data-wow-duration="1500ms">
+                                <div class="causes-one__img">
+                                    <div class="causes-one__img-box">
+                                        <img src="assets/halpes/images/resources/causes-one-img-1.jpg" alt="">
+                                        <a href="#">
+                                            <i class="fa fa-plus"></i>
+                                        </a>
+                                    </div>
+                                    <div class="causes-one__category">
+                                        <span>Medical</span>
+                                    </div>
+                                </div>
+                                <div class="causes-one__content">
+                                    <h3 class="causes-one__title">
+                                        <a href="causes-details.html">Raise Fund for Clean & Healthy Water</a>
+                                    </h3>
+                                    <p class="causes-one__text">There are not many of passages of lorem ipsum avail isn
+                                        alteration donationa in form simply free.</p>
+                                </div>
+                                <div class="causes-one__progress">
+                                    <div class="bar">
+                                        <div class="bar-inner count-bar" data-percent="36%">
+                                            <div class="count-text">36%</div>
+                                        </div>
+                                    </div>
+                                    <div class="causes-one__goals">
+                                        <p><span>$25,270</span> Raised</p>
+                                        <p><span>$30,000</span> Goal</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="causes-one__single wow fadeInUp" data-wow-duration="1500ms"
+                                data-wow-delay="100ms">
+                                <div class="causes-one__img">
+                                    <div class="causes-one__img-box">
+                                        <img src="assets/halpes/images/resources/causes-one-img-2.jpg" alt="">
+                                        <a href="#">
+                                            <i class="fa fa-plus"></i>
+                                        </a>
+                                    </div>
+                                    <div class="causes-one__category">
+                                        <span>Medical</span>
+                                    </div>
+                                </div>
+                                <div class="causes-one__content">
+                                    <h3 class="causes-one__title">
+                                        <a href="causes-details.html">School Counseling for Children</a>
+                                    </h3>
+                                    <p class="causes-one__text">There are not many of passages of lorem ipsum avail isn
+                                        alteration donationa in form simply free.</p>
+                                </div>
+                                <div class="causes-one__progress">
+                                    <div class="bar">
+                                        <div class="bar-inner count-bar" data-percent="36%">
+                                            <div class="count-text">36%</div>
+                                        </div>
+                                    </div>
+                                    <div class="causes-one__goals">
+                                        <p><span>$25,270</span> Raised</p>
+                                        <p><span>$30,000</span> Goal</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="causes-one__single wow fadeInRight" data-wow-duration="1500ms"
+                                data-wow-delay="200ms">
+                                <div class="causes-one__img">
+                                    <div class="causes-one__img-box">
+                                        <img src="assets/halpes/images/resources/causes-one-img-3.jpg" alt="">
+                                        <a href="#">
+                                            <i class="fa fa-plus"></i>
+                                        </a>
+                                    </div>
+                                    <div class="causes-one__category">
+                                        <span>Medical</span>
+                                    </div>
+                                </div>
+                                <div class="causes-one__content">
+                                    <h3 class="causes-one__title">
+                                        <a href="causes-details.html">Fundrising for Early Childhood Rise</a>
+                                    </h3>
+                                    <p class="causes-one__text">There are not many of passages of lorem ipsum avail isn
+                                        alteration donationa in form simply free.</p>
+                                </div>
+                                <div class="causes-one__progress">
+                                    <div class="bar">
+                                        <div class="bar-inner count-bar" data-percent="36%">
+                                            <div class="count-text">36%</div>
+                                        </div>
+                                    </div>
+                                    <div class="causes-one__goals">
+                                        <p><span>$25,270</span> Raised</p>
+                                        <p><span>$30,000</span> Goal</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="causes-one__single wow fadeInLeft" data-wow-duration="1500ms">
+                                <div class="causes-one__img">
+                                    <div class="causes-one__img-box">
+                                        <img src="assets/halpes/images/resources/causes-one-img-1.jpg" alt="">
+                                        <a href="#">
+                                            <i class="fa fa-plus"></i>
+                                        </a>
+                                    </div>
+                                    <div class="causes-one__category">
+                                        <span>Medical</span>
+                                    </div>
+                                </div>
+                                <div class="causes-one__content">
+                                    <h3 class="causes-one__title">
+                                        <a href="causes-details.html">Promoting The Rights of Children</a>
+                                    </h3>
+                                    <p class="causes-one__text">There are not many of passages of lorem ipsum avail isn
+                                        alteration donationa in form simply free.</p>
+                                </div>
+                                <div class="causes-one__progress">
+                                    <div class="bar">
+                                        <div class="bar-inner count-bar" data-percent="36%">
+                                            <div class="count-text">36%</div>
+                                        </div>
+                                    </div>
+                                    <div class="causes-one__goals">
+                                        <p><span>$25,270</span> Raised</p>
+                                        <p><span>$30,000</span> Goal</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="causes-one__single wow fadeInUp" data-wow-duration="1500ms"
+                                data-wow-delay="100ms">
+                                <div class="causes-one__img">
+                                    <div class="causes-one__img-box">
+                                        <img src="assets/halpes/images/resources/causes-one-img-2.jpg" alt="">
+                                        <a href="#">
+                                            <i class="fa fa-plus"></i>
+                                        </a>
+                                    </div>
+                                    <div class="causes-one__category">
+                                        <span>Medical</span>
+                                    </div>
+                                </div>
+                                <div class="causes-one__content">
+                                    <h3 class="causes-one__title">
+                                        <a href="causes-details.html">Education for Poor Children</a>
+                                    </h3>
+                                    <p class="causes-one__text">There are not many of passages of lorem ipsum avail isn
+                                        alteration donationa in form simply free.</p>
+                                </div>
+                                <div class="causes-one__progress">
+                                    <div class="bar">
+                                        <div class="bar-inner count-bar" data-percent="36%">
+                                            <div class="count-text">36%</div>
+                                        </div>
+                                    </div>
+                                    <div class="causes-one__goals">
+                                        <p><span>$25,270</span> Raised</p>
+                                        <p><span>$30,000</span> Goal</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="causes-one__single wow fadeInRight" data-wow-duration="1500ms"
+                                data-wow-delay="200ms">
+                                <div class="causes-one__img">
+                                    <div class="causes-one__img-box">
+                                        <img src="assets/halpes/images/resources/causes-one-img-3.jpg" alt="">
+                                        <a href="#">
+                                            <i class="fa fa-plus"></i>
+                                        </a>
+                                    </div>
+                                    <div class="causes-one__category">
+                                        <span>Medical</span>
+                                    </div>
+                                </div>
+                                <div class="causes-one__content">
+                                    <h3 class="causes-one__title">
+                                        <a href="causes-details.html">Raise Fund for Clean & Healthy Water</a>
+                                    </h3>
+                                    <p class="causes-one__text">There are not many of passages of lorem ipsum avail isn
+                                        alteration donationa in form simply free.</p>
+                                </div>
+                                <div class="causes-one__progress">
+                                    <div class="bar">
+                                        <div class="bar-inner count-bar" data-percent="36%">
+                                            <div class="count-text">36%</div>
+                                        </div>
+                                    </div>
+                                    <div class="causes-one__goals">
+                                        <p><span>$25,270</span> Raised</p>
+                                        <p><span>$30,000</span> Goal</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="causes-one__single wow fadeInLeft" data-wow-duration="1500ms">
+                                <div class="causes-one__img">
+                                    <div class="causes-one__img-box">
+                                        <img src="assets/halpes/images/resources/causes-one-img-1.jpg" alt="">
+                                        <a href="#">
+                                            <i class="fa fa-plus"></i>
+                                        </a>
+                                    </div>
+                                    <div class="causes-one__category">
+                                        <span>Medical</span>
+                                    </div>
+                                </div>
+                                <div class="causes-one__content">
+                                    <h3 class="causes-one__title">
+                                        <a href="causes-details.html">Raise Fund for Clean & Healthy Water</a>
+                                    </h3>
+                                    <p class="causes-one__text">There are not many of passages of lorem ipsum avail isn
+                                        alteration donationa in form simply free.</p>
+                                </div>
+                                <div class="causes-one__progress">
+                                    <div class="bar">
+                                        <div class="bar-inner count-bar" data-percent="36%">
+                                            <div class="count-text">36%</div>
+                                        </div>
+                                    </div>
+                                    <div class="causes-one__goals">
+                                        <p><span>$25,270</span> Raised</p>
+                                        <p><span>$30,000</span> Goal</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="causes-one__single wow fadeInUp" data-wow-duration="1500ms"
+                                data-wow-delay="100ms">
+                                <div class="causes-one__img">
+                                    <div class="causes-one__img-box">
+                                        <img src="assets/halpes/images/resources/causes-one-img-2.jpg" alt="">
+                                        <a href="#">
+                                            <i class="fa fa-plus"></i>
+                                        </a>
+                                    </div>
+                                    <div class="causes-one__category">
+                                        <span>Medical</span>
+                                    </div>
+                                </div>
+                                <div class="causes-one__content">
+                                    <h3 class="causes-one__title">
+                                        <a href="causes-details.html">Raise Fund for Clean & Healthy Water</a>
+                                    </h3>
+                                    <p class="causes-one__text">There are not many of passages of lorem ipsum avail isn
+                                        alteration donationa in form simply free.</p>
+                                </div>
+                                <div class="causes-one__progress">
+                                    <div class="bar">
+                                        <div class="bar-inner count-bar" data-percent="36%">
+                                            <div class="count-text">36%</div>
+                                        </div>
+                                    </div>
+                                    <div class="causes-one__goals">
+                                        <p><span>$25,270</span> Raised</p>
+                                        <p><span>$30,000</span> Goal</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="causes-one__single fadeInRight" data-wow-duration="1500ms"
+                                data-wow-delay="200ms">
+                                <div class="causes-one__img">
+                                    <div class="causes-one__img-box">
+                                        <img src="assets/halpes/images/resources/causes-one-img-3.jpg" alt="">
+                                        <a href="#">
+                                            <i class="fa fa-plus"></i>
+                                        </a>
+                                    </div>
+                                    <div class="causes-one__category">
+                                        <span>Medical</span>
+                                    </div>
+                                </div>
+                                <div class="causes-one__content">
+                                    <h3 class="causes-one__title">
+                                        <a href="causes-details.html">Raise Fund for Clean & Healthy Water</a>
+                                    </h3>
+                                    <p class="causes-one__text">There are not many of passages of lorem ipsum avail isn
+                                        alteration donationa in form simply free.</p>
+                                </div>
+                                <div class="causes-one__progress">
+                                    <div class="bar">
+                                        <div class="bar-inner count-bar" data-percent="36%">
+                                            <div class="count-text">36%</div>
+                                        </div>
+                                    </div>
+                                    <div class="causes-one__goals">
+                                        <p><span>$25,270</span> Raised</p>
+                                        <p><span>$30,000</span> Goal</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!--Causes One End-->
 
-                         <p>
-                             Alright we know you have heard about many PHP development frameworks out there, so the pressure is on. What do we tell you about Dorguzen to
-                             make it stand out?
-                             Well...there are so many points we can make but it is really true what they say; that the proof is in the pudding. As opposed to other
-                             frameworks which make you spend a lot of time trying to decipher the code and get your head around all the abstractions, the Dorguzen framework
-                             strives to <span class="text-primary">cut to the chase</span> and give you what you need to get up and running with your development.
-                             It is a lightweight but at the same time a very powerful PHP development framework that comes packed full with tools to get you going.
-                             </p>
+        <!--Join One Start-->
+        <section class="join-one">
+            <div class="join-one-bg jarallax" data-jarallax data-speed="0.2" data-imgPosition="50% 0%"
+                style="background-image: url(assets/halpes/images/backgrounds/join-one-bg.jpg)"></div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-xl-12">
+                        <div class="join-one__inner">
+                            <h2 class="join-one__title">Join the community to give <br> education for children</h2>
+                            <a href="#" class="join-one__btn thm-btn"><i class="fas fa-arrow-circle-right"></i>Learn
+                                More</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!--Join One End-->
 
-                             <p>Its key hallmarks are:</p>
-                            <ul>
-                                 <li>Very simple (as a matter of fact, over-simplified routing</li>
-                                 <li>Simple HTTP API system-there are only a handful or character sets you can pass in the browser URL to make your web pages come alive</li>
-                                 <li>Simple <span class="text-primary">Object Relational Mapping (ORM)</span> system built into its models</li>
-                                 <li>A model-database chaining system based on the rule of 'convention over configuration' which if followed will give you a great head start</li>
-                                <li>Dorguzen aims to strip out the over-complicated learning curves involved with modern frameworks, and hand the reigns of control to you
-                                    the engineer/developer as quickly as possible. You will be pleased to find how easy it is to get under the hood and tweak absolutely
-                                    every part of the code base - and you are actually encouraged to do so, in order to learn about what it does. This hands-on type of
-                                    approach is known to be the best way to gain mastery in any craft. You will be surprised at what you would be able to build in no time.
+        <!--Three Boxes Start-->
+        <section class="three-boxes">
+            <div class="container-box">
+                <div class="row">
+                    <div class="col-xl-4">
+                        <!--Three Boxes Single-->
+                        <div class="three-boxes__single">
+                            <div class="three-boxes__single-bg"
+                                style="background-image: url(assets/halpes/images/resources/three-boxes-img-1.jpg)"></div>
+                            <div class="three-boxes__content">
+                                <div class="three-boxes__icon">
+                                    <span class="icon-fast-food"></span>
+                                </div>
+                                <div class="three-boxes__text-box">
+                                    <h2>Healthy Food</h2>
+                                    <p class="three-boxes__text">Lorem ipsum is simply free text available amet,
+                                        consectetuer adipiscing elit. There are not many passages of ipsum.</p>
+                                    <a href="#" class="three-boxes__btn"><i class="fa fa-heart"></i>Donate </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4">
+                        <!--Three Boxes Single-->
+                        <div class="three-boxes__single three-boxes__single-item-two">
+                            <div class="three-boxes__single-bg"
+                                style="background-image: url(assets/halpes/images/resources/three-boxes-img-1.jpg)"></div>
+                            <div class="three-boxes__content">
+                                <div class="three-boxes__icon">
+                                    <span class="icon-water"></span>
+                                </div>
+                                <div class="three-boxes__text-box">
+                                    <h2>Clean Water</h2>
+                                    <p class="three-boxes__text">Lorem ipsum is simply free text available amet,
+                                        consectetuer adipiscing elit. There are not many passages of ipsum.</p>
+                                    <a href="#" class="three-boxes__btn"><i class="fa fa-heart"></i>Donate </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4">
+                        <!--Three Boxes Single-->
+                        <div class="three-boxes__single three-boxes__single-item-three">
+                            <div class="three-boxes__single-bg"
+                                style="background-image: url(assets/halpes/images/resources/three-boxes-img-1.jpg)"></div>
+                            <div class="three-boxes__content">
+                                <div class="three-boxes__icon">
+                                    <span class="icon-health-check"></span>
+                                </div>
+                                <div class="three-boxes__text-box">
+                                    <h2>Medical Treatment</h2>
+                                    <p class="three-boxes__text">Lorem ipsum is simply free text available amet,
+                                        consectetuer adipiscing elit. There are not many passages of ipsum.</p>
+                                    <a href="#" class="three-boxes__btn"><i class="fa fa-heart"></i>Donate </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!--Three Boxes End-->
+
+        <!--Helping One Start-->
+        <?php /*
+        <section class="helping-one">
+            <div class="container">
+                <div class="section-title text-center">
+                    <span class="section-title__tagline">Latest Causes</span>
+                    <h2 class="section-title__title">Find the popular cause <br> and donate them</h2>
+                </div>
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6">
+                        <div class="helping-one__left">
+                            <h3 class="helping-one__title">We’re Helping Today. Helping Tommorow</h3>
+                            <p class="helping-one__text">There are many variations of passages of available but the
+                                majority have suffered alteration in some form, by injected humou or randomised words
+                                even slightly believable. All the Lorem Ipsum generators on the Internet tend.</p>
+                            <ul class="helping-one__left-list list-unstyled">
+                                <li>
+                                    <div class="helping-one__left-icon">
+                                        <i class="fas fa-arrow-circle-right"></i>
+                                    </div>
+                                    <div class="helping-one__left-text">
+                                        <p>Making this the first true generator on the Internet</p>
+                                    </div>
                                 </li>
                                 <li>
-                                     Helper classes for just about anything you are likely to run into when developing like <span class="text-primary">file uploading and resizing </span>,
-                                     easy <span class="text-primary">PDF creation </span>, bootstrap and font awesome libraries pulled in to help you create sleek user interfaces
-                                     that are fully responsive, and much much more...
-                                 </li>
+                                    <div class="helping-one__left-icon">
+                                        <i class="fas fa-arrow-circle-right"></i>
+                                    </div>
+                                    <div class="helping-one__left-text">
+                                        <p>Lorem Ipsum is not simply random text</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="helping-one__left-icon">
+                                        <i class="fas fa-arrow-circle-right"></i>
+                                    </div>
+                                    <div class="helping-one__left-text">
+                                        <p>If you are going to use a passage</p>
+                                    </div>
+                                </li>
                             </ul>
-                             <p>In short, the Dorguzen framework is, <span class="text-primary">Your Rapid Web Development Toolkit</span>
-                         </p>
+                            <div class="helping-one__left-img">
+                                <img src="assets/halpes/images/resources/helping-one-left-img.jpg" alt="">
+                                <div class="helping-one__left-icon-box">
+                                    <span class="icon-heart"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-6 col-lg-6">
+                        <div class="helping-one__right">
+                            <form action="" class="helping-one__right-form">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="helping-one__right-input-box">
+                                            <input type="text" name="amount" placeholder="Enter Donation Amount">
+                                            <div class="helping-one__right-dolar-icon">
+                                                <span>$</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <input type="text" name="name" placeholder="Your Name">
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <input type="email" name="email" placeholder="Email Address">
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <input type="text" name="phone" placeholder="Phone Number">
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <textarea name="message" placeholder="Write Message"></textarea>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <button type="submit" class="thm-btn helping-one__right-btn"><i
+                                                class="fas fa-arrow-circle-right"></i>Continue Now</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>*/ ?>
+        <!--Helping One End-->
 
-
-                     </div>
-                 </div><!--END OF ROW DIV, THE FIRST ELEMENT INSIDE THE CONTAINER DIV - WH WRAPS AROUND, OR IS FOLLOWED (INSIDE OF IT) BY THE COL-SM-9 DIV THAT HOLDS THE MAIN BODY OF THE PAGE-->
-             </div><!--END OF CONTAINER DIV-->
-         </section>
-         <!-- ==========================
-             MAIN PAGE - END
-         =========================== -->
-         <section>
-
+        <!--Gallery One Start-->
+        <section class="gallery-one">
+            <div class="gallery-one__container-box clearfix">
+                <div class="gallery-one__carousel owl-theme owl-carousel">
+                    <!--Gallery One Single-->
+                    <div class="gallery-one__single">
+                        <div class="gallery-one__img-box">
+                            <img src="assets/halpes/images/gallery/gallery-1-1.jpg" alt="">
+                            <div class="gallery-one__hover-content-box">
+                                <h2>Child Education</h2>
+                                <p>Charity</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!--Gallery One Single-->
+                    <div class="gallery-one__single">
+                        <div class="gallery-one__img-box">
+                            <img src="assets/halpes/images/gallery/gallery-1-2.jpg" alt="">
+                            <div class="gallery-one__hover-content-box">
+                                <h2>Child Education</h2>
+                                <p>Charity</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!--Gallery One Single-->
+                    <div class="gallery-one__single">
+                        <div class="gallery-one__img-box">
+                            <img src="assets/halpes/images/gallery/gallery-1-3.jpg" alt="">
+                            <div class="gallery-one__hover-content-box">
+                                <h2>Child Education</h2>
+                                <p>Charity</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!--Gallery One Single-->
+                    <div class="gallery-one__single">
+                        <div class="gallery-one__img-box">
+                            <img src="assets/halpes/images/gallery/gallery-1-4.jpg" alt="">
+                            <div class="gallery-one__hover-content-box">
+                                <h2>Child Education</h2>
+                                <p>Charity</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!--Gallery One Single-->
+                    <div class="gallery-one__single">
+                        <div class="gallery-one__img-box">
+                            <img src="assets/halpes/images/gallery/gallery-1-5.jpg" alt="">
+                            <div class="gallery-one__hover-content-box">
+                                <h2>Child Education</h2>
+                                <p>Charity</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </section>
-          <?php */ ?>
+        <!--Gallery One End-->
 
-         <!------------------------------------------------------
-            NAV WAS HERE BUT IS NOW IN HEADER.INC.PHP
-         ------------------------------------------------------->
+        <!--Testimonial One Start-->
+        <section class="testimonial-one">
+            <div class="testimonial-one-bg"
+                style="background-image: url(assets/halpes/images/backgrounds/testimonial-1-bg.jpg)"></div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-xl-4">
+                        <div class="testimonial-one__left">
+                            <div class="section-title text-left">
+                                <span class="section-title__tagline">Our Testimonials</span>
+                                <h2 class="section-title__title">What they’re talking about charity</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-8">
+                        <div class="testimonial-one__right">
+                            <div class="testimonial-one__carousel owl-theme owl-carousel">
+                                <!--Testimonial One Single-->
+                                <div class="testimonial-one__single">
+                                    <p class="testimonial-one__text">Lorem ipsum is simply free text dolor sit amet,
+                                        consectetur notted adipisicing elit sed do eiusmod tempor incididunt ut labore
+                                        et dolore magna aliqua.</p>
+                                    <div class="testimonial-one__client-info">
+                                        <div class="testimonial-one__client-img">
+                                            <img src="assets/halpes/images/testimonial/testimonial-1-img-1.png" alt="">
+                                            <div class="testimonial-one__quote">
 
-                 <div class="container-xxl py-5 bg-primary hero-header mb-5">
-                     <div class="container my-5 py-5 px-lg-5">
-                         <div class="row g-5 py-5">
+                                            </div>
+                                        </div>
+                                        <div class="testimonial-one__client-name">
+                                            <h3>Kevin Martin</h3>
+                                            <p>Volunteer</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--Testimonial One Single-->
+                                <div class="testimonial-one__single">
+                                    <p class="testimonial-one__text">Lorem ipsum is simply free text dolor sit amet,
+                                        consectetur notted adipisicing elit sed do eiusmod tempor incididunt ut labore
+                                        et dolore magna aliqua.</p>
+                                    <div class="testimonial-one__client-info">
+                                        <div class="testimonial-one__client-img">
+                                            <img src="assets/halpes/images/testimonial/testimonial-1-img-2.png" alt="">
+                                            <div class="testimonial-one__quote">
 
-                            <!-- START SIDE SLIDE-IN MENU -->
-                            <?php
-                            //Pull in the PHP file that has the JS code that handles all the JS to do with placing an ad
-                            $slideInMenu = \DGZ_library\DGZ_View::getInsideView('sideSlideInMenuPartial', $this->controller);
-                            $slideInMenu->show();
-                            ?>
-                            <!-- END OF SIDE SLIDE-IN MENU --> 
+                                            </div>
+                                        </div>
+                                        <div class="testimonial-one__client-name">
+                                            <h3>Jessica Brown</h3>
+                                            <p>Volunteer</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--Testimonial One Single-->
+                                <div class="testimonial-one__single">
+                                    <p class="testimonial-one__text">Lorem ipsum is simply free text dolor sit amet,
+                                        consectetur notted adipisicing elit sed do eiusmod tempor incididunt ut labore
+                                        et dolore magna aliqua.</p>
+                                    <div class="testimonial-one__client-info">
+                                        <div class="testimonial-one__client-img">
+                                            <img src="assets/halpes/images/testimonial/testimonial-1-img-1.png" alt="">
+                                            <div class="testimonial-one__quote">
 
-                             <div class="col-lg-6 text-center text-lg-start">
-                                 <h1 class="text-white mb-4 animated zoomIn">Welcome to the Dorguzen Framework</h1>
-                                 <p class="text-white pb-3 animated zoomIn">Alright we know you have heard about many PHP development frameworks out there, so the pressure is on. What do we tell you about Dorguzen to
-                                     make it stand out?
-                                     Well...there are so many points we can make but it is really true what they say; that the proof is in the pudding. As opposed to other
-                                     frameworks which make you spend a lot of time trying to decipher the code and get your head around all the abstractions, the Dorguzen framework
-                                     strives to <span class="text-primary">cut to the chase</span> and give you what you need to get up and running with your development.
-                                     It is a lightweight but at the same time a very powerful PHP development framework that comes packed full with tools to get you going.</p>
+                                            </div>
+                                        </div>
+                                        <div class="testimonial-one__client-name">
+                                            <h3>Jessica Brown</h3>
+                                            <p>Volunteer</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--Testimonial One Single-->
+                                <div class="testimonial-one__single">
+                                    <p class="testimonial-one__text">Lorem ipsum is simply free text dolor sit amet,
+                                        consectetur notted adipisicing elit sed do eiusmod tempor incididunt ut labore
+                                        et dolore magna aliqua.</p>
+                                    <div class="testimonial-one__client-info">
+                                        <div class="testimonial-one__client-img">
+                                            <img src="assets/halpes/images/testimonial/testimonial-1-img-2.png" alt="">
+                                            <div class="testimonial-one__quote">
 
-                                 <h2 class="text-white pb-3 animated zoomIn">Its key hallmarks are:</h2>
+                                            </div>
+                                        </div>
+                                        <div class="testimonial-one__client-name">
+                                            <h3>Kevin Martin</h3>
+                                            <p>Volunteer</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!--Testimonial One End-->
 
-                                 <p class="text-white pb-3 animated zoomIn">
-                                     <ul class="text-white pb-3 animated zoomIn">
-                                         <li>Very simple as a matter of fact, over-simplified routing</li>
-                                         <li>Simple HTTP API system-there are only a handful or character sets you can pass in the browser URL to make your web pages come alive</li>
-                                         <li>Simple Object Relational Mapping (ORM) system built into its models</li>
-                                         <li>A model-database chaining system based on the rule of 'convention over configuration' which if followed will give you a great head start</li>
-                                         <li>Dorguzen aims to strip out the over-complicated learning curves involved with modern frameworks, and hand the reigns of control to you
-                                             the engineer/developer as quickly as possible. You will be pleased to find how easy it is to get under the hood and tweak absolutely
-                                             every part of the code base - and you are actually encouraged to do so, in order to learn about what it does. This hands-on type of
-                                             approach is known to be the best way to gain mastery in any craft. You will be surprised at what you would be able to build in no time.
-                                         </li>
-                                         <li>
-                                             Helper classes for just about anything you are likely to run into when developing like file uploading and resizing,
-                                             easy PDF creation, bootstrap and font awesome libraries pulled in to help you create sleek user interfaces
-                                             that are fully responsive, and much much more...
-                                         </li>
-                                     </ul>
-                                    <p class="text-white pb-3 animated zoomIn">In short, the Dorguzen framework is, Your Rapid Web Development Toolkit</p>
-                                 </p>
+        <!--Help Them Start-->
+        <section class="help-them">
+            <div class="help-them-bg jarallax" data-jarallax data-speed="0.2" data-imgPosition="50% 0%"
+                style="background-image: url(assets/halpes/images/backgrounds/help-them-bg.jpg)"></div>
+            <div class="container">
+                <div class="help-them__top">
+                    <div class="row">
+                        <div class="col-xl-8 col-lg-8">
+                            <div class="help-them__top-content">
+                                <h2 class="help-them__top-content-title">Help them whenever they are in need</h2>
+                            </div>
+                        </div>
+                        <div class="col-xl-4 col-lg-4">
+                            <div class="help-them__top-video-box">
+                                <a href="https://www.youtube.com/watch?v=i9E_Blai8vk"
+                                    class="help-them__top-video-btn video-popup"><i class="fa fa-play"></i></a>
+                                <p class="help-them__top-video-text">Watch the Video</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="help-them__bottom">
+                    <div class="row">
+                        <div class="col-xl-4 col-lg-4">
+                            <!--Help Them Single-->
+                            <div class="help-them__single">
+                                <div class="help-them__icon">
+                                    <span class="icon-charity"></span>
+                                </div>
+                                <div class="help-them__text">
+                                    <h3>Become a Volunteer</h3>
+                                    <p>There are many variations of but the majority have simply free text suffered.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-4 col-lg-4">
+                            <!--Help Them Single-->
+                            <div class="help-them__single">
+                                <div class="help-them__icon">
+                                    <span class="icon-generous"></span>
+                                </div>
+                                <div class="help-them__text">
+                                    <h3>Quick Fundraising</h3>
+                                    <p>There are many variations of but the majority have simply free text suffered.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-4 col-lg-4">
+                            <!--Help Them Single-->
+                            <div class="help-them__single">
+                                <div class="help-them__icon">
+                                    <span class="icon-fundraiser"></span>
+                                </div>
+                                <div class="help-them__text">
+                                    <h3>Start Donating</h3>
+                                    <p>There are many variations of but the majority have simply free text suffered.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!--Help Them End-->
 
-                                 <a href="" class="btn btn-light py-sm-3 px-sm-5 rounded-pill me-3 animated slideInLeft">Free Quote</a>
-                                 <a href="" class="btn btn-outline-light py-sm-3 px-sm-5 rounded-pill animated slideInRight">Contact Us</a>
-                             </div>
-                             <div class="col-lg-6 text-center text-lg-start">
-                                 <img class="img-fluid" src="<?=$this->controller->config->getFileRootPath()?>assets/images/hero.png" alt="">
-                             </div>
-                         </div>
-                     </div>
-                 </div>
-             <!--</div>-->
-             <!-- Navbar & Hero End -->
+        <section class="news-one">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xl-8 col-lg-8">
+                        <div class="section-title text-left">
+                            <span class="section-title__tagline">Get Daily Updates</span>
+                            <h2 class="section-title__title">Latest news & articles directly <br> coming from the blog
+                            </h2>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-lg-4">
+                        <div class="news-one__button-box">
+                            <a href="#" class="news-one__btn thm-btn"><i class="fas fa-arrow-circle-right"></i>View
+                                More</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6">
+                        <div class="news-one__left">
+                            <div class="news-one__img">
+                                <img src="assets/halpes/images/blog/news-one-img-1.jpg" alt="">
+                                <a href="news-details.html">
+                                    <i class="fa fa-plus"></i>
+                                </a>
+                            </div>
+                            <div class="news-one__bottom">
+                                <ul class="list-unstyled news-one__meta">
+                                    <li>20 Jan, 2021</li>
+                                    <li><span>/</span></li>
+                                    <li><a href="#">2 Comments</a></li>
+                                </ul>
+                                <h3 class="news-one__title">
+                                    <a href="news-details.html">Donation is Hope for Poor Childrens in Africa</a>
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-6 col-lg-6">
+                        <div class="news-one__right">
+                            <div class="news-one__right-single">
+                                <div class="news-one__right-img">
+                                    <img src="assets/halpes/images/blog/news-one-right-img-1.jpg" alt="">
+                                    <a href="news-details.html">
+                                        <i class="fa fa-plus"></i>
+                                    </a>
+                                </div>
+                                <div class="news-one__right-content">
+                                    <ul class="list-unstyled news-one__right-meta">
+                                        <li>20 Jan, 2021</li>
+                                        <li><span>/</span></li>
+                                        <li><a href="#">2 Comments</a></li>
+                                    </ul>
+                                    <h3 class="news-one__right-title">
+                                        <a href="news-details.html">How Does Malnutrition Affect Children?</a>
+                                    </h3>
+                                </div>
+                            </div>
+                            <div class="news-one__right-single">
+                                <div class="news-one__right-img">
+                                    <img src="assets/halpes/images/blog/news-one-right-img-2.jpg" alt="">
+                                    <a href="news-details.html">
+                                        <i class="fa fa-plus"></i>
+                                    </a>
+                                </div>
+                                <div class="news-one__right-content">
+                                    <ul class="list-unstyled news-one__right-meta">
+                                        <li>20 Jan, 2021</li>
+                                        <li><span>/</span></li>
+                                        <li><a href="#">2 Comments</a></li>
+                                    </ul>
+                                    <h3 class="news-one__right-title">
+                                        <a href="news-details.html">Capitalize on low hanging fruit to identify</a>
+                                    </h3>
+                                </div>
+                            </div>
+                            <div class="news-one__right-single">
+                                <div class="news-one__right-img">
+                                    <img src="assets/halpes/images/blog/news-one-right-img-3.jpg" alt="">
+                                    <a href="news-details.html">
+                                        <i class="fa fa-plus"></i>
+                                    </a>
+                                </div>
+                                <div class="news-one__right-content">
+                                    <ul class="list-unstyled news-one__right-meta">
+                                        <li>20 Jan, 2021</li>
+                                        <li><span>/</span></li>
+                                        <li><a href="#">2 Comments</a></li>
+                                    </ul>
+                                    <h3 class="news-one__right-title">
+                                        <a href="news-details.html">Override the digital divide with additional</a>
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-
-             <!------------------------------
-                SEARCH MODAL FORM WAS HERE
-             -------------------------------->
-
-
-             <!-- About Start -->
-             <div class="container-xxl bg-white py-5">
-                 <div class="container px-lg-5">
-                     <div class="row g-5">
-                         <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
-                             <div class="section-title position-relative mb-4 pb-2">
-                                 <h6 class="position-relative text-primary ps-4">About Us</h6>
-                                 <h2 class="mt-2">The best SEO solution with 10 years of experience</h2>
-                             </div>
-                             <p class="mb-4">Tempor erat elitr rebum at clita. Diam dolor diam ipsum et tempor sit. Aliqu diam amet diam et eos labore. Clita erat ipsum et lorem et sit, sed stet no labore lorem sit. Sanctus clita duo justo et tempor eirmod magna dolore erat amet</p>
-                             <div class="row g-3">
-                                 <div class="col-sm-6">
-                                     <h6 class="mb-3"><i class="fa fa-check text-primary me-2"></i>Award Winning</h6>
-                                     <h6 class="mb-0"><i class="fa fa-check text-primary me-2"></i>Professional Staff</h6>
-                                 </div>
-                                 <div class="col-sm-6">
-                                     <h6 class="mb-3"><i class="fa fa-check text-primary me-2"></i>24/7 Support</h6>
-                                     <h6 class="mb-0"><i class="fa fa-check text-primary me-2"></i>Fair Prices</h6>
-                                 </div>
-                             </div>
-                             <div class="d-flex align-items-center mt-4">
-                                 <a class="btn btn-primary rounded-pill px-4 me-3" href="">Read More</a>
-                                 <a class="btn btn-outline-primary btn-square me-3" href=""><i class="fab fa-facebook-f"></i></a>
-                                 <a class="btn btn-outline-primary btn-square me-3" href=""><i class="fab fa-twitter"></i></a>
-                                 <a class="btn btn-outline-primary btn-square me-3" href=""><i class="fab fa-instagram"></i></a>
-                                 <a class="btn btn-outline-primary btn-square" href=""><i class="fab fa-linkedin-in"></i></a>
-                             </div>
-
-                             <?php ?><div>
-                                <!---------------------------------------------->
-                                <?php 
-                                    //echo '<pre> IN VIEW IN VIEW :)';
-                                    //die(print_r($this->controller->getMetadata()));
-                                    //die(print_r($this->controller->getBodySeoData()));?>
-                                
-                                    <h1><?=$this->controller->getBodySeoData()['seo_h1_text'] ?? ''?></h1>
-                                    <h2><?=$this->controller->getBodySeoData()['seo_h2_text'] ?? ''?></h2>
-                                    <P><?=$this->controller->getBodySeoData()['seo_page_content'] ?? ''?></P>
-                                
-                                <!---------------------------------------------->
-                             </div>
-
-                         </div>
-                         <div class="col-lg-6">
-                             <img class="img-fluid wow zoomIn" data-wow-delay="0.5s" src="<?=$this->controller->config->getFileRootPath()?>assets/images/about.jpg">
-                         </div>
-                     </div>
-                 </div>
-             </div>
-             <!-- About End -->
-            
-
-
-             <!-- Newsletter Start -->
-             <div class="container-xxl bg-primary newsletter my-5 wow fadeInUp" data-wow-delay="0.1s">
-                 <div class="container px-lg-5">
-                     <div class="row align-items-center" style="height: 250px;">
-                         <div class="col-12 col-md-6">
-                             <h3 class="text-white">Ready to get started</h3>
-                             <small class="text-white">Diam elitr est dolore at sanctus nonumy.</small>
-                             <div class="position-relative w-100 mt-3">
-                                 <input class="form-control border-0 rounded-pill w-100 ps-4 pe-5" type="text" placeholder="Enter Your Email" style="height: 48px;">
-                                 <button type="button" class="btn shadow-none position-absolute top-0 end-0 mt-1 me-2"><i class="fa fa-paper-plane text-primary fs-4"></i></button>
-                             </div>
-                         </div>
-                         <div class="col-md-6 text-center mb-n5 d-none d-md-block">
-                             <img class="img-fluid mt-5" style="height: 250px;" src="<?=$this->controller->config->getFileRootPath()?>assets/images/newsletter.png">
-                         </div>
-                     </div>
-                 </div>
-             </div>
-             <!-- Newsletter End -->
-
-
-             <!-- Service Start -->
-             <div class="container-xxl py-5">
-                 <div class="container px-lg-5">
-                     <div class="section-title position-relative text-center mb-5 pb-2 wow fadeInUp" data-wow-delay="0.1s">
-                         <h6 class="position-relative d-inline text-primary ps-4">Our Services</h6>
-                         <h2 class="mt-2">What Solutions We Provide</h2>
-                     </div>
-                     <div class="row g-4">
-                         <div class="col-lg-4 col-md-6 wow zoomIn" data-wow-delay="0.1s">
-                             <div class="service-item d-flex flex-column justify-content-center text-center rounded">
-                                 <div class="service-icon flex-shrink-0">
-                                     <i class="fa fa-home fa-2x"></i>
-                                 </div>
-                                 <h5 class="mb-3">SEO Optimization</h5>
-                                 <p>Erat ipsum justo amet duo et elitr dolor, est duo duo eos lorem sed diam stet diam sed stet lorem.</p>
-                                 <a class="btn px-3 mt-auto mx-auto" href="">Read More</a>
-                             </div>
-                         </div>
-                         <div class="col-lg-4 col-md-6 wow zoomIn" data-wow-delay="0.3s">
-                             <div class="service-item d-flex flex-column justify-content-center text-center rounded">
-                                 <div class="service-icon flex-shrink-0">
-                                     <i class="fa fa-home fa-2x"></i>
-                                 </div>
-                                 <h5 class="mb-3">Web Design</h5>
-                                 <p>Erat ipsum justo amet duo et elitr dolor, est duo duo eos lorem sed diam stet diam sed stet lorem.</p>
-                                 <a class="btn px-3 mt-auto mx-auto" href="">Read More</a>
-                             </div>
-                         </div>
-                         <div class="col-lg-4 col-md-6 wow zoomIn" data-wow-delay="0.6s">
-                             <div class="service-item d-flex flex-column justify-content-center text-center rounded">
-                                 <div class="service-icon flex-shrink-0">
-                                     <i class="fa fa-home fa-2x"></i>
-                                 </div>
-                                 <h5 class="mb-3">Social Media Marketing</h5>
-                                 <p>Erat ipsum justo amet duo et elitr dolor, est duo duo eos lorem sed diam stet diam sed stet lorem.</p>
-                                 <a class="btn px-3 mt-auto mx-auto" href="">Read More</a>
-                             </div>
-                         </div>
-                         <div class="col-lg-4 col-md-6 wow zoomIn" data-wow-delay="0.1s">
-                             <div class="service-item d-flex flex-column justify-content-center text-center rounded">
-                                 <div class="service-icon flex-shrink-0">
-                                     <i class="fa fa-home fa-2x"></i>
-                                 </div>
-                                 <h5 class="mb-3">Email Marketing</h5>
-                                 <p>Erat ipsum justo amet duo et elitr dolor, est duo duo eos lorem sed diam stet diam sed stet lorem.</p>
-                                 <a class="btn px-3 mt-auto mx-auto" href="">Read More</a>
-                             </div>
-                         </div>
-                         <div class="col-lg-4 col-md-6 wow zoomIn" data-wow-delay="0.3s">
-                             <div class="service-item d-flex flex-column justify-content-center text-center rounded">
-                                 <div class="service-icon flex-shrink-0">
-                                     <i class="fa fa-home fa-2x"></i>
-                                 </div>
-                                 <h5 class="mb-3">PPC Advertising</h5>
-                                 <p>Erat ipsum justo amet duo et elitr dolor, est duo duo eos lorem sed diam stet diam sed stet lorem.</p>
-                                 <a class="btn px-3 mt-auto mx-auto" href="">Read More</a>
-                             </div>
-                         </div>
-                         <div class="col-lg-4 col-md-6 wow zoomIn" data-wow-delay="0.6s">
-                             <div class="service-item d-flex flex-column justify-content-center text-center rounded">
-                                 <div class="service-icon flex-shrink-0">
-                                     <i class="fa fa-home fa-2x"></i>
-                                 </div>
-                                 <h5 class="mb-3">App Development</h5>
-                                 <p>Erat ipsum justo amet duo et elitr dolor, est duo duo eos lorem sed diam stet diam sed stet lorem.</p>
-                                 <a class="btn px-3 mt-auto mx-auto" href="">Read More</a>
-                             </div>
-                         </div>
-                     </div>
-                 </div>
-             </div>
-             <!-- Service End -->
-
-
-             <!-- Portfolio Start -->
-             <div class="container-xxl py-5">
-                 <div class="container px-lg-5">
-                     <div class="section-title position-relative text-center mb-5 pb-2 wow fadeInUp" data-wow-delay="0.1s">
-                         <h6 class="position-relative d-inline text-primary ps-4">Our Projects</h6>
-                         <h2 class="mt-2">Recently Launched Projects</h2>
-                     </div>
-                     <div class="row mt-n2 wow fadeInUp" data-wow-delay="0.1s">
-                         <div class="col-12 text-center">
-                             <ul class="list-inline mb-5" id="portfolio-flters">
-                                 <li class="btn px-3 pe-4 active" data-filter="*">All</li>
-                                 <li class="btn px-3 pe-4" data-filter=".first">Design</li>
-                                 <li class="btn px-3 pe-4" data-filter=".second">Development</li>
-                                 <li class="btn px-3 pe-4" data-filter=".products">Products</li>
-                             </ul>
-                         </div>
-                     </div>
-                     <div class="row g-4 portfolio-container">
-                         <div class="col-lg-4 col-md-6 portfolio-item first wow zoomIn" data-wow-delay="0.1s">
-                             <div class="position-relative rounded overflow-hidden">
-                                 <img class="img-fluid w-100" src="<?=$this->controller->config->getFileRootPath()?>assets/images/portfolio-1.jpg" alt="">
-                                 <div class="portfolio-overlay">
-                                     <a class="btn btn-light" href="<?=$this->controller->config->getFileRootPath()?>assets/images/portfolio-1.jpg" data-lightbox="portfolio"><i class="fa fa-plus fa-2x text-primary"></i></a>
-                                     <div class="mt-auto">
-                                         <small class="text-white"><i class="fa fa-folder me-2"></i>Web Design</small>
-                                         <a class="h5 d-block text-white mt-1 mb-0" href="">Project Name</a>
-                                     </div>
-                                 </div>
-                             </div>
-                         </div>
-                         <div class="col-lg-4 col-md-6 portfolio-item second wow zoomIn" data-wow-delay="0.3s">
-                             <div class="position-relative rounded overflow-hidden">
-                                 <img class="img-fluid w-100" src="<?=$this->controller->config->getFileRootPath()?>assets/images/portfolio-2.jpg" alt="">
-                                 <div class="portfolio-overlay">
-                                     <a class="btn btn-light" href="<?=$this->controller->config->getFileRootPath()?>assets/images/portfolio-2.jpg" data-lightbox="portfolio"><i class="fa fa-plus fa-2x text-primary"></i></a>
-                                     <div class="mt-auto">
-                                         <small class="text-white"><i class="fa fa-folder me-2"></i>Web Design</small>
-                                         <a class="h5 d-block text-white mt-1 mb-0" href="">Project Name</a>
-                                     </div>
-                                 </div>
-                             </div>
-                         </div>
-                         <div class="col-lg-4 col-md-6 portfolio-item first wow zoomIn" data-wow-delay="0.6s">
-                             <div class="position-relative rounded overflow-hidden">
-                                 <img class="img-fluid w-100" src="<?=$this->controller->config->getFileRootPath()?>assets/images/portfolio-3.jpg" alt="">
-                                 <div class="portfolio-overlay">
-                                     <a class="btn btn-light" href="<?=$this->controller->config->getFileRootPath()?>assets/images/portfolio-3.jpg" data-lightbox="portfolio"><i class="fa fa-plus fa-2x text-primary"></i></a>
-                                     <div class="mt-auto">
-                                         <small class="text-white"><i class="fa fa-folder me-2"></i>Web Design</small>
-                                         <a class="h5 d-block text-white mt-1 mb-0" href="">Project Name</a>
-                                     </div>
-                                 </div>
-                             </div>
-                         </div>
-                         <div class="col-lg-4 col-md-6 portfolio-item second wow zoomIn" data-wow-delay="0.1s">
-                             <div class="position-relative rounded overflow-hidden">
-                                 <img class="img-fluid w-100" src="<?=$this->controller->config->getFileRootPath()?>assets/images/portfolio-4.jpg" alt="">
-                                 <div class="portfolio-overlay">
-                                     <a class="btn btn-light" href="<?=$this->controller->config->getFileRootPath()?>assets/images/portfolio-4.jpg" data-lightbox="portfolio"><i class="fa fa-plus fa-2x text-primary"></i></a>
-                                     <div class="mt-auto">
-                                         <small class="text-white"><i class="fa fa-folder me-2"></i>Web Design</small>
-                                         <a class="h5 d-block text-white mt-1 mb-0" href="">Project Name</a>
-                                     </div>
-                                 </div>
-                             </div>
-                         </div>
-                         <div class="col-lg-4 col-md-6 portfolio-item first wow zoomIn" data-wow-delay="0.3s">
-                             <div class="position-relative rounded overflow-hidden">
-                                 <img class="img-fluid w-100" src="<?=$this->controller->config->getFileRootPath()?>assets/images/portfolio-5.jpg" alt="">
-                                 <div class="portfolio-overlay">
-                                     <a class="btn btn-light" href="<?=$this->controller->config->getFileRootPath()?>assets/images/portfolio-5.jpg" data-lightbox="portfolio"><i class="fa fa-plus fa-2x text-primary"></i></a>
-                                     <div class="mt-auto">
-                                         <small class="text-white"><i class="fa fa-folder me-2"></i>Web Design</small>
-                                         <a class="h5 d-block text-white mt-1 mb-0" href="">Project Name</a>
-                                     </div>
-                                 </div>
-                             </div>
-                         </div>
-                         <div class="col-lg-4 col-md-6 portfolio-item second wow zoomIn" data-wow-delay="0.6s">
-                             <div class="position-relative rounded overflow-hidden">
-                                 <img class="img-fluid w-100" src="<?=$this->controller->config->getFileRootPath()?>assets/images/portfolio-6.jpg" alt="">
-                                 <div class="portfolio-overlay">
-                                     <a class="btn btn-light" href="<?=$this->controller->config->getFileRootPath()?>assets/images/portfolio-6.jpg" data-lightbox="portfolio"><i class="fa fa-plus fa-2x text-primary"></i></a>
-                                     <div class="mt-auto">
-                                         <small class="text-white"><i class="fa fa-folder me-2"></i>Web Design</small>
-                                         <a class="h5 d-block text-white mt-1 mb-0" href="">Project Name</a>
-                                     </div>
-                                 </div>
-                             </div>
-                         </div>
-
-                         <div class="col-lg-4 col-md-6 portfolio-item products wow zoomIn" data-wow-delay="0.1s">
-                             <div class="position-relative rounded overflow-hidden">
-                                 <img class="img-fluid w-100" src="<?=$this->controller->config->getFileRootPath()?>assets/images/portfolio-4.jpg" alt="">
-                                 <div class="portfolio-overlay">
-                                     <a class="btn btn-light" href="<?=$this->controller->config->getFileRootPath()?>assets/images/portfolio-4.jpg" data-lightbox="portfolio"><i class="fa fa-plus fa-2x text-primary"></i></a>
-                                     <div class="mt-auto">
-                                         <small class="text-white"><i class="fa fa-folder me-2"></i>DGZ-Shop</small>
-                                         <a class="h5 d-block text-white mt-1 mb-0" href="">Cool web store</a>
-                                     </div>
-                                 </div>
-                             </div>
-                         </div>
-                         <div class="col-lg-4 col-md-6 portfolio-item products wow zoomIn" data-wow-delay="0.3s">
-                             <div class="position-relative rounded overflow-hidden">
-                                 <img class="img-fluid w-100" src="<?=$this->controller->config->getFileRootPath()?>assets/images/portfolio-5.jpg" alt="">
-                                 <div class="portfolio-overlay">
-                                     <a class="btn btn-light" href="<?=$this->controller->config->getFileRootPath()?>assets/images/portfolio-5.jpg" data-lightbox="portfolio"><i class="fa fa-plus fa-2x text-primary"></i></a>
-                                     <div class="mt-auto">
-                                         <small class="text-white"><i class="fa fa-folder me-2"></i>DGZ-Classified Ads</small>
-                                         <a class="h5 d-block text-white mt-1 mb-0" href="">Basic</a>
-                                     </div>
-                                 </div>
-                             </div>
-                         </div>
-
-                         <div class="col-lg-4 col-md-6 portfolio-item products wow zoomIn" data-wow-delay="0.6s">
-                             <div class="position-relative rounded overflow-hidden">
-                                 <img class="img-fluid w-100" src="<?=$this->controller->config->getFileRootPath()?>assets/images/portfolio-6.jpg" alt="">
-                                 <div class="portfolio-overlay">
-                                     <a class="btn btn-light" href="<?=$this->controller->config->getFileRootPath()?>assets/images/portfolio-6.jpg" data-lightbox="portfolio"><i class="fa fa-plus fa-2x text-primary"></i></a>
-                                     <div class="mt-auto">
-                                         <small class="text-white"><i class="fa fa-folder me-2"></i>DGZ-Classified Ads</small>
-                                         <a class="h5 d-block text-white mt-1 mb-0" href="">Multi-vendor</a>
-                                     </div>
-                                 </div>
-                             </div>
-                         </div>
-
-                     </div>
-                 </div>
-             </div>
-             <!-- Portfolio End -->
-
-
-             <!-- Testimonial Start -->
-             <div class="container-xxl bg-primary testimonial py-5 my-5 wow fadeInUp" data-wow-delay="0.1s">
-                 <div class="container py-5 px-lg-5">
-
-                     <div class="section-title-testimonials position-relative text-center mb-5 pb-2 wow fadeInUp" data-wow-delay="0.1s">
-                         <!--<h6 class="position-relative d-inline text-primary ps-4">Testimonials</h6>-->
-                         <h6 class="text-white mb-4 animated zoomIn position-relative d-inline text-primary ps-4">Testimonials</h6>
-                         <h2 class="mt-2 text-white">What Our Clients Say</h2>
-                     </div>
-
-                     <div class="owl-carousel testimonial-carousel">
-                         <div class="testimonial-item bg-transparent border rounded text-white p-4">
-                             <i class="fa fa-quote-left fa-2x mb-3"></i>
-                             <p>Dolor et eos labore, stet justo sed est sed. Diam sed sed dolor stet amet eirmod eos labore diam</p>
-                             <div class="d-flex align-items-center">
-                                 <img class="img-fluid flex-shrink-0 rounded-circle" src="<?=$this->controller->config->getFileRootPath()?>assets/images/testimonial-1.jpg" style="width: 50px; height: 50px;">
-                                 <div class="ps-3">
-                                     <h6 class="text-white mb-1">Client Name</h6>
-                                     <small>Profession</small>
-                                 </div>
-                             </div>
-                         </div>
-                         <div class="testimonial-item bg-transparent border rounded text-white p-4">
-                             <i class="fa fa-quote-left fa-2x mb-3"></i>
-                             <p>Dolor et eos labore, stet justo sed est sed. Diam sed sed dolor stet amet eirmod eos labore diam</p>
-                             <div class="d-flex align-items-center">
-                                 <img class="img-fluid flex-shrink-0 rounded-circle" src="<?=$this->controller->config->getFileRootPath()?>assets/images/testimonial-2.jpg" style="width: 50px; height: 50px;">
-                                 <div class="ps-3">
-                                     <h6 class="text-white mb-1">Client Name</h6>
-                                     <small>Profession</small>
-                                 </div>
-                             </div>
-                         </div>
-                         <div class="testimonial-item bg-transparent border rounded text-white p-4">
-                             <i class="fa fa-quote-left fa-2x mb-3"></i>
-                             <p>Dolor et eos labore, stet justo sed est sed. Diam sed sed dolor stet amet eirmod eos labore diam</p>
-                             <div class="d-flex align-items-center">
-                                 <img class="img-fluid flex-shrink-0 rounded-circle" src="<?=$this->controller->config->getFileRootPath()?>assets/images/testimonial-3.jpg" style="width: 50px; height: 50px;">
-                                 <div class="ps-3">
-                                     <h6 class="text-white mb-1">Client Name</h6>
-                                     <small>Profession</small>
-                                 </div>
-                             </div>
-                         </div>
-                         <div class="testimonial-item bg-transparent border rounded text-white p-4">
-                             <i class="fa fa-quote-left fa-2x mb-3"></i>
-                             <p>Dolor et eos labore, stet justo sed est sed. Diam sed sed dolor stet amet eirmod eos labore diam</p>
-                             <div class="d-flex align-items-center">
-                                 <img class="img-fluid flex-shrink-0 rounded-circle" src="<?=$this->controller->config->getFileRootPath()?>assets/images/testimonial-4.jpg" style="width: 50px; height: 50px;">
-                                 <div class="ps-3">
-                                     <h6 class="text-white mb-1">Client Name</h6>
-                                     <small>Profession</small>
-                                 </div>
-                             </div>
-                         </div>
-                     </div>
-                 </div>
-                 <a href="https://htmlcodex.com/startup-company-website-template" class="btn btn-secondary text-light rounded-pill py-2 px-4 ms-3">View all Testimonials</a>
-             </div>
-             <!-- Testimonial End -->
-
-
-             <!-- Team Start -->
-             <div class="container-xxl py-5">
-                 <div class="container px-lg-5">
-                     <div class="section-title position-relative text-center mb-5 pb-2 wow fadeInUp" data-wow-delay="0.1s">
-                         <h6 class="position-relative d-inline text-primary ps-4">Our Team</h6>
-                         <h2 class="mt-2">Meet Our Team Members</h2>
-                     </div>
-                     <div class="row g-4">
-                         <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
-                             <div class="team-item">
-                                 <div class="d-flex">
-                                     <div class="flex-shrink-0 d-flex flex-column align-items-center mt-4 pt-5" style="width: 75px;">
-                                         <a class="btn btn-square text-primary bg-white my-1" href=""><i class="fab fa-facebook-f"></i></a>
-                                         <a class="btn btn-square text-primary bg-white my-1" href=""><i class="fab fa-twitter"></i></a>
-                                         <a class="btn btn-square text-primary bg-white my-1" href=""><i class="fab fa-instagram"></i></a>
-                                         <a class="btn btn-square text-primary bg-white my-1" href=""><i class="fab fa-linkedin-in"></i></a>
-                                     </div>
-                                     <img class="img-fluid rounded w-100" src="<?=$this->controller->config->getFileRootPath()?>assets/images/team-1.jpg" alt="">
-                                 </div>
-                                 <div class="px-4 py-3">
-                                     <h5 class="fw-bold m-0">Jhon Doe</h5>
-                                     <small>CEO</small>
-                                 </div>
-                             </div>
-                         </div>
-                         <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
-                             <div class="team-item">
-                                 <div class="d-flex">
-                                     <div class="flex-shrink-0 d-flex flex-column align-items-center mt-4 pt-5" style="width: 75px;">
-                                         <a class="btn btn-square text-primary bg-white my-1" href=""><i class="fab fa-facebook-f"></i></a>
-                                         <a class="btn btn-square text-primary bg-white my-1" href=""><i class="fab fa-twitter"></i></a>
-                                         <a class="btn btn-square text-primary bg-white my-1" href=""><i class="fab fa-instagram"></i></a>
-                                         <a class="btn btn-square text-primary bg-white my-1" href=""><i class="fab fa-linkedin-in"></i></a>
-                                     </div>
-                                     <img class="img-fluid rounded w-100" src="<?=$this->controller->config->getFileRootPath()?>assets/images/team-2.jpg" alt="">
-                                 </div>
-                                 <div class="px-4 py-3">
-                                     <h5 class="fw-bold m-0">Emma William</h5>
-                                     <small>Manager</small>
-                                 </div>
-                             </div>
-                         </div>
-                         <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.6s">
-                             <div class="team-item">
-                                 <div class="d-flex">
-                                     <div class="flex-shrink-0 d-flex flex-column align-items-center mt-4 pt-5" style="width: 75px;">
-                                         <a class="btn btn-square text-primary bg-white my-1" href=""><i class="fab fa-facebook-f"></i></a>
-                                         <a class="btn btn-square text-primary bg-white my-1" href=""><i class="fab fa-twitter"></i></a>
-                                         <a class="btn btn-square text-primary bg-white my-1" href=""><i class="fab fa-instagram"></i></a>
-                                         <a class="btn btn-square text-primary bg-white my-1" href=""><i class="fab fa-linkedin-in"></i></a>
-                                     </div>
-                                     <img class="img-fluid rounded w-100" src="<?=$this->controller->config->getFileRootPath()?>assets/images/team-3.jpg" alt="">
-                                 </div>
-                                 <div class="px-4 py-3">
-                                     <h5 class="fw-bold m-0">Noah Michael</h5>
-                                     <small>Designer</small>
-                                 </div>
-                             </div>
-                         </div>
-                     </div>
-                 </div>
-             </div>
-             <!-- Team End -->
-
-
-
-         <!--</div>-->
-
-
-         <?php ?>
+        <!--Brand One Start-->
+        <section class="brand-one">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xl-12">
+                        <div class="brand-one__carousel owl-theme owl-carousel">
+                            <!--Brand One Single-->
+                            <div class="brand-one__single">
+                                <div class="brand-one__img">
+                                    <img src="assets/halpes/images/resources/brand-1-1.png" alt="">
+                                </div>
+                            </div>
+                            <!--Brand One Single-->
+                            <div class="brand-one__single">
+                                <div class="brand-one__img">
+                                    <img src="assets/halpes/images/resources/brand-1-2.png" alt="">
+                                </div>
+                            </div>
+                            <!--Brand One Single-->
+                            <div class="brand-one__single">
+                                <div class="brand-one__img">
+                                    <img src="assets/halpes/images/resources/brand-1-3.png" alt="">
+                                </div>
+                            </div>
+                            <!--Brand One Single-->
+                            <div class="brand-one__single">
+                                <div class="brand-one__img">
+                                    <img src="assets/halpes/images/resources/brand-1-4.png" alt="">
+                                </div>
+                            </div>
+                            <!--Brand One Single-->
+                            <div class="brand-one__single">
+                                <div class="brand-one__img">
+                                    <img src="assets/halpes/images/resources/brand-1-5.png" alt="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!--Brand One End-->
      <?php
-
      }
-
 }
 
 ?>

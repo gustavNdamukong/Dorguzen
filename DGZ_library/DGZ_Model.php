@@ -73,11 +73,13 @@ class DGZ_Model
         $table = $this->getTable();
         $db = $this->connect();
 
-        $schemaQuery = 'DESCRIBE '.strtolower($table);
+        // This is one reason for your DB table names to be in lowercase-or at least start with it.
+        // The other reason is, that's convention, & DGZ adheres to that. 
+        $schemaQuery = 'DESCRIBE '.lcfirst($table);
         $schemaResult = $db->query($schemaQuery);
 
         //Eager-load model data
-        $dataQuery = 'SELECT * FROM '.strtolower($table);
+        $dataQuery = 'SELECT * FROM '.lcfirst($table);
         $dataResult = $db->query($dataQuery, MYSQLI_USE_RESULT);
 
         //check result if SELECTING the field types
