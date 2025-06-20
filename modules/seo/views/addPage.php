@@ -84,6 +84,10 @@ class addPage extends \DGZ_library\DGZ_HtmlView
 												<fieldset>
 													<legend>Page specifics</legend>
 													    <div class="col-sm-12 col-md-12 col-lg-12 form-group">
+															<span class="font-weight-bold section-title"><small>The page name is the page for which you are creating the SEO attributes.
+																The name you enter here MUST therefore match the exact same spelling of the view file. eg for a view about-us.blade.php
+																the page name you enter here should be 'about-us'.  
+															</small></span>
 															<?php 
 															$form::label('seo_page_name', 'Page Name');
 															echo "<span id='info'></span>";
