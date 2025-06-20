@@ -16,6 +16,7 @@ class HomeController extends \DGZ_library\DGZ_Controller  {
 
     public function getDefaultAction()
     {
+        /////$this->defaultAction();/////
         return 'defaultAction';
     }
 
@@ -29,12 +30,13 @@ class HomeController extends \DGZ_library\DGZ_Controller  {
      * @throws \DGZ_library\DGZ_Exception
      */
     public function defaultAction()
-    {
+    {/////die('OKAAAY IN DEFO');
+
         $view = DGZ_View::getView('home', $this, 'html');
         $this->setPageTitle('Home');
         $this->setImageSlider(true);
-        $this->setLayoutDirectory('seoMaster');
-        $this->setLayoutView('seoMasterLayout');
+        $this->setLayoutDirectory('halpes');
+        $this->setLayoutView('halpesLayout');
         $view->show();
     }
 
@@ -43,11 +45,12 @@ class HomeController extends \DGZ_library\DGZ_Controller  {
 
     public function home()
     {
+        //die('OKAAAY IN HOME()');
         $view = DGZ_View::getView('home', $this, 'html');
         $this->setPageTitle('Home');
         $this->setImageSlider(true);
-        $this->setLayoutDirectory('seoMaster');
-        $this->setLayoutView('seoMasterLayout');
+        $this->setLayoutDirectory('halpes');
+        $this->setLayoutView('halpesLayout');
         $view->show();
     }
 
