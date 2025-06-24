@@ -429,6 +429,9 @@ class DGZ_Router {
                     elseif ($parameter->isDefaultValueAvailable()) {
                         $inputParameters[] = $parameter->getDefaultValue();
                     }
+                    elseif ($straightUrlId != null) { 
+                        $inputParameters[] = $straightUrlId;
+                    }
                     else {
                         throw new DGZ_Exception('Required parameter "' . $parameterName . '" not set', DGZ_Exception::MISSING_PARAMETERS, 'If you have just submitted a form, please make sure all fields are set, otherwise this may be a programming error.');
                     }

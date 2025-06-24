@@ -46,7 +46,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
 
     /**
-     * @var whether or not to show an image slider for every view file.
+     * @var bool whether or not to show an image slider for every view file.
      */
     protected $showImageSlider = false;
 
