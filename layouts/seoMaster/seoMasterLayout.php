@@ -1,8 +1,8 @@
 <?php
 
-namespace layouts\seoMaster;
+namespace Dorguzen\layouts\seoMaster;
 
-class seoMasterLayout extends \DGZ_library\DGZ_Layout {
+class seoMasterLayout extends \Dorguzen\Core\DGZ_Layout {
 
 	public function display() {
 
@@ -102,6 +102,39 @@ class seoMasterLayout extends \DGZ_library\DGZ_Layout {
 			<!-- ==========================
 			  PAGE CONTENT - END
 			=========================== -->
+
+
+				<!-- ==========================
+					BRAND SLIDER - START
+				=========================== -->
+				<?php
+				$baseSettings = $this->config->getBaseSettings();
+				if ($baseSettings['show_brand_slider'] == 'true') {
+					$srcDir      = $baseSettings['brand_slider_source'] ?? 'assets/images/gallery';
+					$fullDirPath = rtrim(DGZ_BASE_PATH, '/') . '/' . ltrim($srcDir, '/');
+					$brandImages = glob($fullDirPath . '/*.{jpg,jpeg,png,gif,webp}', GLOB_BRACE) ?: [];
+					?>
+					<section class="content brands pattern border-top border-bottom">
+						<div class="container">
+							<div id="brands-carousel">
+								<?php
+								foreach ($brandImages as $imgPath) { ?>
+									<div class="item">
+										<a href="#">
+											<img src="<?=$this->config->getFileRootPath()?><?=$srcDir?>/<?=basename($imgPath)?>"
+												 class="img-responsive" alt="">
+										</a>
+									</div>
+								<?php
+								} ?>
+							</div>
+						</div>
+					</section>
+				<?php
+				} ?>
+				<!-- ==========================
+					BRAND SLIDER - END
+				=========================== -->
 
 
 			<section>

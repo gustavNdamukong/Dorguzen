@@ -1,11 +1,11 @@
 <?php
 
-namespace modules\seo\views;
+namespace Dorguzen\Modules\Seo\Views;
 
 
 use modules\seo\Seo;
 
-class index extends \DGZ_library\DGZ_HtmlView
+class index extends \Dorguzen\Core\DGZ_HtmlView
 {
 
 	function show($globalDataSet = [], $seoData = [])
@@ -50,7 +50,7 @@ class index extends \DGZ_library\DGZ_HtmlView
 					<!-- START SIDE SLIDE-IN MENU -->
 					<?php
 					//Pull in the PHP file that has the JS code that handles all the JS to do with placing an ad
-					$slideInMenu = \DGZ_library\DGZ_View::getInsideView('sideSlideInMenuPartial', $this->controller);
+					$slideInMenu = \Dorguzen\Core\DGZ_View::getInsideView('sideSlideInMenuPartial', $this->controller);
 					$slideInMenu->show();
 					?>
 					<!-- END OF SIDE SLIDE-IN MENU --> 

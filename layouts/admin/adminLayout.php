@@ -1,12 +1,12 @@
 <?php
 
-namespace layouts\admin;
+namespace Dorguzen\layouts\admin;
 
 /**
  *
  * @author Gustav Ndamukong
  */
-class adminLayout extends \DGZ_library\DGZ_Layout {
+class adminLayout extends \Dorguzen\Core\DGZ_Layout {
 
 	
 	public function display()

@@ -1,6 +1,6 @@
 {
-    "name": "nolimitmedia/dorguzen",
-    "description": "A PHP Development Framework - Your Rapid Web Development Toolkit",
+    "name": "gustocoder/dorguzen",
+    "description": "Dorguzen — A PHP MVC Framework for Rapid Web Development",
     "type": "project",
     "license": "MIT",
     "authors": [
@@ -9,11 +9,69 @@
             "email": "gustavfn@yahoo.co.uk"
         }
     ],
-    "minimum-stability": "stable",
     "require": {
+        "php": ">=8.0",
         "firebase/php-jwt": "^6.10",
         "stripe/stripe-php": "^13.12",
         "twilio/sdk": "^7.16",
-        "phpmailer/phpmailer": "^6.10"
+        "phpmailer/phpmailer": "^6.10",
+        "symfony/var-dumper": "^7.3",
+        "symfony/yaml": "^6.4",
+        "vlucas/phpdotenv": "^5.6",
+        "symfony/console": "^7.0.0",
+        "symfony/string": "^7.0.0",
+        "symfony/finder": "^7.3",
+        "zircote/swagger-php": "^4.0"
+    },
+    "suggest": {
+        "laudis/neo4j-php-client": "Required for Neo4j graph support. Install ^3.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Dorguzen\\Core\\": "core/",
+            "Dorguzen\\Core\\Database\\Drivers\\": "core/database/drivers/",
+            "Dorguzen\\Core\\Database\\Graph\\": "core/database/graph/",
+            "Dorguzen\\Core\\Database\\Migrations\\": "core/database/migrations/",
+            "Dorguzen\\Core\\Database\\Seeders\\": "core/database/seeders/",
+            "Dorguzen\\Core\\Config\\": "core/config/",
+            "Dorguzen\\Core\\Events\\": "core/events/",
+            "Dorguzen\\Core\\JetForms\\": "core/jetForms/",
+            "Dorguzen\\Core\\Queues\\": "core/queues/",
+            "Dorguzen\\Core\\Queues\\Drivers\\": "core/queues/drivers/",
+            "Dorguzen\\Api\\": "src/api/",
+            "Dorguzen\\Config\\": "src/config/",
+            "Dorguzen\\Controllers\\": "src/controllers/",
+            "Dorguzen\\Database\\Factories\\": "database/factories/",
+            "Dorguzen\\Database\\Migrations\\": "database/migrations/",
+            "Dorguzen\\Database\\Seeders\\": "database/seeders/",
+            "Dorguzen\\Events\\": "src/events/",
+            "Dorguzen\\Forms\\": "src/forms/",
+            "Dorguzen\\Jobs\\": "src/jobs/",
+            "Dorguzen\\Listeners\\": "src/listeners/",
+            "Dorguzen\\Middleware\\GlobalMiddleware\\": "middleware/globalMiddleware/",
+            "Dorguzen\\Middleware\\RouteMiddleware\\": "middleware/routeMiddleware/",
+            "Dorguzen\\Models\\": "src/models/",
+            "Dorguzen\\Modules\\": "modules/",
+            "Dorguzen\\Services\\": "src/services/",
+            "Dorguzen\\CLI\\Commands\\": "src/CLI/commands/",
+            "Dorguzen\\Testing\\": "src/Testing/",
+            "Dorguzen\\Tests\\Unit\\": "tests/unit/",
+            "Dorguzen\\Tests\\Feature\\": "tests/feature/",
+            "Dorguzen\\Tests\\Support\\": "tests/support/",
+            "Dorguzen\\Tests\\Manual\\": "tests/manual/"
+        },
+        "files": [
+            "bootstrap/helpers.php",
+            "bootstrap/custom_helpers.php"
+        ]
+    },
+    "minimum-stability": "stable",
+    "require-dev": {
+        "phpunit/phpunit": "^12.5"
+    },
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
     }
 }

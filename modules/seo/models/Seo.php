@@ -1,7 +1,9 @@
 <?php
 
+namespace Dorguzen\Modules\Seo\Models;
 
-use DGZ_library\DGZ_Model;
+use Dorguzen\Config\Config;
+use Dorguzen\Core\DGZ_Model;
 
     /** ############## Properties and Methods all model classes must have to get the full power of the Dorguzen ###############
      * Must extend the parent model DGZ_Model
@@ -42,7 +44,7 @@ use DGZ_library\DGZ_Model;
          *
          * @var array
          */
-        private $_hasParent = [];
+        protected $_hasParent = [];
 
 
         /**
@@ -54,18 +56,12 @@ use DGZ_library\DGZ_Model;
          *
          * @var array
          */
-        private $_hasChild = [];
+        protected $_hasChild = [];
 
 
-        public function __construct()
+        public function __construct(Config $config)
         {
-            //Parent constructors wont run auto, u have to explicitly call it, in this case to load our DB connection settings
-            parent::__construct();
-
-            //build the map of the table columns and datatypes. Note we have created before hand a private member called '_columns' wh will hold column names n datatypes
-            //only your model class will write to n read from this member
-            $columns = $this->loadORM($this);
-
+            parent::__construct($config);
         }
 
 

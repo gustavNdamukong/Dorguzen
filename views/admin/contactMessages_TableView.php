@@ -1,13 +1,10 @@
 <?php
 
-namespace views\admin;
+namespace Dorguzen\Views\Admin;
 
 
-
-
-class contactMessages_TableView extends \DGZ_library\DGZ_HtmlView
+class contactMessages_TableView extends \Dorguzen\Core\DGZ_AdminHtmlView
 {
-
     /**
      * Make this function return an array where the keys are your actual DB column names
      * and its values are what you will want to call them as seen in the table when it will be displayed in the browser.
@@ -23,11 +20,5 @@ class contactMessages_TableView extends \DGZ_library\DGZ_HtmlView
             'contactformmessage_message' => 'Message',
             'contactformmessage_date' => 'Date',
         ];
-
     }
-
-
-
-}
-
-?>
+} ?>

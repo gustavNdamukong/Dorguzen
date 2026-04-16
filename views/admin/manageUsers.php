@@ -1,68 +1,61 @@
 <?php
 
-namespace views\admin;
+namespace Dorguzen\Views\Admin;
 
 
-use Users;
-
-class manageUsers extends \DGZ_library\DGZ_HtmlView
+class manageUsers extends \Dorguzen\Core\DGZ_AdminHtmlView
 {
 
-     function show()
-     { ?>
+     function show(array $viewModel = [])
+     {
+          extract($viewModel); ?>
           <script src="http://code.jquery.com/jquery-latest.min.js"></script>
           <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
 
           <?php
-          if ((isset($_SESSION['authenticated'])) && ($_SESSION['authenticated'] == 'Let Go-'.$this->controller->config->getConfig()['appName'])) {
 
-
-               $users = new Users();
-               $allUsers = $users->getAll();
-               $numOfAllUsers = $users->getCount();
-
-               //get the count of super admin users
-               $superAdminUserCounter = 0;
-               foreach($allUsers as $user) { ?>
-                    <?php if ($user['users_type'] == 'super_admin') {
-                         $superAdminUserCounter++;
-                    }
+          //get the count of super admin users
+          $superAdminUserCounter = 0;
+          foreach($allUsers as $user) { ?>
+               <?php if ($user['users_type'] == 'super_admin') {
+                    $superAdminUserCounter++;
                }
+          }
 
-               //get the count of general admin users
-               $adminGenUserCounter = 0;
-               foreach($allUsers as $user) { ?>
-                    <?php if ($user['users_type'] == 'admin_gen') {
-                         $adminGenUserCounter++;
-                    }
+          //get the count of general admin users
+          $adminGenUserCounter = 0;
+          foreach($allUsers as $user) { ?>
+               <?php if ($user['users_type'] == 'admin_gen') {
+                    $adminGenUserCounter++;
                }
+          }
 
-               //get the count of admin users
-               $adminUserCounter = 0;
-               foreach($allUsers as $user) { ?>
-                    <?php if ($user['users_type'] == 'admin') {
-                         $adminUserCounter++;
-                    }
+          //get the count of admin users
+          $adminUserCounter = 0;
+          foreach($allUsers as $user) { ?>
+               <?php if ($user['users_type'] == 'admin') {
+                    $adminUserCounter++;
                }
+          }
 
-               //get the count of regular users (members)
-               $userCounter = 0;
-               foreach($allUsers as $user) { ?>
-                    <?php if ($user['users_type'] == 'member') {
-                         $userCounter++;
-                    }
+          //get the count of regular users (members)
+          $userCounter = 0;
+          foreach($allUsers as $user) { ?>
+               <?php if ($user['users_type'] == 'member') {
+                    $userCounter++;
                }
+          }
 
-               $dateClass = new \DGZ_library\DGZ_Dates();
+          $dateClass = new \Dorguzen\Core\DGZ_Dates();
           ?>
 
-               <!-- ==========================
-               Hero Header & Breadcrumb - START
-               =========================== -->
-               <div class="container-xxl py-5 bg-primary hero-header mb-5">
-                         <div class="container my-5 py-5 px-lg-5">
-                              <div class="row g-5 py-5">
-                                   <div class="col-12 text-center">
+          <!-- ==========================
+          Hero Header & Breadcrumb - START
+          =========================== -->
+          <div class="container-xxl py-5 bg-primary hero-header mb-5">
+                    <div class="container my-5 py-5 px-lg-5">
+                         <div class="row g-5 py-5">
+                              <div class="col-12 text-center">
                                    <h1 class="text-white animated zoomIn">Manage Users</h1>
                                    <hr class="bg-white mx-auto mt-0" style="width: 90px;">
 
@@ -72,20 +65,19 @@ class manageUsers extends \DGZ_library\DGZ_HtmlView
                                              <li class="breadcrumb-item text-white active" aria-current="page">Manage Users</li>
                                         </ol>
                                    </nav>
-                                   </div>
                               </div>
                          </div>
                     </div>
-                    </div>
-               <!-- ==========================
-                    Hero Header & Breadcrumb - End
-               =========================== -->
+          </div>
+          <!-- ==========================
+               Hero Header & Breadcrumb - End
+          =========================== -->
 
 
 
-               <!-- ==========================
-                   PAGE CONTENT - START
-               =========================== -->
+          <!-- ==========================
+               PAGE CONTENT - START
+          =========================== -->
 
           <div class="main">
                <section class="content account" style="margin-top: 100px;">
@@ -94,7 +86,7 @@ class manageUsers extends \DGZ_library\DGZ_HtmlView
                          <!-- START SIDE SLIDE-IN MENU -->
                          <?php
                          //Pull in the PHP file that has the JS code that handles all the JS to do with placing an ad
-                         $jsValidation = \DGZ_library\DGZ_View::getInsideView('sideSlideInMenuPartial', $this->controller);
+                         $jsValidation = \Dorguzen\Core\DGZ_View::getInsideView('sideSlideInMenuPartial', $this->controller);
                          $jsValidation->show();
                          ?>
                          <!-- END OF SIDE SLIDE-IN MENU -->
@@ -345,26 +337,6 @@ class manageUsers extends \DGZ_library\DGZ_HtmlView
                     </div>
                </section>
           </div>
-          <?php
-          }
-          else
-          { ?>
-               <div class="main">
-                    <section class="content account">
-                         <div class="container">
-                              <div class="row">
-                                   <div class="col-sm-3">
-                                   </div>
-                                   <div class="col-sm-9">
-                                        <h3 style="color:red;">Sorry! You have no access to this page 
-                                             <a href="<?=$this->controller->config->getFileRootPath()?>auth" class="btn btn-info">Login</a>
-                                             <a href="<?=$this->controller->config->getFileRootPath()?>" class="btn btn-info">Home</a></h3>
-                                   </div>
-                              </div>
-                         </div>
-                    </section>
-               </div>
-          <?php
-          }
+     <?php
      }
 } ?>

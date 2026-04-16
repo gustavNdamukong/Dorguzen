@@ -1,10 +1,10 @@
 <?php
 
-namespace layouts\dorguzApp;
+namespace Dorguzen\layouts\dorguzApp;
 
-use DGZ_library\DGZ_SliderEngine;
+use Dorguzen\Core\DGZ_SliderEngine;
 
-class dorguzAppLayout extends \DGZ_library\DGZ_Layout {
+class dorguzAppLayout extends \Dorguzen\Core\DGZ_Layout {
 	
 
 	
@@ -238,17 +238,18 @@ class dorguzAppLayout extends \DGZ_library\DGZ_Layout {
 				  <?php
 				  $baseSettings = $this->config->getBaseSettings();
 				  if ($baseSettings['show_brand_slider'] == 'true') {
-					  //We provide a makeshift array of image names here just to demonstrate how you can use the brand slide. But you can supply your own images dynamically
-					  $brandImages = ['1.png', '2.png', '3.png', '4.png', '5.png', '6.png', '7.png'];
+					  $srcDir      = $baseSettings['brand_slider_source'] ?? 'assets/images/gallery';
+					  $fullDirPath = rtrim(DGZ_BASE_PATH, '/') . '/' . ltrim($srcDir, '/');
+					  $brandImages = glob($fullDirPath . '/*.{jpg,jpeg,png,gif,webp}', GLOB_BRACE) ?: [];
 					  ?>
 					  <section class="content brands pattern border-top border-bottom">
 						  <div class="container">
 							  <div id="brands-carousel">
 								  <?php
-								  foreach ($brandImages as $img) { ?>
+								  foreach ($brandImages as $imgPath) { ?>
 									  <div class="item">
 										  <a href="#">
-											  <img src="<?=$this->config->getFileRootPath()?>assets/images/brand_slider/<?=$img?>"
+											  <img src="<?=$this->config->getFileRootPath()?><?=$srcDir?>/<?=basename($imgPath)?>"
 												   class="img-responsive" alt="">
 										  </a>
 									  </div>

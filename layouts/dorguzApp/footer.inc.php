@@ -23,7 +23,7 @@
                 	<div class="footer-widget footer-widget-links">
                     	<h4>Information</h4>
                         <ul class="list-unstyled">
-                        	<li><a href="<?=$this->settings->getFileRootPath()?>services/services">Services</a></li>
+                        	<li><a href="<?=$this->config->getFileRootPath()?>services/services">Services</a></li>
                         </ul>
                 	</div>
                 </div>
@@ -42,14 +42,14 @@
                     <div class="footer-widget footer-widget-facebook">
                         <h4>Your Network</h4>
                         <ul class="list-unstyled row row-no-padding">
-                            <li class="col-xs-3"><a href="#"><img src="<?=$this->settings->getFileRootPath()?>assets/images/avatar/avatar_01.jpg" class="img-responsive" alt=""></a></li>
-                            <li class="col-xs-3"><a href="#"><img src="<?=$this->settings->getFileRootPath()?>assets/images/avatar/avatar_02.jpg" class="img-responsive" alt=""></a></li>
-                            <li class="col-xs-3"><a href="#"><img src="<?=$this->settings->getFileRootPath()?>assets/images/avatar/avatar_03.jpg" class="img-responsive" alt=""></a></li>
-                            <li class="col-xs-3"><a href="#"><img src="<?=$this->settings->getFileRootPath()?>assets/images/avatar/avatar_04.jpg" class="img-responsive" alt=""></a></li>
-                            <li class="col-xs-3"><a href="#"><img src="<?=$this->settings->getFileRootPath()?>assets/images/avatar/avatar_01.jpg" class="img-responsive" alt=""></a></li>
-                            <li class="col-xs-3"><a href="#"><img src="<?=$this->settings->getFileRootPath()?>assets/images/avatar/avatar_02.jpg" class="img-responsive" alt=""></a></li>
-                            <li class="col-xs-3"><a href="#"><img src="<?=$this->settings->getFileRootPath()?>assets/images/avatar/avatar_03.jpg" class="img-responsive" alt=""></a></li>
-                            <li class="col-xs-3"><a href="#"><img src="<?=$this->settings->getFileRootPath()?>assets/images/avatar/avatar_04.jpg" class="img-responsive" alt=""></a></li>
+                            <li class="col-xs-3"><a href="#"><img src="<?=$this->config->getFileRootPath()?>assets/images/avatar/avatar_01.jpg" class="img-responsive" alt=""></a></li>
+                            <li class="col-xs-3"><a href="#"><img src="<?=$this->config->getFileRootPath()?>assets/images/avatar/avatar_02.jpg" class="img-responsive" alt=""></a></li>
+                            <li class="col-xs-3"><a href="#"><img src="<?=$this->config->getFileRootPath()?>assets/images/avatar/avatar_03.jpg" class="img-responsive" alt=""></a></li>
+                            <li class="col-xs-3"><a href="#"><img src="<?=$this->config->getFileRootPath()?>assets/images/avatar/avatar_04.jpg" class="img-responsive" alt=""></a></li>
+                            <li class="col-xs-3"><a href="#"><img src="<?=$this->config->getFileRootPath()?>assets/images/avatar/avatar_01.jpg" class="img-responsive" alt=""></a></li>
+                            <li class="col-xs-3"><a href="#"><img src="<?=$this->config->getFileRootPath()?>assets/images/avatar/avatar_02.jpg" class="img-responsive" alt=""></a></li>
+                            <li class="col-xs-3"><a href="#"><img src="<?=$this->config->getFileRootPath()?>assets/images/avatar/avatar_03.jpg" class="img-responsive" alt=""></a></li>
+                            <li class="col-xs-3"><a href="#"><img src="<?=$this->config->getFileRootPath()?>assets/images/avatar/avatar_04.jpg" class="img-responsive" alt=""></a></li>
                         </ul>
                         <p>45,500 Likes  <a href="#" class="btn btn-default btn-sm"><i class="fa fa-thumbs-up"></i>Like</a></p>
                     </div>

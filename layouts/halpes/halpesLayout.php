@@ -1,8 +1,8 @@
 <?php
 
-namespace layouts\halpes;
+namespace Dorguzen\layouts\halpes;
 
-class halpesLayout extends \DGZ_library\DGZ_Layout {
+class halpesLayout extends \Dorguzen\Core\DGZ_Layout {
 
 	public function display() {
 

@@ -1,13 +1,13 @@
 <?php
 
-namespace views;
+namespace Dorguzen\Views;
 
 
 /**
  * This class exposes various JS code snippets which you can reuse across many view files in your application.
  * Just use it by pulling it into any view files where u need it. Place the code to include it above in the show()
  * method as it is done in login.php
- *          $jsValidation = \DGZ_library\DGZ_View::getInsideView('jsValidationPartial', $this->controller);
+ *          $jsValidation = \Dorguzen\Core\DGZ_View::getInsideView('jsValidationPartial', $this->controller);
             $jsValidation->show();
  *
  * It is essentially a partial (a piece of code that is included), and a good example of how a view can be used
@@ -16,7 +16,7 @@ namespace views;
  * Class jsValidationPartial
  * @package views
  */
-class jsValidationPartial extends \DGZ_library\DGZ_HtmlView
+class jsValidationPartial extends \Dorguzen\Core\DGZ_HtmlView
 {
 
     public function show()

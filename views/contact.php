@@ -1,13 +1,13 @@
 <?php
 
-namespace views;
+namespace Dorguzen\Views;
 
 
 
 
 use controllers\FeedbackController;
 
-class contact extends \DGZ_library\DGZ_HtmlView
+class contact extends \Dorguzen\Core\DGZ_HtmlView
 {
 
 
@@ -55,7 +55,7 @@ class contact extends \DGZ_library\DGZ_HtmlView
 				<!-- START SIDE SLIDE-IN MENU -->
                 <?php
                 //Pull in the PHP file that has the JS code that handles all the JS to do with placing an ad
-                $slideInMenu = \DGZ_library\DGZ_View::getInsideView('sideSlideInMenuPartial', $this->controller);
+                $slideInMenu = \Dorguzen\Core\DGZ_View::getInsideView('sideSlideInMenuPartial', $this->controller);
                 $slideInMenu->show();
                 ?>
                 <!-- END OF SIDE SLIDE-IN MENU --> 
@@ -89,6 +89,7 @@ class contact extends \DGZ_library\DGZ_HtmlView
 						<h2>Let us give you a quote!</h2>
 
 						<form action="<?=$this->controller->config->getFileRootPath()?>feedback/processContact" method="post">
+							<input type="hidden" name="_csrf_token" value="<?=getCsrfToken()?>">
 							<div class="row">
 								<div class="col-md-6">
 									<label class="label-control" for="name">Name</label>
@@ -132,7 +133,7 @@ class contact extends \DGZ_library\DGZ_HtmlView
 							<!-- WIDGET: LATEST NEWS - START -->
 							<div class="widget widget-post-categories">
 								<h3 style="color: #FFF; font-weight: bold;" class="text-center">Contact Info</h3>
-								<p>Phone: +447111222333</p>
+								<p>Phone: +17111222333</p>
 								<p><strong><a href="mailto:dorguzen@dorguzen.com">Send us an email</a></strong></p>
 
 

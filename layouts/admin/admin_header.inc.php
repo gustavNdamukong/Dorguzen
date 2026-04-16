@@ -31,8 +31,7 @@
                         if (!isset($_SESSION['authenticated'])) { ?>
                             <a href="<?=$this->config->getFileRootPath()?>auth/login" class="nav-item nav-link">Login</a>
                             <?php
-                             $config = new \configs\Config();
-                             if ($config->getConfig()['allow_registration'] === true)
+                             if (config('app.allow_registration') === true)
                              { ?>
                                 <a href="<?=$this->config->getFileRootPath()?>auth/signup" type="button"  class="nav-item nav-link">Register</a>
                              <?php
@@ -51,7 +50,7 @@
             </nav>
 
             <?php
-            list($controller, $method) = $this->config->getCurrentRoute();
+            list($controller, $method) = getCurrentRoute();
             ?>
             <?php //<!--------------------------------------- FULL SITE SEARCH FORM -------------------------------------------------------> */?>
                     <div class="modal fade" id="searchModal" tabindex="-1">

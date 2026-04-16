@@ -1,11 +1,16 @@
 <?php
 
-namespace modules\sms\controllers;
+namespace Dorguzen\Modules\Sms\Controllers;
 
 use Twilio\Rest\Client;
+use Dorguzen\Core\DGZ_ModuleControllerInterface;
+use Dorguzen\Core\DGZ_ModuleControllerTrait;
 
-class SmsController extends \DGZ_library\DGZ_Controller
+class SmsController extends \Dorguzen\Core\DGZ_Controller implements DGZ_ModuleControllerInterface
 {
+    use DGZ_ModuleControllerTrait;
+
+    protected array $controllers = [];
 
     private $stripe;
 
@@ -49,27 +54,27 @@ class SmsController extends \DGZ_library\DGZ_Controller
          *  Remember to choose the right one for the environment you're in (test or live)
          * 
          */
-        $sid    = "AC8456bdad398e0999ca798238fb73ec64"; // live Account SID 
-        $token  = "863b5dadb06eb4eac042605aedb3abef"; // live Auth token
+        $sid    = env('TWILIO_SID');
+        $token  = env('TWILIO_AUTH_TOKEN');
         $twilioClient = new Client($sid, $token);
-        
+
         $message = $twilioClient->messages
                     ->create(
                         //to: the number you will like to send a text message to
 
-                        //For this to work, you need to have gone into 'sms Geographic Permissions' & selected the 
+                        //For this to work, you need to have gone into 'sms Geographic Permissions' & selected the
                         //geo region within which this number falls, for messages to be allowed to be sent from there
 
                         //Note: If you are in a trial account, you will only be able to send messages & make calls to
-                        //phone numbers that you have verified in your account (go to 'verified caller IDs'). A verified 
-                        //number is a number that you have indicated in your Twilio account that you wish to use as a 
-                        //caller ID or as the 'To' number for outbound calls/messages from the Sandbox (Twilio-purchased) 
-                        //number. Once you go live, your app will then be able to fire off sms messages to a less limited 
-                        //amount of numbers.  
-                        '+14378496403',//'+14378496403', 
+                        //phone numbers that you have verified in your account (go to 'verified caller IDs'). A verified
+                        //number is a number that you have indicated in your Twilio account that you wish to use as a
+                        //caller ID or as the 'To' number for outbound calls/messages from the Sandbox (Twilio-purchased)
+                        //number. Once you go live, your app will then be able to fire off sms messages to a less limited
+                        //amount of numbers.
+                        env('TWILIO_TO_NUMBER'),
                         array(
                             //the Twilio phone number you purchased at twilio.com/console
-                            'from' => '+13656542054',
+                            'from' => env('TWILIO_FROM_NUMBER'),
                             //the body of the text message you you'd like to send
                                 "body" => "My test message here!"
                         )

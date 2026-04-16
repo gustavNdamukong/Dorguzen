@@ -44,17 +44,17 @@ use DGZ_library\DGZ_Router;
 				*/
 
 
-				'appName' => 'nickfominyamfoundation',
+				'appName' => 'dorguzen',
 
-				'appBusinessName' => 'Nick Fominyam Foundation',
+				'appBusinessName' => 'Dorguzen Framework',
 
-				'appSlogan' => 'Welcome to the foundation',
+				'appSlogan' => 'Your Rapid Web Development Toolkit',
 
-				'appURL' => 'https://www.nickfominyamfoundation.com',
+				'appURL' => 'https://www.dorguzen.com',
 
-				'layoutDirectory' => 'halpes',
+				'layoutDirectory' => 'seoMaster',
 
-				'defaultLayout' => 'halpesLayout',
+				'defaultLayout' => 'seoMasterLayout',
 
 
 
@@ -74,10 +74,10 @@ use DGZ_library\DGZ_Router;
 				|
 				 */
 
-				'localUrl' => 'http://localhost:8888/nickfominyamfoundation/',
-				'liveUrl' => 'https://www.nickfominyamfoundation.com/',
-				'liveUrlSecure' => 'https://www.nickfominyamfoundation.com/',
-				'fileRootPathLocal' => '/nickfominyamfoundation/',
+				'localUrl' => 'http://localhost/dorguzen/',
+				'liveUrl' => 'https://www.dorguzen.com/',
+				'liveUrlSecure' => 'https://www.dorguzen.com/',
+				'fileRootPathLocal' => '/dorguzen/',
 				'fileRootPathLive' => '/',
 
 
@@ -98,18 +98,18 @@ use DGZ_library\DGZ_Router;
 
 
 				'localDBcredentials' => [
-					'username' => 'nickfominyam',
-					'pwd' => 'nickfomin123',
-					'db' => 'nickfominyam',
+					'username' => 'root',
+					'pwd' => 'root',
+					'db' => 'dorguzapp',
 					'host' => 'localhost',
 					'connectionType' => 'mysqli',
 					'key' => 'takeThisWith@PinchOfSalt'
 				],
 
 				'liveDBcredentials' => [
-					'username' => 'nickfominyam',
-					'pwd' => 'nickfomin123',
-					'db' => 'nickfominyam',
+					'username' => 'root',
+					'pwd' => 'root',
+					'db' => 'dorguzapp',
 					'host' => 'localhost',
 					'connectionType' => 'mysqli',
 					'key' => 'takeThisWith@PinchOfSalt'

@@ -1,10 +1,10 @@
 <?php
 
-namespace views;
+namespace Dorguzen\Views;
 
-use DGZ_library\DGZ_View;
+use Dorguzen\Core\DGZ_View;
 
-class register extends \DGZ_library\DGZ_HtmlView
+class register extends \Dorguzen\Core\DGZ_HtmlView
 {
      function show($firstname = '', $lastname = '', $phone = '', $email = '', $fail = '')
      {
@@ -20,7 +20,7 @@ class register extends \DGZ_library\DGZ_HtmlView
 
              <?php
              //Pull in the PHP file that has the JS validation codes
-             $jsValidation = \DGZ_library\DGZ_View::getInsideView('jsCreateUserValidationPartial', $this->controller);
+             $jsValidation = \Dorguzen\Core\DGZ_View::getInsideView('jsCreateUserValidationPartial', $this->controller);
              $jsValidation->show();
              ?>
 
@@ -50,7 +50,7 @@ class register extends \DGZ_library\DGZ_HtmlView
                 <!-- START SIDE SLIDE-IN MENU -->
                 <?php
                 //Pull in the sidebar menu file
-                $slideInMenu = \DGZ_library\DGZ_View::getInsideView('sideSlideInMenuPartial', $this->controller);
+                $slideInMenu = \Dorguzen\Core\DGZ_View::getInsideView('sideSlideInMenuPartial', $this->controller);
                 $slideInMenu->show();
                 ?>
                 <!-- END OF SIDE SLIDE-IN MENU --> 
@@ -62,7 +62,7 @@ class register extends \DGZ_library\DGZ_HtmlView
 
                              <form id="regis_form" method="post"
                                       action="<?=$this->route('auth/register')?>">
-
+                                    <input type="hidden" name="_csrf_token" value="<?=getCsrfToken()?>">
                                     <div id="regis_panel" class="panel panel-primary">
                                         <a href="<?= $this->controller->config->getFileRootPath()?>auth/login" class="btn btn-success btn-lg pull-right">Already a member? Login</a>
 

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/12.0/phpunit.xsd"
+    bootstrap="bootstrap/testing.php"
+    colors="true"
+    executionOrder="depends,random"
+    failOnRisky="true"
+    failOnWarning="true"
+    cacheResult="true"
+    cacheDirectory=".phpunit.cache"
+>
+    <testsuites>
+        <testsuite name="Unit">
+            <directory>tests/unit</directory>
+        </testsuite>
+
+        <testsuite name="Feature">
+            <directory>tests/feature</directory>
+        </testsuite>
+    </testsuites>
+
+    <php>
+        <!-- Hard lock environment -->
+        <env name="APP_ENV" value="testing"/>
+        <env name="APP_DEBUG" value="true"/>
+    </php>
+</phpunit>

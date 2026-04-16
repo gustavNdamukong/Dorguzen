@@ -1,17 +1,13 @@
 <?php
 
-namespace views\admin;
+namespace Dorguzen\Views\Admin;
 
 
 
-class createUser extends \DGZ_library\DGZ_HtmlView
+class createUser extends \Dorguzen\Core\DGZ_AdminHtmlView
 {
-
-
-
      function show()
      { ?>
-
          <!-- ==========================
          BREADCRUMB - START
          =========================== -->
@@ -39,12 +35,6 @@ class createUser extends \DGZ_library\DGZ_HtmlView
 
          <script src="http://code.jquery.com/jquery-latest.min.js"></script>
          <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
-         <?php
-         if ((isset($_SESSION['authenticated'])) && ($_SESSION['authenticated'] == 'Let Go-'.$this->controller->config->getConfig()['appName'])) {
-         //Pull in the PHP file that has the JS validation codes
-         //$jsValidation = \DGZ_library\DGZ_View::getInsideView('jsCreateUserValidationPartial', $this->controller);
-         //$jsValidation->show();
-         ?>
 
          <!-- ==========================
              PAGE CONTENT - START
@@ -57,7 +47,7 @@ class createUser extends \DGZ_library\DGZ_HtmlView
                         <!-- START SIDE SLIDE-IN MENU -->
                         <?php
                         //Pull in the PHP file that has the JS code that handles all the JS to do with placing an ad
-                        $slideInMenu = \DGZ_library\DGZ_View::getInsideView('sideSlideInMenuPartial', $this->controller);
+                        $slideInMenu = \Dorguzen\Core\DGZ_View::getInsideView('sideSlideInMenuPartial', $this->controller);
                         $slideInMenu->show();
                         ?>
                         <!-- END OF SIDE SLIDE-IN MENU --> 
@@ -66,7 +56,7 @@ class createUser extends \DGZ_library\DGZ_HtmlView
                             <div class="col-lg-2"></div>
                             <div class="form col-md-10 col-lg--10">
                                 <form id="createUserForm" action="<?=$this->controller->config->getFileRootPath()?>admin/doCreateUser" method="post">
-
+                                <input type="hidden" name="_csrf_token" value="<?=getCsrfToken()?>">
                                 <label for="user_type">User Type</label>
                                     <select id="new_user_type" name="new_user_type" class="form-control" <?=($_SESSION['user_type'] != 'super_admin') ? "disabled='true' title='Only a super admin can change user types'":''?>>
                                     <option value="">Choose user type</option>
@@ -95,29 +85,9 @@ class createUser extends \DGZ_library\DGZ_HtmlView
                         </div>
                      </div>
                  </div>
-                 </div>
-         </section>
-        <?php
-         }
-         else
-         { ?>
-             <div class="main">
-               <section class="content account">
-                    <div class="container">
-                         <div class="row">
-                              <div class="col-sm-3">
-                              </div>
-                              <div class="col-sm-9">
-                                   <h3 style="color:red;">Sorry! You have no access to this page 
-                                   <a href="<?=$this->controller->config->getFileRootPath()?>auth" class="btn btn-default">Login</a>
-                                   <a href="<?=$this->controller->config->getFileRootPath()?>home" class="btn btn-default">Home</a></h3>
-                              </div>
-                         </div>
-                    </div>
-               </section>
-          </div>
-        <?php
-         }
+            </div>
+        </section>
+    <?php
      }
 
 } ?>

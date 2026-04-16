@@ -1,16 +1,21 @@
 <?php
 
-namespace modules\payments\controllers;
+namespace Dorguzen\Modules\Payments\Controllers;
 
-use DGZ_library\DGZ_View;
-use DGZ_library\DGZ_Translator;
+use Dorguzen\Core\DGZ_View;
+use Dorguzen\Core\DGZ_Translator;
 use \Stripe\Stripe;
 use \Stripe\Customer;
 use \Stripe\Charge;
-use DGZ_library\DGZ_Validate;
+use Dorguzen\Core\DGZ_Validate;
+use Dorguzen\Core\DGZ_ModuleControllerInterface;
+use Dorguzen\Core\DGZ_ModuleControllerTrait;
 
-class PaymentsController extends \DGZ_library\DGZ_Controller
+class PaymentsController extends \Dorguzen\Core\DGZ_Controller implements DGZ_ModuleControllerInterface
 {
+    use DGZ_ModuleControllerTrait;
+
+    protected array $controllers = [];
 
     private $stripe;
 
@@ -19,12 +24,8 @@ class PaymentsController extends \DGZ_library\DGZ_Controller
     {
         parent::__construct();
 
-        //use a secret API key (API call cannot be made with a publishable API key)
-        /////$this->stripe = Stripe::setApiKey('sk_test_51OoQKPFRQteXl4ynTkN5HQOpPZNtpsx5eGI82KavqzRbuNZsWJESBAGpkXu1HAQQV2Al23ZRwAhRqUa6PP4VZP5B00cJu0fyma');
-        //$this->stripe = new StripeClient("sk_test_51OoQKPFRQteXl4ynTkN5HQOpPZNtpsx5eGI82KavqzRbuNZsWJESBAGpkXu1HAQQV2Al23ZRwAhRqUa6PP4VZP5B00cJu0fyma");
-        
-        // OR for the Checkout Session method, do this (switch to your live private key when in production):
-        \Stripe\Stripe::setApiKey('sk_test_51OoQKPFRQteXl4ynTkN5HQOpPZNtpsx5eGI82KavqzRbuNZsWJESBAGpkXu1HAQQV2Al23ZRwAhRqUa6PP4VZP5B00cJu0fyma');
+        // Use the secret key from .env (switch STRIPE_SECRET_KEY to your live key in production)
+        \Stripe\Stripe::setApiKey(env('STRIPE_SECRET_KEY'));
     }
 
 
@@ -56,8 +57,9 @@ class PaymentsController extends \DGZ_library\DGZ_Controller
         // (https://docs.stripe.com/payments/checkout/how-checkout-works)
         header('Content-Type: application/json');
 
-        $successLink = 'https://localhost/Dorguzen/payments/success';
-        $landingPage = 'https://localhost/Dorguzen/payments';
+        $baseUrl     = $this->config->getHomePage();
+        $successLink = $baseUrl . 'payments/success';
+        $landingPage = $baseUrl . 'payments';
 
         $checkout_session = \Stripe\Checkout\Session::create([
 

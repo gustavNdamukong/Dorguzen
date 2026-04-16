@@ -1,14 +1,19 @@
 <?php
 
-namespace modules\seo\controllers;
+namespace Dorguzen\Modules\Seo\Controllers;
 
-use DGZ_library\DGZ_View;
-use DGZ_library\DGZ_Translator;
-use Seo;
-use Seo_global;
+use Dorguzen\Core\DGZ_View;
+use Dorguzen\Core\DGZ_Translator;
+use Dorguzen\Core\DGZ_ModuleControllerInterface;
+use Dorguzen\Core\DGZ_ModuleControllerTrait;
+use Dorguzen\Modules\Seo\Models\Seo;
+use Dorguzen\Modules\Seo\Models\Seo_global;
 
-class SeoController extends \DGZ_library\DGZ_Controller
+class SeoController extends \Dorguzen\Core\DGZ_Controller implements DGZ_ModuleControllerInterface
 {
+    use DGZ_ModuleControllerTrait;
+
+    protected array $controllers = [];
 
     private $seo;
 
@@ -21,8 +26,8 @@ class SeoController extends \DGZ_library\DGZ_Controller
     {
         parent::__construct();
 
-        $this->seo = new Seo();
-        $this->seo_global = new Seo_global();
+        $this->seo = container(Seo::class);
+        $this->seo_global = container(Seo_global::class);
     }
 
 
@@ -34,8 +39,8 @@ class SeoController extends \DGZ_library\DGZ_Controller
 
     public function defaultAction()
     { 
-        $seo = new Seo();
-        $globalSeo = new Seo_global();
+        $seo = container(Seo::class);
+        $globalSeo = container(Seo_global::class);
         
         $seoData = $seo->getData();
         $globalSeoData = $globalSeo->getData();
@@ -48,7 +53,7 @@ class SeoController extends \DGZ_library\DGZ_Controller
 
     public function getSeoByName($pageName)
     {
-        $seo = new Seo();
+        $seo = container(Seo::class);
         $whereClause = [
             'seo_page_name' => "$pageName"
         ];
@@ -60,7 +65,7 @@ class SeoController extends \DGZ_library\DGZ_Controller
 
     public function pageDetail($pageId)
     {
-        $seo = new Seo();
+        $seo = container(Seo::class);
         $seoData = $seo->getById($pageId);
         $view = DGZ_View::getModuleView('seo', 'pageDetail', $this, 'html');
         $this->setPageTitle('Seo Page Detailed View');
@@ -71,7 +76,7 @@ class SeoController extends \DGZ_library\DGZ_Controller
 
     public function globalDetail($recordId)
     {
-        $globalSeo = new Seo_global();
+        $globalSeo = container(Seo_global::class);
         
         $seoData = $globalSeo->getById($recordId);
         $view = DGZ_View::getModuleView('seo', 'globalDetail', $this, 'html');
@@ -570,7 +575,7 @@ class SeoController extends \DGZ_library\DGZ_Controller
 
     public function editPageSeo($pageId)
     {
-        $seo = new Seo();
+        $seo = container(Seo::class);
         $data = $seo->getPageSeo($pageId);
         $view = DGZ_View::getModuleView('seo', 'editPage', $this, 'html');
         $this->setPageTitle('Edit Page Seo');
@@ -1146,7 +1151,7 @@ class SeoController extends \DGZ_library\DGZ_Controller
 
     public function editGlobal($globalId)
     {
-        $seo = new Seo_global();
+        $seo = container(Seo_global::class);
         $data = $seo->getGlobalSeo($globalId);
         $view = DGZ_View::getModuleView('seo', 'editGlobal', $this, 'html');
         $this->setPageTitle('Edit Global Seo');
@@ -1464,7 +1469,7 @@ class SeoController extends \DGZ_library\DGZ_Controller
 
     public function getGlobalSeoData()
     {
-        $globalSeo = new Seo_global();
+        $globalSeo = container(Seo_global::class);
         return $globalSeo->getAll();
     }
 

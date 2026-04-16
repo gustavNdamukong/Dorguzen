@@ -1,0 +1,275 @@
+<?php
+
+namespace Dorguzen\Core;
+
+use Dorguzen\Core\DGZ_Controller;
+use Dorguzen\Core\DGZ_HtmlView;
+use Dorguzen\Core\DGZ_Exception;
+
+/**
+ * Base Class for Views. Also contains the static method getView which looks for a named view and decides whether to use
+ * the base version or an overridden version
+ * 
+ * Make sure all getView() methods in here call the method 'loadSeoData($viewName)' on the target view's controller, 
+ * 	passing it the view name, so that before the view is displayed; any associated SEO data for that view is retrieved
+ *  and ready to be used. Do this unless it is a view you do not really need to be crawled by SEs eg internal admin views 
+ *  etc 
+ *
+ * @author Gustav Ndamukong
+ */
+abstract class DGZ_View
+{
+	/**
+	 * Returns a View class for displaying things in the desired format as defined in the URL (default to HTML if not set).
+	 * 
+	 * Checks for the target view in three locations:
+	 *        i) views/[format]/[viewName]
+	 * 		  ii) views/admin/[viewName]
+	 *        ii) core/DGZ_views/[viewName]
+	 *
+	 * @param string $viewName The name of the view you want
+	 * @param $pageController [Optional] If calling a view which descends from HtmlView, pass in a reference to the controller (view container) in which this view will be displayed.
+	 * @param string $format [Optional] Specify a format if necessary, otherwise it uses the format of the url
+	 * @return object A DGZ_View object if found,
+	 * @throws /Exception if a view object cannot be found in the desired format.
+	 */
+	public static function getView($viewName, DGZ_Controller $pageController, $format = null)
+	{
+		 //Load any required SEO data for the target view on its controller so the view file 
+		//can access it (within its show() method). Only if $pageController is not NULL though.
+		if ($pageController != null) { 
+			$pageController->loadSeoData($viewName);
+		}
+		
+		if (is_null($format)) {
+			$format = isset($_REQUEST['format']) ? strtolower($_REQUEST['format']) : 'html';
+		}
+
+		$fileName = __DIR__ . '/../views/' . $viewName . '.php';
+		$coreViewFile = __DIR__ . '/DGZ_views/' . $viewName . '.php'; 
+
+		if (file_exists($fileName)) {
+			require_once $fileName;
+			$viewClass = 'Dorguzen\\Views\\' . $viewName;
+		}
+		elseif (file_exists($coreViewFile)) {
+			require_once $coreViewFile;
+			$viewClass = 'Dorguzen\\Core\\DGZ_views\\' . $viewName; 
+		}
+		else {
+			throw new DGZ_Exception('From DGZ_View "' . $viewName . '" not found', DGZ_Exception::NO_VIEW_FOUND, 'No view class could be found called "' . $viewName . '" for format "' . '"' . PHP_EOL . 'Please check that the class exists in either "' . $fileName . '" or in "' . $coreViewFile . '"');
+		}
+
+		$object = new $viewClass();
+
+		if ($object instanceof DGZ_HtmlView) {
+
+			if (!($pageController instanceof DGZ_Controller)) {
+				throw new DGZ_Exception('Controller Object Required for HtmlView', DGZ_Exception::MISSING_PARAMETERS, 'When creating a view which extends from //core//DGZ_View, you must provide your DGZ_Controller object as the second parameter ' . 'into DGZ_View::getView()' . PHP_EOL . '(got "' . (is_object($pageController) ? get_class($pageController) : (is_array($pageController) ? 'array' : print_r($pageController, true))) . '")' . 'This is because HTML views may need to add their own styles and scripts into your controller object in order for them to work properly.');
+			}
+
+			$pageController->setPageTitle($viewName);
+			$pageController->setViewName($viewName);
+			$object->setContext($pageController);
+		}
+
+		return $object;
+	}
+
+
+
+
+	/**
+	 * Returns a View class for displaying things in the desired format as defined in the URL (default to HTML if not set).
+	 *
+	 * This meant to facilitate separating admin views from regular site views. You probably want to apply extra security to limit unwanted access
+	 * to these files, so it makes sense to have them in a separate folder. The admin sub-folder in the views folder is therefore the one and only
+	 * location where this method checks for the target view.
+	 *        views/admin/[format]/[viewName]
+	 *
+	 * @param string $viewName The name of the view you want
+	 * @param $viewController [Optional] If calling a view which descends from HtmlView, pass in a reference to the controller (view container) in which this view will be displayed.
+	 * @param string $format [Optional] Specify a format if necessary, otherwise it uses the format of the url
+	 *
+	 * @return object A DGZ_View object if found,
+	 * @throws /Exception if a view object cannot be found in the desired format.
+	 */
+	public static function getAdminView($viewName, DGZ_Controller $viewController, $format = null)
+	{
+		if (is_null($format)) {
+			$format = isset($_REQUEST['format']) ? strtolower($_REQUEST['format']) : 'html';
+		}
+
+		$fileName = './views/admin/' . $viewName . '.php';
+
+		if (file_exists($fileName)) {
+			include_once $fileName;
+			$viewClass = 'Dorguzen\\Views\\Admin\\' . $viewName;
+		}
+		else {
+			throw new DGZ_Exception('DGZ_View "' . $viewName . '" not found', DGZ_Exception::NO_VIEW_FOUND, 'No view class could be found called "' . $viewName . '" for format "' . '"' . PHP_EOL . 'Please check that the class exists in either "' . $fileName . '" or in "');
+		}
+
+
+		$object = new $viewClass();
+
+		if ($object instanceof DGZ_HtmlView) {
+
+			if (!($viewController instanceof DGZ_Controller)) {
+				throw new DGZ_Exception('Controller Object Required for HtmlView', DGZ_Exception::MISSING_PARAMETERS, 'When creating a view which extends from //core//DGZ_View, you must provide your DGZ_Controller object as the second parameter ' . 'into DGZ_View::getView()' . PHP_EOL . '(got "' . (is_object($viewController) ? get_class($viewController) : (is_array($viewController) ? 'array' : print_r($viewController, true))) . '")' . 'This is because HTML views may need to add their own styles and scripts into your controller object in order for them to work properly.');
+			}
+
+			$viewController->setPageTitle($viewName);
+			$viewController->setViewName($viewName);
+			$object->setContext($viewController);
+		}
+
+		return $object;
+	}
+
+
+
+	/**
+	 * Returns a View class for displaying things in the desired format as defined in the URL (default to HTML if not set).
+	 *
+	 * This meant to facilitate separating admin views from regular site views. You probably want to apply extra security to limit unwanted access
+	 * to these files, so it makes sense to have them in a separate folder. The admin sub-folder in the views folder is therefore the one and only
+	 * location where this method checks for the target view.
+	 *        views/admin/[format]/[viewName]
+	 *
+	 * @param string $moduleName The name of the specific module class
+	 * @param string $viewName The name of the view you want
+	 * @param $viewController [Optional] If calling a view which descends from HtmlView, pass in a reference to the controller (view container) in which this view will be displayed.
+	 * @param string $format [Optional] Specify a format if necessary, otherwise it uses the format of the url
+	 *
+	 * @return object A DGZ_View object if found,
+	 * @throws /Exception if a view object cannot be found in the desired format.
+	 */
+	public static function getModuleView($moduleName, $viewName, DGZ_Controller $viewController, $format = null)
+	{
+		if (is_null($format)) {
+			$format = isset($_REQUEST['format']) ? strtolower($_REQUEST['format']) : 'html';
+		}
+
+		$fileName = './modules/'.ucfirst(strtolower($moduleName)).'/Views/' . $viewName . '.php';
+
+		if (file_exists($fileName)) { 
+			include_once $fileName; 
+			$viewClass = 'Dorguzen\\Modules\\'.ucfirst($moduleName).'\Views\\' . $viewName;
+		}
+		else { 
+			throw new DGZ_Exception('DGZ_View "' . $viewName . '" not found', DGZ_Exception::NO_VIEW_FOUND, 'No view class could be found called "' . $viewName . '" for format "' . '"' . PHP_EOL . 'Please check that the class exists in either "' . $fileName . '" or in "');
+		}
+
+		$object = new $viewClass();
+
+		if ($object instanceof DGZ_HtmlView) {
+			if (!($viewController instanceof DGZ_Controller)) {
+				throw new DGZ_Exception('Controller Object Required for HtmlView', DGZ_Exception::MISSING_PARAMETERS, 'When creating a view which extends from //core//DGZ_View, you must provide your DGZ_Controller object as the second parameter ' . 'into DGZ_View::getView()' . PHP_EOL . '(got "' . (is_object($viewController) ? get_class($viewController) : (is_array($viewController) ? 'array' : print_r($viewController, true))) . '")' . 'This is because HTML views may need to add their own styles and scripts into your controller object in order for them to work properly.');
+			}
+
+			$viewController->setPageTitle($viewName);
+			$viewController->setViewName($viewName);
+			$object->setContext($viewController);
+		}
+
+		return $object;
+	}
+
+
+
+	/**
+	 * @param string $moduleName The name of the specific module class
+	 * @param string $viewName The name of the view you want
+	 * @param $viewController [Optional] If calling a view which descends from HtmlView, pass in a reference to the controller (view container) in which this view will be displayed.
+	 * @param string $format [Optional] Specify a format if necessary, otherwise it uses the format of the url
+	 *
+	 * @return object A DGZ_View object if found,
+	 * @throws /Exception if a view object cannot be found in the desired format.
+	 */
+	public static function getModuleInsideView($moduleName, $viewName, DGZ_Controller $viewController, $format = null)
+	{
+		if (is_null($format)) {
+			$format = isset($_REQUEST['format']) ? strtolower($_REQUEST['format']) : 'html';
+		}
+
+		$fileName = './modules/'.ucfirst(strtolower($moduleName)).'/Views/' . $viewName . '.php';
+
+		if (file_exists($fileName)) { 
+			include_once $fileName; 
+			$viewClass = 'Dorguzen\\Modules\\'.ucfirst($moduleName).'\Views\\' . $viewName;
+		}
+		else {
+			throw new DGZ_Exception('DGZ_View "' . $viewName . '" not found', DGZ_Exception::NO_VIEW_FOUND, 'No view class could be found called "' . $viewName . '" for format "' . '"' . PHP_EOL . 'Please check that the class exists in either "' . $fileName . '" or in "');
+		}
+
+		$object = new $viewClass();
+
+		if ($object instanceof DGZ_HtmlView) {
+			if (!($viewController instanceof DGZ_Controller)) {
+				throw new DGZ_Exception('Controller Object Required for HtmlView', DGZ_Exception::MISSING_PARAMETERS, 'When creating a view which extends from //core//DGZ_View, you must provide your DGZ_Controller object as the second parameter ' . 'into DGZ_View::getView()' . PHP_EOL . '(got "' . (is_object($viewController) ? get_class($viewController) : (is_array($viewController) ? 'array' : print_r($viewController, true))) . '")' . 'This is because HTML views may need to add their own styles and scripts into your controller object in order for them to work properly.');
+			}
+
+			$object->setContext($viewController);
+		}
+
+		return $object;
+	}
+
+
+	/**
+	 * Returns a View class for displaying things in the desired format as defined in the URL (default to HTML if not set).
+	 *
+	 * This grabs another view file and display it within another view file like a widget. Unlike the other get...View
+	 * methods in this class it does not use a layout or have its title or view name set in the parent layout object.
+	 *This is because all these have already been set on the main view file this one will be displayed inside of.
+	 *
+	 *Checks for the target view in two locations:
+	 *        i) views/[format]/[viewName]
+	 *        ii) views/admin/[viewName]
+	 *
+	 * @param string $viewName The name of the view you want
+	 * @param $viewController [Optional] If calling a view which descends from HtmlView, pass in a reference to the controller (view container) in which this view will be displayed.
+	 * @param string $format [Optional] Specify a format if necessary, otherwise it uses the format of the url
+	 *
+	 * @return object A DGZ_View object if found,
+	 * @throws /Exception if a view object cannot be found in the desired format.
+	 */
+	public static function getInsideView($viewName, DGZ_Controller $viewController, $format = null)
+	{
+		if (is_null($format)) {
+			$format = isset($_REQUEST['format']) ? strtolower($_REQUEST['format']) : 'html';
+		}
+
+		$fileName = './views/' . $viewName . '.php';
+		$fileNameAdmin = './views/admin/' . $viewName . '.php';
+
+		if (file_exists($fileName)) {
+			include_once $fileName;
+			$viewClass = 'Dorguzen\\Views\\' . $viewName;
+		}
+		elseif (file_exists($fileNameAdmin)) {
+			include_once $fileNameAdmin;
+			$viewClass = 'Dorguzen\\Views\\Admin\\' . $viewName;
+		}
+		else {
+			throw new DGZ_Exception('DGZ_View "' . $viewName . '" not found', DGZ_Exception::NO_VIEW_FOUND, 'No view class could be found called "' . $viewName . '" for format "' . '"' . PHP_EOL . 'Please check that the class exists in either "' . $fileName . '" or in "');
+		}
+
+
+		$object = new $viewClass();
+
+		if ($object instanceof DGZ_HtmlView) {
+
+			if (!($viewController instanceof DGZ_Controller)) {
+				throw new DGZ_Exception('Controller Object Required for HtmlView', DGZ_Exception::MISSING_PARAMETERS, 'When creating a view which extends from //core//DGZ_View, you must provide your DGZ_Controller object as the second parameter ' . 'into DGZ_View::getView()' . PHP_EOL . '(got "' . (is_object($viewController) ? get_class($viewController) : (is_array($viewController) ? 'array' : print_r($viewController, true))) . '")' . 'This is because HTML views may need to add their own styles and scripts into your controller object in order for them to work properly.');
+			}
+
+			$object->setContext($viewController);
+		}
+
+		return $object;
+
+	}
+
+}

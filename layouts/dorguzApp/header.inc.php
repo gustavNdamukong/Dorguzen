@@ -3,7 +3,7 @@
     <header class="navbar navbar-transparent navbar-fixed-top">
     	<div class="container">
             <div class="navbar-header">
-                <a href="<?=$this->settings->getHomePage()?>home" class="navbar-brand"><span>Dor</span>Guzen</a>
+                <a href="<?=$this->config->getHomePage()?>home" class="navbar-brand"><span>Dor</span>Guzen</a>
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse"><i class="fa fa-bars"></i></button>
 
 
@@ -22,7 +22,7 @@
                             <li class="col-sm-4 col-md-3">
                             	<ul class="list-unstyled">
                                 	<li class="title">Who Are We <span class="label label-danger pull-right">HOT</span></li>
-                                    <li><a href="<?=$this->settings->getFileRootPath()?>home/home">Home page</a></li>
+                                    <li><a href="<?=$this->config->getFileRootPath()?>home/home">Home page</a></li>
                                     <li><a>Something here</a></li>
                                     <li><a>Something here</a></li>
                                     <li><a>Something here</a></li>
@@ -37,7 +37,7 @@
                                     <li><a>Something here</a></li>
                                     <li><a>Something here</a></li>
                                     <li><a>Something here</a></li>
-                                    <li><a href="<?=$this->settings->getFileRootPath()?>feedback/contact">Your Contact Form</a></li>
+                                    <li><a href="<?=$this->config->getFileRootPath()?>feedback/contact">Your Contact Form</a></li>
                                 </ul>
                             </li>
                             <li class="col-sm-4 col-md-3">
@@ -46,33 +46,33 @@
                                     <?php
                                     if (!isset($_SESSION['authenticated'])) {
                                         //only show the log in link if the user is not currently logged in ?>
-                                        <li><a href="<?=$this->settings->getFileRootPath()?>auth/login">Admin Login</a></li>
+                                        <li><a href="<?=$this->config->getFileRootPath()?>auth/login">Admin Login</a></li>
                                     <?php
                                     }
                                     else
                                     {
                                         //show a logout button if the user is logged in ?>
-                                        <li><a href="<?=$this->settings->getFileRootPath()?>auth/logout">Logout</a></li>
-                                        <li><a href="<?=$this->settings->getFileRootPath()?>admin/dashboard">Admin Dashboard</a></li>
+                                        <li><a href="<?=$this->config->getFileRootPath()?>auth/logout">Logout</a></li>
+                                        <li><a href="<?=$this->config->getFileRootPath()?>admin/dashboard">Admin Dashboard</a></li>
                                     <?php
                                     } ?>
                                 </ul>
                             </li>
                             <li class="hidden-xs hidden-sm col-md-3">
-                            	<img  style="padding-top:70px;" max-width="948" max-height="632" src="<?=$this->settings->getFileRootPath()?>assets/images/categories/category-8.png" class="img-responsive center-block" alt="Put Your App Banner Here">
+                            	<img  style="padding-top:70px;" max-width="948" max-height="632" src="<?=$this->config->getFileRootPath()?>assets/images/categories/category-8.png" class="img-responsive center-block" alt="Put Your App Banner Here">
                             </li>
                       	</ul>
                     </li>
 
                     <?php
-                        list($controller, $method) = $this->settings->getCurrentRoute();
+                        list($controller, $method) = getCurrentRoute();
                     ?>
                     <!--------------------------------------- THE SITE SEARCH FORM -------------------------------------------------------------->
                     <li class="dropdown navbar-search hidden-xs">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-search">Search</i></a>
                         <ul class="dropdown-menu">
                             <li>
-                                <form method="get" action="<?=$this->settings->getFileRootPath()?>search/doSearch">
+                                <form method="get" action="<?=$this->config->getFileRootPath()?>search/doSearch">
                                     <div class="input-group input-group-lg">
                                         <input type="text" class="form-control" name="search_keyword" placeholder="Search ..." />
 

@@ -1,16 +1,16 @@
 <?php
 
-namespace views;
+namespace Dorguzen\Views;
 
 
-use DGZ_library\DGZ_Translator;
+use Dorguzen\Core\DGZ_Translator;
 
 
 /**
  * This class exposes various JS code snippets which you can reuse across many view files in your application.
  * Just use it by pulling it into any view files where u need it. Place the code to include it above in the show()
  * method as it is done in login.php
- *          $jsValidation = \DGZ_library\DGZ_View::getInsideView('jsValidationPartial', $this->controller);
+ *          $jsValidation = \Dorguzen\Core\DGZ_View::getInsideView('jsValidationPartial', $this->controller);
  *           $jsValidation->show();
  *
  * It is essentially a partial (a piece of code that is included), and a good example of how a view can be used
@@ -19,7 +19,7 @@ use DGZ_library\DGZ_Translator;
  * Class jsValidationPartial
  * @package views
  */
-class sideSlideInMenuPartial extends \DGZ_library\DGZ_HtmlView
+class sideSlideInMenuPartial extends \Dorguzen\Core\DGZ_HtmlView
 {
 
     public function show()
@@ -46,8 +46,7 @@ class sideSlideInMenuPartial extends \DGZ_library\DGZ_HtmlView
                 if (!isset($_SESSION['authenticated'])) { ?>
                     <a href="<?=$this->rootPath()?>auth/login" class="list-group-item list-group-item-action">Login</a>
                     <?php
-                    $config = new \configs\Config();
-                    if ($config->getConfig()['allow_registration'] === true)
+                    if (config('app.allow_registration') === true)
                     { ?>
                     <a href="<?=$this->rootPath()?>auth/signup" type="button" class="list-group-item list-group-item-action">Register</a>
                     <?php

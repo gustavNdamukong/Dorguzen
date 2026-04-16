@@ -1,0 +1,571 @@
+
+                                    DGZ API Docs
+
+                                -SETUP
+                                -WORKING API ROUTES
+                                    -1) LOGIN REQUEST  (POST)
+                                    -2) REFRESH TOKEN  (POST)
+                                    -3) LOGOUT REQUEST (POST/GET)
+                                    -4) PASSWORD RESET REQUEST  (POST)
+                                    -5) REGISTRATION  (POST)
+                                    -6) ACTIVATE ACCOUNT REQUEST (GET)
+                                -DGZ API ROADMAP
+                                -TESTING SETUP
+                                    -Sending test API requests in CLI
+                                        -Using curl to an endpoint that expects JSON data
+                                        -Using Curl to an endpoint which expects a regular array data
+                                        -Using httpie to an endpoint that expects JSON data
+                                        -Using httpie to an endpoint that expects regular array data
+                                        -Using httpie to make a POST request with no data
+                                        -Using httpie to an endpoint with a Bearer token
+                                -FAQ
+                                    -file_get_contents('php://input')
+                                    -Token flow explained
+
+
+
+-------------------------------------------------------------------------------------------------
+        SETUP
+-------------------------------------------------------------------------------------------------
+    -In your API request, the Authorization header is needed for the JWT validation, otherwise
+        the request will be rejected.
+
+        Bearer Token: 'yourApplicationSecretKeyHere'
+
+    -Data submitted should be in json format. So set the right request header to handle it
+
+        Content Type: application/json
+
+    -For POST requests to work, you need to add the following header:
+
+        Content Type: application/x-www-form-urlencoded
+
+
+All API requests come in and out through this class. Here is the request URI:
+
+    http://yourAppName/api/className/methodName
+
+We get the request, and call the relevant controller for the resource.
+All headers and data type conversions are handled here too.
+In the case of controller methods that return values; it is easy-we call them, get their data
+back, and return the response to the caller here. In the the case of controller methods that
+return nothing, we'll send a 'caller-origin' key with a value of 'api' via POST or GET so the
+controller method will check for in order to know when to send back the appropriate response.
+Examples of such methods that send back no response are:
+    -login
+    -logout
+    -registration
+    -account activation
+    -etc
+
+-The return response JSON object has the following structure:
+
+    {
+       "status":"true",
+       "message":"Logout successful",
+       "response_code":200
+    }
+
+    The 'status' field has a value of either 'true' or 'false', while 'message' has the
+        error/success msg
+
+-------------------------------------------------------------------------------------------------
+
+
+-------------------------------------------------------------------------------------------------
+        WORKING API ROUTES
+-------------------------------------------------------------------------------------------------
+
+    REGISTER A TEST USER
+    ----------------------------------------------
+Here is the request to send (request made with HttPie, an API testing tool in the CLI) to register a user:
+
+  http POST http://localhost/yourApp/api/v1/auth/register \
+    firstname=Test \
+    surname=User \
+    password=Secret123! \
+    confirm_password=Secret123! \
+    phone=12345678 \
+    email=testuser@example.com
+
+  Here is the response you will get back:
+
+    HTTP/1.1 201 Created
+    Content-Type: application/json; charset=UTF-8
+
+    {
+        "activationLink": "https://yourApp/auth/verifyEmail?em=3c02317a3505459d16826a5e0ef128d3",
+        "code": 201,
+        "message": "Registration successful. Please check your email to activate your account.",
+        "status": true,
+        "tokens": {
+            "access_token": "<jwt-access-token>",
+            "access_token_expiry": 1774460328,
+            "refresh_token": "<jwt-refresh-token>",
+            "refresh_token_expiry": 1774449528
+        }
+    }
+
+
+
+
+        -1) LOGIN REQUEST (POST)
+        ------------------------------------
+    Endpoint: https://yourApp/api/auth-doLogin
+
+    {
+        "login_email":"user@example.com",
+        "login_pwd": "passwordHere",
+        "forgotstatus": "no",
+        "caller-origin": "api",
+        "credentials": "include"
+    }
+
+    An example API response:
+
+    {
+        "code": 200,
+        "status": "true",
+        "message": "Login was successful",
+        "user": {
+            "id": 1,
+            "email": "user@example.com"
+        },
+        "tokens": {
+            "access_token": "<jwt-access-token>",
+            "access_token_expiry": 1759846280,
+            "refresh_token": "<jwt-refresh-token>",
+            "refresh_token_expiry": 1759848980
+        }
+    }
+
+    -The 'forgotstatus' field needs to be 'no' if you do not want to reset your password.
+    -Notice the 'caller-origin' field mentioned above.
+    -Send in an additional field 'rem_me' with a value of '1' or 'yes' if you want a cookie to
+        be set on the server to keep you logged in. If you do not want that, then do not even
+        set the field at all.
+    -The 'credentials' field is important in the case of logging in because it allows the caller
+        to receive back in the response, an assigned PHP session cookie that was created in the
+        backend when the user is successfully authenticated. This cookie will now be sent back
+        and forth between the requester and the server, and the server will ID this requester
+        by it, and that's how it will know if the requester is already authenticated or not.
+        -It is important to note that this field works hand in hand with the header:
+            'header("Access-Control-Allow-Credentials: true")' which should have been set in the
+            server too. Basically; this setting is saying that when PHP creates the auth
+            credentials for an authentication request, (which is what the session cookie is);
+            the requesting script should have access to it. Hence if you run the
+            cmd/property 'document.cookie', after the request is completed, you will see the value
+            of the php session cookie created on the server for that request.
+
+
+        -2) REFRESH TOKEN (POST) - TOKEN RENEWING
+        ------------------------------------
+Endpoint (POST): http://localhost/yourApp/api/auth-refresh_token
+
+    Request:
+        http POST http://localhost/yourApp/api/auth-refresh_token \
+        "Authorization:Bearer <your-refresh-token>"
+
+    NOTE: The token sent must be the refresh token provided to you at login, and not the access
+          token. That refresh token issued to you when you logged in was saved to DB and the one
+          you provide here will be matched against it.
+
+          Also, Authorization: and Bearer must have no space between them; so it's
+          "Authorization:Bearer ..." and not "Authorization: Bearer ...".
+
+
+        -3) LOGOUT REQUEST  (POST/GET)
+        ------------------------------------
+Endpoint POST: https://yourApp/api/auth-logout
+Endpoint GET:  https://yourApp/api/auth-logout?caller-origin=api
+
+    //POST request data
+       {
+           "method":"POST",
+           "caller-origin": "api"
+       }
+
+    //GET request data
+      {
+          "method":"GET",
+          "caller-origin": "api"
+      }
+
+    //Logout response:
+    {
+       "status":"true",
+       "message":"Logout successful",
+       "response_code":200
+    }
+
+
+        -4) PASSWORD RESET REQUEST (POST)
+        ------------------------------------
+  Endpoint: https://yourApp/api/auth-doLogin
+
+   {
+       "method":"POST",
+       "username":"yourName",
+       "pwd": "passwordHere",
+       "forgotstatus": "yes",
+       "forgot_pass_input": "example@example.com"
+   }
+
+    Response:
+   {
+       "status":"true",
+       "message":"Here is the link for the user to reset their password",
+       "resetLink":"http:\/\/yourApp\/auth\/reset?em=90886bc4d0f723a1299ed9b3360f48e8"
+   }
+
+   -The 'forgotstatus' field needs to be 'yes' if you want to reset your password. The response
+    will contain the link to visit to reset your password.
+
+
+        -5) REGISTER REQUEST (POST)
+        ------------------------------------
+  Endpoint: https://yourApp/api/auth-doRegis
+
+   {
+       "method":"POST",
+       "firstname":"myFirstname",
+       "surname":"mySurname",
+       "pwd": "passwordHere",
+       "conf_pwd": "confirmPasswordHere",
+       "phone": "phoneNumber",
+       "email": "example@example.com",
+       "caller-origin": "api"
+   }
+
+    Response:
+   {
+       "status":"true",
+       "message":"Registration successful. Here is the link to activate your account",
+       "activationLink":"https:\/\/yourApp\/auth\/verifyEmail?em=90886bc4d0f723a1299ed9b3360f48e8"
+   }
+
+
+        -6) ACTIVATE ACCOUNT REQUEST (GET)
+        ------------------------------------
+  Endpoint: http://yourApp/api/auth/verifyEmail?em=44490ee6bc14729a2a9b2a7f32e8acb3&caller-origin=api
+
+   {
+       "method":"GET"
+   }
+
+    Response:
+   {
+        "status":"true",
+        "message":"Your account was successfully activated, you may now log in",
+        "response_code":200
+   }
+
+    -Remember that the value of the endpoint 'em' query string will be different for every
+     individual account activation because of the uniquely-generated code.
+
+-------------------------------------------------------------------------------------------------
+
+
+
+
+-------------------------------------------------------------------------------------------------
+    DGZ API ROADMAP
+-------------------------------------------------------------------------------------------------
+    Current functionality
+    -----------------------------------------------
+    -All API calls go via controllers as their methods as the web routes do, but we use middleware
+     to intercept the API calls and re-divert the calls to the right target controller and method.
+     We do so by splitting the URL string given by a hyphen (-) which separates what is supposed
+     to be the controller and method for the request like so:
+
+        api/controller-method
+
+     This way when the ApiController receives the request, it knows what controller and method to
+     forward the request to, as well as arguments to pass to it.
+     This ensures that we do not need to duplicate any of the existing application code to cater
+     for the API.
+     Within the existing controller methods, we will just add code to detect if a request is from
+     the API and return an API response using the DGZ_Response object which is available to all
+     controllers.
+
+
+    Modular & Service approach
+    -----------------------------------------------
+      We will keep the current functionality for now, but the plan is to move the API over to
+      modules. There are some risks involved with taking the modular approach, for example; it
+      will mean that all API calls have to be made from modules to the web application, and this
+      will be an extra API request in addition to the API request that has already been made by
+      the client to the API module. This will negatively affect the performance of the API.
+
+      The best solution to this issue will be to move all the current web functionality to services
+      and have both the web app and the API call the services directly. This will not only be
+      cleaner and faster, but it will be maintainable and loosely-coupled.
+
+      Here are some potential challenges with the approach:
+        -We have dozens of Controllers, does that mean we need to write dozens of services?
+         Not necessarily. You don't always need 1:1 mapping between controllers and services.
+         Some controllers might share the same domain logic.
+         Example: AdController, CategoryController, SearchController might all delegate to an
+         AdService class.
+         So instead of 50 service classes, you might end up with ~10-15 well-designed ones that
+         match your domain (AuthService, AdService, MessagingService, PaymentService, etc.).
+         Think of them as logical domains, not just "controller twins."
+        -Here is a good migration strategy (so you don't get overwhelmed):
+           -1) Start with critical functionality (e.g. Auth -> AuthService).
+           -2) Slowly move feature by feature into services when you touch those controllers.
+           -3) Keep a hybrid system during transition (some API calls still call controllers
+                directly, others use services). Over time, the web controllers become thin
+                wrappers around service calls.
+
+-------------------------------------------------------------------------------------------------
+
+
+
+
+-------------------------------------------------------------------------------------------------
+    TESTING SETUP
+-------------------------------------------------------------------------------------------------
+        Sending test API requests in CLI
+        -----------------------------------------
+
+    Using curl to an endpoint that expects JSON data
+    ---------------------------------
+    curl -X POST http://localhost/yourApp/auth/doLogin \
+        -H "Content-Type: application/json" \
+    -d '{
+        "username": "testuser",
+        "pwd": "passwordHere",
+        "forgotstatus": "no",
+        "caller-origin": "api",
+        "credentials": "include"
+    }'
+
+
+
+    Using Curl to an endpoint which expects a regular array data
+    ---------------------------------
+    curl -X POST http://localhost/yourApp/auth/doLogin \
+    -d "username=testuser" \
+    -d "pwd=passwordHere" \
+    -d "forgotstatus=no" \
+    -d "caller-origin=api" \
+    -d "credentials=include"
+
+
+
+    Using httpie to an endpoint that expects JSON data
+    ---------------------------------
+    http POST http://localhost/yourApp/auth/doLogin \
+    username=testuser \
+    pwd=passwordHere \
+    forgotstatus=no \
+    caller-origin=api \
+    credentials=include
+
+    httpie automatically sends Content-Type: application/json when you use key=value syntax.
+
+
+
+    Using httpie to an endpoint that expects regular array data
+    ---------------------------------
+    http -f POST http://localhost/yourApp/api/auth-doLogin \
+    username=testuser \
+    pwd=password \
+    forgotstatus=no \
+    caller-origin=api \
+    credentials=include
+
+    The -f in httpie means send as application/x-www-form-urlencoded.
+
+    Login response example:
+
+    {
+        "code": 200,
+        "message": "Login was successful",
+        "custo_id": 1,
+        "username": "testuser"
+    }
+
+    From your controller you can choose to either send back the whole DGZ_Response object
+    (recommended), or call ->send() on it just to send back a JSON object as above. If you
+    do send back the full object, you will get something like this:
+
+    Dorguzen\Core\DGZ_Response Object
+    (
+        [status:protected] => 200
+        [headers:protected] => Array
+        (
+        )
+
+        [data:protected] => Array
+        (
+            [code] => 200
+            [message] => Login was successful
+            [custo_id] => 1
+            [username] => testuser
+        )
+
+        [formatter:protected] => Dorguzen\Core\DGZ_JsonFormatter Object
+        (
+        )
+    )
+
+    The reason why it's better to send back from your controllers the object is that, within your
+    ApiController, you can manipulate the data in OOP fashion and modify it based on any logic,
+    e.g. generating and injecting a JWT token into the data before sending the final response to
+    the client.
+    Here is how to send back a JSON response to the API client in ApiController, in OOP fashion:
+
+        $response = $object->$targetMethod();
+        if ($response->getData()['status'] == 'true') {
+            http_response_code(200);
+        }
+        else if ($response['status'] == 'false') {
+            http_response_code(400);
+        }
+
+        die(json_encode($response->send()));
+
+    The data that goes back will look like this:
+
+        {
+            "code": 200,
+            "status": "true",
+            "message": "Login was successful",
+            "custo_id": 1,
+            "username": "testuser"
+        }
+
+
+
+    Using httpie to make a POST request with no data
+    ---------------------------------
+
+        http POST http://localhost/yourApp/api/v1/say
+
+
+
+    Using httpie to an endpoint with a Bearer token
+    ---------------------------------
+
+        http POST http://localhost/yourApp/api/ad-favourites \
+            "Authorization:Bearer <your-access-token>"
+
+    NOTE: Authorization: and Bearer must have no space between them in httpie:
+          "Authorization:Bearer ..." not "Authorization: Bearer ..."
+
+-------------------------------------------------------------------------------------------------
+
+
+
+
+-------------------------------------------------------------------------------------------------
+    FAQ
+-------------------------------------------------------------------------------------------------
+    -------------------------------------
+    file_get_contents('php://input')
+    -------------------------------------
+    What does file_get_contents('php://input') actually do? It is a way to read raw request body
+    data directly from the HTTP request.
+    -Normally in PHP:
+
+    For GET requests, you use $_GET.
+    For POST requests with form data (application/x-www-form-urlencoded or multipart/form-data),
+    you use $_POST or $_FILES.
+    But with APIs, especially REST/JSON APIs, clients usually send data as raw JSON (with
+    Content-Type: application/json).
+    In that case, PHP does not automatically populate $_POST (because the format is not form-data).
+    So instead, you grab the raw body stream:
+
+        $rawData = file_get_contents("php://input");
+
+    What happens?
+    php://input is a special PHP stream that gives you the raw request body.
+    file_get_contents just reads that stream into a string.
+    So if the client POSTs:
+
+        {
+            "username": "testuser",
+            "password": "secret123"
+        }
+
+    Then in PHP:
+
+        $rawData = file_get_contents("php://input");
+        // $rawData = '{"username":"testuser","password":"secret123"}'
+
+        You usually decode it:
+
+        $data = json_decode($rawData, true);
+
+    Now $data['username'] === "testuser".
+
+    Key things to know
+    --------------------
+    Works for any HTTP method (POST, PUT, PATCH, etc.) — not just POST.
+    Only reads the raw body once (it's a stream). If you call it again, it returns empty unless
+    you cache it.
+    Useful for custom formats (XML, JSON, etc.) instead of HTML forms.
+    Unlike $_POST, it doesn't parse — you must decode it yourself.
+    In APIs, php://input is the standard way to get JSON/XML request bodies.
+
+
+    -------------------------------------
+    TOKEN FLOW EXPLAINED
+    -------------------------------------
+Here's the standard JWT authentication lifecycle, simplified:
+
+Step 1. User logs in
+
+    Client sends credentials (username, password, etc.)
+    Server authenticates user and returns:
+        access_token
+        refresh_token
+        expires_in (timestamp or seconds until expiry)
+
+    Client saves these, typically:
+        access_token  -> kept in memory or secure storage
+        refresh_token -> kept securely (e.g. encrypted storage, not localStorage)
+
+Step 2. Client makes requests
+
+    For each API call after login:
+
+        GET /api/v1/user/profile
+        Authorization: Bearer <access_token>
+
+    Your backend:
+        Extracts the token from the header.
+        Decodes and verifies it using your $jwt_secret.
+        If valid   -> continue and respond.
+        If expired -> respond with:
+
+        {
+            "status": false,
+            "message": "Access token expired"
+        }
+
+Step 3. Client refreshes token (only when expired)
+
+    When the client detects the access token has expired, it sends a request:
+
+        POST /api/v1/auth/refresh
+        Authorization: Bearer <refresh_token>
+
+    Your backend:
+        Verifies the refresh token.
+        If valid -> generates new access & refresh tokens.
+        Responds with them, similar to the first login.
+
+Step 4. Access vs Refresh Token Rules
+
+    Type            Lifespan             Purpose                    Where Sent                           Stored In
+    Access Token    Short (15-30 mins)   Authenticate API requests  Authorization header                 Memory/secure store
+    Refresh Token   Long (hours-days)    Get new access tokens      Authorization header (refresh only)  Secure local storage
+
+Important notes:
+    Never send tokens in URLs (use headers or request body).
+    Keep refresh tokens securely — they allow prolonged access.
+    You can revoke refresh tokens by deleting them from DB when a user logs out.
+
+-------------------------------------------------------------------------------------------------

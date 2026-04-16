@@ -1,6 +1,6 @@
 <?php
 
-namespace layouts\dorguzApp;
+namespace Dorguzen\layouts\seoMaster;
 
 /**
  * Layout suitable for non-HTML display, where you don't want anything
@@ -8,7 +8,7 @@ namespace layouts\dorguzApp;
  *
  * @author Gustav
  */
-class BlankLayout extends \DGZ_library\DGZ_Layout {
+class BlankLayout extends \Dorguzen\Core\DGZ_Layout {
 	
 	public function display() {
 

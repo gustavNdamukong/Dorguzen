@@ -1,8 +1,8 @@
 <?php
 
-namespace modules\payments\views;
+namespace Dorguzen\Modules\Payments\Views;
 
-class success extends \DGZ_library\DGZ_HtmlView
+class success extends \Dorguzen\Core\DGZ_HtmlView
 {
 
 	function show($globalDataSet = [], $seoData = [])
@@ -46,7 +46,7 @@ class success extends \DGZ_library\DGZ_HtmlView
 
 					<!-- START SIDE SLIDE-IN MENU -->
 					<?php
-					$slideInMenu = \DGZ_library\DGZ_View::getInsideView('sideSlideInMenuPartial', $this->controller);
+					$slideInMenu = \Dorguzen\Core\DGZ_View::getInsideView('sideSlideInMenuPartial', $this->controller);
 					$slideInMenu->show();
 					?>
 					<!-- END OF SIDE SLIDE-IN MENU --> 
@@ -89,7 +89,7 @@ class success extends \DGZ_library\DGZ_HtmlView
 		} ?>
 
 		<?php
-		$paymentsJs = \DGZ_library\DGZ_View::getModuleInsideView('payments', 'jsPaymentsPartial', $this->controller);
+		$paymentsJs = \Dorguzen\Core\DGZ_View::getModuleInsideView('payments', 'jsPaymentsPartial', $this->controller);
 		$paymentsJs->show();
 	}
 }

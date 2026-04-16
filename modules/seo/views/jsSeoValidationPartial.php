@@ -1,13 +1,13 @@
 <?php
 
-namespace modules\seo\views;
+namespace Dorguzen\Modules\Seo\Views;
 
 
 /**
  * Class jsSeoValidationPartial
  * @package modules/seo/views
  */
-class jsSeoValidationPartial extends \DGZ_library\DGZ_HtmlView
+class jsSeoValidationPartial extends \Dorguzen\Core\DGZ_HtmlView
 {
 
     public function show()

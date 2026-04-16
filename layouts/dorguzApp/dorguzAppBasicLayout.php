@@ -1,12 +1,12 @@
 <?php
 
-namespace layouts\dorguzApp;
+namespace Dorguzen\layouts\dorguzApp;
 
 /**
  *
  * @author Gustav
  */
-class dorguzAppBasicLayout extends \DGZ_library\DGZ_Layout {
+class dorguzAppBasicLayout extends \Dorguzen\Core\DGZ_Layout {
 	
 
 	

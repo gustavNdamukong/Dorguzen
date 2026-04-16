@@ -1,21 +1,21 @@
 <?php
 
-namespace modules\payments\views;
+namespace Dorguzen\Modules\Payments\Views;
 
 
 /**
  * Class jsPaymentsPartial
  * @package modules/payments/views
  */
-class jsPaymentsPartial extends \DGZ_library\DGZ_HtmlView
+class jsPaymentsPartial extends \Dorguzen\Core\DGZ_HtmlView
 {
 
     public function show()
     { ?>
         <script type="text/javascript">
-            // Create a Stripe client
-            //Replace this with your Stripe secret key (non test) once you aree in production
-            var stripe = Stripe('sk_test_51OoQKPFRQteXl4ynTkN5HQOpPZNtpsx5eGI82KavqzRbuNZsWJESBAGpkXu1HAQQV2Al23ZRwAhRqUa6PP4VZP5B00cJu0fyma');
+            // Create a Stripe client using the publishable key (safe for frontend use).
+            // Set STRIPE_PUBLISHABLE_KEY in your .env file (pk_test_... for test, pk_live_... for production).
+            var stripe = Stripe('<?= htmlspecialchars(env('STRIPE_PUBLISHABLE_KEY')) ?>');
 
             // Create an instance of Elements
             var elements = stripe.elements();

@@ -1,23 +1,22 @@
 <?php
 
-namespace views\admin;
+namespace Dorguzen\Views\Admin;
 
 
 
-class resetPw extends \DGZ_library\DGZ_HtmlView
+class resetPw extends \Dorguzen\Core\DGZ_AdminHtmlView
 {
 
 
 
-     function show($userId, $userEmail)
+     function show(array $viewModel = [])
      {
-         if ((isset($_SESSION['authenticated'])) && ($_SESSION['authenticated'] == 'Let Go-'.$this->controller->config->getConfig()['appName'])) {
-            //Pull in the PHP file that has the JS validation codes
-            $jsValidation = \DGZ_library\DGZ_View::getInsideView('jsValidationPartial', $this->controller);
-            $jsValidation->show();
-
-            ?>
-            <div>
+          extract($viewModel);
+        //Pull in the PHP file that has the JS validation codes
+        $jsValidation = \Dorguzen\Core\DGZ_View::getInsideView('jsValidationPartial', $this->controller);
+        $jsValidation->show();
+        ?>
+        <div>
             <section class="hgroup">
                 <div class="container">
                     <br />
@@ -32,7 +31,7 @@ class resetPw extends \DGZ_library\DGZ_HtmlView
                     <!-- START SIDE SLIDE-IN MENU -->
                     <?php
                     //Pull in the PHP file that has the JS code that handles all the JS to do with placing an ad
-                    $slideInMenu = \DGZ_library\DGZ_View::getInsideView('sideSlideInMenuPartial', $this->controller);
+                    $slideInMenu = \Dorguzen\Core\DGZ_View::getInsideView('sideSlideInMenuPartial', $this->controller);
                     $slideInMenu->show();
                     ?>
                     <!-- END OF SIDE SLIDE-IN MENU --> 
@@ -45,7 +44,7 @@ class resetPw extends \DGZ_library\DGZ_HtmlView
                                     <div class="col-lg-2"></div>
                                     <div class="form col-lg-8">
                                         <form action="<?=$this->controller->config->getFileRootPath()?>admin/resetPw" method="post">
-
+                                            <input type="hidden" name="_csrf_token" value="<?=getCsrfToken()?>">
                                             <input id="reset_user_id" name="reset_user_id" class="form-control" type="hidden" value="<?=$userId?>" />
                                             <input id="reset_email" name="reset_email" class="form-control" type="hidden" value="<?=$userEmail?>" />
 
@@ -72,28 +71,8 @@ class resetPw extends \DGZ_library\DGZ_HtmlView
                     </div>
                 </div>
             </section>
-         </div>
+        </div>
         <?php
-          }
-         else
-         { ?>
-             <div class="main">
-                 <section class="content account">
-                     <div class="container">
-                         <div class="row">
-                             <div class="col-sm-3">
-                             </div>
-                             <div class="col-sm-9">
-                                <h3 style="color:red;">Sorry! You have no access to this page 
-                                    <a href="<?=$this->controller->config->getFileRootPath()?>auth" class="btn btn-info">Login</a>
-                                    <a href="<?=$this->controller->config->getFileRootPath()?>" class="btn btn-info">Home</a></h3>
-                             </div>
-                         </div>
-                     </div>
-                 </section>
-             </div>
-         <?php
-         }
      }
 
 } ?>

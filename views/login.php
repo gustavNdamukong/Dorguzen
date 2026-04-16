@@ -1,10 +1,10 @@
 <?php
 
-namespace views;
+namespace Dorguzen\Views;
 
-use DGZ_library\DGZ_View;
+use Dorguzen\Core\DGZ_View;
 
-class login extends \DGZ_library\DGZ_HtmlView
+class login extends \Dorguzen\Core\DGZ_HtmlView
 {
      function show($email = '')
      {
@@ -39,7 +39,6 @@ class login extends \DGZ_library\DGZ_HtmlView
                      </div>
                  </div>
              </div>
-             </div>
              <!-- Hero Header End -->
 
              <!-- Contact Start -->
@@ -49,7 +48,7 @@ class login extends \DGZ_library\DGZ_HtmlView
                     <!-- START SIDE SLIDE-IN MENU -->
                     <?php
                     //Pull in the PHP file that has the JS code that handles all the JS to do with placing an ad
-                    $slideInMenu = \DGZ_library\DGZ_View::getInsideView('sideSlideInMenuPartial', $this->controller);
+                    $slideInMenu = DGZ_View::getInsideView('sideSlideInMenuPartial', $this->controller);
                     $slideInMenu->show();
                     ?>
                     <!-- END OF SIDE SLIDE-IN MENU --> 
@@ -60,6 +59,7 @@ class login extends \DGZ_library\DGZ_HtmlView
                                  <form id="loginForm"
                                        action="<?= $this->controller->config->getFileRootPath() ?>auth/doLogin"
                                        method="post" onSubmit="return validateLoginForm(this)">
+                                     <input type="hidden" name="_csrf_token" value="<?=getCsrfToken()?>">
                                      <div class="row g-3">
                                          <div class="col-md-12">
                                              <div class="form-floating">
@@ -93,8 +93,8 @@ class login extends \DGZ_library\DGZ_HtmlView
                                                     name="forgot_pass_input" placeholder="Email address here"
                                                     style="display: none; margin-top: 5px;"/><span
                                                  style="display: none; margin-top: 5px;" class="loginfieldinput"
-                                                 id="forgot_pass_info">&nbsp;&larr;<font color=blue>Enter your
-                                                     email address to receive your password</font></span>
+                                                 id="forgot_pass_info" style="color: blue;">&nbsp;&larr; Enter your
+                                                     email address to receive your password</span>
 
                                              <input id="forgotstatus" type="hidden" name="forgotstatus"
                                                     value="no"/>
