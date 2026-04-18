@@ -111,6 +111,18 @@ return array (
   ),
   9 => 
   array (
+    'method' => 'POST',
+    'uri' => '/auth/checkEmail',
+    'action' => 'AuthController@checkEmail',
+    'apiVersion' => '',
+    'module' => '',
+    'middleware' => 
+    array (
+    ),
+    'name' => NULL,
+  ),
+  10 => 
+  array (
     'method' => 'GET',
     'uri' => '/auth/verifyEmail',
     'action' => 'AuthController@verifyEmail',
@@ -121,7 +133,7 @@ return array (
     ),
     'name' => NULL,
   ),
-  10 => 
+  11 => 
   array (
     'method' => 'GET',
     'uri' => '/auth/emailActivationInstructions',
@@ -133,7 +145,7 @@ return array (
     ),
     'name' => NULL,
   ),
-  11 => 
+  12 => 
   array (
     'method' => 'GET',
     'uri' => '/auth/reset',
@@ -145,7 +157,7 @@ return array (
     ),
     'name' => NULL,
   ),
-  12 => 
+  13 => 
   array (
     'method' => 'POST',
     'uri' => '/auth/resetPw',
@@ -157,7 +169,43 @@ return array (
     ),
     'name' => NULL,
   ),
-  13 => 
+  14 => 
+  array (
+    'method' => 'GET',
+    'uri' => '/user/dashboard',
+    'action' => 'UserController@dashboard',
+    'apiVersion' => '',
+    'module' => '',
+    'middleware' => 
+    array (
+    ),
+    'name' => NULL,
+  ),
+  15 => 
+  array (
+    'method' => 'GET',
+    'uri' => '/user/changePw',
+    'action' => 'UserController@changePw',
+    'apiVersion' => '',
+    'module' => '',
+    'middleware' => 
+    array (
+    ),
+    'name' => NULL,
+  ),
+  16 => 
+  array (
+    'method' => 'POST',
+    'uri' => '/user/changePw',
+    'action' => 'UserController@changePw',
+    'apiVersion' => '',
+    'module' => '',
+    'middleware' => 
+    array (
+    ),
+    'name' => NULL,
+  ),
+  17 => 
   array (
     'method' => 'GET',
     'uri' => '/admin',
@@ -169,7 +217,7 @@ return array (
     ),
     'name' => 'admin.dashboard',
   ),
-  14 => 
+  18 => 
   array (
     'method' => 'GET',
     'uri' => '/admin/dashboard',
@@ -181,7 +229,7 @@ return array (
     ),
     'name' => NULL,
   ),
-  15 => 
+  19 => 
   array (
     'method' => 'GET',
     'uri' => '/admin/manageUsers',
@@ -193,7 +241,7 @@ return array (
     ),
     'name' => NULL,
   ),
-  16 => 
+  20 => 
   array (
     'method' => 'GET',
     'uri' => '/admin/createUser',
@@ -205,7 +253,7 @@ return array (
     ),
     'name' => NULL,
   ),
-  17 => 
+  21 => 
   array (
     'method' => 'POST',
     'uri' => '/admin/doCreateUser',
@@ -217,7 +265,7 @@ return array (
     ),
     'name' => NULL,
   ),
-  18 => 
+  22 => 
   array (
     'method' => 'GET',
     'uri' => '/admin/editUser',
@@ -229,7 +277,7 @@ return array (
     ),
     'name' => NULL,
   ),
-  19 => 
+  23 => 
   array (
     'method' => 'POST',
     'uri' => '/admin/editUser',
@@ -241,7 +289,7 @@ return array (
     ),
     'name' => NULL,
   ),
-  20 => 
+  24 => 
   array (
     'method' => 'GET',
     'uri' => '/admin/deleteUser',
@@ -253,7 +301,7 @@ return array (
     ),
     'name' => NULL,
   ),
-  21 => 
+  25 => 
   array (
     'method' => 'GET',
     'uri' => '/admin/adminUserChangePw',
@@ -265,7 +313,7 @@ return array (
     ),
     'name' => NULL,
   ),
-  22 => 
+  26 => 
   array (
     'method' => 'POST',
     'uri' => '/admin/adminUserChangePw',
@@ -277,7 +325,7 @@ return array (
     ),
     'name' => NULL,
   ),
-  23 => 
+  27 => 
   array (
     'method' => 'GET',
     'uri' => '/admin/contactMessages',
@@ -289,7 +337,7 @@ return array (
     ),
     'name' => NULL,
   ),
-  24 => 
+  28 => 
   array (
     'method' => 'GET',
     'uri' => '/admin/deleteContactMessage',
@@ -301,7 +349,7 @@ return array (
     ),
     'name' => NULL,
   ),
-  25 => 
+  29 => 
   array (
     'method' => 'GET',
     'uri' => '/admin/baseSettings',
@@ -313,7 +361,7 @@ return array (
     ),
     'name' => NULL,
   ),
-  26 => 
+  30 => 
   array (
     'method' => 'POST',
     'uri' => '/admin/baseSettings',
@@ -325,7 +373,7 @@ return array (
     ),
     'name' => NULL,
   ),
-  27 => 
+  31 => 
   array (
     'method' => 'GET',
     'uri' => '/admin/log',
@@ -337,7 +385,7 @@ return array (
     ),
     'name' => NULL,
   ),
-  28 => 
+  32 => 
   array (
     'method' => 'GET',
     'uri' => '/admin/log_errors_only',
@@ -349,7 +397,7 @@ return array (
     ),
     'name' => NULL,
   ),
-  29 => 
+  33 => 
   array (
     'method' => 'GET',
     'uri' => '/admin/logAdminLogins',
@@ -361,7 +409,7 @@ return array (
     ),
     'name' => NULL,
   ),
-  30 => 
+  34 => 
   array (
     'method' => 'GET',
     'uri' => '/exception/error',
@@ -373,7 +421,55 @@ return array (
     ),
     'name' => 'exception.error',
   ),
-  31 => 
+  35 => 
+  array (
+    'method' => 'GET',
+    'uri' => '/ping',
+    'action' => 'TestController@ping',
+    'apiVersion' => '',
+    'module' => '',
+    'middleware' => 
+    array (
+    ),
+    'name' => NULL,
+  ),
+  36 => 
+  array (
+    'method' => 'POST',
+    'uri' => '/echo',
+    'action' => 'TestController@echo',
+    'apiVersion' => '',
+    'module' => '',
+    'middleware' => 
+    array (
+    ),
+    'name' => NULL,
+  ),
+  37 => 
+  array (
+    'method' => 'POST',
+    'uri' => '/echoJson',
+    'action' => 'TestController@echoJson',
+    'apiVersion' => '',
+    'module' => '',
+    'middleware' => 
+    array (
+    ),
+    'name' => NULL,
+  ),
+  38 => 
+  array (
+    'method' => 'GET',
+    'uri' => '/me',
+    'action' => 'TestController@meTest',
+    'apiVersion' => '',
+    'module' => '',
+    'middleware' => 
+    array (
+    ),
+    'name' => NULL,
+  ),
+  39 => 
   array (
     'method' => 'POST',
     'uri' => '/api/v1/auth/register',
@@ -385,7 +481,7 @@ return array (
     ),
     'name' => NULL,
   ),
-  32 => 
+  40 => 
   array (
     'method' => 'POST',
     'uri' => '/api/v1/auth/login',
@@ -397,7 +493,7 @@ return array (
     ),
     'name' => NULL,
   ),
-  33 => 
+  41 => 
   array (
     'method' => 'POST',
     'uri' => '/api/v1/auth/refresh',
@@ -409,7 +505,7 @@ return array (
     ),
     'name' => NULL,
   ),
-  34 => 
+  42 => 
   array (
     'method' => 'GET',
     'uri' => '/api/v1/docs',
@@ -421,7 +517,7 @@ return array (
     ),
     'name' => NULL,
   ),
-  35 => 
+  43 => 
   array (
     'method' => 'GET',
     'uri' => '/api/v1/docs/spec',

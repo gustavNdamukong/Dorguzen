@@ -1342,7 +1342,7 @@ class DGZ_Router {
 
                     if (file_exists($modulePath))
                     {
-                        $controller = 'Dorguzen\\Modules\\'. ucfirst($get_input).'\\Controllers\\'.ucfirst($get_input).'Controller';
+                        $controller = 'Dorguzen\\Modules\\'. ucfirst($moduleOrControllerBaseName).'\\Controllers\\'.ucfirst($get_input).'Controller';
                     }
                 }
             }

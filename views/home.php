@@ -36,6 +36,13 @@ class home extends \Dorguzen\Core\DGZ_HtmlView
     <!-- Hero End -->
 
 
+    <!-- START SIDE SLIDE-IN MENU -->
+    <?php
+    $slideInMenu = \Dorguzen\Core\DGZ_View::getInsideView('sideSlideInMenuPartial', $this->controller);
+    $slideInMenu->show();
+    ?>
+    <!-- END OF SIDE SLIDE-IN MENU -->
+
     <!-- Features Start -->
     <div class="container-xxl py-5">
         <div class="container px-lg-5">

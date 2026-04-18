@@ -9,14 +9,12 @@ class login extends \Dorguzen\Core\DGZ_HtmlView
      function show($email = '')
      {
          if ((isset($_SESSION['authenticated'])) && ($_SESSION['authenticated'] == 'Let Go-' . $this->controller->config->getConfig()['appName'])) {
-             //user is already logged in
-             $this->controller->redirect('admin/dashboard');
+             //user is already logged in — send to the right dashboard
+             $dest = Auth()->isAdmin() ? 'admin/dashboard' : 'user/dashboard';
+             $this->controller->redirect($dest);
          }
          else {
              ?>
-             <script src="http://code.jquery.com/jquery-latest.min.js"></script>
-             <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
-
              <?php
              $jsValidation = DGZ_View::getInsideView('jsValidationPartial', $this->controller);
              $jsValidation->show();

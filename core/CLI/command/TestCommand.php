@@ -17,17 +17,6 @@ class TestCommand extends AbstractCommand
         parent::__construct($container);
     }
 
-    /*protected function configure(): void
-    {
-        $this
-            ->setName('test')
-            ->setDescription('Run the application test suite')
-            ->addArgument(
-                'args',
-                InputArgument::IS_ARRAY,
-                'Arguments to pass to PHPUnit'
-            );
-    }*/
 
     protected function configure(): void
     {

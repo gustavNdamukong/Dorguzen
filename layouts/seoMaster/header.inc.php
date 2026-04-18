@@ -40,7 +40,7 @@
                         else
                         { ?>
                             <a href="<?=$this->config->getFileRootPath()?>auth/logout" class="nav-item nav-link">Logout</a>
-                            <a href="<?=$this->config->getFileRootPath()?>admin/dashboard" class="nav-item nav-link">Dashboard</a>
+                            <a href="<?=$this->config->getFileRootPath()?><?= Auth()->isAdmin() ? 'admin/dashboard' : 'user/dashboard' ?>" class="nav-item nav-link">Dashboard</a>
                             <?php
                         } ?>
                     </div>

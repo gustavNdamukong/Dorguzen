@@ -327,19 +327,31 @@ if (!function_exists('env')) {
     {
         // Never rely on getenv() as primary. But use it first, if set.
         $value = getenv($key);
-        if ($value !== false) {
-            return $value;
+        if ($value === false) {
+            $value = $_ENV[$key] ?? $_SERVER[$key] ?? null;
         }
 
-        if (isset($_ENV[$key])) {
-            return $_ENV[$key];
+        if ($value === null) {
+            return $default;
         }
 
-        if (isset($_SERVER[$key])) {
-            return $_SERVER[$key];
+        // Cast well-known boolean/null string literals (mirrors Laravel behaviour)
+        switch (strtolower((string) $value)) {
+            case 'true':
+            case '(true)':
+                return true;
+            case 'false':
+            case '(false)':
+                return false;
+            case 'null':
+            case '(null)':
+                return null;
+            case 'empty':
+            case '(empty)':
+                return '';
         }
 
-        return $default;
+        return $value;
     }
 }
 // ----------------------------------------------------------------------

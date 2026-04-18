@@ -10,7 +10,7 @@ use Dorguzen\Core\Database\Drivers\DGZ_MySQLiDriver;
 
 // This is the framework bootstrapping file for the testing environment ONLY.
 // This is to avoid memory exhaustion, a classic issue arising when web bootstraps
-// are reused in PHPUnit. We solve this by creating a (this) bootstrapping
+// are reused in PHPUnit. We solve this by creating (this) a bootstrapping
 // for testing that is separate from that of the web.
 
 // Load Composer autoloader

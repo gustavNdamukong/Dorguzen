@@ -2925,7 +2925,7 @@ CASSSS
 ——————————————————————
 
           -Introduction
-          -Dorguzen directory structure
+          -Dorguzen directory structure/skeleton
           -Dorguzen Configuration System
             -Files involved
             -Directories involved
@@ -2968,7 +2968,7 @@ It also involves information on the best practice for organising your project di
         
 
 
-        Dorguzen directory structure
+        Dorguzen Directory Structure/Skeleton
         ------------------------------
 
   Here is the Dorguzen directory structure:
@@ -3046,6 +3046,7 @@ It also involves information on the best practice for organising your project di
       -admin
   -composer.json
   -composer.lock
+  -dgz
   -index.php
   -.env
   -.env.example
@@ -9537,6 +9538,85 @@ If you remember only three things, let it be these:
 
 
 
+  The SuperAdminSeeder — Your First Login
+  ----------------------------------------
+
+  Dorguzen ships with a SuperAdminSeeder that creates the initial super admin account your
+  application needs from day one. This seeder is registered in DatabaseSeeder and is safe
+  to run at any time — it uses INSERT IGNORE, so running it more than once will never
+  create a duplicate record.
+
+  Default super admin credentials
+  --------------------------------
+
+      First name : Dorguzen
+      Last name  : Admin
+      Email      : admin@dorguzen.com
+      Password   : Admin123
+
+  Use these credentials to log in for the first time. Once you are logged in, go to the
+  admin dashboard and update the super admin's details (name, email, and password) to
+  values specific to your application before going live.
+
+  Changing the password can be done from Admin > Manage Users > Edit User (or use the
+  "Admin Change Password" option in the admin dashboard).
+
+  Running migrations and the seeder
+  ----------------------------------
+
+  After setting up your database and running your migrations, run the super admin seeder
+  immediately so the account is available before you open the app in a browser:
+
+      # 1. Run all migrations first
+      php dgz migrate
+
+      # 2. Seed the database (creates the super admin account)
+      php dgz db:seed
+
+  Or, if you want to reset everything from scratch:
+
+      php dgz migrate:fresh --seed
+
+  The seeder is idempotent — it is safe to run it multiple times.
+
+
+  User Roles in Dorguzen
+  -----------------------
+
+  Dorguzen handles roles through the users_type field in the users table. There are four
+  built-in roles:
+
+      super_admin   The highest-privilege user. Has access to everything, including
+                    actions that are restricted from admin and admin_gen users. There
+                    should normally be only one super admin per application.
+
+      admin_gen     A general administrator. Has broad admin access but cannot perform
+                    super-admin-only actions.
+
+      admin         A standard administrator. Has admin panel access within the scope
+                    assigned to them (e.g. managing a specific location or section).
+
+      member        A regular registered user. Has access only to the member-facing
+                    dashboard and their own account features.
+
+  In views and controllers you can check the current user's role using the Auth() helper:
+
+      Auth()->role()            // returns the users_type string, e.g. 'super_admin'
+      Auth()->isAdmin()         // true if admin, admin_gen, or super_admin
+      Auth()->check()           // true if the user is authenticated (any role)
+      Auth()->guest()           // true if the user is NOT authenticated
+
+  Example — restrict a block of UI to super admins only:
+
+      <?php if (Auth()->role() === 'super_admin'): ?>
+          <a href="...">Delete User</a>
+      <?php endif; ?>
+
+  Roles are not enforced by a separate permissions table — they are a simple string value
+  that your controllers and views inspect. This keeps the system lightweight and easy to
+  extend if you need to add custom roles in the future.
+
+
   Dorguzen's support for multiple DB drivers
           ------------------------------- 
   SQLite Support & Swappable Database Drivers. Dorguzen provides a fully swappable database layer. Developers can 
@@ -13426,183 +13506,252 @@ that to a minimum, and write Unit tests, to make the tests more formal.
   any kind of functionality.
 
 
+
+
+
         Modules
         --------
-  A module in Dorguzen is a separate application from the main application that plugs into the 
-application and provides extra functionality like a library or package. It is a stand-alone application 
-within your main application. It is the Dorguzen version of packages that third party developers can 
-create for use in your application. Your application will naturally route requests to existing modules 
-once they are properly setup. See the Routing System section for more details on how modules integrate 
-with routes. 
+
+  What is a Module?
+  -----------------
+  A module in Dorguzen is a self-contained mini-application that lives inside your main application.
+Think of it as a fully separated feature area — with its own controllers, models, views, and
+services — that plugs cleanly into Dorguzen and works alongside the rest of your app without
+tangling up your main codebase.
+
+  Modules are the Dorguzen equivalent of packages or plugins. They are ideal for discrete feature
+sets that could, in principle, be extracted and reused across projects: an SEO manager, a payment
+gateway, an SMS notification system, a blog engine, a reports dashboard, and so on.
+
+  The key properties of a module:
+
+    - Fully separated  — its files live under modules/{name}/ and are namespaced independently.
+    - Mirrors main-app structure — controllers, models, views, services mirror the layout of the
+      main application, so there is no new mental model to learn.
+    - First-class citizen — module views, models, and controllers have the same capabilities as
+      anything in the main application. A module controller extends the same DGZ_Controller base
+      class, a module model extends DGZ_Model, and so on.
+    - Hooks into app resources easily — a module can read from the shared Config, use any service
+      registered in the DI container, call any main-app model, send emails via DGZ_Messenger, use
+      helpers, etc. It is separated by convention, not by hard isolation.
+    - Toggle on or off — each module can be enabled or disabled with a single flag in .env, with
+      no code changes needed anywhere else.
 
 
-
-
-        How to create a Module
-        -----------------------
-  Here are some keypoints we will look at:
-
-    -Create module sub directory 
-    -Create files, especially controllers (and a main/landing controller for auto-discovery routes)
-    -Add config file to main application (if any), this can be a custom module config
-    -Add middleware file to main application (if any)
-    -Auto-discovery routing to modules
-    -Defined routing to modules
-
-  To create a module, create a subdirectory in /modules and give it the name of the module e.g.
-
-        modules/
-        └── blog/
-
-Being the stand-alone application that it is, you would have within that module directory some of 
-the key folders that a typical Dorguzen application would have. The most important one is controllers.
-A very important detail not to miss, is the fact that all module controllers must extend the same parent 
-controller as all controllers in your Dorguzen application:
-
-        Dorguzen\Core\DGZ_Controller
-
-Each module can contain its own MVC structure and supporting files.
-You can organize your module folders however you prefer.
-Here is the typical folder structure of a module:
+  Folder Structure
+  ----------------
+  To create a module, add a subdirectory under /modules/ and give it the name of the module
+(all lowercase, no spaces). Mirror the main-app folder structure inside it:
 
         myApplication/
-        |__modules/
+        └── modules/
             └── blog/
                 ├── controllers/
                 ├── models/
-                |-- services/
-                ├── views/
+                ├── services/
+                └── views/
 
-The list of sub folders can go on and can contain whatever utility classes you may ever need, and use 
-them in each other as you see fit. The view files can be complete HTML template files just like those 
-in the view files of the main Dorguzen application /views. What is nice is that Dorguzen also provides 
-a class and method for you to use in rendering module template files. 
+  You can add as many sub-folders as you need (events/, listeners/, helpers/, etc.). The structure
+is a convention, not a hard requirement — Dorguzen only cares about the controllers/ directory
+when routing. Everything else is up to you.
 
-  DGZ_View::getModuleView($moduleName, $templateName...);
+  All module controllers must extend the same base controller as the main application:
 
-This means that your module assets and view files will integrate with, and work like first class 
-citizens in your Dorguzen application. 
+        Dorguzen\Core\DGZ_Controller
 
-  For your module to gel and blend seamlessly with the main application, if your module has its own 
-configuration settings, or middleware which you will like Dorguzen to use, you should add it to the 
-main Dorguzen application and not inside the module's file structure. We will look at how to do that 
-next.
+  Module view files are complete HTML templates, identical to those in the main /views directory.
+To render a module view, use the dedicated factory method:
+
+        DGZ_View::getModuleView($moduleName, $templateName, $controller, 'html');
+
+  This means module views integrate with the layout system, flash messages, CSRF helpers, and
+everything else the main application provides.
 
 
-  Adding module configuration to Dorguzen
-  ---------------------------------------
-  You can either enter your module settings in the main config file of the Dorguzen application or
-you can create a separate config file just for that module. Here is how to do the former-add the 
-config settings of a module into the Dorguzen config file /configs/Config.php:
+  Toggling a Module On or Off
+  ---------------------------
+  Every module is registered in configs/Config.php under the 'modules' key:
 
-        $config = [
-          'posts_per_page' => 10,
-          'allow_comments' => true,
-        ]; 
+        'modules' => [
+            'seo'      => 'on',
+            'payments' => 'off',
+            'sms'      => 'on',
+        ],
 
-This will work just fine and Dorguzen will pick it up just like it picks up all other config settings 
-of your application. 
-To create a separate dedicated config file just for your module, you need to create a config file in 
-the /configs/ directory e.g:
+  The value is driven by a corresponding .env flag. For example, for an SMS module:
 
-        ├── configs/
-            └── blogConfig.php
+        # .env
+        MODULES_SMS_STATUS=on
 
-It is recommended to give the config file a name based on your module, so that the code is readable, 
-but you do not have to. BlogConfig.php as the configuration file for a Blog module sounds very logical 
-won't you agree? Make that custom config class contain a getConfig() method that returns an array e.g.
+  And in configs/Config.php:
 
-        // configs/BlogConfig.php
-        function getConfig() {
+        'modules' => [
+            'sms' => env('MODULES_SMS_STATUS', 'off'),
+        ],
+
+  When a module is set to 'off', the router will not resolve any URLs to it and it is completely
+inactive. Set it to 'on' and it is available immediately — no code changes, no cache warm-up
+beyond clearing the route cache.
+
+  This means you can ship a module in your codebase but keep it dormant until it is needed,
+or disable it per-environment (e.g. off in staging, on in production).
+
+
+  Adding Module Configuration
+  ---------------------------
+  If your module needs its own configuration values, you have two options.
+
+  Option A — add keys directly into configs/Config.php. Prefix the keys with the module name
+to keep things readable:
+
+        // configs/Config.php
+        'blog_posts_per_page' => 10,
+        'blog_allow_comments' => true,
+
+  Option B (recommended for larger modules) — create a dedicated config file under the
+configs/modules/ directory. Dorguzen automatically discovers and merges everything in that
+directory into the unified config:
+
+        configs/
+        └── modules/
+            └── blog.php    ← your module config
+
+  The file should expose a getConfig() method that returns an array:
+
+        // configs/modules/blog.php
+        function getConfig(): array {
             return [
                 'posts_per_page' => 10,
                 'allow_comments' => true,
             ];
         }
 
-Dorguzen will read through all the files in configs/, aggregating all their values into a unified 
-config data that is globally available in your application.
-
-As a bonus tip; if you add your module data into the config file of the main application 
-configs/Config.php, it will make sense to prefix the keys with the name of your module, just so 
-that if there are multiple modules in use in your application, you will be able to easily spot the 
-for maintenance. You should group them all together too. 
+  Dorguzen reads and merges this automatically. The values are then globally available anywhere
+you call $this->config->getConfig() or the config() helper, just like any other config value.
 
 
+  Adding Module Middleware
+  ------------------------
+  If your module needs middleware, place it in the main application's middleware directory — not
+inside the module folder. The file name must end with Middleware.php:
+
+        middleware/
+        └── globalMiddleware/
+            └── BlogMiddleware.php
+
+  DGZ automatically identifies middleware files by this naming convention. Once the file is there,
+you can attach it to any route or route group exactly as you would any other middleware.
 
 
-  Adding module middleware to Dorguzen
-  --------------------------------------
-  If your module includes middleware; place it inside the /middleware/ directory of the main directory,
-not inside the module directory. The filename must end with Middleware.php. For example: BlogMiddleware.php
-This naming convention helps DGZ automatically identify middleware classes belonging to specific modules.
-
-        ├─-middleware/globalMiddleware/
-            └── blogMiddleware.php
-
-
-
-
-  Routing requests to modules
+  Routing Requests to Modules
   ---------------------------
-  There are two ways to route requests to a module, and these are using automatic discovery routing 
-or defined routing. Each approach of routing will require you to make a small structural change to  
-your files and configuration for it to work. Let's look at the two ways and the changes you need to 
-make to adapt them.
+  There are two ways to route requests to a module: auto-discovery and defined routes. Both work
+equally well. Choose whichever suits the complexity of your module.
 
 
-Modules for auto-discovery routes 
-------------------------
-  As explained before under Routing, the auto-discovery routing system worked entirely based on matching 
-request URI segments with controllers. Therefore a module needs to have a designated controller to be 
-used by Dorguzen as the gateway-if your like, into that module. Therefore all modules need to have a main 
-or default controller that is prefixed with the name of the module. For example a blog module must have a 
-controller named 
+  1. Auto-Discovery Routing
+  -------------------------
+  With auto-discovery, Dorguzen resolves URLs to module controllers purely by inspecting the URL
+segments — no routes need to be registered. The URL format for modules is:
 
-    BlogController
+        /{moduleName}/{method}
+        /{moduleName}/{subController}/{method}
 
-This way of using one controller as the entry point into a module seems limiting, but Dorguzen deals with 
-this by allowing the default/entry/landing/main controller to define an array of all the controllers in 
-the module like so:
+  Example:
 
-        protected $controllers = [
-            'LoginController',
-            'AdController'
-        ];
+        /blog            → BlogController::defaultAction()
+        /blog/latestPosts → BlogController::latestPosts()
+        /blog/admin/dashboard → AdminController::dashboard()   (sub-controller — see below)
 
-Dorguzen reads into this array and depending on the request URI segment, it checks if any matches a controller 
-of that module and calls the requested model on that controller. 
+  For auto-discovery to work, the module must be registered as 'on' in configs/Config.php (see
+Toggling above), and must have a default entry controller named after the module:
 
-The default module controller must implement the 
+        modules/blog/controllers/BlogController.php
 
-    Dorguzen\Core\DGZ_ModuleControllerInterface
+  This entry controller is the router's gateway into the module. If your module only has one
+controller, that is all you need.
 
-and must use the 
 
-    Dorguzen\Core\DGZ_ModuleControllerTrait 
+  Registering Sub-Controllers (auto-discovery)
+  ---------------------------------------------
+  When a module has more than one controller, the router needs to know which URL segments refer
+to sub-controllers rather than methods. You teach it this by implementing
+DGZ_ModuleControllerInterface on the entry controller and declaring the $controllers array:
 
-For example:
+        use Dorguzen\Core\DGZ_ModuleControllerInterface;
+        use Dorguzen\Core\DGZ_ModuleControllerTrait;
 
-        class ApiController extends Dorguzen\Core\DGZ_Controller implements DGZ_ModuleControllerInterface
+        class BlogController extends DGZ_Controller implements DGZ_ModuleControllerInterface
         {
-          use DGZ_ModuleControllerTrait 
+            use DGZ_ModuleControllerTrait;
 
-          protected $controllers = [
-              'BlogController',
-              'AdController'
-          ];
-
-          ...
+            protected array $controllers = [
+                'AdminController',
+                'ApiController',
+            ];
         }
 
+  With this in place, the URL /blog/admin/dashboard resolves to AdminController::dashboard()
+inside the blog module. Without it, the router would treat 'admin' as a method name on
+BlogController and fail.
+
+  URL resolution rules with sub-controllers:
+
+        /blog/admin/dashboard
+          └─ module:      blog
+          └─ controller:  AdminController   (found in $controllers)
+          └─ method:      dashboard()
+
+        /blog/latestPosts
+          └─ module:      blog
+          └─ controller:  BlogController    ('latestPosts' not in $controllers → it's a method)
+          └─ method:      latestPosts()
+
+  Important: a module with only one controller does NOT need DGZ_ModuleControllerInterface at
+all. Only add it when you introduce a second controller into the module.
 
 
-Modules for defined routes 
-------------------------
-  Defined routing is the new routing system, which is more flexible and easy. For this your modules 
-do not need a default controller because your defined routes can target any controller in the system,
-regardless of whether they are a controller in the main application or in a module.  
-  
+  2. Defined Routes
+  -----------------
+  Defined routes give you full, explicit control. They work for any controller in any module,
+including sub-controllers, with no need for DGZ_ModuleControllerInterface.
+
+  Pass the controller name as the action and the module name as the third argument:
+
+        // routes/web.php
+        $router->get('/blog/latest',         'BlogController@latestPosts',  'blog');
+        $router->get('/blog/admin/dashboard', 'AdminController@dashboard',  'blog');
+        $router->post('/blog/admin/savePost', 'AdminController@savePost',   'blog');
+
+  DGZ resolves the controller class as:
+
+        Dorguzen\Modules\Blog\Controllers\BlogController
+        Dorguzen\Modules\Blog\Controllers\AdminController
+
+  The module name (third argument) provides the namespace root; the controller name in the
+action string identifies the class within it.
+
+  With defined routes you do not register the module in configs/Config.php — the route
+definition itself is the authoritative source of where to find the controller. The 'on'/'off'
+toggle still works as a coarse on/off switch for auto-discovery, but defined routes bypass it.
+
+
+  Which approach should I use?
+  ----------------------------
+  Use auto-discovery when:
+    - You are prototyping or building quickly.
+    - Your module URLs follow a simple, predictable pattern.
+    - You want zero route-file maintenance as the module grows.
+
+  Use defined routes when:
+    - You need precise control over URL shapes.
+    - The module exposes a REST-style API.
+    - You need middleware on specific module routes.
+    - You want the routing to be self-documenting in routes/web.php.
+
+  Both approaches can coexist: some module routes defined explicitly, others auto-discovered.
+
+
         
    
 
@@ -17357,7 +17506,7 @@ This helps you understand how to set up your computer to code in your chosen pro
 
 
 
-///// -------------------------- DELETE THESE -----------------
+///// ------------------ START TESTING -------- DELETE THESE -----------------
                                                
   routes/api.php                                                                                        
   - POST /api/v1/auth/register → AuthApi@register                                                                                                                                                        
@@ -17371,3 +17520,11 @@ This helps you understand how to set up your computer to code in your chosen pro
                                                                                                                                                                                                          
   - POST http://localhost/dorguzen/api/v1/auth/register with {"firstname":"John","surname":"Doe","email":"john@example.com","password":"Secret123!","confirm_password":"Secret123!","phone":"650000000"} 
   - POST http://localhost/dorguzen/api/v1/auth/login with {"email":"john@example.com","password":"Secret123!"}   
+
+-------------------------------------------
+
+  ---
+ 
+
+
+  //////////// ---------------- END TESTING --------------------------- ///////////

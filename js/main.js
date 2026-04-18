@@ -68,6 +68,24 @@
     });
 
 
+    // Brand / partner logos slider
+    $("#brands-carousel").owlCarousel({
+        autoplay: true,
+        autoplayTimeout: 3000,
+        smartSpeed: 1000,
+        margin: 30,
+        dots: false,
+        loop: true,
+        nav: false,
+        responsive: {
+            0:   { items: 2 },
+            576: { items: 3 },
+            768: { items: 4 },
+            992: { items: 5 }
+        }
+    });
+
+
     // Testimonials carousel
     $(".testimonial-carousel").owlCarousel({
         autoplay: true,

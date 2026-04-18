@@ -18,11 +18,19 @@ $router->get('/auth/login',    'AuthController@login')->name('login');
 $router->post('/auth/doLogin', 'AuthController@doLogin');
 $router->get('/auth/logout',   'AuthController@logout')->name('logout');
 $router->get('/auth/signup',   'AuthController@signup')->name('signup');
-$router->post('/auth/register','AuthController@register');
+$router->post('/auth/register',  'AuthController@register');
+$router->post('/auth/checkEmail','AuthController@checkEmail');
 $router->get('/auth/verifyEmail',               'AuthController@verifyEmail');
 $router->get('/auth/emailActivationInstructions','AuthController@emailActivationInstructions');
 $router->get('/auth/reset',    'AuthController@reset');
 $router->post('/auth/resetPw', 'AuthController@resetPw');
+
+// -----------------------------------------------------------------------
+// USER ROUTES (authenticated members)
+// -----------------------------------------------------------------------
+$router->get('/user/dashboard', 'UserController@dashboard');
+$router->get('/user/changePw',  'UserController@changePw');
+$router->post('/user/changePw', 'UserController@changePw');
 
 // -----------------------------------------------------------------------
 // ADMIN ROUTES (protected)

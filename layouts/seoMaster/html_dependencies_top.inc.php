@@ -12,3 +12,6 @@
 
     <!-- Template Stylesheet -->
     <link href="<?=$this->config->getFileRootPath()?>assets/css/style.css" rel="stylesheet" type="text/css">
+
+    <!-- jQuery — loaded in <head> so inline view scripts can use $ -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>

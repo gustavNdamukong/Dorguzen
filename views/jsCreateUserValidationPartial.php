@@ -22,35 +22,35 @@ class jsCreateUserValidationPartial extends \Dorguzen\Core\DGZ_HtmlView
     public function show()
     { ?>
         <script type="text/javascript">
-            $(document).ready(function () { 
-                //make an ajax call-this calls the function 'checkEmail()' below 
-                $(document).on('blur', '#regis_form #email', function(e)
-                {  
-                    e.preventDefault(); 
-                    checkEmail(this);
+            $(document).ready(function () {
+                var dgzCsrfToken = "<?= getCsrfToken() ?>";
+
+                // Only fire after the user has explicitly focused the field themselves.
+                // Guards against browsers that auto-focus email fields for autofill,
+                // which would otherwise trigger the check on every subsequent click.
+                var emailFocusedByUser = false;
+
+                $('#regis_form #email').on('focus', function() {
+                    emailFocusedByUser = true;
+                }).on('blur', function() {
+                    if (emailFocusedByUser) {
+                        checkEmail(this);
+                    }
+                    emailFocusedByUser = false;
                 });
 
-                /**
-                 * Code to get you started making ajax calls form your application.
-                 * Create a controller called AuthController with a method checkEmail()
-                 * You pass it a email from a form, and it calls the checkEmail() method
-                 * The checkEmail() method checks in the DB if that email is already in use.
-                 * It returns some text like 'email available' or 'email already taken' which you can display in a span
-                 *    element next to the email input field
-
-                 * @param email
-                 */
                 function checkEmail(email) {
                     if (email.value == '') {
                         document.getElementById('info').innerHTML = '';
-                        return
+                        return;
                     }
 
-                    params = "email=" + email.value
-                    request = new ajaxRequest()
-                    request.open("POST", "auth/checkEmail", true)
+                    var params = "email=" + encodeURIComponent(email.value) +
+                                 "&_csrf_token=" + encodeURIComponent(dgzCsrfToken);
+                    var request = new ajaxRequest();
+                    request.open("POST", "<?=$this->rootPath()?>auth/checkEmail", true);
                     request.setRequestHeader("Content-type",
-                        "application/x-www-form-urlencoded")
+                        "application/x-www-form-urlencoded");
 
                     request.onreadystatechange = function () {
                         if (this.readyState == 4) {
@@ -70,22 +70,10 @@ class jsCreateUserValidationPartial extends \Dorguzen\Core\DGZ_HtmlView
 
                 function ajaxRequest() {
                     try {
-                        var request = new XMLHttpRequest()
+                        return new XMLHttpRequest();
+                    } catch (e) {
+                        return false;
                     }
-                    catch (e1) {
-                        try {
-                            request = new ActiveXObject("Msxml2.XMLHTTP")
-                        }
-                        catch (e2) {
-                            try {
-                                request = new ActiveXObject("Microsoft.XMLHTTP")
-                            }
-                            catch (e3) {
-                                request = false
-                            }
-                        }
-                    }
-                    return request
                 }
             });
 

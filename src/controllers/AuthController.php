@@ -48,11 +48,30 @@ class AuthController extends DGZ_Controller
 
     public function signup()
     {
+        $old = $_SESSION['_old_signup'] ?? [];
+        unset($_SESSION['_old_signup']);
+
         $view = DGZ_View::getView('register', $this, 'html');
         $this->setPageTitle('Register');
         $this->setLayoutDirectory('seoMaster');
         $this->setLayoutView('seoMasterLayout');
-        $view->show();
+        $view->show(
+            $old['firstname'] ?? '',
+            $old['surname']   ?? '',
+            $old['phone']     ?? '',
+            $old['email']     ?? ''
+        );
+    }
+
+    private function flashOldSignupInput(): void
+    {
+        $val = new DGZ_Validate();
+        $_SESSION['_old_signup'] = [
+            'firstname' => $val->fix_string($_POST['firstname'] ?? ''),
+            'surname'   => $val->fix_string($_POST['surname']   ?? ''),
+            'email'     => $val->fix_string($_POST['email']     ?? ''),
+            'phone'     => $val->fix_string($_POST['phone']     ?? ''),
+        ];
     }
 
     public function register()
@@ -72,6 +91,7 @@ class AuthController extends DGZ_Controller
         }
 
         if (!array_key_exists('agreeToTerms', $_POST)) {
+            $this->flashOldSignupInput();
             $this->addErrors('Please accept our Terms and Conditions', 'Alert!');
             $this->redirect('auth', 'signup');
             return;
@@ -94,6 +114,7 @@ class AuthController extends DGZ_Controller
         $fail = $this->authService->validateRegistrationInput($firstname, $surname, $password, $retyped, $email);
 
         if ($fail !== '') {
+            $_SESSION['_old_signup'] = compact('firstname', 'surname', 'email', 'phone');
             $this->addErrors($fail);
             $this->redirect('auth', 'signup');
             return;
@@ -112,6 +133,7 @@ class AuthController extends DGZ_Controller
         ]);
 
         if ($saved === 1062) {
+            $_SESSION['_old_signup'] = compact('firstname', 'surname', 'email', 'phone');
             $this->addErrors('That email address is already registered');
             $this->redirect('auth', 'signup');
             return;
@@ -126,7 +148,7 @@ class AuthController extends DGZ_Controller
                         <p><a href='{$appURL}/auth/verifyEmail?em={$activationCode}'>Activate account</a></p>";
 
             $messenger = new DGZ_Messenger();
-            $messenger->sendEmailActivationEmail('', $email, $subject, $message);
+            $messenger->sendEmailActivationEmail($firstname, $email, $subject, $message);
             $_SESSION['activationCode'] = $activationCode;
             $this->redirect('auth', 'emailActivationInstructions');
         } else {
@@ -134,6 +156,23 @@ class AuthController extends DGZ_Controller
             $this->redirect('auth', 'signup');
         }
     }
+
+    public function checkEmail()
+    {
+        $val   = new DGZ_Validate();
+        $email = isset($_POST['email']) ? $val->fix_string($_POST['email']) : '';
+
+        if ($val->validate_email($email) !== '') {
+            die("<b style='color:red'>&nbsp;&larr; Please enter a valid email address.</b>");
+        }
+
+        if ($this->authService->emailExists($email)) {
+            die("<b style='color:red'>&nbsp;&larr; That email address is already registered.</b>");
+        }
+
+        die("<b style='color:green'>&nbsp;&larr; Email is available.</b>");
+    }
+
 
     public function emailActivationInstructions()
     {
@@ -171,6 +210,8 @@ class AuthController extends DGZ_Controller
             $this->redirect('home');
         }
     }
+
+    
 
     public function doLogin()
     {
@@ -236,7 +277,9 @@ class AuthController extends DGZ_Controller
             ]);
         }
 
-        $controller = 'admin';
+        $isAdmin = in_array($authenticated['users_type'], ['admin', 'admin_gen', 'super_admin']);
+
+        $controller = $isAdmin ? 'admin' : 'user';
         $method     = 'dashboard';
         if (isset($_SESSION['referBack']['c'])) {
             $controller = $_SESSION['referBack']['c'];
@@ -304,9 +347,9 @@ class AuthController extends DGZ_Controller
             return;
         }
 
-        $view = DGZ_View::getAdminView('resetPw', $this, 'html');
-        $this->setLayoutDirectory('admin');
-        $this->setLayoutView('adminLayout');
+        $view = DGZ_View::getView('resetPw', $this, 'html');
+        $this->setLayoutDirectory('seoMaster');
+        $this->setLayoutView('seoMasterLayout');
         $view->show([
             'userId'    => $record['password_reset_users_id'],
             'userEmail' => $record['password_reset_email'],
@@ -336,10 +379,10 @@ class AuthController extends DGZ_Controller
             }
         } else {
             $this->addErrors($fail);
-            $view = DGZ_View::getAdminView('resetPw', $this, 'html');
-            $this->setLayoutDirectory('admin');
-            $this->setLayoutView('adminLayout');
-            $view->show($reset_user_id, $reset_email);
+            $view = DGZ_View::getView('resetPw', $this, 'html');
+            $this->setLayoutDirectory('seoMaster');
+            $this->setLayoutView('seoMasterLayout');
+            $view->show(['userId' => $reset_user_id, 'userEmail' => $reset_email]);
         }
     }
 

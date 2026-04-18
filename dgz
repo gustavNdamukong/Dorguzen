@@ -1,0 +1,28 @@
+#!/usr/bin/env php
+<?php
+
+use Dorguzen\Core\Kernel\CliKernel;
+use Dorguzen\Core\CLI\Application;
+
+
+// Ensure errors are visible in CLI
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+
+// Resolve project base path
+$basePath = realpath(__DIR__ . '/');
+
+require $basePath . '/vendor/autoload.php';
+
+// Boot the CLI kernel
+$kernel = new CliKernel();
+$kernel->bootstrap();
+
+// Hand off console to the CLI application
+$app = new Application($kernel->getContainer());
+
+try {
+    exit($app->run());
+} catch (\Throwable $e) {
+    dd('ERROR: ', $e->getMessage(), 'from'.__DIR__); 
+}

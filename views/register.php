@@ -15,11 +15,7 @@ class register extends \Dorguzen\Core\DGZ_HtmlView
          }
          else 
          { ?>
-             <script src="http://code.jquery.com/jquery-latest.min.js"></script>
-             <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
-
              <?php
-             //Pull in the PHP file that has the JS validation codes
              $jsValidation = \Dorguzen\Core\DGZ_View::getInsideView('jsCreateUserValidationPartial', $this->controller);
              $jsValidation->show();
              ?>

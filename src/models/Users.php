@@ -64,14 +64,23 @@ use Dorguzen\Core\DGZ_Model;
         }
 
 
+        public function authenticateUser(array $data): array|false
+        {
+            $result = parent::authenticateUser($data);
+            if (!$result || ($result['users_emailverified'] ?? '') !== 'yes') {
+                return false;
+            }
+            return $result;
+        }
+
+
         public function recoverLostPw($email)
         {
             $salt = $this->getSalt();
 
             $sql = "SELECT users_id, users_email, AES_DECRYPT(users_pass, '$salt') AS users_pass, users_first_name AS users_firstname
                     FROM users
-                    WHERE users_email = ?
-                    AND users_emailverified = 'yes'";
+                    WHERE users_email = ?";
 
             $rows = $this->connect()->query($sql, [$email]);
 
@@ -302,7 +311,8 @@ use Dorguzen\Core\DGZ_Model;
          */
         public function resetUserPassword($reset_user_id, $reset_email, $new_pwd)
         {
-            $this->users_pass = $new_pwd;
+            $this->users_pass          = $new_pwd;
+            $this->users_emailverified = 'yes';
 
             $where = ['users_id' => $reset_user_id, 'users_email' => $reset_email];
             $updated = $this->update($where);

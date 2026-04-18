@@ -4,17 +4,6 @@ namespace Dorguzen\Core\CLI\Command;
 
 use Dorguzen\Core\DGZ_Router;
 
-use Dorguzen\Core\DGZ_DBAdapter;
-
-///// The lines below are just for testing ///// DELETE
-use Dorguzen\Core\Events\EventService;
-use Dorguzen\Core\Events\EventDispatcher;
-use Dorguzen\Events\TestEvent;
-use Dorguzen\Core\Queues\QueueManager;
-use Dorguzen\Jobs\TestSyncJob;
-use Dorguzen\Jobs\FailingJob;
-use Dorguzen\Config\Config;
-
 class RoutesCommand extends AbstractCommand
 {
     protected static $defaultName = 'routes';
@@ -34,7 +23,7 @@ class RoutesCommand extends AbstractCommand
     }
 
     protected function handle(): int
-    { 
+    {
         $output = $this->output;
 
         $router = DGZ_Router::getInstance();
@@ -60,37 +49,6 @@ class RoutesCommand extends AbstractCommand
 
             $output->writeln(trim($line));
         }
-        $output->writeln('');
-
-        //-------------------START TESTING-------------------------------
-        try {
-            ////$events = container(EventService::class);
-            /////$events = container(EventDispatcher::class);
-            ////$events->dispatch(new TestEvent('fwffefefefefef'));
-
-            ///event(new TestEvent('hello'));
-
-            dispatch(new FailingJob());
-
-            /////$queue = container(QueueManager::class);
-            /////dump('QUEUE MANAGER CLASS:', get_class($queue));
-
-            /////$queue = container(QueueManager::class);
-            echo "Pushing job to queue...\n";
-            //dd('ALL CONFIG DATA: ', $config->getConfig(), $config->all());
-            //echo 'AppName is: '. $config->getConfig('app.appName'); //////
-            ////$queue->push(new TestSyncJob());
-            /////$queue->push(new FailingJob());
-            echo "Returned from queue push\n";
-            //event()
-            //dispatch()
-        }
-        catch(\Throwable $e)
-        {
-            $output->writeln('<error>' . $e->getMessage(). '</error>');
-        }
-        //-----------------END TESTING--------------------------------
-
         $output->writeln('');
 
         return SELF::SUCCESS;

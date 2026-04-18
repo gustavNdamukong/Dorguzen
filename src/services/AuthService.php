@@ -115,6 +115,20 @@ class AuthService
 
 
     // ---------------------------------------------------------------
+    // Email availability check (AJAX)
+    // ---------------------------------------------------------------
+
+    /**
+     * Check whether an email address is already registered.
+     */
+    public function emailExists(string $email): bool
+    {
+        $rows = $this->users->selectWhere(['users_id'], ['users_email' => $email]);
+        return !empty($rows);
+    }
+
+
+    // ---------------------------------------------------------------
     // Email verification
     // ---------------------------------------------------------------
 

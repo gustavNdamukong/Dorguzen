@@ -13,7 +13,7 @@
     'fileRootPathLocal' => '/dorguzen/',
     'fileRootPathLive' => '/',
     'live' => 'false',
-    'allow_registration' => 'true',
+    'allow_registration' => true,
     'locale' => 'en',
     'fallback_locale' => 'en',
     'sliderType' => 'slider',

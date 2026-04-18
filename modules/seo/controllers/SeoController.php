@@ -42,8 +42,8 @@ class SeoController extends \Dorguzen\Core\DGZ_Controller implements DGZ_ModuleC
         $seo = container(Seo::class);
         $globalSeo = container(Seo_global::class);
         
-        $seoData = $seo->getData();
-        $globalSeoData = $globalSeo->getData();
+        $seoData = $seo->getAll();
+        $globalSeoData = $globalSeo->getAll();
         $globalDataSet = ($globalSeoData ? $globalSeoData : []);
         $view = DGZ_View::getModuleView('seo', 'index', $this, 'html');
         $this->setPageTitle('Seo');

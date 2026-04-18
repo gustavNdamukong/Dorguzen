@@ -116,7 +116,7 @@ class seoMasterLayout extends \Dorguzen\Core\DGZ_Layout {
 					?>
 					<section class="content brands pattern border-top border-bottom">
 						<div class="container">
-							<div id="brands-carousel">
+							<div id="brands-carousel" class="owl-carousel">
 								<?php
 								foreach ($brandImages as $imgPath) { ?>
 									<div class="item">

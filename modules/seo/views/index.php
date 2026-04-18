@@ -119,9 +119,9 @@ class index extends \Dorguzen\Core\DGZ_HtmlView
 								<i class="fa fa-bullhorn section-title-icon"></i>&nbsp;<span
 									class="col-form-label"><b>Pages SEO Data (<?=$pageCount?>)</b></span>
 							</h3>
-						   <div class="well">
+						   <?php /*<div class="well">
 						      <a href="<?=$this->controller->config->getFileRootPath()?>seo/addPage" class="btn btn-primary btn-sm">Create page data</a>
-						   </div>
+						</div> */ ?>
 							<?php
 							if ($seoData)
 							{ ?>
