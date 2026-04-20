@@ -3,7 +3,7 @@
   array (
     'appName' => 'dorguzen',
     'appBusinessName' => 'Dorguzen Framework',
-    'appSlogan' => 'Your Rapid Web Development Toolkit',
+    'appSlogan' => 'Powerful PHP Framework. No Black Box.',
     'appURL' => 'http://localhost/dorguzen',
     'layoutDirectory' => 'seoMaster',
     'defaultLayout' => 'seoMasterLayout',
@@ -75,10 +75,10 @@
       'pwd' => 'root',
       'db' => 'dorguzapp',
       'host' => '127.0.0.1',
-      'connectionType' => 'sqlite',
+      'connectionType' => 'mysqli',
       'port' => 3306,
       'key' => 'takeThisWith@PinchOfSalt',
-      'sqlite_path' => ':memory:',
+      'sqlite_path' => '',
     ),
     'Neo4jCredentials' => 
     array (
@@ -144,8 +144,5 @@
         'min_level' => 'error',
       ),
     ),
-  ),
-  'ConfigDELETE' => 
-  array (
   ),
 );

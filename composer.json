@@ -1,12 +1,34 @@
 {
     "name": "gustocoder/dorguzen",
-    "description": "Dorguzen — A PHP MVC Framework for Rapid Web Development",
+    "description": "Powerful PHP Framework. No Black Box. A full-featured PHP MVC framework that keeps abstraction low by design — so you ship fast and actually understand every line of your application.",
     "type": "project",
     "license": "MIT",
+    "keywords": [
+        "php",
+        "framework",
+        "mvc",
+        "php-framework",
+        "rest-api",
+        "orm",
+        "migrations",
+        "authentication",
+        "admin-dashboard",
+        "cli",
+        "swagger",
+        "openapi",
+        "rapid-development"
+    ],
+    "homepage": "https://github.com/gustavNdamukong/Dorguzen",
+    "support": {
+        "issues": "https://github.com/gustavNdamukong/Dorguzen/issues",
+        "source": "https://github.com/gustavNdamukong/Dorguzen"
+    },
     "authors": [
         {
             "name": "Gustav Ndamukong",
-            "email": "gustavfn@yahoo.co.uk"
+            "email": "gustavfn@yahoo.co.uk",
+            "homepage": "https://github.com/gustavNdamukong",
+            "role": "Developer"
         }
     ],
     "require": {
