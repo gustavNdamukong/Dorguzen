@@ -17,13 +17,9 @@ class Schema
     {
         $blueprint = new Blueprint($table);
 
-        try {
-            $callback($blueprint);
-        } catch (\Throwable $e) {
-            dd('Callback exception:', $e->getMessage(), $e->getTraceAsString());
-        }
+        $callback($blueprint);
 
-        $sql = $blueprint->toSqlCreate();
+        $sql = $blueprint->toSqlCreate($this->db->getDriverName());
         return $sql;
     }
 

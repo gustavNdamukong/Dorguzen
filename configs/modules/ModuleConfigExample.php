@@ -14,13 +14,13 @@
 		{
 			return [
 
-				'bikko' => 'Bwaaaam',
+				'name' => 'Bean',
 
-				'appName' => 'Doggy DOG',
+				'appName' => 'Some App',
 
-				'chaaai' => 'Buyaaaa',
+				'city' => 'Rotterdam',
 
-				'caroool' => 'ehhheeen'
+				'digits' => '123456789'
 			];
 		}
 	}

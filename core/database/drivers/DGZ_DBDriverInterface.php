@@ -44,4 +44,22 @@ interface DGZ_DBDriverInterface
     public function prepareInsertOrUpdate(array $data, array $passwordFields, string $type = 'insert'): array;
 
     public function encryptPasswordCondition(string $field): string;
+
+    /**
+     * Returns a flat list of table names in the current database/schema.
+     * Abstracts SHOW TABLES (MySQL) vs sqlite_master query (SQLite).
+     */
+    public function listTables(): array;
+
+    /**
+     * Returns the SQL fragment for an auto-incrementing integer primary key column.
+     * MySQL: "INT AUTO_INCREMENT PRIMARY KEY"
+     * SQLite: "INTEGER PRIMARY KEY"
+     */
+    public function autoIncrementPrimaryKey(): string;
+
+    /**
+     * Returns the driver name identifier (e.g. 'mysqli', 'sqlite').
+     */
+    public function getDriverName(): string;
 }

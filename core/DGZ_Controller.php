@@ -486,7 +486,6 @@ abstract class DGZ_Controller implements DGZ_Displayable {
         {
             //check if SEO module exists & is active
             $modules = $this->config ? ($this->config->getConfig()['modules'] ?? []) : [];
-            /////dgzie('MODULES', $modules); ///// DELETE
             if (
                 (array_key_exists('seo', $modules)) &&
                 ($modules['seo'] == 'on') &&
@@ -930,7 +929,6 @@ abstract class DGZ_Controller implements DGZ_Displayable {
                     }
 				}*/
 				//--------------------------- END MIDDLEWARE -----------------------------//
-                /////dgzie('WHAT IS GOING ON?', $controller, $controllerShortName, $method); ///// DELETE
 				if ($method == 'defaultAction')
 				{
 					$method = $this->defaultAction;

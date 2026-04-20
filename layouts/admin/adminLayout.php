@@ -51,7 +51,6 @@ class adminLayout extends \Dorguzen\Core\DGZ_Layout {
 			=========================== -->
 			<?php
 			if ((isset($_SESSION['authenticated'])) && ($_SESSION['authenticated'] == 'Let Go-' . $this->config->getConfig()['appName'])
-				/////&& ($this->viewName != 'login')) {
 			) {
 				?>
 

@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.0
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost
--- Generation Time: Nov 19, 2023 at 01:49 PM
--- Server version: 10.4.28-MariaDB
--- PHP Version: 8.2.4
+-- Host: localhost:8889
+-- Generation Time: Apr 20, 2026 at 03:53 AM
+-- Server version: 5.7.39
+-- PHP Version: 8.2.0
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -31,7 +31,7 @@ CREATE TABLE `baseSettings` (
   `settings_id` int(11) NOT NULL,
   `settings_name` varchar(300) NOT NULL,
   `settings_value` varchar(300) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `baseSettings`
@@ -39,8 +39,7 @@ CREATE TABLE `baseSettings` (
 
 INSERT INTO `baseSettings` (`settings_id`, `settings_name`, `settings_value`) VALUES
 (1, 'show_brand_slider', 'true'),
-(2, 'brand_slider_source', 'gallery'),
-(3, 'default_language', 'en'),
+(2, 'brand_slider_source', 'assets/images/gallery'),
 (4, 'app_color_theme', 'dark-blue');
 
 -- --------------------------------------------------------
@@ -55,26 +54,87 @@ CREATE TABLE `contactformmessage` (
   `contactformmessage_email` varchar(50) DEFAULT NULL,
   `contactformmessage_phone` varchar(50) DEFAULT NULL,
   `contactformmessage_message` varchar(1000) NOT NULL,
-  `contactformmessage_date` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+  `contactformmessage_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
 
 --
--- Dumping data for table `contactformmessage`
+-- Table structure for table `dgz_failed_jobs`
 --
 
-INSERT INTO `contactformmessage` (`contactformmessage_id`, `contactformmessage_name`, `contactformmessage_email`, `contactformmessage_phone`, `contactformmessage_message`, `contactformmessage_date`) VALUES
-(3, 'Gustav der Damme', 'gustavdd@yahoo.co.uk', '+447507897969', 'gegegegegeg\r\ngegegegeggege', '2020-07-05 13:31:06'),
-(4, 'Gustav der Damme', 'gustavdd@yahoo.co.uk', '+447507897969', 'gegegegegeg\r\ngegegegeggege', '2020-07-05 13:33:13'),
-(7, 'Cheboy', 'gustavdd@yahoo.co.uk', '07507897969', 'A fully responsive website and and a mobile app for our business.', '2020-07-07 17:09:53'),
-(9, 'Gustav Ndamukong', NULL, '07507897969', 'tdtduufuuutduduyduytd', '2020-07-10 00:18:28'),
-(10, 'Gustav Ndamukong', NULL, '07507897969', 'brbrhrhhththththttjjyjyj', '2020-07-10 00:19:12'),
-(11, 'Gustav Ndamukong', 'gustavdd@yahoo.co.uk', '07507897969', 'eggeeteetetet', '2020-07-10 00:20:03'),
-(23, 'Gustav Ndamukong', 'gustavdd@yahoo.co.uk', '07507897969', 'testing again very important', '2020-07-16 18:13:42'),
-(36, 'Gustav Ndamukong', 'gustavdd@yahoo.co.uk', '07507897969', 'ffefefefefefef', '2020-07-16 20:18:44'),
-(37, 'Gustav Ndamukong', 'gustavdd@yahoo.co.uk', '07507897969', 'ff33fefefefefefef', '2020-07-16 20:21:29'),
-(38, 'Gustav der Damme', 'gustavdd@yahoo.co.uk', '07507897969', 'wdddffffwfwwf', '2020-07-16 20:36:23'),
-(39, 'Gustav Ndamukong', 'gustavdd@yahoo.co.uk', '07507897969', 'dwdffwfwwfw', '2020-07-16 20:56:02'),
-(40, 'Jimmy gawn', 'gustavdd@yahoo.co.uk', '07507897969', 'Testing if contact form saves on generic save method', '2020-07-27 12:30:18');
+CREATE TABLE `dgz_failed_jobs` (
+  `id` int(11) NOT NULL,
+  `queue` varchar(255) NOT NULL,
+  `payload` longtext NOT NULL,
+  `exception` longtext NOT NULL,
+  `exception_trace` longtext NOT NULL,
+  `attempts` int(11) NOT NULL,
+  `failed_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `dgz_jobs`
+--
+
+CREATE TABLE `dgz_jobs` (
+  `id` int(11) NOT NULL,
+  `queue` varchar(255) NOT NULL DEFAULT 'default',
+  `payload` longtext NOT NULL,
+  `attempts` tinyint(3) UNSIGNED NOT NULL DEFAULT '0',
+  `max_attempts` int(11) NOT NULL DEFAULT '3',
+  `reserved_at` datetime DEFAULT NULL,
+  `available_at` datetime DEFAULT NULL,
+  `failed_at` timestamp NULL DEFAULT NULL,
+  `created_at` int(10) UNSIGNED NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `dgz_migrations`
+--
+
+CREATE TABLE `dgz_migrations` (
+  `id` int(11) NOT NULL,
+  `migration` varchar(200) NOT NULL,
+  `batch` int(11) NOT NULL,
+  `applied_at` date NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `dgz_migration_locks`
+--
+
+CREATE TABLE `dgz_migration_locks` (
+  `id` int(11) NOT NULL,
+  `locked_at` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `dgz_refresh_tokens`
+--
+
+CREATE TABLE `dgz_refresh_tokens` (
+  `refresh_tokens_id` bigint(20) UNSIGNED NOT NULL,
+  `user_id` int(10) UNSIGNED DEFAULT NULL,
+  `refresh_token` longtext,
+  `refresh_token_expiry` int(10) UNSIGNED DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `dgz_refresh_tokens`
+--
+
+INSERT INTO `dgz_refresh_tokens` (`refresh_tokens_id`, `user_id`, `refresh_token`, `refresh_token_expiry`) VALUES
+(1, 106, 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2NhbWVyb29uY29tLmNvbS8iLCJhdWQiOiJodHRwczovL2NhbWVyb29uY29tLmNvbS8iLCJpYXQiOjE3NzQ1NzY3NTMsImV4cCI6MTc3NDU4Mzk1MywiZGF0YSI6eyJ1c2VyX2lkIjoxMDZ9fQ.r1ipW9_rslWdt3zRgyzbbvinc7_BXtNSFwtsJWAQ5tw', 1774583953),
+(2, 60, 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0L2Rvcmd1emVuLyIsImF1ZCI6Imh0dHA6Ly9sb2NhbGhvc3QvZG9yZ3V6ZW4vIiwiaWF0IjoxNzc2MjY5NDMyLCJleHAiOjE3NzYyNzY2MzIsImRhdGEiOnsidXNlcl9pZCI6NjB9fQ.Kb7azUyU5SvQFqzBzSuJtkDniu8e5hna1AHznKeJjKg', 1776276632);
 
 -- --------------------------------------------------------
 
@@ -86,8 +146,9 @@ CREATE TABLE `logs` (
   `logs_id` int(11) NOT NULL,
   `logs_title` varchar(100) NOT NULL,
   `logs_message` text NOT NULL,
-  `logs_created` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+  `context_json` text,
+  `logs_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -100,9 +161,9 @@ CREATE TABLE `password_reset` (
   `password_reset_users_id` int(10) NOT NULL,
   `password_reset_firstname` varchar(50) NOT NULL,
   `password_reset_email` varchar(50) NOT NULL,
-  `password_reset_date` timestamp(6) NOT NULL DEFAULT current_timestamp(6) ON UPDATE current_timestamp(6),
+  `password_reset_date` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
   `password_reset_reset_code` varchar(100) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -156,7 +217,7 @@ CREATE TABLE `seo` (
   `seo_keywords_en` varchar(200) NOT NULL,
   `seo_keywords_fre` varchar(200) NOT NULL,
   `seo_keywords_es` varchar(200) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `seo`
@@ -164,7 +225,7 @@ CREATE TABLE `seo` (
 
 INSERT INTO `seo` (`seo_id`, `seo_page_name`, `seo_meta_title_en`, `seo_meta_title_fre`, `seo_meta_title_es`, `seo_meta_desc_en`, `seo_meta_desc_fre`, `seo_meta_desc_es`, `seo_dynamic`, `seo_og_title_en`, `seo_og_title_fre`, `seo_og_title_es`, `seo_og_desc_en`, `seo_og_desc_fre`, `seo_og_desc_es`, `seo_og_image`, `seo_og_image_secure_url`, `seo_og_image_width`, `seo_og_image_height`, `seo_og_video`, `seo_og_type_en`, `seo_og_type_fre`, `seo_og_type_es`, `seo_og_url`, `seo_twitter_title_en`, `seo_twitter_title_fre`, `seo_twitter_title_es`, `seo_twitter_desc_en`, `seo_twitter_desc_fre`, `seo_twitter_desc_es`, `seo_twitter_image`, `seo_canonical_href`, `seo_no_index`, `seo_h1_text_en`, `seo_h1_text_fre`, `seo_h1_text_es`, `seo_h2_text_en`, `seo_h2_text_fre`, `seo_h2_text_es`, `seo_page_content_en`, `seo_page_content_fre`, `seo_page_content_es`, `seo_keywords_en`, `seo_keywords_fre`, `seo_keywords_es`) VALUES
 (1, 'home', 'This is the home page. You are welcome to DGZ', 'Ca cest la page aquable. Bien venu a DGZ', 'Etos home pageo haha. Buenos venidos dos DGZ', 'Some description about the home page of DGZ the ultimate CMS or framework-whatever you wanna call it. ', 'Ca cest un peut de desciption sur DGZ, Le framework de programmeurs, ou qua que ca soit.', 'etos estupiendo decripilla dos DGZ', '0', 'This is the home page. You are welcome to DGZ', 'Ca cest la page aquable. Bien venu a DGZ', 'Etos home pageo haha. Buenos venidos dos DGZ', 'Some description about the home page of DGZ the ultimate CMS or framework-whatever you wanna call it.', 'Ca cest un peut de desciption sur DGZ, Le framework de programmeurs, ou qua que ca soit.', 'etos estupiendo decripilla dos DGZ', 'http://dorguzen/assets/social/site.png', 'https://dorguzen/assets/social/site.png', 1200, 640, NULL, NULL, NULL, NULL, NULL, 'This is the home page. You are welcome to DGZ', 'Ca cest la page aquable. Bien venu a DGZ', 'Etos home pageo haha. Buenos venidos dos DGZ', 'Some description about the home page of DGZ the ultimate CMS or framework-whatever you wanna call it.', 'Ca cest un peut de desciption sur DGZ, Le framework de programmeurs, ou qua que ca soit.', 'etos estupiendo decripilla dos DGZ', NULL, '1', '0', 'Some cool h1 text for my awesome webpage', 'Quelque text cool pur mon formidable page de web', 'Somigo texta pora mono formidabla pagina interneta', 'Some nice text for the h2 tag of my webpage', 'Just un coudre text pour le h2 tag de mon page de web', 'Pagin pour la h2 tagino de mono page wba', 'This is the real deal; wow some really long text for the content of my web page. It is so long i am tired of typing already lo, just because i know it is meant to be long. ', 'En peut de long text pour le propre content de mon page de web', 'Contenidos de mon pagina de web. Eldo primeros de las budoncamentos i lamidados spectaculada. Yeah.', 'keyword1, keyword2, keyword3, keyword4, keyword5', 'mot cley1, mot cley2, mot cley3, mot cley4, mot cley5', 'keyword1, keyword2, keyword3, keyword4, keyword5'),
-(2, 'contact', 'English contact title edited', 'French contact title edited', 'Spanish contact title edited', 'Description for the contact page haha', 'Description for the contact page haha', 'Description for the contact page haha', '0', 'English contact title', 'English contact title in French', 'English contact title in Spanish', 'English description for og', 'French desc for og', 'Spanish des for og', 'http:/doguzen/tag', 'http:/doguzen/tag', 1200, 630, '', 'contact ', 'contact', 'contact', 'http:/doguzen/tag', 'qwdfwfwfswf', 'gswswfsf', 'sfsfs', 'ssgs', 'ssgs', 'sgsgfsg', '', 'http:/doguzen/tag', '0', 'Contact h1 in English edited', 'Contact h1 in french edited', 'Contact h1 in Spanish edited', 'contact h2', 'contact h2', 'contact h2', 'wwwffwfwfwfwfwf', 'wfwfwfwfwfwf', 'fwfwfwwfwfwf', 'aadkd. dqdad dadadkkk.   dddq a dadadado', 'qwre rrrr jtjtyhty kuklil 90p8yh ', 'efw ththt wdwdw hjtyt ');
+(3, 'contact', 'Dorguzen contact page', '', '', 'Contact us if you have any inquiries', '', '', '0', 'Dorguzen contact page', '', '', 'Contact us if you have any inquiries', '', '', 'https://yourSite/assets/images/social/og-image.png', 'https://yourSite/assets/images/social/image.svg', 1200, 630, ' ', 'article', '', '', 'https://dorguzen.com/feedback', 'Contact page title', '', '', 'Contact page description', '', '', '', 'https://dorguzen.com/feedback', '0', 'h1 contact text', '', '', 'h2 contact text', '', '', 'Get in touch with us for quotes, or if you would like to enquire about anything. Please complete all the fields', '', '', 'Dorguzen contact, reach out to us, send us a message', '', '');
 
 -- --------------------------------------------------------
 
@@ -186,7 +247,7 @@ CREATE TABLE `seo_global` (
   `seo_global_twitter_site` varchar(100) DEFAULT NULL,
   `seo_global_reflang_alternate1` varchar(10) DEFAULT NULL,
   `seo_global_reflang_alternate2` varchar(10) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `seo_global`
@@ -194,7 +255,8 @@ CREATE TABLE `seo_global` (
 
 INSERT INTO `seo_global` (`seo_global_id`, `seo_global_og_locale`, `seo_global_og_site`, `seo_global_og_article_publisher`, `seo_global_og_author`, `seo_global_geo_placename`, `seo_global_geo_region`, `seo_global_geo_position`, `seo_global_fb_id`, `seo_global_twitter_card`, `seo_global_twitter_site`, `seo_global_reflang_alternate1`, `seo_global_reflang_alternate2`) VALUES
 (1, 'en_UK', 'Dorguzen', 'https://www.facebook.com/Camerooncom-1686737211635233/', ' ', 'England', 'UK', '7.369722;12.354722', '1686737211635233', 'summary', '@Camerooncom2', ' ', ' '),
-(2, 'en_UK', 'mySiteName', 'mySiteNameOnFacebookPage', 'Gustav', 'Manchester', 'UK', '213442342424 99786542', '224645757778', 'website', 'mySiteTwitterPageName', '', '');
+(2, 'en_UK', 'mySiteName', 'mySiteNameOnFacebookPage', 'Gustav', 'Manchester', 'UK', '213442342424 99786542', '224645757778', 'website', 'mySiteTwitterPageName', '', ''),
+(3, 'en_US', 'Dorguzen', 'Dorguzen', 'Dorguzen', 'Canada', 'CA', '1313144335, 943743278632', 'Dorguzen', 'twitter@Dorguzen', 'twitter.com/dorguzen', '', '');
 
 -- --------------------------------------------------------
 
@@ -204,15 +266,15 @@ INSERT INTO `seo_global` (`seo_global_id`, `seo_global_og_locale`, `seo_global_o
 
 CREATE TABLE `users` (
   `users_id` int(10) UNSIGNED NOT NULL,
-  `users_type` enum('member','admin','admin_gen','super_admin') NOT NULL DEFAULT 'member',
-  `users_email` varchar(80) NOT NULL,
-  `users_phone_number` varchar(15) DEFAULT NULL,
+  `users_type` enum('member','admin','admin_gen','super_admin') COLLATE utf8_swedish_ci NOT NULL DEFAULT 'member',
+  `users_email` varchar(80) COLLATE utf8_swedish_ci NOT NULL,
+  `users_phone_number` varchar(15) COLLATE utf8_swedish_ci DEFAULT NULL,
   `users_pass` blob NOT NULL,
-  `users_first_name` varchar(20) NOT NULL,
-  `users_last_name` varchar(40) NOT NULL,
-  `users_emailverified` enum('yes','no') NOT NULL DEFAULT 'no',
-  `users_eactivationcode` varchar(100) DEFAULT NULL,
-  `users_updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `users_first_name` varchar(20) COLLATE utf8_swedish_ci NOT NULL,
+  `users_last_name` varchar(40) COLLATE utf8_swedish_ci NOT NULL,
+  `users_emailverified` enum('yes','no') COLLATE utf8_swedish_ci NOT NULL DEFAULT 'no',
+  `users_eactivationcode` varchar(100) COLLATE utf8_swedish_ci DEFAULT NULL,
+  `users_updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `users_created` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_swedish_ci;
 
@@ -221,9 +283,9 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`users_id`, `users_type`, `users_email`, `users_phone_number`, `users_pass`, `users_first_name`, `users_last_name`, `users_emailverified`, `users_eactivationcode`, `users_updated`, `users_created`) VALUES
-(60, 'super_admin', 'dorguzen@dorguzen.com', NULL, 0xdfc6ba98e0f3778c407e0333d32e2fa4, 'Dorguzen', 'Dorguzen', 'no', NULL, '2023-06-16 13:54:57', '2019-07-26 10:55:56'),
 (62, 'member', 'john@colon.com', NULL, 0xd9c05f47acf76e1d30be210f557ce92a, 'John', 'Colon', 'no', NULL, '2023-06-16 13:55:54', '2020-07-26 20:22:34'),
-(65, 'member', 'gustavfn@yahoo.co.uk', '07340955516', 0xd9c05f47acf76e1d30be210f557ce92a, 'Gustav', 'Ndamukong', 'no', '28922a41143923b53b1cb687d81e788e', '2023-06-17 11:21:46', '2023-06-17 12:21:46');
+(67, 'member', 'test@example.com', '4378496403', 0x2b96495f6ebd2186cc60260e38cef97a, 'Test', 'TestUser', 'yes', NULL, '2026-04-18 14:16:41', '2026-04-18 14:03:13'),
+(69, 'super_admin', 'admin@dorguzen.com', '', 0x7f5a052f3754e0847e43fa0a51c5d09d, 'Dorguzen', 'Admin', 'yes', NULL, '2026-04-20 00:55:14', '2026-04-20 00:55:14');
 
 --
 -- Indexes for dumped tables
@@ -240,6 +302,38 @@ ALTER TABLE `baseSettings`
 --
 ALTER TABLE `contactformmessage`
   ADD PRIMARY KEY (`contactformmessage_id`);
+
+--
+-- Indexes for table `dgz_failed_jobs`
+--
+ALTER TABLE `dgz_failed_jobs`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `dgz_jobs`
+--
+ALTER TABLE `dgz_jobs`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_queue` (`queue`);
+
+--
+-- Indexes for table `dgz_migrations`
+--
+ALTER TABLE `dgz_migrations`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `dgz_migration_locks`
+--
+ALTER TABLE `dgz_migration_locks`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `dgz_refresh_tokens`
+--
+ALTER TABLE `dgz_refresh_tokens`
+  ADD PRIMARY KEY (`refresh_tokens_id`),
+  ADD UNIQUE KEY `user_id` (`user_id`);
 
 --
 -- Indexes for table `logs`
@@ -286,19 +380,43 @@ ALTER TABLE `baseSettings`
 -- AUTO_INCREMENT for table `contactformmessage`
 --
 ALTER TABLE `contactformmessage`
-  MODIFY `contactformmessage_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
+  MODIFY `contactformmessage_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `dgz_failed_jobs`
+--
+ALTER TABLE `dgz_failed_jobs`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `dgz_jobs`
+--
+ALTER TABLE `dgz_jobs`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `dgz_migrations`
+--
+ALTER TABLE `dgz_migrations`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `dgz_refresh_tokens`
+--
+ALTER TABLE `dgz_refresh_tokens`
+  MODIFY `refresh_tokens_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `logs`
 --
 ALTER TABLE `logs`
-  MODIFY `logs_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=962;
+  MODIFY `logs_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `password_reset`
 --
 ALTER TABLE `password_reset`
-  MODIFY `password_reset_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `password_reset_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `seo`
@@ -316,10 +434,9 @@ ALTER TABLE `seo_global`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `users_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=66;
+  MODIFY `users_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=70;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-

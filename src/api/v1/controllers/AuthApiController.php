@@ -179,8 +179,8 @@ class AuthApiController extends DGZ_Controller
             content: new OA\JsonContent(
                 required: ['email', 'password'],
                 properties: [
-                    new OA\Property(property: 'email',    type: 'string', format: 'email',    example: 'dorguzen@dorguzen.com'),
-                    new OA\Property(property: 'password', type: 'string', format: 'password', example: 'dorguzen'),
+                    new OA\Property(property: 'email',    type: 'string', format: 'email',    example: 'admin@dorguzen.com'),
+                    new OA\Property(property: 'password', type: 'string', format: 'password', example: 'Admin123'),
                 ]
             )
         ),

@@ -17,9 +17,7 @@ class DGZ_PostgresDriver implements DGZ_DBDriverInterface
 
     public function __construct(array $credentials)
     {
-        /////dd('CREDENTIALS:', $credentials); /////
         foreach (['host', 'db', 'username', 'pwd'] as $key) {
-            /////if (empty($credentials[$key])) {
             if (!array_key_exists($key, $credentials)) {
                 throw new \InvalidArgumentException("Postgres credential '{$key}' is missing.");
             }
@@ -247,4 +245,21 @@ class DGZ_PostgresDriver implements DGZ_DBDriverInterface
         return $passwordField;
     }
 
+    public function listTables(): array
+    {
+        $stmt = $this->pdo->query(
+            "SELECT tablename FROM pg_tables WHERE schemaname = 'public'"
+        );
+        return array_column($stmt->fetchAll(), 'tablename');
+    }
+
+    public function autoIncrementPrimaryKey(): string
+    {
+        return 'SERIAL PRIMARY KEY';
+    }
+
+    public function getDriverName(): string
+    {
+        return 'postgres';
+    }
 }

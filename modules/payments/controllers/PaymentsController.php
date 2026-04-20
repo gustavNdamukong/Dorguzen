@@ -142,7 +142,6 @@ class PaymentsController extends \Dorguzen\Core\DGZ_Controller implements DGZ_Mo
             "customer" => $customer->id
         ]);
 
-        /////echo '<pre> You have been paid!'; die(print_r($charge));
         $this->redirect('payments', 'success');
     }
     

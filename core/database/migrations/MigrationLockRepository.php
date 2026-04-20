@@ -28,10 +28,11 @@ class MigrationLockRepository
 
         $this->db->execute($sql);
 
-        // Ensure a single lock row exists
-        $this->db->execute(
-            "INSERT IGNORE INTO {$this->table} (id, locked_at) VALUES (1, NULL)"
-        );
+        // Ensure a single lock row exists (compatible with both MySQL and SQLite)
+        $existing = $this->db->query("SELECT id FROM {$this->table} WHERE id = 1");
+        if (empty($existing)) {
+            $this->db->execute("INSERT INTO {$this->table} (id, locked_at) VALUES (1, NULL)");
+        }
     }
 
 

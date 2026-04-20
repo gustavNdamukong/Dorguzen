@@ -14,824 +14,6 @@ LESSONS - UKPL SKELETON
 
 
 
-    DEEP LESSONS & CHANGES MADE 
-    --------------------------------
-    Debugging 
-    ----------- 
-    
-
-  Databases: Models 
-  --------------
--I just injected Config to DGZ_Model. So now when i fetch a model via a container, Config will be 
-    automatically injected. As long as i get the model using the DIC, i do not have to manually pass in the  
-    Config dependency as that will be auto-detected and injected by the container, though it will not 
-    harm anything if i pass the dependency to the container. Each child model however, still internally 
-    calls its parent constructor it its constructor, to pass the Config class to the parent model 
-    DGZ_Model that needs it too. 
-
-
-  USING THE DI CONTAINER 
-  --------------------------
-
-    Tips and best-practices on how to use the DIC container 
-    ---------------------------------
-    -NEVER resove classes from a view.
-    -Use only one instance of a class in a controller. Do so by having the dependency class injected 
-      via the constructor at initialisation.
-
-    -You can resolve classes from the DI container from anywhere in your project in any of the following ways:
-
-        use Dorguzen\Models\Logs;
-
-        // write something to the logs table
-        $container = container();
-        $container->get(Logs::class)->log(...);
-
-      or
-
-        $container = container();
-        $logs = $container->get(Logs::class);
-        $logs->log(...);
-
-      or 
-
-        $logs = container(Logs::class);
-        $logs->log(...);
-
-      or 
-
-        $data = container(MyObject::class)->methodOnMyObject();
-
-        Hereby chaining a call on container() by directly calling a method on the resolved class.
-        This works because container() returns the resolved object, hence you can directly chain 
-        calls on it.
-
-
-✅ Fix #1 — Register models as singletons at bootstrap
------------------------
-
-Before anything else, in bootstrap\app.php, register an object with the container as a singleton  like so:
-
-//------------------------------------------------------------------------
-//  REGISTER ESSENTIAL CLASSES WITH THE CONTAINER BEFORE ANYTHING ELSE
-//------------------------------------------------------------------------
-$container->singleton(Users::class, fn($c) => new Users($c->get(Config::class)));
-$container->singleton(Products::class, fn($c) => new Products($c->get(Config::class)));
-
-$container->singleton(Catalog_cat::class, fn($c) => new Catalog_cat($c->get(Config::class)));
-$container->singleton(Category_images::class, fn($c) => new Category_images($c->get(Config::class)));
-$container->singleton(Cats_2_inputs::class, fn($c) => new Cats_2_inputs($c->get(Config::class))); 
-$container->singleton(Contactformmessage::class, fn($c) => new Contactformmessage($c->get(Config::class))); 
-$container->singleton(Delete_requests::class, fn($c) => new Delete_requests($c->get(Config::class))); 
-$container->singleton(Favs::class, fn($c) => new Favs($c->get(Config::class))); 
-$container->singleton(Flagged::class, fn($c) => new Flagged($c->get(Config::class))); 
-$container->singleton(Gold_members::class, fn($c) => new Gold_members($c->get(Config::class))); 
-$container->singleton(Images::class, fn($c) => new Images($c->get(Config::class))); 
-$container->singleton(Input_fields::class, fn($c) => new Input_fields($c->get(Config::class)));
-$container->singleton(Locations::class, fn($c) => new Locations($c->get(Config::class))); 
-$container->singleton(Logs::class, fn($c) => new Logs($c->get(Config::class))); 
-$container->singleton(News::class, fn($c) => new News($c->get(Config::class))); 
-$container->singleton(Newsletter::class, fn($c) => new Newsletter($c->get(Config::class))); 
-$container->singleton(Order_contents::class, fn($c) => new Order_contents($c->get(Config::class))); 
-$container->singleton(Orders::class, fn($c) => new Orders($c->get(Config::class))); 
-$container->singleton(Product_categories::class, fn($c) => new Product_categories($c->get(Config::class))); 
-$container->singleton(Product_images::class, fn($c) => new Product_images($c->get(Config::class))); 
-$container->singleton(Received::class, fn($c) => new Received($c->get(Config::class))); 
-$container->singleton(Refresh_tokens::class, fn($c) => new Refresh_tokens($c->get(Config::class))); 
-$container->singleton(Replies::class, fn($c) => new Replies($c->get(Config::class))); 
-$container->singleton(Sent::class, fn($c) => new Sent($c->get(Config::class))); 
-$container->singleton(Shop::class, fn($c) => new Shop($c->get(Config::class))); 
-$container->singleton(ShopMessage::class, fn($c) => new ShopMessage($c->get(Config::class))); 
-$container->singleton(Subscribers::class, fn($c) => new Subscribers($c->get(Config::class))); 
-//------------------------------------------------------------------------
-
-Alternatively, You can automate this by scanning the models folder.
-
-✅ After this, every time you resolve a class from the container, like so:
-
-    container(Users::class) 
-    
-The returned object will ALWAYS be one and the same instance.The result is:
-
-✅ No repeated reflection.
-✅ No repeated constructor work.
-✅ No repeated config loads.
-✅ No repeated error_log spam.
-
-This alone will drop page load times from over 30 seconds to < 1 second.
-
-
-✅ Fix #2 — NEVER call container($this->whoCalledMe) from within a (model) class.
-----------------------
-  Rather, use $model = $this when ever a method in the (model) class needs an instance. 
-  It should always return the same copy of the class. A method should never need a fresh 
-  copy, because models should always be stateless OR cloneable. 
-  On the rare ossasion that a fresh instance of the class is needed, get rather it like so: 
-
-      $model = container(static::class);
-
-
-✅ Fix #3 — Cache reflection metadata in the container
--------------------
-
-Reflection caching is safe, invisible, and does not change external behavior.
-Add this to the container class:
-
-    private array $reflectionCache = [];
-
-Replace this line:
-
-    $reflection = new ReflectionClass($abstract);
-
-with this:
-
-        if (!isset($this->reflectionCache[$abstract])) {
-            $this->reflectionCache[$abstract] = new ReflectionClass($abstract);
-        }
-        $reflection = $this->reflectionCache[$abstract];
-
-This will produce a major performance gain.
-
-
-✅ Fix #5 — Config should be a true singleton
---------------------
-This produces the string name of the curerent class eg 'Users' - only to be used for metadata 
-logging:
-
-        $this->whoCalledMe = get_class($this); 
-
-But to get the FQCN of an object, get it from inside its parent eg DGZ_Model simply like this: #
-
-        $model = $this;
-
-This will ALWAYS give you something like this: #
-
-        'src\models\Users'
-
-
-
-
-        Category_images::getCatImages($catId)
-
-Biz_ads::query(...) for top and bottom ads
-
-Products::getAllAdsInCat($catId) — (you already gave this ✅)
-
-Locations::getAll()
-
-AdController::goldStatus($sellerId)
-
-Users::isAdmin($userId) if relevant
-
-
-
-GOLDEN RULE ABOUT REQUEST/RESPONSE LIFECYCLES
-------------------------------------------------
-Never set a global Request or Response class as a property of a controller.
-Controllers must be stateless; requests and responses are lifecycle-bound and must be pulled, never stored.
-Explanation 
-------------
-Controllers must not own request or response objects as properties.
-They may ask for them at execution time, but must not store them.
-
-So this is ❌ bad:
-
-    class TestController
-    {
-        protected DGZ_Request $request;
-        protected DGZ_Response $response;
-    }
-
-
-And this is ✅ correct:
-
-    public function meTest()
-    {
-        $request = request();
-        $response = response();
-    }
-
-Why? A response is write-once, mutable, and terminal:
-
-  -headers
-  -status code
-  -output buffer
-
-If a controller holds onto a response: 
-  -data leaks across requests
-  -headers persist
-  -tests explode (you already saw this)
-
-So: never store a response.
-
-2️⃣ The same applies to Request objects
-
-A request is read-heavy, not write-heavy — but it still represents a single HTTP lifecycle.
-If you store it on a controller: 
-  -the controller becomes stateful
-  -request data can leak across:
-    tests
-    sub-requests
-    future dispatches
-    mocking becomes painful
-
-So: don't store the request either.
-
-This is what they both represent in application flow:
-
-    -Request → environment snapshot
-    -Response → output stream
-    -Controller → pure executor
-
-Controllers should:
-    -read from the request
-    -write to the response
-    -own neither
-
-The one allowed exception
-
-    $user = request()->user();
-    or 
-    $request = container(DGZ_Request::class);
-
-Because:
-  -you're pulling, not owning
-  -there is no lifecycle coupling
-  -there is no persistent state
-
-That is all fine, as long as you don't store it on the controller.
-
-
-
-RULES OF THE THUMB 
------------------------
-Do not trust S_SERVER['DOCUMENT_ROOT'] for file paths. It is only good for use 
-in storing ENV variables which you can use in combination with gentenv() . 
-
-This is because superglobal variable values in test environments (usually the CLI) 
-are different from those in the web. It is therefore good practice when developing 
-frameworks to use separate routing systems for rthe web and for the test environment.    
-
-Don't ever call an instance of an object inside itself from a static method/class.
-
-Avoid heavy and fault-prone work in the constructor of any class. for example, DB 
-access in a constructor is a no-no. A constructor must be fast, so the class is loaded 
-as quickly as possible. You risk ending up with a forever loading app that crashes the 
-browser with a timeout otrherwise.
-
--Since the config class (Dorguzebn\Config\Config) is a low-level dependency which has 
-    no dependencies, and will be used by many classes, you should instantiate it using 
-    the new keyword whenever it is needed, for example:
-
-      new Config()
-
-    rather than trying to get it from the container.
-    The container is for shared, complex, inter-dependent services, and not for 
-    stand-alone services like Config, helpers, DTOs, etc. These can simply be 
-    instantiated with the new keyword, as needed.
-
-
-
-
-
-//------------------------------- SCRAP -------------------------------------//
-   "products_id" => 107
-    "products_title" => "The complete works of Shakespeare"
-    "products_location_id" => 2
-    "products_location_town" => null
-    "products_make" => "NULL"
-    "products_model" => "NULL"
-    "products_fuel" => "not_app"
-    "products_transmission" => "NULL"
-    "products_seller_id" => 31
-    "products_gender" => "NULL"
-    "products_age_group" => "NULL"
-    "products_description" => "Great collection for the family."
-    "products_parent_cat" => 5
-    "products_condition" => "new"
-    "products_size" => null
-    "products_brand_name" => null
-    "products_price" => "25000.00"
-    "products_price_per" => "item"
-    "products_number_of_rooms" => null
-    "products_water" => "yes"
-    "products_water_type" => "SNEC"
-    "products_electricity" => "yes"
-    "products_agent_fees" => "no"
-    "products_min_stay" => null
-    "products_max_stay" => null
-    "products_ad_fee" => "0.00"
-    "products_sale_type" => "online_store"
-    "products_seller_address" => "Behind Ntarikon"
-    "products_seller_price" => "20000.00"
-    "products_phone_number" => "1234567"
-    "products_email_address" => "gustavndamukong@hotmail.com"
-    "products_availability" => "2020-12-20 00:00:00"
-    "products_shippable" => "yes"
-    "products_shipping_fee" => "500.00"
-    "products_date_modified" => "2022-11-05 04:29:05"
-    "products_date_created" => "2020-12-20 16:30:14"
-    "products_as_admin" => "1"
-    "products_as_shadow_shop" => null
-    "products_authorized" => "yes"
-    "products_authorized_date" => "2020-12-20 21:30:14"
-    "products_authorized_by" => 31
-    "products_view_count" => 23
-    "product_images_id" => 544
-    "product_images_product_id" => 107
-    "product_images_users_id" => 31
-    "product_images_image_name" => "IMG_0664.JPG"
-    "product_images_caption" => ""
-    "users_id" => 31
-    "users_type" => "admin"
-    "users_username" => "johnn"
-    "users_email" => "gustavndamukong@hotmail.com"
-    "users_pass" => b"ÙÀ_G¬÷n\x1D0¾!\x0FU|é*"
-    "users_first_name" => "John"
-    "users_last_name" => "Fotikali"
-    "users_google_id" => "Johns"
-    "users_phone_number" => "1234567"
-    "users_mobile_money_account" => null
-    "users_company_name" => null
-    "users_company_logo" => null
-    "users_emailverified" => "yes"
-    "users_updated" => "2021-05-04 15:54:55"
-    "users_created" => "2014-11-01 12:40:46"
-    "users_eactivationcode" => null
-    "locations_id" => 2
-    "locations_town" => "North West"
-    "locations_nickname" => "Bamenda"
-    "locations_manager_id" => 31
-    "product_categories_id" => 5
-    "product_categories_parent_id" => 0
-    "product_categories_deliverable" => "yes"
-    "product_categories_name_en" => "books"
-    "product_categories_name_fre" => "les livres"
-    "request_category" => 5
-    "request_category_name" => "books"
-    "request_category_transname" => "books"
-    "main_image" => "users/u_priv_imgs/31/IMG_2554.JPG"
-
-
-
-SHOP INFO OF SELLER:
-
-array:1 [▼
-  0 => array:22 [▼
-    "shop_id" => 2
-    "shop_name" => "Camerooncom"
-    "shop_about" => "We are here to connect all commercialists in Cameroon and get them to build trust and collaboration between them. We are passionate about this goal for we know  ▶"
-    "shop_services" => "We are in the business of connecting buyers and sellers together in the easiest way possible."
-    "shop_email" => "admin@camerooncom.com"
-    "shop_telephone" => "75773176"
-    "shop_location" => "NULL"
-    "shop_payment_info" => """
-      Payments can be made to us for goods and services through the local Mobile Money (MOMO) transfer. 
-      
-      Selected items will be purchasable through Pay pal for those users who have access to that.
-      
-      But we are working on a brand new system of payment using MOMO online.
-      """
-    "shop_address1" => """
-      Camerooncom
-      Yaounde
-      """
-    "shop_address2" => """
-      Camerooncom
-      Commercial Avenue Bamenda
-      """
-    "shop_postcode" => "NULL"
-    "shop_website" => "https://camerooncom.com"
-    "shop_motto" => "Cameroon's Online Market Place"
-    "shop_logo" => "logo.svg"
-    "shop_color_theme" => "#9569E8"
-    "shop_facebook" => "https://www.facebook.com/Camerooncom-345000165518953"
-    "shop_youtube" => "NULL"
-    "shop_twitter" => "https://twitter.com/Camerooncom"
-    "shop_instagram" => "NULL"
-    "shop_gold_members_id" => 0
-    "shop_updated" => "2024-03-24 23:07:38"
-    "shop_created" => "2021-01-22 16:57:26"
-  ]
-]
-
-
-
-Now we should move to a whole other endeavour. So, as i mentioned to you a couple of days ago that i decided 
-to improve Dorguzen to then improve Camerooncom. I think Dorguzen is stable right now, but  
-Camerooncom (a Cameroonian classified ads site which also has multi-vendor accounts to advertise and sell their stuff) 
-was not built correctly from the start. For example, there was a lot of MVC violations by placing model calls 
-and controller calls within views, lots of PHP code in views which is not optimal. It worked, but it was not a scalable 
-approach. Back then, i was relatively new to PHP and was not very knowledgeable on proper software principles. 
-
-  Now i came to the point where i decided to build the mobile app for Camerooncom, and had to start by creating an API 
-in the codebase. Then i realised the structure was horrible and was not going to work, which then made me realise that 
-my initial toy framework, Dorguzen on which i built Camerooncom had not taken API creation into consideration. This 
-is what caused me to decide to hold up with the improvement of Camerooncom and improve Dorguzen, before coming back 
-to improve Camerooncom. 
-
-  The improvement of Dorguzen involved re-organising the application file and folder structure, and some were added. 
-To allow for API creation, i figured that API's should have their own controllers which will be the endpoints. That is 
-why i added the api sub-directory in the src directory ('src/api/v1/'). No need to have separate models, because these 
-API models will use the same models that the web application uses. I then wanted a central point where requests can get 
-their data from, whether it be web or API requests. I could not make API controllers get their data from web controllers 
-as that would have been too messy. I initially tried that, and placed conditionals within controller methods saying 
-if request is from API, format the data into json and send response back, but if it is from the web, then use arrays, 
-then pass the array data to the view. This became really messy and hard to manage as i have lots of methods within 
-controllers and there are many controllers, it was bad, so i decided to undo that and think of another approach. You 
-will still come across these conditionals in some methods which i had not taken out yet. But we need to clean all that 
-up. The approach i decided to go with is to use services. Service classes live in src/services, and will not know 
-if the request is being made by the web controller or an API controller. It will get the call, grab the data 
-(which i refer to in code as $payload) and send it back as an array. This $payload can contain arrays, maps, strings 
-booleans etc. The controllers will then be responsible for formatting the data to send back to their clients. The web 
-controller in Cameroon typically sends back an array, but it can use Dorguzen's Response class (DGZ_Response) which has 
-a formatter interface, if the developer wiches to use it. The API controller will be able to use DGZ_Response to return 
-a JSON object as standard. 
-
-  Now that Dorguzen has been stabilised, i want us to proceed with this work and go through every controller, and move 
-their data-fetching, which is usually directly from models, and other controllers to services exclusively. Controllers 
-should never have to get data from other controllers. This will make services the centralised point 
-(single source of truth) for all data. Services can fetch data from other services, but never from controllers. 
-This is the standard i want Dorguzen applications to follow, and it is what will make API creation possible. 
-I am telling you all this so we can be on the same page, mentally and you can be up to date with what my mental process 
-has been, and how Camerooncom has evolved to what it is today. This i think is very important, as we will be working 
-together going forward.
-
-  So we have quite a bit of technical debt to clean up. I will now tell you what i have started so far to move in that 
-direction. So i created the src/services folder to house all the services. I thought long and hard and came up with 
-all the services that Camerooncom will need. They are not a lot, actually. I realised that, of all the many controllers 
-Camerooncom has, which is at least 34, they can all be grouped into groups that can be served by a handful of service 
-classes. This is because-and this is one of the greatest benefits of taking this service approach, most of the data 
-was being duplicated, so now we will find that a single service can supply the same data to multiple methods in different 
-controllers. The services i came up with are just 6 in number as can be seen in src/services:
-
-      -AdService 
-      -AuthService
-      -AdvertisementService
-      -LocationService
-      -MessagingService
-      -SystemService
-
-I have already gone ahead and created these service classes. The next step is going through all views and finding 
-what controllers supply data to them, then goiong into that controller specific method and moving the data-fetching 
-logic to a service. Then, making sure that controller method only requests for the data from the service, and passes 
-this payload on to the view without any modifications. Also, the view file should be cleaned of all PHP code making 
-any calls to controllers or models, but MUST only accept and use the payload passed to it from its controller. 
-The idea behind this, and i know you would agree, is to end up with fat services, and thin controllers.
-I have already started the job. If you take a look at them, for example, if you look in the src/services/AdService 
-class, i had started. I created comments above all the service classes, and in the 'CONTROLLERS BEING SERVED' above 
-each file, i decided to keep track of which controllers and models had been done. As you can see i have a marker 
-there like '----- in progress' or '----- done', to keep track, and there are just so many of these controllers and 
-methods. I will like you to follow this approach too if you can so i can keep an eye of your progress. 
-
-  As we work, always let me know if you want to understand or confirm anything about how the code works. If something 
-is not clear from the code, please do not assume, but rather, confirm it with me as i will be right here with you. 
-We will first of all take on the big task of transferring all logic to services, when that is done and we can confirm 
-that all is working as before, and all views are getting this payload coming from services via controllers, this will 
-be the web application re-worked and stabilised in the right way. We will then embark on building the API. Once the 
-API is done, we will embark on building the mobile app, which will be a react-native hybrid app-single codebase for 
-both Android and IOS. 
-
-If you are curious, you can glance at a start i made in the API direction here:
-
-      modules/api/v1/controllers/ApiController.php in the api() method
-
-  Alot of the code is messy now because i was experimenting, but i managed to implement API authentication using  
-the Firebase JWT PHP package and it worked. Also, check my comments in that file under the heading: 
-
-    HOW JWT (Json Web Tokens) WORKS 
-
-then see my notes in docs/apiDocs.txt to understand how it worked. The key in that process is this trait which i 
-have prepared:
-
-      Dorguzen\Core\DGZ_APITrait
-
-This is how i intend to implement the API later. Just giving you a heads-up on that in advance, but we are starting 
-with the services architecture first of course.  
-
-  Okay, i have typed a whole lot. I will leave you now to read all of this and check the services directory, 
-especially the AdService.php and see what i have done in it, and look at some of the views, for example look at the 
-'category.php' and 'details.php' views, served by the AdService via AdController, and then look at the 'search.php' 
-view being served by the AdService via the CategoryController. Look at another view that i have not yet done like 
-home.php. This home.php has a clean view in the sense that i had moved all logic from the view at some point earlier 
-before deciding on this service architecture, but the logic is still in the src/controllers/HomeController.php in 
-the home() method. That logic still needs to be moved from the home() method of the HomeController to a service, 
-most likely the AdService. 
-
-  This brings the question; how would you know which service to use for a controller. I have thought it through 
-and listed the controllers that each service serves above in the file under the comment heading: 
-
-      CONTROLLERS BEING SERVED
-
-If i did not add a controller that you are working on in any of the listed ones in the service classes, please 
-let me know which service logically makes sense to you and let me approve it.
-
-  Let's talk about how we will work on this; our mode of working. Work in plan mode please, and add this information 
-to a skill if you can, as i have taken time to type all this information so you learn how the camerooncom codebase 
-works. Its important because its a large codebase, and a big project that i intend to package not just for cameroon, 
-but potentially as a licensable application for commercial use, eventually. I will be able to replace 'cameroon' 
-with say, Canada and build such a web application for canada. So because i will be working with you on this for 
-the forseeable future, i want you to save this as a skill. The same will also apply to the API that we will 
-eventually buil together, as well as the mobile app. So enough typing for me. Go off and read away. Come back with 
-a confirmation if you have understood the mission, and your thoughts, or any questions. Don't start anything yet. 
-This is just a scouting session for you; a reconaissance mission, if you like :). Brace yourself, this is going to 
-be fun for you and i, i can just feel it.
-Thank you.
-
-
-//----------
-Thanks, that's fixed. You did a great job, let's proceed with other controllers and views. I thought about 
-what will be the best approach in order not to miss any view, and its simple. I already listed all the 
-controllers and methods serving views above all the service classes, in the 'CONTROLLERS BEING SERVED' comment. 
-So i'll advice you work your way through the service classes using that list, probably starting from the AdService 
-class which serves the most controllers, and from top to bottom, fetching the controller, going to the target 
-method, moving the logic to the service class, passing the $payload to the controller's method, and sending it 
-to the view, then visiting the view and editing the view to use that payload data, and remove all other unnecessary 
-controller/model code from the view. I should warn you that you will find in some view other code that the view is 
-pulling in, which was not sent from the controller that rendered the view. Please pay attention in case you   
-find these, and the solution will be to probably make that data sent in from the service class via the payload. 
-It might be worth creating a copy of a view file first, naming it with a suffix of EXPIRED.php like i was doing, 
-then since we are doing one controller and view at a time, once i test it and confirm it works, we can get rid of 
-the EXPIRED.php version of the file. What do you think? Hey but if you feel you are confident you will not be 
-breaking the view code, then i am happy to let you do your thing. That's it, go ahead and proceed. 
-Good luck 
-
-
-DB calls to be moved from AdController to AdService
-┌───────────────────────────┬───────────────────────────────────────────────────┬─────────────────┐
-  │          Method           │                   What remains                    │     Action      │
-  ├───────────────────────────┼───────────────────────────────────────────────────┼─────────────────┤
-  │ commercialDetails()       │ $this->bizAds->updateViewCount()                  │ → service       │
-  ├───────────────────────────┼───────────────────────────────────────────────────┼─────────────────┤
-  │ edit_ad()                 │ container(Products)→getProductDetails() x2        │ → service       │
-  ├───────────────────────────┼───────────────────────────────────────────────────┼─────────────────┤
-  │ getProducImages()         │ container(Products)→getProductImages()            │ → service       │
-  ├───────────────────────────┼───────────────────────────────────────────────────┼─────────────────┤
-  │ goldStatus()              │ container(Users)→hasGold()                        │ → service       │
-  ├───────────────────────────┼───────────────────────────────────────────────────┼─────────────────┤
-  │ favourites() API branch   │ container(Favs)→getFavourites()                   │ → service       │
-  ├───────────────────────────┼───────────────────────────────────────────────────┼─────────────────┤
-  │ addToFavs()               │ container(Favs)→addToFavs()                       │ → service       │
-  ├───────────────────────────┼───────────────────────────────────────────────────┼─────────────────┤
-  │ removeFromFavs()          │ container(Favs)→removeFromFavs()                  │ → service       │
-  ├───────────────────────────┼───────────────────────────────────────────────────┼─────────────────┤
-  │ getLatestPostsForSlider() │ container(Products)→getLatestPostsForSlider()     │ → service       │
-  ├───────────────────────────┼───────────────────────────────────────────────────┼─────────────────┤
-  │ getLatestPosts()          │ container(Products)→getLatestPostsToShow()        │ → service       │
-  ├───────────────────────────┼───────────────────────────────────────────────────┼─────────────────┤
-  │ reportAdvertizer()        │ $this->users→getUsernameFromId()                  │ → service       │
-  ├───────────────────────────┼───────────────────────────────────────────────────┼─────────────────┤
-  │ delete_ad()               │ $this->shop→getShopOwner/isComanager/isShadowShop │ → reuse service │
-  └───────────────────────────┴───────────────────────────────────────────────────┴─────────────────┘
-
-
-   AdService.php — changes:                                                                                                                                                                                                                                      
-                                                                                                                                                                                                                                                                
-  ┌───────────────────────────────────────────────────────────────────────────────┬────────────────────────────────────────────────────────────┐                                                                                                                
-  │                                Added / changed                                │                          Purpose                           │
-  ├───────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────┤
-  │ resolveProductImgDir() — renamed from resolveProductImgUploadPath, now public │ Shared by both upload and delete-ad paths                  │
-  ├───────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────┤
-  │ updateCommercialAdViewCount(int $serviceId)                                   │ Wraps $this->bizAds->updateViewCount()                     │
-  ├───────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────┤
-  │ getProductDetailsForEdit(int $adId)                                           │ Wraps $this->products->getProductDetails() for edit_ad()   │
-  ├───────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────┤
-  │ getProductImages(int $prodId)                                                 │ Wraps $this->products->getProductImages()                  │
-  ├───────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────┤
-  │ getUserGoldStatus(int $sellerId)                                              │ Wraps $this->users->hasGold()                              │
-  ├───────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────┤
-  │ getUserFavourites(int $userId)                                                │ Wraps Favs::getFavourites()                                │
-  ├───────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────┤
-  │ addToFavourites(int $prodId, int $userId)                                     │ Wraps Favs::addToFavs()                                    │
-  ├───────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────┤
-  │ removeFromFavourites(int $prodId, int $userId)                                │ Wraps Favs::removeFromFavs()                               │
-  ├───────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────┤
-  │ getLatestPostsForSlider()                                                     │ Absorbs config check + Products::getLatestPostsForSlider() │
-  ├───────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────┤
-  │ getLatestPosts()                                                              │ Absorbs config check + Products::getLatestPostsToShow()    │
-  ├───────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────┤
-  │ getReporterUsername(int $userId)                                              │ Wraps $this->users->getUsernameFromId()                    │
-  └───────────────────────────────────────────────────────────────────────────────┴────────────────────────────────────────────────────────────┘
-
-  AdController.php — constructor:
-  - Removed 7 injected model/controller properties (Products, Product_categories, Locations, Users, Biz_ads, Category_images, ShopController)
-  - Constructor now takes only AdService + OldValidator
-  - 14 use import statements reduced to 7 (Config, DGZ_Translator, OldValidator, DGZ_Uploader, Product_images, DGZ_Controller, AdService)
-  - Product_images + DGZ_Uploader + Config + DGZ_Translator kept solely for upload_prod_imgMobile() which is excluded from refactoring
-
-  AdController.php — methods cleaned: commercialDetails, edit_ad, getProducImages, goldStatus, favourites (API branch), addToFavs, removeFromFavs, getLatestPostsForSlider, getLatestPosts, reportAdvertizer, delete_ad — zero direct model calls remaining.
-
-  AdController is now clean. Ready to move to the next controller whenever you confirm.
-
-
-
-
-
-
-
-
-
-THE API PROMPT
-----------------------
-The next task i want us to work on now is one of the most important for Dorguzen, and that is APIs, secured 
-using Firebase JWT in PHP. I already have a secret key and tested it and it worked. This was before i decided 
-to make huge changes in Dorguzen and to create a separate defined API routes, and use a service architecture   
-instead of letting controllers handle all requests (web and API). Now the new way is that API routes will de 
-defined in: /routes/api.php, and API requests should be made to src/api/controllers/. So i will like us to 
-implement the api feature using this flow (src/api/controllers) with the routes defined in routes/api.php. 
-As i said, for now, i had tested it and it worked when at first, i intended to make APIs work via modules-though 
-it may be broken now with all the changes i ended up making. For you to understand how i made it work so we can 
-replicate it, take a look at the documentation i attempted to make here: docs/apiDocs.txt. Read the CAMEROONCOM 
-API ROADMAP section and the notes under the 'Modular & Service approach' heading below it. Also see the 'WORKING 
-API ROUTES' which may be broken now. Really, the way it worked is through this class:                    
-modules/api/v1/controllers/ApiController.php which you must look at. See its api() method which is what made it 
-work. We need to move this functionality to controllers in src/api/controllers/. I DO NOT WANT US TO BUILD THE 
-FULL API SYSTEM FOR CAMEROONCOM NOW (as you know we still have work to do moving all controller logic to services). 
-FOR NOW, I WANT US TO GET ONLY ONE OR TWO API REQUESTS WORKING, AND DOCUMENT IT IN THE FRAMEWORK'S DOCS SO I CAN 
-SHIP DORGUZEN. ULTIMATELY, DEVELOPERS WILL BUILD THEIR OWN APIs. Camerooncom is only one such application using 
-Dorguzen, and i used it t help evolve Dorguzen so i could see it in action-powering a real multi-user web app. So, 
-as you can see from modules/api/v1/controllers/ApiController.php, all API controllers MUST use the 
-Dorguzen\Core\DGZ_APITrait trait. Let me end here, go ahead and investigate and tell me how you think we can 
-proceed. We can start with building an API to register a user with camerooncom-remember that the api controller 
-(whatever we will call it) should ultimately make a request to a service eg src/services/AuthService.php 
-(in the case of user sign up, i would imagine), and then format its response into a DGZ_Response object with the 
-help of the formatter interface and send back its response to the caller. Let me end here, so over to you.
-
-
-curl -X POST http://localhost/camerooncom/api/v1/auth/register \                                                                                                                       
-    -H "Content-Type: application/json" \                                                                                                                                         
-    -d '{                                                                                                                                                                         
-      "firstname":        "Test",                                                                                                                                                 
-      "surname":          "User",                           
-      "username":         "testuser",
-      "password":         "Secret123!",
-      "confirm_password": "Secret123!",                                                                                                                                           
-      "phone":            "650000000",
-      "email":            "testuser@example.com"                                                                                                                                  
-    }'
-
-curl -X POST http://localhost/camerooncom/api/v1/auth/register -H "Content-Type: application/json" -d
-  '{"firstname":"Test","surname":"User","username":"testuser","password":"Secret123!","confirm_password":"Secret123!","phone":"650000000","email":"testuser@example.com"}'
-
-http POST http://localhost/camerooncom/api/v1/auth/register \
-    firstname=Test \
-    surname=User \
-    username=testUser \
-    password=Secret123! \
-    confirm_password=Secret123! \
-    phone=12345678 \
-    email=testuser@example.com
-
-
-
-
-
-
-
-    TO KEEP OR NOT TO KEEP modules/api:
-    --------------
-    ⏺ Let me read that before forming an opinion:                                                                                                            
-                                                                                                                                                         
-  Read 1 file (ctrl+o to expand)                                                                                                                         
-                                                   
-⏺ Now I have the full picture. Here's my honest take:                                                                                                    
-                                                            
-  The module API was a workaround born from a constraint that no longer exists.                                                                          
-                                                                                                                                                         
-  The original flow was:                                                                                                                                 
-  - URL /api/auth-doLogin hits DGZ's dynamic router → resolves to ApiController, method auth-doLogin                                                     
-  - BaseMiddleware sees api → calls isActiveModule (just an on/off check)                                                                                
-  - The commented-out divert() in BaseMiddleware would have parsed auth-doLogin → ['auth', 'doLogin'] → called ApiController::api('auth', 'doLogin')
-  - ApiController::api() would then dynamically instantiate AuthController and call doLogin() on it, wrapping the result with JWT                        
-                                                                                                                                                         
-  It was a clever hack to bolt JWT onto existing web controllers without touching them, using the dynamic URL discovery as the routing mechanism since   
-  there were no defined routes.                                                                                                                          
-                                                                                                                                                         
-  The argument for keeping it: zero. Here's why:                                                                                                         
-                                                            
-  1. routes/api.php now exists — the routing problem it solved is gone                                                                                   
-  2. The proxy indirection (ApiController → AuthController) adds a layer with no benefit; AuthService already does the actual work for both
-  3. It would just be duplication — two paths to the same login behaviour                                                                                
-  4. The divert() method is commented out, api() has undefined variables, the namespace is wrong — it's already half-dead                                
-                                                                                                                                                         
-  My recommendation: delete modules/api/ entirely. The JWT documentation comments at the bottom of ApiController.php are the only thing worth saving —   
-  but they're already covered better in docs/dgzDocs.php. The 'api' => 'isActiveModule' entry in BaseMiddleware::boot() can stay as a guard for any      
-  future module-level routes.                                                                                                                            
-                                                            
-  Want me to do the cleanup?
-
-
-
-  //// --------------- FIX FOR 'u_priv_imgs' NOT BEING FOUND AS A METHOD ON HOMECONTROLLER ------
-
-  The router auto-discovery is parsing a URL like /users/u_priv_imgs/filename.jpg as controller=users, method=u_priv_imgs — then falling back to HomeController when no
-  UsersController is found. That path is a static file directory, so requests to it shouldn't be hitting PHP at all. Let me check the .htaccess:
-                                                                                                                                                                            
-  Read 1 file (ctrl+o to expand)                 
-                                                                                                                                                                            
-⏺ Found it. The RewriteCond guards at the top (!-d and the .php -f check) only apply to the very next RewriteRule ^$ index.php. Rules 2–5 have no conditions at all — so any
-   request matching those patterns, including requests to real directories like /users/u_priv_imgs, gets routed through PHP.
-                                                                                                                                                                            
-  The fix: add !-f and !-d guards to rules 2–5 so real files and directories are never caught by the router:                                                                
-                                                                 
-⏺ Update(.htaccess)                                                                                                                                                         
-  ⎿  File must be read first                                                                                                                                              
-                                                                                                                                                                            
-  Read 1 file (ctrl+o to expand)                                                                        
-                                                                                                                                                                            
-⏺ Update(.htaccess)                                                                                                                                                         
-  ⎿  Added 4 lines                                                                                                                                                          
-      43              # typed in are used by DGZ_Router to check for the existance of such a controller. As per the rule below, the URL parameters                          
-      44              # here are only those characters up until a forward slash is encountered, or all of it if no forward slash is in the request.                         
-      45                                                                                                                                                                    
-      46 +RewriteCond %{REQUEST_FILENAME} !-f                                                                                                                               
-      47 +RewriteCond %{REQUEST_FILENAME} !-d                                                                                                                               
-      48  RewriteRule ^([a-zA-Z0-9_-]+)$ index.php                                                                                                                          
-      49 +RewriteCond %{REQUEST_FILENAME} !-f                                                                                                                               
-      50 +RewriteCond %{REQUEST_FILENAME} !-d                                                                                                                             
-      51  RewriteRule ^([a-zA-Z0-9_-]+)/$ index.php
-      52  #-------------------------------
-      53  
-
-⏺ Update(.htaccess)                                                                                                                   
-  ⎿  Added 4 lines
-      60              # yourAppName/'controller'/'methodName'.                                                                        
-      61          # The second line just complements the first one and makes sure a trailing slash after the second set of characters is allowed
-      62                                                                                                                                                                    
-      63 +RewriteCond %{REQUEST_FILENAME} !-f                                                                                                                        
-      64 +RewriteCond %{REQUEST_FILENAME} !-d                                                                                                                               
-      65  RewriteRule ^([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)$ index.php                                                                                                       
-      66 +RewriteCond %{REQUEST_FILENAME} !-f                                                                                                                               
-      67 +RewriteCond %{REQUEST_FILENAME} !-d                                                                                                                             
-      68  RewriteRule ^([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)/$ index.php
-      69  #-------------------------------
-      70  
-
-⏺ Update(.htaccess)                                                                                                                   
-  ⎿  Added 4 lines
-      84                  # This is good for SEO.                                                                                                                        
-      85              # Any characters that come after a question mark (?) are ignored. These are query strings, and there are other ways for you 
-      86              # to retrieve and use them in your application.                                                                                                       
-      87 +RewriteCond %{REQUEST_FILENAME} !-f                                                                                                                              
-      88 +RewriteCond %{REQUEST_FILENAME} !-d                                                                                                                               
-      89  RewriteRule ^([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)$ index.php                                                                                      
-      90 +RewriteCond %{REQUEST_FILENAME} !-f                                                                                                                        
-      91 +RewriteCond %{REQUEST_FILENAME} !-d                                                                                                                        
-      92  RewriteRule ^([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)/$ index.php
-      93  #-------------------------------
-      94                                                                                                                                                                    
-   
-⏺ Update(.htaccess)                                                                                                                                                         
-  ⎿  Added 5 lines, removed 1 line                                                                                                                                        
-      104              # This is the only purpose of this URL segment. If it was text instead of an integer, it would be ignored.                                        
-      105                  # This offers you the flexibility of passing a resource id to a controller method, in a visual way through the URL.
-      106                  # This ensures you get clean-looking and readable URLs, which is good for SEO.                                                                
-      107 -RewriteRule ^([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)$ index.php                                                                     
-      107 +RewriteCond %{REQUEST_FILENAME} !-f                                                                                                                         
-      108 +RewriteCond %{REQUEST_FILENAME} !-d                                                                                                                             
-      109 +RewriteRule ^([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)$ index.php                                                                 
-      110 +RewriteCond %{REQUEST_FILENAME} !-f                                                                                                                       
-      111 +RewriteCond %{REQUEST_FILENAME} !-d                                                                                                                       
-      112  RewriteRule ^([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)/$ index.php
-      113  #-------------------------------                                                                                                                                 
-      114  
-                                                                                                                                                                            
-⏺ Upload .htaccess to live.  
-
-
-
-  What was happening: Apache RewriteCond only guards the single RewriteRule immediately following it. Rules 2–5 had no conditions, so a request to /users/u_priv_imgs (a  
-  real directory) matched Rule 3 and got forwarded to PHP. The router then parsed users as the controller and u_priv_imgs as the method.
-                                                                                                                                                                         
-  The fix: Each RewriteRule now has !-f (not a real file) and !-d (not a real directory) guards before it — the standard pattern for any PHP MVC app. Requests for real    
-  files (images, CSS, JS) and real directories (like u_priv_imgs) are now served directly by Apache and never reach the PHP router.                                    
-                                                                                                                                                                           
-✻ Cogitated for 2m 11s                                                                                                                                                 
-
-  /btw i do not feel comfortable adding a hack there saying if $method == 'u+priv_imgs' because that will be a hack and not a real fix                                     
-                                                                                                                                                                       
-    You're absolutely right, that would be a hack. The real fix is the .htaccess one — adding RewriteCond %{REQUEST_FILENAME} !-f and RewriteCond %{REQUEST_FILENAME} !-d   
-    before each RewriteRule.                                                                                                                                               
-                                                                                                                                                                            
-    Those two conditions tell Apache: only route this request through PHP if it's NOT an actual file and NOT an actual directory on disk. Since users/u_priv_imgs IS a real
-    directory, Apache will serve it directly and never hand it to the PHP router. The error log entry disappears completely because the request never reaches Dorguzen.     
-                                                                                                                                                                            
-    This is the standard pattern used by every major PHP framework (Laravel, Symfony, CodeIgniter) — it's the correct, permanent fix.
-                                                                                                                                                                            
-  Press Space, Enter, or Escape to dismiss  
-
-
-
-
-//-------------------------------END SCRAP-----------------------------------//
-
-
-
-
-
-
-
-
 ——————————————————————
     INTRODUCTION TO UKPL (VCDFT)
 ——————————————————————
@@ -855,9 +37,9 @@ DDDDDDPO      D
 Data types, Data structures, Design patterns, DB and Storage, Dates and Time, Frontend/UI and the URL, Package Management, OOP
 ——————————————————————
 
-FFIEENA         F
+FFIIEENA         F
 —————
-File management, Forms and email, Images, Error Debugging and Testing, Extensions (APIs and Libraries), 
+File management, Forms and email, Images, Input/Output, Error Debugging and Testing, Extensions (APIs and Libraries), 
 	Networking, Applications (in the eco-system)
 ——————————————————————
 
@@ -2951,6 +2133,23 @@ CASSSS
             -How to Configure the Image Source (brand_slider_source)
             -Adding Your Images
             -How It Works Internally
+          -The SEO Module
+            -What It Is
+            -How It Works — the automatic pipeline
+            -Step 1: Enable the module
+            -Step 2: Enter global SEO data
+            -Step 3: Enter per-page SEO data
+                -The page name convention
+            -What gets injected and where
+                -Global SEO (site-wide meta tags)
+                -Per-page head meta tags
+                -Per-page body SEO data
+                -Fallback title
+            -Wiring up SEO in a layout file
+            -Creating a custom layout
+                -The layout skeleton
+                -Parts of a layout
+                -Multiple layouts / themes
 
 
 
@@ -3841,6 +3040,424 @@ in the layouts — no additional JavaScript or CSS dependencies are needed.
 
 
 
+    The SEO Module
+    ---------------
+
+    Contents
+    ~~~~~~~~~
+        - What It Is
+        - How It Works — the automatic pipeline
+        - Step 1: Enable the module
+        - Step 2: Enter global SEO data
+        - Step 3: Enter per-page SEO data
+            - The page name convention
+        - What gets injected and where
+            - Global SEO (site-wide meta tags)
+            - Per-page head meta tags
+            - Per-page body SEO data
+            - Fallback title
+        - Wiring up SEO in a layout file
+        - Creating a custom layout
+            - The layout skeleton
+            - Parts of a layout
+            - Multiple layouts / themes
+
+
+
+    What It Is
+    ~~~~~~~~~~~
+    The SEO module is a built-in Dorguzen module (modules/seo/) that gives you a
+    database-driven way to manage the SEO meta tags of every page on your site,
+    as well as site-wide Open Graph and social metadata, without touching a single
+    view file or layout after the initial setup.
+
+    It ships with two data stores:
+
+        seo              Per-page SEO records. Each row targets one view by name
+                         and holds the page title, meta description, keywords,
+                         Open Graph tags, Twitter Card tags, canonical href,
+                         noindex flag, and body content fields (h1, h2, page copy)
+                         — all in up to three languages (en, fr, es).
+
+        seo_global       One row per application. Holds the site-wide meta tags
+                         that should appear on every page: OG locale, OG site name,
+                         article publisher/author, geo coordinates, Facebook app ID,
+                         Twitter card type/handle, and hreflang alternate links.
+
+    Both are managed through the admin UI at /seo (visible only to admin roles).
+
+
+
+    How It Works — the automatic pipeline
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    You do not need to call anything from your controllers. When a view is rendered,
+    DGZ_Controller::display() calls:
+
+        $this->loadSeoData($this->viewName);
+        $layout->setGlobalSeoData($this->globalSeoData);
+        $layout->setMetadata($this->getMetadata());
+
+    loadSeoData() does the following automatically:
+        1. Checks that the seo module is enabled in config ('seo' => 'on').
+        2. Instantiates SeoController and fetches the global SEO row.
+        3. Builds an array of HTML <meta> tag strings from the global row and
+           stores them on the controller via setGlobalSeoData().
+        4. Looks up a per-page SEO row whose seo_page_name matches the current
+           view's class name (lowercased). If found, builds head and body SEO
+           data arrays and stores them.
+        5. Passes both arrays to the layout via setGlobalSeoData() and
+           setMetadata() — making them available to getGlobalSeoData() and
+           getMetadata() inside the layout's display() method.
+
+    If the seo module is off, or no matching row is found, nothing is output and
+    the layout falls back to a plain <title> tag (see Fallback title below).
+
+    The only requirement on your part is two lines in the layout file's <head>
+    section (see "Wiring up SEO in a layout file" below).
+
+
+
+    Step 1: Enable the module
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    In configs/app.php (and optionally .env), ensure the seo flag is 'on':
+
+        // configs/app.php
+        'modules' => [
+            'seo' => env('MODULES_SEO_STATUS', 'on'),
+            ...
+        ],
+
+        # .env
+        MODULES_SEO_STATUS=on
+
+    The module is on by default in a fresh Dorguzen installation.
+
+
+
+    Step 2: Enter global SEO data
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Log in as an admin user and navigate to:
+
+        /seo  →  SEO Manager  →  "Global SEO" tab (or the "Add Global SEO" link)
+
+    Fill in the site-wide fields:
+
+        OG Locale              e.g. en_GB  — the primary language/region of the site
+        OG Site Name           Your website's display name shown in social cards
+        Article Publisher      Full URL to your Facebook business page
+        Article Author         Full URL to your Facebook personal page
+        Geo Placename          e.g. London  — the city/region the site represents
+        Geo Region             e.g. GB  — ISO country/region code
+        Geo Position           e.g. 51.5074;-0.1278  — lat;lon coordinates
+        Facebook App ID        Your FB app ID for the fb:app_id meta tag
+        Twitter Card Type      e.g. summary, summary_large_image
+        Twitter Site Handle    Your Twitter/X handle e.g. @mysite
+        HREFlang Alternate 1   e.g. fr-ca  — alternate language variant URL
+        HREFlang Alternate 2   e.g. en-ca
+
+    You only need to fill in the fields that apply to your site. Any field left
+    blank is silently skipped — no empty <meta> tags are output.
+
+    These tags will appear in the <head> of every page on your site automatically,
+    in the same request cycle as the page render — no cache to clear.
+
+
+
+    Step 3: Enter per-page SEO data
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Navigate to:
+
+        /seo  →  "Add Page SEO" link
+
+    Fill in the fields for the page you want to optimise:
+
+        Page Name           The view name (see convention below)
+        Title (en/fr/es)    Meta title — max 60 characters
+        Description (en)    Meta description — max 150 characters
+        Keywords            Comma-separated keywords
+        OG Title            Open Graph title for social sharing
+        OG Description      Open Graph description
+        OG Image            Fully-qualified image URL e.g. https://mysite.com/assets/social/og.png
+        OG Image Secure URL HTTPS version of the OG image URL
+        OG Image Width/Height  Dimensions in pixels
+        OG Video            HTTPS URL of a video for rich cards
+        OG Type             e.g. website, article, product
+        OG URL              Canonical URL of the page for OG
+        Twitter Title       Title shown in Twitter/X cards
+        Twitter Description Description shown in Twitter/X cards
+        Twitter Image       Image URL for Twitter cards
+        Canonical Href      Canonical link rel href (tick to enable)
+        No Index            Tick to add <meta name="robots" content="noindex">
+        SEO Dynamic         Tick if this page's title/description come from
+                            user-submitted content — see Dynamic SEO below
+        H1 Text             The recommended h1 heading for this page
+        H2 Text             The recommended h2 sub-heading
+        Page Content        Keyword-rich body copy for this page
+
+
+    The page name convention
+    ~~~~~~~~~~~~~~~~~~~~~~~~~
+    The page name you enter MUST exactly match the lowercased class name of the
+    view file for that page. Dorguzen matches by calling strtolower($viewName)
+    and looking up seo_page_name in the database.
+
+    Examples:
+
+        View file                              Page name to enter
+        -----------------------------------    ------------------
+        views/home.php  (class home)           home
+        views/about.php (class about)          about
+        views/contact.php (class contact)      contact
+        modules/blog/views/post.php            post
+
+    If the class is named differently from the file, use the class name, not
+    the filename. The match is always against the class name, lowercased.
+
+
+
+    What gets injected and where
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Global SEO (site-wide meta tags)
+    ---------------------------------
+    Injected into the layout's <head> via getGlobalSeoData(). These appear on
+    every page and cover OG site identity, geo tags, Twitter card base settings,
+    and hreflang alternates.
+
+    The tags output by getGlobalSeoData() include (where data exists):
+
+        <meta property="og:locale:alternate" content="..." />
+        <meta property="og:site_name" content="..." />
+        <meta property="article:publisher" content="..." />
+        <meta property="article:author" content="..." />
+        <meta name="geo.placename" content="..." />
+        <meta name="geo.region" content="..." />
+        <meta name="geo.position" content="..." />
+        <meta property="fb:app_id" content="..." />
+        <meta name="twitter:card" content="..." />
+        <meta name="twitter:site" content="..." />
+        <link rel="alternate" href="..." hreflang="..." />
+
+
+    Per-page head meta tags
+    ------------------------
+    Injected via getMetadata(). These are page-specific and override the fallback
+    <title> tag. For the current page's language, the following are output:
+
+        <meta name="description" content="...">
+        <meta name="keywords" content="...">
+        <meta property="og:title" content="..." />
+        <meta property="og:description" content="..." />
+        <meta property="og:image" content="..." />
+        <meta property="og:image:secure_url" content="..." />
+        <meta property="og:image:width" content="..." />
+        <meta property="og:image:height" content="..." />
+        <meta property="og:video" content="..." />
+        <meta property="og:type" content="..." />
+        <meta property="og:url" content="..." />
+        <meta name="twitter:title" content="..." />
+        <meta name="twitter:description" content="..." />
+        <meta name="twitter:image" content="..." />
+        <link rel="canonical" href="..." />
+        <meta name="robots" content="noindex">
+        <title>...</title>
+
+
+    Per-page body SEO data
+    -----------------------
+    Three fields from the per-page SEO row are also made available for use
+    inside the view's body content: h1 text, h2 text, and page copy. These are
+    stored on the layout object and can be accessed in views or layout partials
+    via the controller's getBodySeoData() method:
+
+        $bodySeo = $this->controller->getBodySeoData();
+        // keys: 'seo_h1_text', 'seo_h2_text', 'seo_page_content'
+
+    These fields are optional. If they are empty in the database row, they
+    return empty strings. Typical usage is to output them as the primary
+    heading and introductory copy on a page where you want to manage that
+    content from the admin panel rather than hard-coding it in the view.
+
+    Example in a view:
+
+        <?php $bodySeo = $this->controller->getBodySeoData(); ?>
+        <h1><?= htmlspecialchars($bodySeo['seo_h1_text']) ?></h1>
+        <h2><?= htmlspecialchars($bodySeo['seo_h2_text']) ?></h2>
+        <p><?= htmlspecialchars($bodySeo['seo_page_content']) ?></p>
+
+
+    Fallback title
+    ---------------
+    If no per-page SEO row exists for the current view (or the SEO module is
+    off), getMetadata() returns an empty string. The layout handles this with
+    the following pattern (already in seoMasterLayout.php line 22):
+
+        <?=($this->getMetadata() != null) ? $this->getMetadata() : "<title>".self::$appName."-".$this->pageTitle."</title>" ?>
+
+    This means every page always has a <title> tag — either the SEO-managed one
+    or the auto-generated "appName - pageTitle" fallback. No extra work needed.
+
+
+
+    Wiring up SEO in a layout file
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    If you create a custom layout (see next section), you must include exactly
+    two lines inside the <head> tag to connect it to the SEO pipeline:
+
+        <!-- inside <head> -->
+        <?= $this->getGlobalSeoData() ?? '' ?>
+        <?= ($this->getMetadata() != null) ? $this->getMetadata() : "<title>" . self::$appName . "-" . $this->pageTitle . "</title>" ?>
+
+    Line 1 outputs the site-wide global meta tags (OG identity, geo, Twitter base).
+    Line 2 outputs the page-specific meta tags including <title>, or falls back to
+    an auto-generated title if no SEO row exists for this page.
+
+    Place them immediately after the required <meta charset> and <meta viewport>
+    tags, before any <link> or <script> tags, to ensure search engines read them
+    in the correct order. That is all the setup required — the framework handles
+    the rest automatically on every request.
+
+
+
+    Creating a custom layout
+    ~~~~~~~~~~~~~~~~~~~~~~~~~
+    A layout in Dorguzen is the outer HTML shell that wraps every page — the
+    <html>, <head>, header, footer, and the slot where view content is injected.
+    You can have as many layouts as your application needs: a public site layout,
+    an admin panel layout, a minimal API response layout, a campaign landing page
+    layout, and so on. Dorguzen ships with:
+
+        layouts/seoMaster/       The recommended public-facing layout (default)
+        layouts/admin/           The admin panel layout
+        layouts/dorguzApp/       An alternative full-featured public layout
+
+    To create a new layout, copy the seoMaster directory and rename it:
+
+        layouts/
+        └── myTheme/
+            ├── myThemeLayout.php          ← the main layout class (required)
+            ├── header.inc.php             ← navigation / top bar
+            ├── footer.inc.php             ← footer links / copyright
+            ├── html_dependencies_top.inc.php    ← CSS links, early scripts
+            └── html_dependencies_bottom.inc.php ← JS bundles loaded at end of body
+
+
+    The layout skeleton
+    ~~~~~~~~~~~~~~~~~~~~
+    Your main layout class must extend DGZ_Layout and implement display(). Use
+    seoMasterLayout.php as your starting point. The minimal required structure:
+
+        <?php
+        namespace Dorguzen\layouts\myTheme;
+
+        class myThemeLayout extends \Dorguzen\Core\DGZ_Layout
+        {
+            public function display()
+            { ?>
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="utf-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+                    <!-- SEO — these two lines are required for the SEO module to work -->
+                    <?= $this->getGlobalSeoData() ?? '' ?>
+                    <?= ($this->getMetadata() != null) ? $this->getMetadata() : "<title>" . self::$appName . "-" . $this->pageTitle . "</title>" ?>
+
+                    <?= $this->getCssHtml() ?>
+                    <?php include('html_dependencies_top.inc.php'); ?>
+                </head>
+                <body>
+
+                    <?php include('header.inc.php'); ?>
+
+                    <!-- Flash messages -->
+                    <?php if (!empty($this->errors)): ?>
+                        <div class="alert danger"><?= $this->errors ?></div>
+                    <?php endif; ?>
+                    <?php if (!empty($this->successes)): ?>
+                        <div class="alert success"><?= $this->successes ?></div>
+                    <?php endif; ?>
+
+                    <!-- Page content injected here -->
+                    <?= $this->content ?>
+
+                    <?php include('footer.inc.php'); ?>
+
+                    <?php include('html_dependencies_bottom.inc.php'); ?>
+                    <?= $this->getJavascriptHtml() ?>
+
+                </body>
+                </html>
+            <?php
+            }
+        }
+
+    Important lines explained:
+
+        $this->getCssHtml()           Outputs any per-view <link> tags added via
+                                      $this->addStyle('file.css') in a view's show()
+        $this->getJavascriptHtml()    Outputs any per-view <script> tags added via
+                                      $this->addScript('file.js')
+        $this->content                The rendered HTML of the current view
+        $this->errors / successes     Flash message bags — include all five:
+                                      exceptions, warnings, errors, notices, successes
+        include('header.inc.php')     Pull in the navigation partial
+        include('footer.inc.php')     Pull in the footer partial
+
+
+    Parts of a layout
+    ~~~~~~~~~~~~~~~~~~
+    Splitting the layout into partials (header, footer, dependencies) keeps each
+    file focused and easy to edit. The split is a convention — you can merge them
+    or add more partials as your design grows. Common patterns:
+
+        header.inc.php
+            Site logo, main navigation, mobile menu toggle, any top banner.
+            Read the current route with $this->config->getCurrentRoute() to
+            highlight the active nav item.
+
+        footer.inc.php
+            Footer links, social icons, copyright notice, cookie consent popup.
+
+        html_dependencies_top.inc.php
+            CSS framework links (Bootstrap, Tailwind etc.), icon libraries,
+            Google Fonts, and any scripts that must load in <head>.
+
+        html_dependencies_bottom.inc.php
+            JavaScript bundles (jQuery, Bootstrap JS, Owl Carousel, app.js).
+            Placing these at the bottom improves perceived page load speed.
+
+
+    Multiple layouts / themes
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    To use a specific layout for a controller action, call setLayout() before
+    rendering:
+
+        // In a controller method
+        $this->setLayout('myTheme', 'myThemeLayout');
+        $this->renderView('myView');
+
+    To make a layout the default for the whole application, set it in
+    configs/app.php:
+
+        'layoutDirectory' => 'myTheme',
+        'defaultLayout'   => 'myThemeLayout',
+
+    The admin panel uses its own layout (layouts/admin/adminLayout.php)
+    automatically for all views in views/admin/ that extend DGZ_AdminHtmlView.
+    You do not need to call setLayout() for admin views — the base class
+    handles it.
+
+    Each layout is fully independent. A marketing landing page layout can be
+    stripped down to a single column with no navigation. A dashboard layout can
+    include a sidebar and data widgets. A campaign page layout can load a
+    completely different CSS framework. None of these choices affect any other
+    layout.
+
+
+
+
 ——————————————————————
 	SECURITY
 ——————————————————————
@@ -3896,6 +3513,7 @@ in the layouts — no additional JavaScript or CSS dependencies are needed.
                                 -Restricting controller actions by role
                                 -Showing/hiding UI elements by role
                                 -The middleware alternative (route groups)
+                                -Feature-level permissions — Auth()->can()
 
                          -Using the DGZ_Validator
                          -Examples
@@ -3948,16 +3566,30 @@ in the layouts — no additional JavaScript or CSS dependencies are needed.
     the following session keys are written:
 
         $_SESSION['authenticated']   'Let Go-{appName}'  — presence proves login
-        $_SESSION['user_type']       one of the four role strings above
+        $_SESSION['start']           Unix timestamp of login time
         $_SESSION['custo_id']        the user's numeric primary key
+        $_SESSION['user_type']       one of the four role strings above
         $_SESSION['username']        the user's username
         $_SESSION['email']           the user's email address
         $_SESSION['first_name']
         $_SESSION['last_name']
+        $_SESSION['google_id']       populated if user registered via Google OAuth
+        $_SESSION['phone_number']
+        $_SESSION['mm_account']      mobile money account number, if set
         $_SESSION['emailverified']   'yes' | 'no'
+        $_SESSION['created']         account creation timestamp
 
     Admin logins (any role other than member) are additionally written to the
     logs table automatically.
+
+    Note: $_SESSION['user_type'] is written at login and stays unchanged for the
+    duration of the session. DGZ_Auth does NOT rely on it for role checks —
+    isAdmin(), hasRole(), can(), and role() all read from the Users model that is
+    loaded fresh from the database on every request (see above). This means if a
+    user's type is changed in the DB, Auth() reflects it immediately on their next
+    request without requiring a re-login. $_SESSION['user_type'] is used only by
+    DGZ_AdminHtmlView::guardAdminAccess() and is available as a convenience for
+    raw session reads in edge cases.
 
 
 
@@ -3967,20 +3599,44 @@ in the layouts — no additional JavaScript or CSS dependencies are needed.
     `Auth()` returns the singleton `DGZ_Auth` instance. It is available globally
     in controllers and views via the `Auth()` helper function (bootstrap/helpers.php).
 
+    IMPORTANT — Auth() reads from the Users model, not from $_SESSION['user_type'].
+    At construction, DGZ_Auth calls loadUserFromSession(), which loads a fresh Users
+    model from the database using $_SESSION['custo_id']. All role and identity methods
+    (isAdmin, hasRole, can, role, username, id) read from that model object. This means
+    Auth() always reflects the current database state, not the session snapshot set at
+    login time. DGZ_AdminHtmlView::guardAdminAccess() is the only place that reads
+    $_SESSION['user_type'] directly — it does so intentionally, before DGZ_Auth is
+    available in the view lifecycle.
 
-        Method                   Returns    Description
-        -----------------------  ---------  -------------------------------------------
-        Auth()->check()          bool       true if a user is logged in
-        Auth()->guest()          bool       true if NO user is logged in (inverse of check)
-        Auth()->id()             ?int       the current user's primary key, or null
-        Auth()->user()           ?object    the full Users model object for the current user
-        Auth()->username()       ?string    the current user's username
-        Auth()->role()           ?string    the current user's role string (e.g. 'admin_gen')
-        Auth()->isAdmin()        bool       true if role is admin, admin_gen, or super_admin
-        Auth()->hasRole($role)   bool       true if role exactly matches the given string
-        Auth()->isEmailVerified() bool      true if users_emailverified == 'yes'
-        Auth()->login($u,$p)     bool       attempt login; returns true on success
-        Auth()->logout()         void       destroy session, clear cookies, redirect to login
+
+        Method                        Returns    Description
+        ----------------------------  ---------  -------------------------------------------
+        Auth()->check()               bool       true if a user is logged in (model loaded
+                                                 successfully from DB)
+        Auth()->guest()               bool       true if NO user is logged in
+        Auth()->id()                  ?int       the current user's primary key, or null
+        Auth()->user()                ?object    the full Users model object for the current
+                                                 user, or null if not logged in
+        Auth()->username()            ?string    the current user's username, or null
+        Auth()->userType()            ?string    the current user's tier string
+                                                 (e.g. 'admin_gen'), or null if not logged in
+        Auth()->isAdmin()             bool       true if tier is admin, admin_gen, or
+                                                 super_admin; false if not logged in
+        Auth()->isType($type)         bool       true if the user's tier exactly matches
+                                                 $type; false if not logged in
+        Auth()->can($feature)         bool       true if the current user's tier is in the
+                                                 allowed list for $feature in the
+                                                 configs/Config.php 'permissions' map;
+                                                 false if not logged in or feature not mapped
+        Auth()->permissions()         array      all feature aliases accessible to the
+                                                 current user's tier; empty array if not
+                                                 logged in
+        Auth()->hasRoles()            array      convenience alias for permissions()
+        Auth()->isEmailVerified()     bool       true if users_emailverified == 'yes'
+        Auth()->login($u,$p,          bool       attempt login; $rememberMe sets a 4-day
+                      $rememberMe)               cookie; returns true on success
+        Auth()->logout()              void       destroy session, clear cookies, redirect
+                                                 to auth/login
 
     Examples:
 
@@ -3994,10 +3650,20 @@ in the layouts — no additional JavaScript or CSS dependencies are needed.
             $this->redirect('home');
         }
 
-        // Check a specific role precisely
-        if (Auth()->hasRole('super_admin')) {
-            // only the super_admin can reach this
+        // Check an exact user tier
+        if (Auth()->isType('super_admin')) {
+            // only super_admin reaches here
         }
+
+        // Check feature-level permission (config-driven)
+        if (!Auth()->can('seo')) {
+            $this->redirect('home');
+            return;
+        }
+
+        // Get all features the current user can access
+        $features = Auth()->permissions();  // e.g. ['seo', 'manage_users']
+        $features = Auth()->hasRoles();     // same result — convenience alias
 
         // In a view — show a link only to admins
         <?php if (Auth()->isAdmin()): ?>
@@ -4102,48 +3768,79 @@ in the layouts — no additional JavaScript or CSS dependencies are needed.
     Role-based access — tips and patterns
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    1. Restricting a controller action by role
+    1. Restricting controller actions by role
 
        The cleanest place to enforce role checks is at the top of a controller
-       method, before any data is fetched:
+       method, before any data is fetched. Always return (or exit) after calling
+       redirect() so no further code in the method runs:
+
+       a) Feature-level check (recommended for module/feature access):
+
+           public function index(): void
+           {
+               if (!Auth()->can('seo')) {
+                   $this->redirect('home');
+                   return;
+               }
+               // safe to proceed — current user's type is in the 'seo' allowed list
+           }
+
+       b) Admin-or-above check (any of the three admin roles):
+
+           public function dashboard(): void
+           {
+               if (!Auth()->isAdmin()) {
+                   $this->redirect('auth', 'login');
+                   return;
+               }
+               // ...
+           }
+
+       c) Exact tier check (one specific tier only):
 
            public function deleteUser(int $userId): void
            {
-               if (!Auth()->hasRole('super_admin')) {
-                   $this->redirect('home');  // or show a 403 view
+               if (!Auth()->isType('super_admin')) {
+                   $this->redirect('home');
+                   return;
                }
-               // ... safe to proceed
+               // only super_admin reaches here
            }
 
-       For admin-or-above (any of the three admin roles):
+       d) Multiple tiers without a feature map entry:
 
-           if (!Auth()->isAdmin()) {
-               $this->redirect('auth', 'login');
+           public function manageRegion(): void
+           {
+               $type = Auth()->userType();
+               if ($type !== 'admin_gen' && $type !== 'super_admin') {
+                   $this->redirect('home');
+                   return;
+               }
+               // ...
            }
 
-       For a specific sub-role:
-
-           if (Auth()->role() !== 'admin_gen' && Auth()->role() !== 'super_admin') {
-               // only general admins and super admins reach here
-           }
+       Rule of thumb: use can() when the access rule is feature-based and may apply
+       to several tiers; use isType() when the rule is strictly tied to one exact
+       tier; use isAdmin() when any admin tier is sufficient.
 
     2. Showing / hiding UI elements by role
 
        In a view, use Auth() to conditionally render controls:
 
-           <?php if (Auth()->hasRole('super_admin')): ?>
+           <?php if (Auth()->isType('super_admin')): ?>
                <a href="..." class="btn btn-danger">Delete User</a>
            <?php elseif (Auth()->isAdmin()): ?>
                <a href="..." class="btn btn-primary" disabled>Delete User</a>
                <small>Super admin only</small>
            <?php endif; ?>
 
-       You can also read the role directly from the session in views that do not
-       use the Auth() helper:
-
-           <?php if ($_SESSION['user_type'] === 'super_admin'): ?>
-               ...
+           <?php if (Auth()->can('seo')): ?>
+               <a href="<?= $root ?>seo">SEO Manager</a>
            <?php endif; ?>
+
+       Prefer Auth() over reading $_SESSION['user_type'] directly. The session value
+       is a snapshot set at login time; Auth() reads from the Users model loaded fresh
+       from the database on every request, so it always reflects the current state.
 
     3. The middleware alternative (route groups)
 
@@ -4169,6 +3866,59 @@ in the layouts — no additional JavaScript or CSS dependencies are needed.
        both ensures that no admin view is ever accidentally reachable without a
        valid admin session, regardless of how the URL is resolved.
 
+
+    4. Feature-level permissions — Auth()->can()
+
+       For features that cut across user types (e.g. only certain roles may access
+       the SEO module, regardless of whether the page is "admin" or not), Dorguzen
+       provides a config-driven permissions map.
+
+       The map lives in configs/Config.php under the 'permissions' key:
+
+           'permissions' => [
+               'seo'          => ['admin', 'admin_gen', 'super_admin'],
+               'payments'     => ['admin_gen', 'super_admin'],
+               'manage_users' => ['admin', 'admin_gen', 'super_admin'],
+               'settings'     => ['super_admin'],
+           ],
+
+       Each key is a feature alias. The value is the list of user types allowed
+       to access it. To add a new feature, add a key/array pair here.
+
+       Checking access anywhere in the application:
+
+           Auth()->can('seo')         // true  if the logged-in user's type
+                                      //       is in the 'seo' allowed list
+           Auth()->can('settings')    // true  only for super_admin
+
+       If the user is not logged in, can() always returns false.
+       If the feature key does not exist in the map, can() returns false.
+
+       Guarding a controller action:
+
+           public function index(): void
+           {
+               if (!Auth()->can('seo')) {
+                   $this->redirect('home');
+                   return;
+               }
+               // ... render the page
+           }
+
+       Guarding inside a view:
+
+           <?php if (Auth()->can('seo')): ?>
+               <!-- SEO module content -->
+           <?php else: ?>
+               <h3>You do not have permission to access this page.</h3>
+           <?php endif; ?>
+
+       Method distinctions:
+           isType($type)    — raw tier check: is this user's tier exactly $type?
+           can($feature)    — feature check: is this user's tier in the allowed
+                              list for $feature?
+           permissions()    — returns all feature aliases this user's tier can access
+           hasRoles()       — convenience alias for permissions()
 
 
 
@@ -10572,6 +10322,162 @@ with the framework's philosophy.
   This also covers everything the users sees on the screen (UI), and the manipulation thereof, programmatically whether it be through printing data to the screen, how to create comments, passing data to the view in the case of development frameworks, passing to or retrieving data from the URL etc.
 
 
+Templating Engines — What They Are, Why Dorguzen Does Not Need One, and How to Add One If You Want
+----------------------------------------------------------------------------------------------------
+
+What templating engines solve
+-------------------------------
+
+In traditional PHP frameworks, view files are loose .php files that mix HTML markup with PHP
+logic directly inline:
+
+  <!-- Laravel Blade example -->
+  <h1>{{ $user->name }}</h1>
+  @if ($user->isAdmin())
+      <a href="/admin">Dashboard</a>
+  @endif
+
+This works, but the separation between logic and presentation depends entirely on developer
+discipline. Nothing stops a developer from querying the database, running business logic, or
+calling framework internals right inside a view file. Over time these files tend to accumulate
+logic they were never meant to contain.
+
+Templating engines like Twig, Blade, and Latte were created to solve this:
+
+  -They restrict what code can run inside a template (no arbitrary PHP, only expressions and
+   control structures the engine explicitly allows).
+  -They provide auto-escaping to prevent XSS — template variables are HTML-encoded by default.
+  -They offer template inheritance via block/extend systems, so a base layout template can
+   define regions that child templates fill in.
+  -They separate the concerns of "prepare data" (controller) from "display data" (template),
+   making views easier to hand to designers who do not write PHP.
+
+Why Dorguzen does not need a templating engine
+-----------------------------------------------
+
+Dorguzen's view system already provides the same guarantees through a different mechanism:
+class-based views.
+
+In Dorguzen, every view is a PHP class with a show() method:
+
+  class ProductsView extends DGZ_HtmlView
+  {
+      public function show(): void
+      {
+          ?>
+          <h1><?= htmlspecialchars($this->controller->pageTitle) ?></h1>
+          <?php
+      }
+  }
+
+This enforces the separation that templating engines achieve through syntax restrictions, but
+through PHP's own class structure instead. Specifically:
+
+  -Logic belongs in the controller. The view class receives a reference to the controller and
+   accesses prepared data from it — it does not run queries, call services, or make decisions.
+   If it tried to, the MVC contract would be violated in an obvious, reviewable way.
+
+  -Template inheritance is handled by DGZ_Layout. The layout class (seoMasterLayout, etc.)
+   defines the outer shell — head, header, footer, nav. Views fill in only the content region.
+   This is structurally equivalent to a Twig {% extends %} / {% block %} relationship, but
+   implemented with PHP classes and the setContentHtml() / display() pipeline.
+
+  -Auto-escaping is the developer's responsibility in Dorguzen views, just as it is in any
+   raw PHP code. The standard PHP function htmlspecialchars() is used where needed. This is
+   not a shortcoming unique to Dorguzen — it applies equally to any PHP code outside a
+   templating engine.
+
+  -Designer-friendly syntax is a non-goal for Dorguzen. Dorguzen targets PHP developers.
+   Views are PHP classes, and PHP developers are already comfortable reading and writing them.
+
+The bottom line: templating engines exist to bring discipline to loose PHP view files. Dorguzen
+view files are not loose — they are typed, namespaced PHP classes inside a strict MVC pipeline.
+The discipline is already built into the structure.
+
+
+How to add Twig if you want it anyway
+---------------------------------------
+
+Dorguzen's rendering pipeline makes Twig integration straightforward if a developer wants it.
+The critical mechanism is in DGZ_Controller::display(), which captures all view output using
+PHP's output buffering:
+
+  ob_start();
+  call_user_func_array([$this, $method], $inputParameters);
+  $contentHtml = trim(ob_get_clean());
+
+The pipeline does not care how that HTML was produced. Whether a view's show() method uses
+inline PHP or calls echo $twig->render('template.twig', $data), the result is identical — a
+string of HTML — and the rest of the pipeline (layout, SEO, flash messages, asset injection)
+continues unchanged.
+
+Steps to add Twig:
+
+  1. Install the package:
+
+       composer require twig/twig
+
+  2. Bind a Twig\Environment singleton in bootstrap/app.php (or bootstrap/custom_helpers.php):
+
+       $loader = new \Twig\Loader\FilesystemLoader(base_path('templates'));
+       $twig   = new \Twig\Environment($loader, ['autoescape' => 'html']);
+       $container->singleton(\Twig\Environment::class, fn () => $twig);
+
+  3. Create a TwigView base class:
+
+       namespace Dorguzen\Core;
+
+       class TwigView extends DGZ_HtmlView
+       {
+           protected \Twig\Environment $twig;
+
+           public function __construct(DGZ_Controller $controller)
+           {
+               parent::__construct($controller);
+               $this->twig = container(\Twig\Environment::class);
+           }
+
+           protected function render(string $template, array $data = []): void
+           {
+               echo $this->twig->render($template, $data);
+           }
+       }
+
+  4. Create your Twig templates in the templates/ directory:
+
+       templates/
+       └── products/
+           └── index.twig
+
+  5. In any view's show() method, replace inline PHP with a render() call:
+
+       class ProductsView extends TwigView
+       {
+           public function show(): void
+           {
+               $this->render('products/index.twig', [
+                   'products' => $this->controller->getProducts(),
+                   'title'    => $this->controller->getPageTitle(),
+               ]);
+           }
+       }
+
+  That is the entire integration for views. The router, controller, layout, SEO pipeline,
+  flash messages, and asset injection all continue to work exactly as before.
+
+  To Twigify layouts as well (so you can use Twig's {% extends %} across the full page
+  shell), create a TwigLayout extending DGZ_Layout that renders a .twig layout template
+  in its display() method, passing $this->content, $this->notices, $this->metadata etc.
+  as Twig variables. Then point configs/app.php at that layout class instead of the
+  default seoMasterLayout.
+
+  Note: Twig's native template inheritance ({% extends %} / {% block %}) only works within
+  Twig's own template graph. If you Twigify views but keep the PHP layout class, you cannot
+  use {% extends %} to inherit from the outer shell — you would use Twig's {% include %} and
+  macros within views, while the PHP layout class remains the outer shell. Both hybrid and
+  full-Twig approaches are valid and require no framework modifications.
+
+
 
 
 ——————————————————————
@@ -10598,20 +10504,96 @@ with the framework's philosophy.
   more, will be evident as the OOP topic is 
   broken down in detail.
 
-    -ABSTRACT CLASSES
-    -INTERFACES
-    -TRAITS
-    -DEPENDENCY INJECTION (DI)
-    -STATIC METHODS
 
--STATIC METHODS
+    -DEPENDENCY INJECTION AND THE DI CONTAINER
+    -Tips and best-practices on how to use the DIC container 
+      -Register models as singletons at bootstrap
+    
+
+
+
+-DEPENDENCY INJECTION AND THE DI CONTAINER
+
+  -NEVER resove classes from a view.
+  -Use only one instance of a class in a controller. Do so by having the dependency class injected 
+    via the constructor at initialisation.
+
+    -You can resolve classes from the DI container from anywhere in your project in any of the following ways:
+
+      use Dorguzen\Models\Logs;
+
+      // write something to the logs table
+      $container = container();
+      $container->get(Logs::class)->log(...);
+
+    or
+
+      $container = container();
+      $logs = $container->get(Logs::class);
+      $logs->log(...);
+
+    or 
+
+      $logs = container(Logs::class);
+      $logs->log(...);
+
+    or 
+
+      $data = container(MyObject::class)->methodOnMyObject();
+
+      Hereby chaining a call on container() by directly calling a method on the resolved class.
+      This works because container() returns the resolved object, hence you can directly chain 
+      calls on it.
+
+
+
+
+
+
+  Tips and best-practices on how to use the DIC container 
+    ---------------------------------
+    
+
+
+✅ Register models as singletons at bootstrap
+-----------------------
+
+Before anything else, in bootstrap\app.php, register an object with the container as a singleton  like so:
+
+//------------------------------------------------------------------------
+//  REGISTER ESSENTIAL CLASSES WITH THE CONTAINER BEFORE ANYTHING ELSE
+//------------------------------------------------------------------------
+$container->singleton(Users::class, fn($c) => new Users($c->get(Config::class)));
+$container->singleton(Logs::class, fn($c) => new Logs($c->get(Config::class))); 
+$container->singleton(News::class, fn($c) => new News($c->get(Config::class))); 
+$container->singleton(Subscribers::class, fn($c) => new Subscribers($c->get(Config::class))); 
+//------------------------------------------------------------------------
+
+Alternatively, You can automate this by scanning the models folder.
+
+After this, every time you resolve a class from the container, like so:
+
+    container(Users::class) 
+    
+The returned object will ALWAYS be one and the same instance. The result is:
+
+✅ No repeated reflection.
+✅ No repeated constructor work.
+✅ No repeated config loads.
+✅ No repeated error_log spam.
+
+This alone will drop page load times from over 30 seconds to < 1 second.
+
+
+
+
 
 
 
 
 
 //—————————
-FFIEENA 
+FFIIEENA 
 //----------————
 ——————————————————————
 	FILE MANAGEMENT
@@ -11926,6 +11908,589 @@ for transactional receipts):
 
 
 
+-----------------------
+INPUT / OUTPUT
+-----------------------
+    -Requests and responses
+      -Example usage of this Request object
+      -Retrieve files after they have been uploaded
+      -Get values from GET requests
+      -Handle and retrieve values from API JSON requests
+      -etect a request type or method
+      -How DGZ_Request automatically captures data from the $_REQUEST super global
+      -Using a class as a singleton
+      -Get the IP address of a client
+      -Retrieve the Authorization header and extracts a Bearer token
+      -Detect if a request is an AJAX request
+      -How the CSRF is implemented in DGZ
+      -GOLDEN RULES ABOUT REQUEST/RESPONSE LIFECYCLES
+
+
+
+
+
+  REQUESTS AND RESPONSES
+  ----------------------
+
+
+Example usage of this Request object
+    -----------------------------
+    -In controllers/services, get submitted values from requests like this:
+     //-----------------------------------------------
+        $username = $this->request->post('username');
+        $email = $this->request->post('email');
+        $file = $this->request->file('avatar');
+
+
+    -Retrieve files after they have been uploaded
+     //-----------------------------------------------
+        $file = $request->file('avatar');
+
+        if ($file && $file['error'] === UPLOAD_ERR_OK) {
+            $tmpName = $file['tmp_name'];
+            $name = basename($file['name']);
+            move_uploaded_file($tmpName, __DIR__ . "/uploads/$name");
+        }
+
+
+    -Get values from GET requests like this
+     //-----------------------------------------------
+
+        $page = $this->request->get('page', 1);
+        $sort = $this->request->get('sort', 'latest');
+
+    -Handle and retrieve values from API JSON requests like this
+     //-----------------------------------------------
+        $userId = $this->request->json('user_id');
+        $productId = $this->request->json('product_id');
+
+        if (!$userId || !$productId) {
+            return $this->response->setData([
+                'error' => 'Missing required fields'
+            ])->setStatus(400)->send();
+        }
+
+        // proceed...
+
+        OR
+
+        $data = json_decode($request->getRawInput(), true);
+        echo $data['email'];
+        echo $data['password'];
+
+        OR (even easier)
+
+        $email = $request->getJson()['email'] ?? null;
+
+
+    -To detect a request type or method
+     //----------------------------------------
+        if ($this->request->method() === 'POST') {
+            // handle form or API submission
+        }
+
+        if ($this->request->isJsonRequest()) {
+            // handle JSON body
+        }
+
+
+
+    -How DGZ_Request automatically captures data from the $_REQUEST super global
+     //-----------------------------------------------
+      This DGZ_Request object already comes pre-populated with values from 
+      PHP's superglobals, and persists them, ready for you to use where you please.
+      This block of code below does the exact same thing that many PHP frameworks do
+      with a function like Request::createFromGlobals() to capture the values of 
+      super globals and load it into its properties, ready for you to use. We do not 
+      need that here, and this code block in the constructor of DGZ_Request already 
+      does exactly that:
+
+        $this->get = $_GET ?? [];
+        $this->post = $_POST ?? [];
+        $this->files = $_FILES ?? [];
+        $this->server = $_SERVER ?? [];
+        $this->cookies = $_COOKIE ?? [];
+
+        // Attempt to parse JSON payload if available
+        $input = file_get_contents('php://input');
+        if ($this->isJson($input)) {
+            $this->json = json_decode($input, true);
+        } 
+
+      This is great, firstly, because this code is in the contstructor, it will 
+      capture and load all the super global data REQUEST data in itself (properties), 
+      ready for you to use.
+
+      Secondly, the other thing great DGZ does is; since it is binding it in bootstrap.php file 
+      like this:
+
+        $container->set(DGZ_Request::class, function() {
+            ... 
+            new DGZ_Request()
+        }
+
+      it means every controller and service that type-hints DGZ_Request will automatically get 
+      the same fully populated instance for that request.
+      You don’t need to do anything extra.
+
+
+
+    -Using a class as a singleton
+     //-----------------------------------------------
+     Let's use the example of how we instantiate the
+     DGZ_Request class in bootstrap.php to make it globally accessible in the application.
+     The class could have been instantiated in any of the following ways:
+
+        -a) Instantiating with a static caching mechanism
+
+            $container->set(DGZ_Request::class, function() {
+                static $request;
+                if (!$request) {
+                    $request = new DGZ_Request();
+                }
+                return $request;
+            });
+
+            OR
+        -b) Instantiating with an arrow function (short-hand)
+
+            $container->set(DGZ_Request::class, fn() => new DGZ_Request());
+
+     Both approaches will work. The difference is that the former version adds a static 
+     caching mechanism so that:
+     
+        -the first time the container asks for DGZ_Request, a new one is created.
+        -Then every subsequent call will return the same instance (singleton-style behavior).
+
+     Whereas the fn() => new DGZ_Request() version creates a fresh instance each time.
+     What is fn()? fn() is PHP’s arrow function syntax, introduced in PHP 7.4.
+     It’s a short-hand for creating anonymous functions (closures) that return a single 
+     expression. It automatically inherits variables from the parent scope (no need for use(...)).
+        Which one is better? The former version (with static) is better in the context of the
+     bootstrap.php global configuration file. This is because the HTTP request never changes 
+     mid-lifecycle — there’s always one request per application run. So, caching it this way 
+     results in the same DGZ_Request instance being reused across controllers, 
+     models, etc. This consumes less memory, and there is no redundant parsing.
+
+
+     -Get the IP address of a client
+      //-----------------------------------------------
+        $ip = $request->getClientIp();
+
+
+    -Retrieve the Authorization header and extracts a Bearer token 
+     //-----------------------------------------------
+     This will be very useful for APIs using JWTs or OAuth2. Here is an example:
+
+        $token = $request->getBearerToken();
+        if ($token) {
+            // validate JWT, for example
+        }
+
+
+    -Detect if a request is an AJAX request
+     //-----------------------------------------------
+        if ($request->isAjax()) {
+            // Return JSON instead of rendering HTML
+        }
+
+
+    -How the CSRF is implemented in DGZ
+     //-----------------------------------------------
+     It is done by creating an encrypted token string which is tored in the session
+     For it to work, a session is started, ideally in the bootstrap of the app. Here is 
+     some more information about how it all works.
+        A CSRF token should ideally be created for every user at login and stored in the session just 
+     like all the other session variables we store for them (e.g., user_id, email, etc.). We can then 
+     delete them when they sign out. To do so, simply call the request->getCsrfToken(). It gets the 
+     CSRF token in the user's session if it exists, or creates one and returns its value.  
+
+        -The following four helper methods are created in the request object 
+            (Dorguzen\Core\DGZ_Request):
+
+                -createCsrfToken()
+                -getCsrfToken()
+                -validateCsrfToken(?string $token)
+                -getCsrfTokenFromRequest() 
+
+        -This is how to check for a CSRF token & validate it during user requests
+
+            -Form submission
+
+                <form method="POST" action="/account/updateAccount">
+                    <input type="hidden" name="_csrf_token" value="<?= $request->getCsrfToken() ?>">
+                    <input type="text" name="email">
+                    <button type="submit">Save</button>
+                </form>
+
+                Notice how the value of the 'csrf_token' field is the result of calling the DGZ global 
+                helper function $request->getCsrfToken(). Just getCsrfToken() will still work.
+
+                Note that $request->createCsrfToken() or just createCsrfToken() will work too, as they
+                all create a new token if one does not exist, before sending back the token.
+
+                If you sent the request as AJAX, just ensure that you are also generating a token and 
+                sending that via the 'X-CSRF-TOKEN' header. Here's an example: 
+
+                    fetch('/user/update-profile', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': generatedCsrfToken
+                        },
+                        body: JSON.stringify({ name: 'Gustav' })
+                    });
+
+                Keep in mind that creating a CSRF to use in your app is flexible, either you choose to 
+                generate one and store in a session each time a user logs in, or you can just create 
+                one on demand (using createCsrfToken() or getCsrfToken()) whenever you want to use in 
+                a form. This means that you can use it to submit forms even when the user is not 
+                authenticated. 
+
+            -Handle the form submission in your controller. Notice that the getCsrfTokenFromRequest()
+                which is how we grab the CSRF token from the form, is checking for the submitted form 
+                field by the name/key of '_csrf_token' both for POST as well as for JSON API requests 
+                like so:
+                    if (isset($this->post['_csrf_token'])) {
+                        ...
+                    }
+
+                    $json = $this->getJson();
+                    if (isset($json['_csrf_token'])) { ... }
+            
+                So, after grabbing the user-submitted token (using getCsrfTokenFromRequest()),
+                it is validated against what is in the session (using validateCsrfToken($token)).
+                Return an error response if it fails validation, or proceed with the request as 
+                normal, if ok. 
+
+                    public function updateAccount()
+                    {
+                        // grab the user-submitted token
+                        $token = $this->request->getCsrfTokenFromRequest();
+
+                        // verify the token
+                        if (!$this->request->validateCsrfToken($token)) {
+                            return $this->response->json(['error' => 'Invalid CSRF token'], 403);
+                        }
+
+                        // Proceed if valid
+                        $email = $this->request->post('email');
+                        // ...
+                    }
+
+
+            -Optionally, you can move the check to your middleware and have the token check & validation
+             run for all sensitive requests like: POST, PUT, DELETE, & return an error response if it 
+             fails. This is better and saves you having to do CSRF validation in all your controlers.
+             DGZ has already ccomplished that for you in the following 2 steps:
+
+                -a) A method; checkCsrfProtection() was created in the Middleware class (in middleware/Middleware.php).
+                    The contents of the method are as follows:
+
+                        public function checkCsrfProtection(): bool
+                        {
+                            /** @var DGZ_Request $request */ /*
+                            $request = container(DGZ_Request::class);
+
+                            $method = $request->method();
+                            $uri = $request->uri();
+
+                            // Get CSRF exceptions from config
+                            $csrfExcepts = $this->config->getConfig()['csrf_except'] ?? [];
+
+                            // Only enforce CSRF on unsafe HTTP methods
+                            if (in_array($method, ['POST', 'PUT', 'DELETE'])) {
+
+                                // Skip paths that match exceptions
+                                foreach ($csrfExcepts as $exceptPath) {
+                                    if (stripos($uri, $exceptPath) !== false) {
+                                        return true; // CSRF not required here
+                                    }
+                                }
+
+                                // Retrieve token using DGZ_Request’s helper
+                                $token = $request->getCsrfTokenFromRequest();
+
+                                if (!$request->validateCsrfToken($token)) {
+                                    return false;
+                                }
+                            }
+
+                            return true;
+                        }
+
+                -b) Next, in the DGZ_Router class, when the request controller & method are identified, 
+                    in the middleware section, just before executing the controller method, we validate 
+                    the request for CSRF attacks like so:
+
+                        $middleware = new Middleware($controller, $method);
+
+                        if ($middleware->checkCsrfProtection() === false)
+                        {
+                            throw new DGZ_Exception(
+                                'Not authorized', 
+                                DGZ_Exception::PERMISSION_DENIED, 
+                                'Invalid or missing CSRF token. If you submitted a form, make sure the form has a hidden field of
+                                the name _csrf_token, and its value the result of calling the global getCsrfToken() or getCsrfToken() 
+                                function, or if it was an AJAX request, be sure to send the X-CSRF-TOKEN header with its value as the 
+                                generated token from getCsrfToken() or getCsrfToken()'
+                            );
+                        }
+
+                That's it. Again, this way you don’t even have to manually check for csrf inside controllers.
+
+
+            -How to use CSRF with AJAX requests
+              In your web form, just like with any other form as described earlier above, you would 
+              have a field like this:
+
+                <input type="hidden" name="_csrf_token" value="<?= $request->getCsrfToken() ?>">
+
+              Remember the token value is from the server (saved in the sessions), so you would use 
+              JavaScript to extract that value and insert it into your AJAX code when preparing to 
+              send off the request. It should be passed in the headers, as the value of the 
+              'X-CSRF-TOKEN'. Here is the example code:
+              
+                fetch('/user/update-profile', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': generatedCsrfToken
+                    },
+                    body: JSON.stringify({ name: 'Gustav' })
+                });
+
+              In your controller, you would detect if its an AJAX call as shown above, then handle 
+              the request as normal-extract, and validate the token, before proceeding. 
+
+
+            -A good security practice is to re-generate this session token eg at every login
+              as we have discussed above. It doesn't have to be at login, but after logging them 
+              sounds like a good time to generate it so it is managed together with al the other 
+              session values of the user, and when they logout, the whole session including that 
+              CSRF token is cleared in one go.  
+              To do so, you would add another helper your Request object which you can call from wherever 
+              choose to refresh the value of the session CRSF token.
+                Anyway, however you choose to do it, the helper method is there on the request object for 
+              you to call to recreate, and, or get the token. 
+
+                public function createCsrfToken(): string
+                {
+                    $token = bin2hex(random_bytes(32));
+                    $_SESSION['csrf_token'] = $token;
+                    return $token;
+                }
+
+              Here is an example of doing that after login the user in, from your controller: 
+
+                public function doLogin()
+                {
+                    // ... validate credentials then 
+                    // create their session vars when they're successfully authenticated.
+                    $_SESSION['user_id'] = $user->id;
+                    $_SESSION['user_email'] = $user->email;
+
+                    // ✅ Create a CSRF token for this new session
+                    $csrfToken = $this->request->createCsrfToken();
+                    $_SESSION['csrf_token'] = $csrfToken;
+
+                    // Optionally, send it in response for SPA / API apps
+                    return $this->response->json([
+                        'message' => 'Login successful',
+                        'csrf_token' => $csrfToken,
+                    ]);
+                }
+
+
+            -Should i use CSRF tokens with API requests? The answer is NO. Here is
+             why.
+
+                1. CSRF tokens — for stateful (session-based) web apps       
+                    CSRF exists only because of cookies + sessions.
+                    When a browser automatically sends cookies with every request, a malicious site can trick t
+                    he user's browser into making unwanted requests.
+
+                    The CSRF token, stored in the user's session and embedded in forms, ensures the request originated 
+                    from your own site.
+
+                    So:
+
+                    ✅ Use CSRF for your web application, where sessions and forms exist.
+                    It's created once per session (e.g., after login) and destroyed on logout — just as explained earlier.
+
+                2. JWT / e.g. Firebase tokens — for stateless (API) systems
+                    APIs don't use browser cookies or sessions; they use headers (Authorization: Bearer <token>).
+                    Because the browser doesn't automatically attach JWTs, CSRF isn't an issue here.
+                    JWTs already guarantee request authenticity, since each API request must explicitly send a 
+                    valid signed token.
+
+                    So:
+
+                    ✅ Use JWTs for API authentication.
+                    🚫 No need for CSRF protection in your API routes, because no implicit credentials are sent.
+
+                3. Common Hybrid Strategy (Best Practice)
+                    Here's how most secure setups work, and you may have guessed it already:
+
+                    Context	                         Authentication	             CSRF Needed?	    Storage
+                    --------------------------------------------------------------------------------------------------------
+                    Regular web app (HTML forms)	 Sessions (cookies)	         ✅ Yes	           Session
+                    API (mobile apps, SPA, etc.)	 JWT / Firebase token        No                 Local storage or header   
+                    
+            
+            
+            -How to disable CSRF validation only for your API routes
+                -Add an entry to your config file with route or controller names to skip CSRF validation on e.g. 
+
+                    'csrf_except' => [
+                        '/api/',
+                    ]
+
+                 This entry can also be in the config file of a specific module, and that will work best especially 
+                    if your API exists in DGZ as a separate module. Currently, it's not the case, and all api/ calls 
+                    are routed via the ApiController. But the plan is to move that to a module later. When it will 
+                    be a module, the config file of the module, just like that of all all modules, will live in:
+
+                        configs/apiModuleConfig.php
+
+                -Next, in the validateCsrfToken($token) method of your DGZ_Request class, you check for this 
+                    exception array and ignore the validation if a match is found for the current route eg:
+
+                        public function validateCsrfToken($token) 
+                        {
+                            // 1️⃣ Skip validation for excluded routes
+                            $except = $this->config->getConfig()['csrf_except'];
+                            $uri = $_SERVER['REQUEST_URI'] ?? '';
+
+                            foreach ($except as $pattern) {
+                                if (str_starts_with($uri, $pattern)) {
+                                    return true; // skip validation
+                                }
+                            }
+
+                            // 2️⃣ Otherwise validate normally
+                            $stored = $_SESSION['csrf_token'] ?? '';
+                            return $stored && hash_equals($stored, (string)$token);
+                        }
+
+                -Alternatively, you can take it a step further and do the check more centrally in your 
+                    front controller bootstrap.php, or in your middleware. This will look like the 
+                    middleware example given above:
+
+                    if (in_array($request->method(), ['POST', 'PUT', 'DELETE'])) {
+
+                        //do your check to ignore the excluded request types here
+                        $except = $this->config->getConfig()['csrf_except'];
+                        ...
+
+                        // proceed to validate as normal if current request is not excluded
+                        $token = $request->getCsrfTokenFromRequest();
+                        if (!$request->validateCsrfToken($token)) {
+                            die("Invalid CSRF token");
+                        }
+                    }
+
+
+        -TODO: Now i am instantiating DGZ_Request and DGZ_Response classes in the coinstructor of 
+            DGZ_Controller, and i am also instantiating it in a singleton fashion in the bootstrap, 
+            will that DGZ_Controller instantiation (not a type-hinting) not disrupt the plan of 
+            always having only a single instance of DGZ_Request?
+
+           -How many types of super globals are there, 6? have we got them all in DGZ_Request?
+           -What's exactly the thing that makes the global helper func work. I guess the fact 
+            that they're set in the index.php (front controller), right?
+
+           -Check how to DGZ_Form class handles csrf and make it use the new CSRF feature
+
+
+
+
+
+Golden rules about request/response lifecycles
+------------------------------------------------
+Never set a global Request or Response class as a property of a controller.
+Controllers must be stateless; requests and responses are lifecycle-bound and must be pulled, never stored.
+Explanation 
+------------
+Controllers must not own request or response objects as properties.
+They may ask for them at execution time, but must not store them.
+
+So this is ❌ bad:
+
+    class TestController
+    {
+        protected DGZ_Request $request;
+        protected DGZ_Response $response;
+    }
+
+
+And this is ✅ correct:
+
+    public function meTest()
+    {
+        $request = request();
+        $response = response();
+    }
+
+Why? A response is write-once, mutable, and terminal:
+
+  -headers
+  -status code
+  -output buffer
+
+If a controller holds onto a response: 
+  -data leaks across requests
+  -headers persist
+  -tests explode (you already saw this)
+
+So: never store a response.
+
+2️⃣ The same applies to Request objects
+
+A request is read-heavy, not write-heavy — but it still represents a single HTTP lifecycle.
+If you store it on a controller: 
+  -the controller becomes stateful
+  -request data can leak across:
+    tests
+    sub-requests
+    future dispatches
+    mocking becomes painful
+
+So: don't store the request either.
+
+This is what they both represent in application flow:
+
+    -Request → environment snapshot
+    -Response → output stream
+    -Controller → pure executor
+
+Controllers should:
+    -read from the request
+    -write to the response
+    -own neither
+
+The one allowed exception
+
+    $user = request()->user();
+    or 
+    $request = container(DGZ_Request::class);
+
+Because:
+  -you're pulling, not owning
+  -there is no lifecycle coupling
+  -there is no persistent state
+
+That is all fine, as long as you don't store it on the controller.
+        
+    
+
+
+
+
+
+
+
+
 ——————————————————————
 	ERROR DEBUGGING AND TESTING
 ——————————————————————
@@ -12897,17 +13462,20 @@ Every test you write ultimately inherits from this class.
 Database Resetting
 src/Testing/RefreshDatabase.php
 
-This trait provides database isolation between tests.
+This trait provides database isolation between tests by running `migrate:fresh` once per test suite.
 
-Typical responsibilities:
+What it does:
 
-Rolling back transactions
+Drops all application tables
 
-Resetting database state
+Re-runs all migrations against the test database
 
-Ensuring one test cannot affect another
+Gives every test run a clean, fully-migrated schema
 
-You opt into this behavior by using the trait in your test class.
+This is wired into the base TestCase automatically — you do not need to add anything to your test
+class. The reset happens exactly once per PHP process (the first time any test boots the framework),
+and the resulting clean schema is shared across all tests in that run.
+
 
 class UserTest extends TestCase
 {
@@ -13281,32 +13849,114 @@ Prepares the framework for safe, isolated test execution
 The normal application bootstrap (bootstrap/app.php) is not involved.
 
 The Role of .env.testing
+------------------------
 
-The .env.testing file is mandatory for meaningful testing.
+The .env.testing file is mandatory for meaningful testing. It is not a replacement for .env —
+it is a set of overrides that are layered on top.
 
-It allows developers to:
+How env loading works in the test environment
+---------------------------------------------
 
-Use a separate database
+EnvLoader always loads files in this order:
 
-Enable testing-specific configuration
+  1. .env           ← your development defaults (always loaded first)
+  2. .env.testing   ← test overrides (loaded second, wins on any key it defines)
 
-Safely reset state between tests
+  (.env.local is explicitly skipped when APP_ENV=testing)
 
-A typical .env.testing file includes:
+This means .env.testing only needs to contain the values that differ from your development
+environment. Anything not listed in .env.testing falls through transparently from .env.
+You never need to duplicate your full development config into .env.testing.
 
-APP_ENV=testing
-DB_CONNECTION=mysql
-DB_DATABASE=dorguzen_test
-DB_USERNAME=test_user
-DB_PASSWORD=secret
+Default setup — SQLite :memory: (recommended)
+----------------------------------------------
 
-This ensures that:
+The .env.testing file that ships with Dorguzen uses an in-memory SQLite database:
 
-Tests never hit real application data
+  APP_ENV=testing
 
-Tables can be truncated freely
+  DB_CONNECTION=sqlite
+  DB_SQLITE_PATH=:memory:
 
-Parallel tests remain safe
+The :memory: path is a special SQLite keyword. It means the database exists only in RAM for the
+duration of the PHP process — nothing is written to disk, and nothing persists between test runs.
+
+Why this is the recommended default:
+
+  ✅ Zero infrastructure — no database server needed
+  ✅ Process-local — the web app cannot reach the test database at all
+  ✅ Ephemeral — every test run starts from a guaranteed clean slate
+  ✅ Fast — RAM is faster than any on-disk database
+  ✅ Safe — no risk of accidentally wiping development data
+
+The web app and the test process are in completely separate PHP processes. Because the test
+database lives only in the memory of the PHPUnit process, it is structurally impossible for
+the web application to access or interfere with it, even if both are running at the same time.
+
+
+Alternative setup — MySQL/other driver
+---------------------------------------
+
+Dorguzen's test infrastructure is fully driver-agnostic. bootstrap/testing.php reads
+DB_CONNECTION from the resolved env and instantiates the correct driver automatically:
+
+  DB_CONNECTION=sqlite   → DGZ_SQLiteDriver
+  DB_CONNECTION=mysqli   → DGZ_MySQLiDriver
+  DB_CONNECTION=pdo      → DGZ_PDODriver
+  DB_CONNECTION=postgres → DGZ_PostgresDriver
+
+If you prefer a dedicated MySQL test database, override the relevant values in .env.testing:
+
+  APP_ENV=testing
+
+  DB_CONNECTION=mysqli
+  DB_HOST=127.0.0.1
+  DB_PORT=3306
+  DB_DATABASE=dorguzen_test    # ← must be a dedicated test-only database
+  DB_USERNAME=test_user
+  DB_PASSWORD=secret
+  DB_KEY=takeThisWith@PinchOfSalt
+
+Notice you only need to list the DB values that differ from .env. All other application config
+(app name, URLs, mail settings, modules, etc.) continues to fall through from .env unless you
+explicitly override them here.
+
+⚠️  When using a server-based driver, the test database MUST be dedicated and separate from
+your development database. RefreshDatabase runs migrate:fresh on every test run — it drops
+all tables and rebuilds the schema from scratch. If you point it at your development database
+you will lose all your development data.
+
+What else you can add to .env.testing
+--------------------------------------
+
+Because .env.testing is just a layered override file, you can add any env key your application
+supports. Common additions include:
+
+  # Force debug mode on in tests to surface errors clearly
+  APP_DEBUG=true
+
+  # Use synchronous queue processing in tests (no worker needed)
+  QUEUE_DRIVER=sync
+
+  # Pin log output to file only, so test output stays clean
+  APP_LOG_DRIVER=file
+
+  # Disable modules you don't want active during tests
+  MODULES_PAYMENTS_STATUS=off
+  MODULES_SMS_STATUS=off
+
+  # Override JWT secret to a known test value
+  APP_JWT_SECRET=test-secret-key-not-for-production
+
+  # Exempt API routes from CSRF in tests
+  APP_API_CSRF_EXCEPTION='/api/'
+
+  # Cap file uploads to something small for faster tests
+  MAX_UPLOAD_FILE_SIZE=1024
+
+Only add what you actually need to change. The principle is: .env.testing should be as short
+as possible — just the overrides that make the test environment behave differently from
+development.
 
 Database Safety and Testing Best Practices
 
@@ -13348,29 +13998,64 @@ For this reason:
   Every table in your application should have a migration.
   Tests cannot safely recreate schema that only exists manually in a database.
 
-Why This Design Matters
+Why This Design Matters — True Parallel Isolation
+-------------------------------------------------
 
-By isolating environments at the bootstrap level, Dorguzen avoids an entire class of bugs and risks:
+The web app and the test suite can run simultaneously without interfering with each other.
+This is not a soft guarantee enforced by discipline — it is a structural guarantee enforced
+by the architecture. Here is why each layer holds:
 
-❌ Accidental data loss
-❌ State leaking between tests
-❌ cache or config collisions
-❌ Test mode being exposed to web users
+  Separate processes
+  PHPUnit runs in the CLI as its own PHP process. The web app runs under Apache/MAMP as a
+  separate PHP process. They share no memory, no container, no session.
+
+  Separate entry points
+  The web app boots through bootstrap/app.php. Tests boot through bootstrap/testing.php.
+  Neither calls the other. There is no code path that can accidentally cross the boundary.
+
+  Separate env resolution
+  APP_ENV=testing is forced via putenv() before EnvLoader is ever called. The web app
+  never sees .env.testing. The test process never loads .env.local. Each process arrives
+  at a completely independent set of resolved configuration values.
+
+  Separate DB connections
+  The resolved DB_CONNECTION determines which driver is instantiated in that process.
+  With the default SQLite :memory: setup, the test database lives only in the RAM of the
+  PHPUnit process — the web app has no socket, no file, no port to connect to. Even if
+  both processes are running at the same time, the test database is structurally
+  unreachable from the web app.
+
+  Driver-aware SQL generation
+  Blueprint, ColumnDefinition, and the migration infrastructure all generate the correct
+  SQL dialect for whichever driver is active (ENGINE=InnoDB for MySQL, no engine clause
+  for SQLite, SERIAL for Postgres). Running migrate:fresh in tests produces valid SQLite
+  DDL. Running it via php dgz migrate:fresh against the web app produces valid MySQL DDL.
+  The same migration files serve both without modification.
+
+By isolating environments at the bootstrap level, Dorguzen avoids an entire class of bugs
+and risks:
+
+  ❌ Accidental data loss in development
+  ❌ State leaking between tests
+  ❌ Config or cache collisions
+  ❌ Test mode being exposed to web users
+  ❌ Tests interfering with a running web app
 
 Instead, Dorguzen provides:
 
-✅ Predictable test behavior
-✅ Safe parallel execution
-✅ Clean request/response lifecycles
-✅ Confidence that tests mirror real usage
+  ✅ Predictable, order-independent test behavior
+  ✅ Safe parallel execution of web app and test suite
+  ✅ Clean request/response lifecycles per test
+  ✅ Confidence that tests mirror real usage
+  ✅ Freedom to run tests without stopping the dev server
 
-Take-away reminders:
+A simple way to think about it:
 
-A simple way to think about it is:
   Running your application and running tests are two different programs.
-  They share code, but not state, configuration, or environment.
+  They share code, but not state, configuration, environment, or data.
 
-This is the foundation that makes Dorguzen's PHPUnit integration reliable, professional, and production-safe.
+This is the foundation that makes Dorguzen's PHPUnit integration reliable, professional,
+and production-safe.
 
 Summary
 
@@ -14634,6 +15319,84 @@ Don't confuse DSN (Delivery Status Notification) with DNS (Domain Name System) �
   in production or local.
 -This is foremost for you as a developer to keep a record of applications you have built using this programming language.
   The more stuff you build yourself, the more your experienced you will Become.
+
+
+   The dgz CLI Tool
+   =================
+
+   Dorguzen ships with a command-line tool called `dgz`. It handles database
+   migrations, seeders, code generation, the development server, queue workers,
+   log inspection, and more. Every command follows the same pattern:
+
+       php dgz <command> [options]
+
+   `dgz` is a project-local tool — it always boots from the directory you run it
+   in, reading that project's .env, config, and database connection. This is
+   deliberate: it means each Dorguzen project you build is fully self-contained,
+   and running `php dgz` in project A never touches project B.
+
+   DO NOT install dgz as a global symlink pointing to a specific project. If you
+   do, all projects will share one project's bootstrap, config, and database —
+   which will cause confusing failures across projects.
+
+
+   Running commands
+   -----------------
+   Always run `php dgz` from your project root (the directory containing the
+   `dgz` file and your `.env`):
+
+       cd /path/to/my-project
+       php dgz migrate
+       php dgz db:seed
+       php dgz serve
+
+   You must be in the project root. Running from a subdirectory will fail because
+   `dgz` resolves all paths relative to its own location.
+
+
+   Optional shell alias (recommended)
+   ------------------------------------
+   Typing `php dgz` for every command gets repetitive. You can add a shell alias
+   so that bare `dgz` still delegates to the local `php dgz` — without any global
+   symlink or cross-project risk:
+
+   For zsh (the default shell on macOS):
+
+       echo 'alias dgz="php dgz"' >> ~/.zshrc
+       source ~/.zshrc
+
+   For bash:
+
+       echo 'alias dgz="php dgz"' >> ~/.bashrc
+       source ~/.bashrc
+
+   After adding the alias you can use the short form from any project root:
+
+       dgz migrate
+       dgz db:seed
+       dgz serve
+
+   Because `dgz` expands to `php dgz` (not to an absolute path), it always runs
+   the `dgz` file in your current directory. Switch to a different project and
+   the alias automatically targets that project instead — no configuration needed.
+
+   Note: if you use a version manager like asdf, mise, or phpenv that shims the
+   `php` binary, the alias works with whichever PHP version that project selects.
+
+
+   Listing all available commands
+   --------------------------------
+   To see every command dgz supports, run:
+
+       php dgz list
+
+   To get help on a specific command:
+
+       php dgz help migrate
+       php dgz help db:seed
+
+
+   ---
 
 
    Local Development Server (php dgz serve)
@@ -17492,39 +18255,3 @@ This helps you understand how to set up your computer to code in your chosen pro
   the ability to roll back database 
   migrations.
 -The other option is to learn git.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-///// ------------------ START TESTING -------- DELETE THESE -----------------
-                                               
-  routes/api.php                                                                                        
-  - POST /api/v1/auth/register → AuthApi@register                                                                                                                                                        
-  - POST /api/v1/auth/login → AuthApi@login                                                                                                                                                              
-  - POST /api/v1/auth/refresh → AuthApi@refresh                                                                                                                                                 
-  - GET /api/v1/docs → Docs@index                                                                                                                                                
-  - GET /api/v1/docs/spec → Docs@spec                                                                                                                                                                    
-                                                                                                                                                                                                         
-  You can now test the setup by hitting http://localhost/dorguzen/api/v1/docs in a browser — it should render the Swagger UI with the three auth endpoints fully annotated. If you want to test the auth 
-  endpoints themselves, point a REST client (Postman, Bruno, or the Swagger UI's "Try it out") at:                                                                                                       
-                                                                                                                                                                                                         
-  - POST http://localhost/dorguzen/api/v1/auth/register with {"firstname":"John","surname":"Doe","email":"john@example.com","password":"Secret123!","confirm_password":"Secret123!","phone":"650000000"} 
-  - POST http://localhost/dorguzen/api/v1/auth/login with {"email":"john@example.com","password":"Secret123!"}   
-
--------------------------------------------
-
-  ---
- 
-
-
-  //////////// ---------------- END TESTING --------------------------- ///////////

@@ -43,7 +43,7 @@ class addPage extends \Dorguzen\Core\DGZ_HtmlView
 				BREADCRUMB - END
 			=========================== -->
         <?php
-		if ((isset($_SESSION['authenticated'])) && ($_SESSION['authenticated'] == 'Let Go-'.$this->controller->config->getConfig()['appName'])) 
+		if (Auth()->can('seo'))
          { ?>
 
 			<!-- ==========================
@@ -85,7 +85,7 @@ class addPage extends \Dorguzen\Core\DGZ_HtmlView
 													<legend>Page specifics</legend>
 													    <div class="col-sm-12 col-md-12 col-lg-12 form-group">
 															<span class="font-weight-bold section-title"><small>The page name is the page for which you are creating the SEO attributes.
-																The name you enter here MUST therefore match the exact same spelling of the view file. eg for a view about-us.blade.php
+																The name you enter here MUST therefore match the exact same spelling of the view file. eg for a view about-us.php
 																the page name you enter here should be 'about-us'.  
 															</small></span>
 															<?php 
@@ -98,7 +98,7 @@ class addPage extends \Dorguzen\Core\DGZ_HtmlView
 														<div class="col-sm-12 col-md-12 col-lg-12 form-group">
 														    <span class="font-weight-bold section-title"><small>Meta titles should take a MAX of 60 characters. Try & put in the most important 
 																keywords of this page in there. A great tip is to split keywords/phrases/categories/sections (depending on the type of 
-																content of this page) by pipe characters e.g. for a car sales details page for a specific car, you can use the pipe 
+																content of this page) by pipe characters e.g. for the car sales details page of a specific car, you can use the pipe 
 																technique wisely & pack into this title, vital keywords relating to the category, make, model, plus the actual description of 
 																the specific car like so: "Car | Mercedes-Benz | Mercedes G Wagon | Nice car for sale"  
 															</small></span>
@@ -376,7 +376,7 @@ class addPage extends \Dorguzen\Core\DGZ_HtmlView
 																	default to Open Graph (og:metatags) if they cannot find Twitter Cards. However, bear in mind that 
 																    an OG image does not fit perfectly within a tweet, so content can get cut off. To be on the safe 
 																	side, create a separate image for the Twitter Card image. Twitter Card image dimensions are 
-																	1024 by 512 pixels. You would create and place the image e.g. in your direcxtory system and 
+																	1024 by 512 pixels. You would create and place the image e.g. in your directory system and 
 																	provide the fully qualified URL to the image here like so:
 																	'https://yoursite/assets/images/socials/twitter-page-img.png'	
 																	Note: you MUST only provide a secure image path (using 'https') otherwise it will be ignored. 

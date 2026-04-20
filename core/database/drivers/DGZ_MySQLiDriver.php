@@ -197,4 +197,24 @@ class DGZ_MySQLiDriver implements DGZ_DBDriverInterface
     {
         return "{$field} = AES_ENCRYPT(?, ?)";
     }
+
+    public function listTables(): array
+    {
+        $result = $this->conn->query("SHOW TABLES");
+        $tables = [];
+        while ($row = $result->fetch_row()) {
+            $tables[] = $row[0];
+        }
+        return $tables;
+    }
+
+    public function autoIncrementPrimaryKey(): string
+    {
+        return 'INT AUTO_INCREMENT PRIMARY KEY';
+    }
+
+    public function getDriverName(): string
+    {
+        return 'mysqli';
+    }
 }

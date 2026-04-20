@@ -21,6 +21,21 @@ class DGZ_DBAdapter
         return $this->driver->getTableSchema($table);
     }
 
+    public function listTables(): array
+    {
+        return $this->driver->listTables();
+    }
+
+    public function autoIncrementPrimaryKey(): string
+    {
+        return $this->driver->autoIncrementPrimaryKey();
+    }
+
+    public function getDriverName(): string
+    {
+        return $this->driver->getDriverName();
+    }
+
 
     public function insert(string $table, array $data): bool
     {

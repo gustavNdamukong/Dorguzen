@@ -13,11 +13,13 @@ class jsSeoValidationPartial extends \Dorguzen\Core\DGZ_HtmlView
     public function show()
     { ?>
         <script type="text/javascript">
-            $(document).ready(function () { 
-                //make an ajax call-this calls the function 'checkPageName()' below  
+            $(document).ready(function () {
+                var dgzCsrfToken = "<?= getCsrfToken() ?>";
+
+                //make an ajax call-this calls the function 'checkPageName()' below
                 $(document).on('blur', '#addPage #seo_page_name', function(e)
-                {  
-                    e.preventDefault(); 
+                {
+                    e.preventDefault();
                     checkPageName(this);
                 });
 
@@ -30,9 +32,10 @@ class jsSeoValidationPartial extends \Dorguzen\Core\DGZ_HtmlView
                         return
                     }
 
-                    params = "pageName=" + pageName.value
+                    params = "pageName=" + encodeURIComponent(pageName.value) +
+                             "&_csrf_token=" + encodeURIComponent(dgzCsrfToken);
                     request = new ajaxRequest()
-                    request.open("POST", "seo/checkPageName", true)
+                    request.open("POST", "<?= $this->rootPath() ?>seo/checkPageName", true)
                     request.setRequestHeader("Content-type",
                         "application/x-www-form-urlencoded")
 

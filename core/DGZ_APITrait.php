@@ -482,7 +482,6 @@ trait DGZ_APITrait
     private function saveRefreshToken($userId, $refreshToken, $expiry)
     {
         $refreshTokensObject = container(Refresh_tokens::class);
-        /////$refreshTokensObject = new Refresh_tokens();
         $refreshTokensObject->user_id = $userId;
         $refreshTokensObject->refresh_token = $refreshToken;
         $refreshTokensObject->refresh_token_expiry = $expiry;
@@ -493,7 +492,6 @@ trait DGZ_APITrait
     private function getRefreshToken($userId)
     {
         $refreshTokensObject = container(Refresh_tokens::class);
-        /////$refreshTokensObject = new Refresh_tokens();
         $where = ['user_id' => $userId];
         return $refreshTokensObject->selectWhere(['refresh_token', 'refresh_token_expiry'], $where);
     }
@@ -501,7 +499,6 @@ trait DGZ_APITrait
      private function updateRefreshToken($userId, $newRefreshToken, $newExpiry)
     {
         $refreshTokensObject = container(Refresh_tokens::class);
-        /////$refreshTokensObject = new Refresh_tokens();
         $refreshTokensObject->refresh_token = $newRefreshToken;
         $refreshTokensObject->refresh_token_expiry = $newExpiry;
 

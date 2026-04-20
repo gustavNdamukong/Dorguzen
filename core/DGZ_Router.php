@@ -449,7 +449,6 @@ class DGZ_Router {
         if ($apiVersion == '' && $module == '')
         {
             // regular, non-module & non-API controllers path
-            /////$controllerPath = $_SERVER['DOCUMENT_ROOT'].'/'.$config->getFileRootPath().'/src/controllers/'. ucfirst($controllerInput).'Controller.php';
             // TODO: The line above was original line, restore if issues arise (01/31/2026)
             $controllerRootPath = '/src/controllers/'. ucfirst($controllerInput).'Controller.php';
             $controllerPath = base_path($controllerRootPath);
@@ -477,14 +476,12 @@ class DGZ_Router {
         // -2) if version given & no module name given, this is a non-module API.               ------ GOOD (regular API route)
         else if ($apiVersion != '' && $module == '')
         {
-            ///// $apiPath = $_SERVER['DOCUMENT_ROOT'].'/'.$config->getFileRootPath().'/src/api/'. strtolower($apiVersion).'/controllers/'.ucfirst($controllerInput) . 'Controller.php';
             // TODO: The line above was original line, restore if issues arise (01/31/2026)
             $apiRootPath = '/src/api/' . ucfirst($apiVersion).'/Controllers/'.ucfirst($controllerInput).'Controller.php';
             $apiPath = base_path($apiRootPath);
 
             if (isset($apiPath) && file_exists($apiPath))
             {
-                /////$controller = 'Dorguzen\\Api\\'. strtolower($apiVersion).'\\controllers\\'.ucfirst($controllerInput).'Controller';///// DELETE
                 $controller = 'Dorguzen\\Api\\'. ucfirst($apiVersion).'\\Controllers\\'.ucfirst($controllerInput).'Controller';
             } 
             else 
@@ -503,7 +500,6 @@ class DGZ_Router {
         else if ($apiVersion == '' && $module != '')
         {
             // Module controllers path
-            ///// $modulePath = $_SERVER['DOCUMENT_ROOT'].'/'.$config->getFileRootPath().'/modules/'. strtolower($module).'/controllers/'.ucfirst($controllerInput) . 'Controller.php';
             // TODO: The line above was original line, restore if issues arise (01/31/2026)
             $moduleRootPath = '/modules/' . ucfirst($module).'/Controllers/'.ucfirst($controllerInput).'Controller.php';
             $modulePath = base_path($moduleRootPath);
@@ -621,7 +617,6 @@ class DGZ_Router {
                     // It should return true to proceed or throw/redirect to abort.
                     $mw->boot(); // preserve existing boot() behaviour
                     $result = $mw->handle($controller, $controllerShortName, $method);
-                    ///// dgzie('RESULT OF CALLING handle() ', $result); /////
                     if ($result === true) {
                         // continue pipeline
                         return $next($psrRequest);
@@ -702,7 +697,6 @@ class DGZ_Router {
             $cached = require $cacheFile;
 
             if (isset($cached['global']) && is_array($cached['global'])) {
-                error_log('Middleware loaded from cache');///// DELETE
                 return $this->hydrateGlobalMiddlewareFromCache($cached['global']);
             }
         }
@@ -727,7 +721,6 @@ class DGZ_Router {
         foreach ($cached as $entry) {
             // 1️⃣ Ensure the file is loaded (cache stores absolute path)
             if (!class_exists($entry['class'])) {
-                //error_log("class DID NOT exists: {$entry['class']}, requiring it ..."); ///// DELETE
                 require_once $entry['file'];
             }
 
@@ -802,7 +795,6 @@ class DGZ_Router {
                 
         }
 
-        error_log('Middleware loaded fresh from file');///// DELETE
         return $middlewares;
     }
     //--------------------------- end of using caching with middleware handling ----------------
@@ -861,10 +853,8 @@ class DGZ_Router {
             //----------------------------------------------------------------------
             if (!empty($middleware))
             {
-                ///// $httpKernel = new HttpKernel(DGZ_BASE_PATH); ///// DELETE
                 $httpKernel = new HttpKernel();
                 $middlewareClasses = $httpKernel->runRouteMiddleware($middleware); 
-                /////$httpKernel->runRouteMiddleware($middleware[0], $match); 
                 $httpKernel->executeRouteMiddlewarePipeline($middlewareClasses, $match);
             }
             //----------------------------------------------------------------------
@@ -1131,11 +1121,8 @@ class DGZ_Router {
                 //there may not be a method specified (2nd slash level) eg when a user visits the home page, so check if there's one
                 //http://yourApp/text/text2
                 if (!empty($urlString[2])) { // TODO: ADD THIS CHANGE TO MAKE SURE ITS NOT NULL-wh is the case if nothing follows the trailing slash (mon 29/9/25)
-                    ///die('2ND URL STRING');///// DELETE
-                    ///echo '<pre>'; die(print_r(SELF::getModules())); ///// DELETE
 
                     //- - - - - - - - - - - START- - - - - - - - - - - - - - - - //
-                    /////die('3RD URL STRING: '.$urlString[3]);/////
                     /*//---------------------------------- TESTING START --------------------------------
                                 
                     We need to handle modules here. So, because $urlString[2] exists, it means $urlString[1]
@@ -1168,13 +1155,10 @@ class DGZ_Router {
                     }
 
 
-                    /////$moduleString = trim($urlString[1]);
 
-                    //echo '<pre> '.$moduleString; die(print_r($modules));/////
                     // Check if it's a module
                     if (isset($modules[$moduleString]))
                     {
-                        ///// dgzie('ALL ACTIVE MODULES', $modules); ///// DELETE
                         $moduleControllerName = ucfirst($moduleString).'Controller';
                         $moduleOrControllerBaseName = strtolower($moduleString);
                         $isModule = true;
@@ -1190,7 +1174,6 @@ class DGZ_Router {
                                 $apiVersion,
                                 $moduleControllerName
                             );
-                            //die($moduleControllerPathString);///// GOOD!
                             $moduleControllerClass = new $moduleControllerPathString();
                         }
                         else
@@ -1208,7 +1191,6 @@ class DGZ_Router {
                         // get the module's controllers
                         $moduleControllerClass->getControllers();
 
-                        // echo '<pre>'; die(print_r($moduleControllerClass->getControllers()));///// GOOD!
                         $controllersOfThisModule = $moduleControllerClass->getControllers();
 
                         // next check if $urlString[2] is one of the sub-controllers in this module
@@ -1279,7 +1261,7 @@ class DGZ_Router {
                     $method3 = $filterUrl4[0];
                 }
 
-            } ///// END OF LIVE CHECK - DELETE
+            }
 
 
 
@@ -1298,7 +1280,6 @@ class DGZ_Router {
                     // This is a special kind of module; APIs, which has versions, & so needs to be routed differently 
                     if ($apiVersion)
                     {
-                        ///// $apiPath = $_SERVER['DOCUMENT_ROOT'].'/'.$config->getFileRootPath().'/modules/'. strtolower($moduleOrControllerBaseName).'/'. strtolower($apiVersion).'/controllers/'.ucfirst($get_input) . 'Controller.php';
                         // TODO: The line above was original line, restore if issues arise (01/31/2026)
                         $apiRootPath = '/modules/' . strtolower($moduleOrControllerBaseName) .'/'. strtolower($apiVersion).'/controllers/'.ucfirst($get_input).'Controller.php';
                         $apiPath = base_path($apiRootPath);
@@ -1334,7 +1315,6 @@ class DGZ_Router {
                 else
                 {
                     // this is a non-API module
-                    ///// $modulePath = $_SERVER['DOCUMENT_ROOT'].'/'.$config->getFileRootPath().'/modules/'. strtolower($moduleOrControllerBaseName).'/controllers/'.ucfirst($get_input) . 'Controller.php';
                     // TODO: The line above was original line, restore if issues arise (01/31/2026)
                     $moduleRootPath = '/modules/' . ucfirst(strtolower($moduleOrControllerBaseName)) .'/Controllers/'.ucfirst($get_input).'Controller.php';
                     $modulePath = base_path($moduleRootPath);
@@ -1351,28 +1331,19 @@ class DGZ_Router {
                 // this is a regular (non-module) request
                 // DGZ runs all requests through controllers or modules. Therefore here, we load the target controller 
                 // or module class
-                ///// $controllerPath = $_SERVER['DOCUMENT_ROOT'].'/'.$config->getFileRootPath().'/src/controllers/'. ucfirst($get_input).'Controller.php';
                 // TODO: The line above was original line, restore if issues arise (01/31/2026)
                 $controllerRootPath = '/src/controllers/'. ucfirst($get_input).'Controller.php';
 				$controllerPath = base_path($controllerRootPath);
 
-                /////die(file_exists($controllerPath) ? 'FILE EXISTS' : 'FILE NOT FOUND'); ///// DELETE
 
-                /////die('THIS IS NOT A MODULE [line 1370], & CONTROLLER PATH IS: '.$controllerPath); ///////// DELETE
                 
                 if (file_exists($controllerPath))
                 {
-                    ///// $controller = 'src\controllers\\'. ucfirst($get_input).'Controller'; ///// DELETE
                     $controller = 'Dorguzen\\Controllers\\'. ucfirst($get_input).'Controller';
                 } 
             }
 
-            ///// dgzie($controller); ///// DELETE
 
-            /*throw (
-                new RuntimeException('CONTROLLER PATH is: ' .json_encode($controllerPath), 1)
-                /////new \RuntimeException(getenv('DB_DATABASE'))
-            );*/ ///// DELETE
             try {
                 // If no controller was resolved from the URL, there is no route to dispatch.
                 if (!isset($controller))
@@ -1521,8 +1492,6 @@ class DGZ_Router {
     public static function route(): void
     {
         self::getInstance()->dispatchRequest();
-        /////$router = self::getInstance();
-        /////$router->dispatchRequest();
     }
 
 
@@ -1532,34 +1501,32 @@ class DGZ_Router {
      *
      * @throws /Exception If not all arguments required by the method are provided.
      */
-    /////public static function route()
     public function dispatchRequest()
     {
-        /////echo "ENTERED dispatchRequest() ooh\n";
         /*if ($router === null) {
             echo "ROUTER IS NULL) ooh\n";
             $router = self::getInstance(); // fallback for web
         }*/
 
-        //echo "ABOUT TO GET CONFIG ooh\n"; ///// DELETE
         $config = container(Config::class);
-        ///// echo "WE GOT CONFIG ooh BOUT TO DIVE INTO TRY CATCH - here's whats in routes: \n"; ///// DELETE
 
-        /*try {
-            throw new Exception('TEST');
-        } catch (\Throwable $e) {
-            echo $e->getMessage();
-            die();
-        }*/ ///// DELETE
+        // Static-asset 404 guard: when a referenced asset file is missing from disk,
+        // Apache's !-f condition passes the request to PHP. Detect these by file extension
+        // and return a plain 404 immediately — no controller lookup, no DB logging.
+        $requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+        $realFilePath = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . $requestPath;
+        $staticExtensions = ['css', 'js', 'png', 'jpg', 'jpeg', 'gif', 'svg', 'ico',
+                             'woff', 'woff2', 'ttf', 'eot', 'map', 'webp', 'pdf',
+                             'mp4', 'mp3', 'ogg', 'wav', 'zip', 'gz'];
+        $ext = strtolower(pathinfo($requestPath, PATHINFO_EXTENSION));
+        if (in_array($ext, $staticExtensions) && !file_exists($realFilePath)) {
+            http_response_code(404);
+            return;
+        }
 
-        /////var_dump($router->getDefinedRoutes());
-            /////die();
+
 
        try {
-            /*throw new Exception(
-                'IN TRY CATCH, config is: ' .
-                json_encode($config)
-            );*/ ///// DELETE
             // --------------- FALL-BACK AUTO ROUTE DISCOVERY -------------------
             // Determine the controller and method to load.
             // Primarily based on the URL but will substitute defaults if not set.
@@ -1575,8 +1542,6 @@ class DGZ_Router {
                 $requestObject->setTargetId($straightUrlId);
             }
 
-            ///// $classReflector = new ReflectionClass($controller); ///// DELETE
-            ///// $object = $classReflector->newInstance(); ///// DELETE
             //--------------------
             // 'new ReflectionClass()' does not instantiate the given class eg $controller
             // it just instantiates the ReflectionClass() with the given class, ready for use
@@ -1626,7 +1591,6 @@ class DGZ_Router {
                 -You sort them safely by $priority (default 10 if not set).
                 -You run them in proper order.
             */
-            /////$router = self::getInstance();
             $this->runGlobalMiddleware($controller, $controllerInput, $method);
             //--------------------------- END MIDDLEWARE DOCS NOTES ---------------------------------//
             try {
@@ -1691,13 +1655,6 @@ class DGZ_Router {
             //-------------START TESTING ----------------------------------------
             // is it a ValidationException
             if ($e instanceof ValidationException) {
-                /*dgzie(
-                    "WAAAAY, OUR FORM VALIDATES ", 
-                    $e->getInput(), 
-                    $e->getErrors(), 
-                    $e->redirectTo,
-                    $e->getValidationErrorMessages()
-                );*/ /////
                 $errorMsg = "";
             
                 foreach ($e->getValidationErrorMessages() as $key => $valError)
@@ -1824,10 +1781,6 @@ TEXT;
      */ // @return KernelResponse
     public function dispatchForTesting(): void
     {
-        /*throw new Exception(
-                'in DGZ_Router dispatchForTesting() CONTENT OF $_SERVER is: ' .
-                json_encode($_SERVER)
-            );*/ ///// DELETE
         $httpMethod = $_SERVER['REQUEST_METHOD'];
         $uri    = $_SERVER['REQUEST_URI'];
 
@@ -1861,10 +1814,6 @@ TEXT;
                 $route['method'] === strtoupper($httpMethod) &&
                 $route['uri'] === $uri
             ) {
-                /*throw new Exception(
-                'in DGZ_Router resolveDefinedRouteForTesting() CONTENT OF $route is: ' .
-                json_encode($route)
-            );*/ ///// DELETE
 
             $routeData = $this->buildRouteForTesting($route);
             /*throw new Exception(

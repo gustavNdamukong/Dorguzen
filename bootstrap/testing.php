@@ -7,6 +7,8 @@ use Dorguzen\Core\Config\EnvLoader;
 
 use Dorguzen\Core\Database\Drivers\DGZ_DBDriverInterface;
 use Dorguzen\Core\Database\Drivers\DGZ_MySQLiDriver;
+use Dorguzen\Core\Database\Drivers\DGZ_SQLiteDriver;
+use Dorguzen\Core\CLI\Application;
 
 // This is the framework bootstrapping file for the testing environment ONLY.
 // This is to avoid memory exhaustion, a classic issue arising when web bootstraps
@@ -60,16 +62,27 @@ $container->singleton(Config::class, fn () => $configClass);
 $dbData = $configArray['database']['DBcredentials'];
 
 $dbCredentials = [
-    'host' => $dbData['host'],
-    'username' => $dbData['username'],
-    'pwd' => $dbData['pwd'],
-    'db' => $dbData['db'],
-    'connectionType' => $dbData['db'],
-    'key' => $dbData['db'],
+    'host'           => $dbData['host'],
+    'username'       => $dbData['username'],
+    'pwd'            => $dbData['pwd'],
+    'db'             => $dbData['db'],
+    'connectionType' => $dbData['connectionType'],
+    'key'            => $dbData['key'],
+    'sqlite_path'    => $dbData['sqlite_path'] ?? '',
 ];
+
+$dbConnection = $dbData['connectionType'] ?? 'mysqli';
+
 $container->singleton(
     DGZ_DBDriverInterface::class,
-    fn () => new DGZ_MySQLiDriver($dbCredentials)
+    fn () => $dbConnection === 'sqlite'
+        ? new DGZ_SQLiteDriver($dbCredentials)
+        : new DGZ_MySQLiDriver($dbCredentials)
+);
+
+$container->singleton(
+    Application::class,
+    fn () => new Application(container())
 );
 
 // Test formatter

@@ -22,9 +22,11 @@ class MigrationRepository
 
     public function ensureTableExists(): void
     {
+        $pkSyntax = $this->db->autoIncrementPrimaryKey();
+
         $sql = "
             CREATE TABLE IF NOT EXISTS {$this->table} (
-                id INT AUTO_INCREMENT PRIMARY KEY,
+                id {$pkSyntax},
                 migration VARCHAR(255) NOT NULL,
                 batch INT NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -37,31 +39,28 @@ class MigrationRepository
 
     public function dropAllNonInfrastructureTables(): void
     {
-        $tables = $this->db->query("SHOW TABLES");
+        $tables = $this->db->listTables();
 
         $protected = [
             'dgz_migrations',
             'dgz_migration_locks',
         ];
 
-        foreach ($tables as $row) {
-            $table = array_values($row)[0];
-
+        foreach ($tables as $table) {
             if (in_array($table, $protected, true)) {
                 continue;
             }
 
-            $this->db->execute("DROP TABLE `$table`");
+            $this->db->execute("DROP TABLE IF EXISTS $table");
         }
     }
 
 
     // clear migrations table because migrations recorded in there cannot be reran.
-    // It was meant to prevent running a migration more than once. 
+    // It was meant to prevent running a migration more than once.
     public function clear(): void
     {
-        // Using TRUNCATE is much faster than DELETE FROM
-        $this->db->execute("TRUNCATE TABLE {$this->table}");
+        $this->db->execute("DELETE FROM {$this->table}");
     }
 
 
@@ -147,13 +146,10 @@ class MigrationRepository
 
     public function dropAllTables(): void
     {
-        $tables = $this->db->query("SHOW TABLES");
+        $tables = $this->db->listTables();
 
-        foreach ($tables as $row) {
-            $table = array_values($row)[0];
-
-            // Never drop the migrations table twice
-            $this->db->execute("DROP TABLE IF EXISTS `$table`");
+        foreach ($tables as $table) {
+            $this->db->execute("DROP TABLE IF EXISTS $table");
         }
-}
+    }
 }

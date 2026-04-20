@@ -29,9 +29,9 @@ class DGZ_SQLiteDriver implements DGZ_DBDriverInterface
 
         $path = $credentials['sqlite_path'];
 
-        if (!str_starts_with($path, '/')) {
-            // resolve project root
-            $path = base_path($path); 
+        if ($path !== ':memory:' && !str_starts_with($path, '/')) {
+            // resolve relative paths against the project root
+            $path = base_path($path);
         }
 
         $dsn = 'sqlite:' . $path;
@@ -207,5 +207,21 @@ class DGZ_SQLiteDriver implements DGZ_DBDriverInterface
     public function encryptPasswordCondition(string $passwordField): string
     {
         return $passwordField;
+    }
+
+    public function listTables(): array
+    {
+        $stmt = $this->pdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'");
+        return array_column($stmt->fetchAll(), 'name');
+    }
+
+    public function autoIncrementPrimaryKey(): string
+    {
+        return 'INTEGER PRIMARY KEY';
+    }
+
+    public function getDriverName(): string
+    {
+        return 'sqlite';
     }
 }

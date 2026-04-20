@@ -215,15 +215,56 @@ class DGZ_Auth
 
 
 
-    public function hasRole($role): bool 
+    public function isType(string $type): bool
     {
-        return $this->user && $this->user->getData()['users_type'] === $role; 
+        return $this->check() && $this->user->getData()['users_type'] === $type;
     }
 
 
 
-    public function role(): string|null  
+    public function can(string $feature): bool
     {
+        if (!$this->check()) {
+            return false;
+        }
+
+        $permissions = $this->config->getConfig()['permissions'] ?? [];
+
+        if (!isset($permissions[$feature])) {
+            return false;
+        }
+
+        return in_array($this->user->getData()['users_type'], $permissions[$feature], true);
+    }
+
+
+
+    public function permissions(): array
+    {
+        if (!$this->check()) {
+            return [];
+        }
+
+        $map  = $this->config->getConfig()['permissions'] ?? [];
+        $type = $this->user->getData()['users_type'];
+
+        return array_keys(array_filter($map, fn($allowed) => in_array($type, $allowed, true)));
+    }
+
+
+
+    public function hasRoles(): array
+    {
+        return $this->permissions();
+    }
+
+
+
+    public function userType(): string|null
+    {
+        if (!$this->check()) {
+            return null;
+        }
         return $this->user->getData()['users_type'] ?? null;
     }
 

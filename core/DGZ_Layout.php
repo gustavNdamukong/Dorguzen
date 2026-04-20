@@ -102,6 +102,11 @@ abstract class DGZ_Layout
 	 * @var array An array of meta tags containing meta data of a specific view that will be included on this page.
 	 */
 	protected $metadata;
+
+	/**
+	 * @var int Number of characters by which to indent page header SEO metadata, to goo formatting.
+	 */
+	private $indentation = 10;
 	
 
 	/**
@@ -351,7 +356,7 @@ abstract class DGZ_Layout
 	{
 		$metatagHtml = '';
 		foreach ($this->globalSeoData as $data) {
-			$metatagHtml .= html_entity_decode($data) . PHP_EOL; 
+			$metatagHtml .= $this->indent() .   html_entity_decode($data) . PHP_EOL; 
 		}
 		return $metatagHtml;
 	}
@@ -393,10 +398,16 @@ abstract class DGZ_Layout
 	{
 		$metatagHtml = '';
 		foreach ($this->metadata as $data) {
-			$metatagHtml .= html_entity_decode($data) . PHP_EOL;
+			$metatagHtml .= $this->indent() .  html_entity_decode($data) . PHP_EOL;
 		}
 		return $metatagHtml;
 	}
+
+
+    private function indent()
+    {
+        return str_repeat(' ', $this->indentation);
+    }
 
 
 
@@ -496,11 +507,6 @@ abstract class DGZ_Layout
 		if ($layoutConfig->getConfig()['live'] == 'false') {
 			if ($useFullLayout) {
 				
-				/*throw new \RuntimeException(
-        'Value IN SERVER is: ' .
-        json_encode(base_path($testRoot))
-    	);*/ ///// DELETE
-				///// $layoutFileName = $_SERVER['DOCUMENT_ROOT'] . '/' . $appName . '/layouts/' . $layoutFolder . '/' . $layoutName . '.php';
 				//$layoutFileName = $_SERVER['DOCUMENT_ROOT'] . '/' . $appName . '/layouts/' . $layoutFolder . '/' . $layoutName . '.php';
 				// TODO: The line above was original line, restore if issues arise (01/31/2026)
 				$appRootPath = '/layouts/' . $layoutFolder . '/' . $layoutName . '.php';
@@ -515,22 +521,15 @@ abstract class DGZ_Layout
 				 * appName is: nolimitmedia
 				*/
 
-				/*throw new \RuntimeException(
-        'LAYOUT FILE NAME is: ' .
-        json_encode($layoutFileName)
-    	);*/ ///// DELETE
 
 
-				///// $layoutClass = '\layouts\\' . $layoutFolder . '\\' . $layoutName; ///// DELETE
 				$layoutClass = 'Dorguzen\layouts\\' . $layoutFolder . '\\' . $layoutName;
 			}
 			else {
-				///// $layoutFileName = $_SERVER['DOCUMENT_ROOT'] . '/' . $appName . '/layouts/' . $layoutFolder . '/' . 'BlankLayout.php';
 				// TODO: The line above was original line, restore if issues arise (01/31/2026)
 				$layoutFileRootPath = "/layouts/{$layoutFolder}/BlankLayout.php";
 				$layoutFileName = base_path($layoutFileRootPath);
 
-				///// $layoutClass = '\layouts\\' . $layoutFolder . '\BlankLayout'; ///// DELETE
 				$layoutClass = 'Dorguzen\layouts\\' . $layoutFolder . '\BlankLayout';
 			}
 		}
@@ -540,24 +539,20 @@ abstract class DGZ_Layout
 			if ($useFullLayout)
 			{
 				//there is no $appName folder (e.g. appName) inside the root folder //which is 'public_html'. Rather, we just have 'public_html/layouts'. 				//We did the same for the else clause below.
-				///// $layoutFileName = $_SERVER['DOCUMENT_ROOT'] . '/layouts/' . $layoutFolder . '/' . $layoutName . '.php';
 				// TODO: The line above was original line, restore if issues arise (01/31/2026)
 				$layoutFileRootPath = "/layouts/{$layoutFolder}/{$layoutName}.php";
 				$layoutFileName = base_path($layoutFileRootPath);
 
 
-				/////$layoutClass = '\layouts\\' . $layoutFolder . '\\' . $layoutName; ///// DELETE
 				$layoutClass = 'Dorguzen\layouts\\' . $layoutFolder . '\\' . $layoutName;
 			}
 			else
 			{
-				///// $layoutFileName = $_SERVER['DOCUMENT_ROOT'] . '/layouts/' . $layoutFolder . '/' . 'BlankLayout.php';
 				// TODO: The line above was original line, restore if issues arise (01/31/2026)
 				$layoutFileRootPath = "/layouts/{$layoutFolder}/BlankLayout.php";
 				$layoutFileName = base_path($layoutFileRootPath);
 
 
-				///// $layoutClass = '\layouts\\' . $layoutFolder . '\BlankLayout'; ///// DELETE
 				$layoutClass = 'Dorguzen\layouts\\' . $layoutFolder . '\BlankLayout';
 			}
 		}

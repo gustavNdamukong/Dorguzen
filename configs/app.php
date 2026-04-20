@@ -56,4 +56,11 @@ return [
         'payments' => env('MODULES_PAYMENTS_STATUS', 'off'),
         'sms'      => env('MODULES_SMS_STATUS', 'off'),
     ],
+
+    'permissions' => [
+        'seo'          => ['admin', 'admin_gen', 'super_admin'],
+        'payments'     => ['admin_gen', 'super_admin'],
+        'manage_users' => ['admin', 'admin_gen', 'super_admin'],
+        'settings'     => ['super_admin'],
+    ],
 ];

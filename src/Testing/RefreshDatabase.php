@@ -41,6 +41,7 @@ trait RefreshDatabase
         */
         /** @var \Dorguzen\Core\CLI\Application $cliApp */
         $cliApp = container(Application::class);
+        $cliApp->registerCommands();
         $console = $cliApp->getConsole();
 
         $input = new ArrayInput([
@@ -51,10 +52,6 @@ trait RefreshDatabase
         // Silent output; scheduler should not spam console
         $output = new NullOutput();
 
-        // you must register the commend - better to register only the one command you need to call.
-        // TODO: Restore the below two lines
-        /////$console->addCommand(new MigrateFreshCommand(container()));
-
-        /////$console->run($input, $output);
+        $console->run($input, $output);
     }
 }

@@ -265,7 +265,6 @@ class DGZ_Table
     public function getTable($tableTemplateClassName, $sortLinkTarget = '') {
         //pagination vars
         $limit = $this->recordsPerpage > 0 ? $this->recordsPerpage : (isset($_GET['limit']) ? $_GET['limit'] : 20);
-        /////$limit = $this->recordsPerpage > 0 ? $RecsPerpage : (isset($_GET['limit']) ? $_GET['limit'] : 20);
         $currentPageNumber = (isset($_GET['pageNum'])) ? $_GET['pageNum'] : 1;
 
         //grab table views placed either inside the views folder or the views\admin sub-folder
@@ -424,8 +423,6 @@ class DGZ_Table
                             //This is an extra service to expand the capabilities of this table engine, and is a bonus for u the developer in case u need to use JS to control the <td> values of the
                             //table on the click of any of those buttons
                             //That said: $key is the column name of the DB ID field, while $re is its value (the actual ID of the record. $col is the name of the  DB column
-                            //////$HTMLTable .= "<td><a href='$linkTarget'>" . $val . "</a></td>";
-                            /////$HTMLTable .= "<td id='".$recId."_".$col."'><a href='$linkTarget'>" . $val . "</a></td>";///////////////////////////
                             //If its a date field, convert the date from DB to a regular (human-readable) format
                             if (preg_match('/date/', strtolower($col)))
                             {

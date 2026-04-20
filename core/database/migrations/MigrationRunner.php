@@ -88,17 +88,22 @@ class MigrationRunner
 
                 // Execute or pretend
                 foreach ($statements as $sql) {
-                    if ($this->pretend) {
-                        echo $sql . PHP_EOL;
-                    } else {
-                        $this->db->execute($sql);
+                    // A single "statement" may contain multiple SQL queries separated
+                    // by ";\n" (e.g. CREATE TABLE + CREATE INDEX for SQLite).
+                    $parts = array_filter(array_map('trim', explode(";\n", $sql)));
+                    foreach ($parts as $part) {
+                        if ($this->pretend) {
+                            echo $part . PHP_EOL;
+                        } else {
+                            $this->db->execute($part);
+                        }
                     }
                 }
 
                 // Log ONLY if not pretending (into dgz_migrations)
                 if (! $this->pretend) {
                     $this->repository->log(
-                        basename($file), 
+                        basename($file),
                         $this->repository->getLastBatch() + 1
                     );
                 }
@@ -297,13 +302,11 @@ class MigrationRunner
     {
         if ($this->pretend) {
             echo "[Pretend] Dropping non-infrastructure tables\n";
-            foreach ($this->db->query("SHOW TABLES") as $row) {
-                $table = array_values($row)[0];
-
+            foreach ($this->db->listTables() as $table) {
                 if (in_array($table, ['dgz_migrations', 'dgz_migration_locks'], true)) {
                     continue;
                 }
-                echo "DROP TABLE `$table`;\n";
+                echo "DROP TABLE $table;\n";
             }
 
             echo "\n[Pretend] Running migrations:\n";
@@ -314,21 +317,11 @@ class MigrationRunner
             return;
         }
 
-        $this->lock->acquire();
-
-        try {
-            // ✅ SAFE DROP
-            $this->repository->dropAllNonInfrastructureTables();
-
-            // Reset migration history
-            $this->repository->clear();
-
-            // Re-run migrations
-            $this->runUp();
-        } finally {
-            // using finally ensures that lock is released even if migration crashes
-            $this->lock->release();
-        }
+        // Drop all app tables and clear migration history before re-running.
+        // runUp() acquires and releases its own lock, so no outer lock is needed.
+        $this->repository->dropAllNonInfrastructureTables();
+        $this->repository->clear();
+        $this->runUp();
     }
 
 

@@ -53,12 +53,34 @@ class ColumnDefinition
         $this->modifiers[] = 'DEFAULT CURRENT_TIMESTAMP';
         return $this;
     }
-    
 
-    public function toSql(): string
+    public function useCurrentOnUpdate(): self
     {
-        return trim(
-            "`{$this->name}` {$this->type} " . implode(' ', $this->modifiers)
-        );
+        // MySQL-only modifier; stored so toSql() can emit it only for MySQL
+        $this->modifiers[] = '__ON_UPDATE_CURRENT_TIMESTAMP__';
+        return $this;
+    }
+
+    public function toSql(string $driver = 'mysqli'): string
+    {
+        $type = $this->type;
+
+        // SQLite has no ENUM type — use TEXT instead
+        if ($driver === 'sqlite' && str_starts_with(strtoupper($type), 'ENUM(')) {
+            $type = 'TEXT';
+        }
+
+        $modifiers = array_filter($this->modifiers, function (string $m) use ($driver): bool {
+            if ($m === '__ON_UPDATE_CURRENT_TIMESTAMP__') {
+                return $driver !== 'sqlite';
+            }
+            return true;
+        });
+
+        $modifiers = array_map(function (string $m): string {
+            return $m === '__ON_UPDATE_CURRENT_TIMESTAMP__' ? 'ON UPDATE CURRENT_TIMESTAMP' : $m;
+        }, $modifiers);
+
+        return trim("`{$this->name}` {$type} " . implode(' ', $modifiers));
     }
 }

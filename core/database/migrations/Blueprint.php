@@ -9,6 +9,7 @@ use Dorguzen\Core\Database\Migrations\ColumnDefinition;
 class Blueprint
 {
     protected array $indexes = [];
+    protected array $separateIndexColumns = [];
     protected string $table;
     protected array $columns = [];
 
@@ -200,20 +201,58 @@ class Blueprint
         return $this;
     }
 
-    public function toSqlCreate(): string
+    public function tinyInteger(string $name): ColumnDefinition
     {
-        try {
-            $cols = array_map(fn (ColumnDefinition $c) => $c->toSql(),$this->columns);
+        $column = new ColumnDefinition($name, 'TINYINT');
+        $this->columns[] = $column;
+        return $column;
+    }
+
+    public function dateTime(string $name): ColumnDefinition
+    {
+        return $this->timestamp($name);
+    }
+
+    public function index(string $column): void
+    {
+        // Stored separately; SQLite doesn't support INDEX inline in CREATE TABLE.
+        // MySQL gets it inline; SQLite gets it as a separate CREATE INDEX statement.
+        $this->separateIndexColumns[] = $column;
+    }
+
+    public function binary(string $name): ColumnDefinition
+    {
+        $column = new ColumnDefinition($name, 'BLOB');
+        $this->columns[] = $column;
+        return $column;
+    }
+
+    public function toSqlCreate(string $driver = 'mysqli'): string
+    {
+        $cols = array_map(fn (ColumnDefinition $c) => $c->toSql($driver), $this->columns);
+
+        if ($driver !== 'sqlite') {
+            // MySQL supports inline INDEX and ENGINE table options
+            foreach ($this->separateIndexColumns as $col) {
+                $this->indexes[] = "INDEX (`$col`)";
+            }
             $cols = array_merge($cols, $this->indexes);
-        } catch (\Throwable $e) {
-            dd('In toSqlCreate():', $e->getMessage(), $e->getTraceAsString()); 
+            $suffix = ' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4';
+        } else {
+            $cols = array_merge($cols, $this->indexes);
+            $suffix = '';
         }
 
-        return <<<SQL
-CREATE TABLE `{$this->table}` (
-    {$this->implodeColumns($cols)}
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-SQL;
+        $sql = "CREATE TABLE `{$this->table}` (\n    {$this->implodeColumns($cols)}\n){$suffix}";
+
+        if ($driver === 'sqlite' && !empty($this->separateIndexColumns)) {
+            foreach ($this->separateIndexColumns as $col) {
+                $idxName = "idx_{$this->table}_{$col}";
+                $sql .= ";\nCREATE INDEX IF NOT EXISTS `{$idxName}` ON `{$this->table}` (`{$col}`)";
+            }
+        }
+
+        return $sql;
     }
 
 

@@ -42,6 +42,30 @@
       'payments' => 'off',
       'sms' => 'off',
     ),
+    'permissions' => 
+    array (
+      'seo' => 
+      array (
+        0 => 'admin',
+        1 => 'admin_gen',
+        2 => 'super_admin',
+      ),
+      'payments' => 
+      array (
+        0 => 'admin_gen',
+        1 => 'super_admin',
+      ),
+      'manage_users' => 
+      array (
+        0 => 'admin',
+        1 => 'admin_gen',
+        2 => 'super_admin',
+      ),
+      'settings' => 
+      array (
+        0 => 'super_admin',
+      ),
+    ),
   ),
   'database' => 
   array (
@@ -51,10 +75,10 @@
       'pwd' => 'root',
       'db' => 'dorguzapp',
       'host' => '127.0.0.1',
-      'connectionType' => 'mysqli',
+      'connectionType' => 'sqlite',
       'port' => 3306,
       'key' => 'takeThisWith@PinchOfSalt',
-      'sqlite_path' => '',
+      'sqlite_path' => ':memory:',
     ),
     'Neo4jCredentials' => 
     array (
@@ -87,8 +111,11 @@
       0 => 'Dorguzen\\Listeners\\SendContactConfirmation',
     ),
   ),
-  'Config' => 
+  'modules' => 
   array (
+    'ModuleConfigExample' => 
+    array (
+    ),
   ),
   'logging' => 
   array (
@@ -118,7 +145,7 @@
       ),
     ),
   ),
-  'ModuleConfigExample' => 
+  'ConfigDELETE' => 
   array (
   ),
 );

@@ -38,7 +38,7 @@ class index extends \Dorguzen\Core\DGZ_HtmlView
 				BREADCRUMB - END
 			=========================== -->
         <?php
-		if ((isset($_SESSION['authenticated'])) && ($_SESSION['authenticated'] == 'Let Go-'.$this->controller->config->getConfig()['appName'])) 
+		if (Auth()->can('seo'))
          { ?>
 
 			<!-- ==========================
@@ -119,9 +119,9 @@ class index extends \Dorguzen\Core\DGZ_HtmlView
 								<i class="fa fa-bullhorn section-title-icon"></i>&nbsp;<span
 									class="col-form-label"><b>Pages SEO Data (<?=$pageCount?>)</b></span>
 							</h3>
-						   <?php /*<div class="well">
-						      <a href="<?=$this->controller->config->getFileRootPath()?>seo/addPage" class="btn btn-primary btn-sm">Create page data</a>
-						</div> */ ?>
+						<div class="well">
+						    <a href="<?=$this->controller->config->getFileRootPath()?>seo/addPage" class="btn btn-primary btn-sm">Create page data</a>
+						</div> 
 							<?php
 							if ($seoData)
 							{ ?>
@@ -187,9 +187,11 @@ class index extends \Dorguzen\Core\DGZ_HtmlView
 								 <div class="col-sm-3">
 								 </div>
 								 <div class="col-sm-9">
-									  <h3 style="color:red;">Sorry! You have no access to this page 
-										<a href="<?=$this->controller->config->getFileRootPath()?>auth" class="btn btn-info">Login</a>
-										<a href="<?=$this->controller->config->getFileRootPath()?>" class="btn btn-info">Home</a></h3>
+									  <h3 style="color:red;">Sorry! You do not have permission to access this page.</h3>
+									  <a href="<?=$this->controller->config->getFileRootPath()?>" class="btn btn-info">Home</a>
+									  <?php if (Auth()->guest()): ?>
+									  <a href="<?=$this->controller->config->getFileRootPath()?>auth" class="btn btn-info">Login</a>
+									  <?php endif; ?>
 								 </div>
 							</div>
 					   </div>

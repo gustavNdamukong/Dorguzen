@@ -41,7 +41,7 @@ class addGlobal extends \Dorguzen\Core\DGZ_HtmlView
 				BREADCRUMB - END
 			=========================== -->
         <?php
-		if ((isset($_SESSION['authenticated'])) && ($_SESSION['authenticated'] == 'Let Go-'.$this->controller->config->getConfig()['appName'])) 
+		if (Auth()->can('seo'))
          { ?>
 
 			<!-- ==========================

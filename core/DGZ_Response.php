@@ -2,6 +2,7 @@
 namespace Dorguzen\Core;
 
 use Dorguzen\Core\DGZ_JsonFormatter;
+use Dorguzen\Core\DGZ_Logger;
 
 
 class DGZ_Response
@@ -71,9 +72,10 @@ class DGZ_Response
         //--------------------
         $json = json_encode($this->data, JSON_PRETTY_PRINT);
         if ($json === false) {
-            echo "❌ JSON encoding failed: " . json_last_error_msg() . "\n";
-            var_dump($this->data);
-            die();
+            DGZ_Logger::error('JSON encoding failed', ['reason' => json_last_error_msg()]);
+            http_response_code(500);
+            echo json_encode(['error' => 'An internal error occurred while encoding the response.']);
+            return;
         }
         //--------------------
         echo $this->formatter->format($this->data);

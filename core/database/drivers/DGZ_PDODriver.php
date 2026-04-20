@@ -178,4 +178,20 @@ class DGZ_PDODriver implements DGZ_DBDriverInterface
     {
         return "{$field} = AES_ENCRYPT(?, ?)";
     }
+
+    public function listTables(): array
+    {
+        $stmt = $this->conn->query("SHOW TABLES");
+        return array_column($stmt->fetchAll(PDO::FETCH_NUM), 0);
+    }
+
+    public function autoIncrementPrimaryKey(): string
+    {
+        return 'INT AUTO_INCREMENT PRIMARY KEY';
+    }
+
+    public function getDriverName(): string
+    {
+        return 'pdo';
+    }
 }
