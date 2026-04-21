@@ -18,12 +18,16 @@ class home extends \Dorguzen\Core\DGZ_HtmlView
         <div class="container my-5 py-5 px-lg-5">
             <div class="row g-5 py-5">
                 <div class="col-12 text-center">
-                    <h1 class="text-white animated slideInDown">Build Fast. Build Right.</h1>
+                    <h1 class="text-white animated slideInDown">Dorguzen</h1>
+                    <h1 class="text-white animated slideInDown">Powerful PHP Framework. No Black Box.</h1>
                     <hr class="bg-white mx-auto mt-0" style="width: 90px;">
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb justify-content-center">
                             <li class="breadcrumb-item text-white">
-                                Welcome to the <strong>&nbsp;Dorguzen PHP MVC Framework</strong>
+                                The framework that actually teaches you PHP</strong>
+                            </li>
+                            <li class="breadcrumb-item text-white">
+                                Know this one framework, and know them all</strong>
                             </li>
                         </ol>
                     </nav>
