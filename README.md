@@ -23,20 +23,26 @@ Out of the box you get routing, controllers, models, views, an ORM, migrations, 
 
 ## Installation
 
-### 1. Clone the repository
+Dorguzen is available on [Packagist](https://packagist.org/packages/gustocoder/dorguzen).
+
+### Option A — Via Composer (recommended)
 
 ```bash
-git clone https://github.com/gustavNdamukong/Dorguzen.git
-cd Dorguzen
+composer create-project gustocoder/dorguzen my-app
+cd my-app
 ```
 
-### 2. Install PHP dependencies
+Replace `my-app` with your project folder name. Composer will pull the latest stable release from Packagist and install all dependencies automatically — no separate `composer install` step needed.
+
+### Option B — Clone from GitHub
 
 ```bash
+git clone https://github.com/gustavNdamukong/Dorguzen.git my-app
+cd my-app
 composer install
 ```
 
-### 3. Set up your environment file
+### 2. Set up your environment file
 
 Dorguzen ships with `.env.example` as a template listing every variable the framework expects.
 
