@@ -33,7 +33,7 @@
     ],
     "require": {
         "php": ">=8.0",
-        "firebase/php-jwt": "^6.10",
+        "firebase/php-jwt": "^7.0",
         "stripe/stripe-php": "^13.12",
         "twilio/sdk": "^7.16",
         "phpmailer/phpmailer": "^6.10",
