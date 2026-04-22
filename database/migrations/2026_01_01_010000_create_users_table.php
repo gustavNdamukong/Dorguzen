@@ -26,7 +26,7 @@ return new class extends Migration {
             $table->string('users_eactivationcode', 100)->nullable();
 
             $table->timestamp('users_updated')->useCurrent()->useCurrentOnUpdate();
-            $table->timestamp('users_created')->default('0000-00-00 00:00:00');
+            $table->timestamp('users_created');
         });
 
         $this->addStatement($sql);

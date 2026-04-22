@@ -50,6 +50,13 @@ Dorguzen ships with `.env.example` as a template listing every variable the fram
 cp .env.example .env
 ```
 
+Optionally, use the local .env file if you would prefer to override some settings like DB connection details locally. 
+
+```bash
+cp .env.local.example .env.local
+```
+
+
 Open `.env` and fill in the values for your local setup. At minimum, set:
 
 ```dotenv
@@ -69,7 +76,11 @@ DB_KEY=a-random-encryption-key
 
 > `DB_KEY` is used to AES-encrypt password fields in the database. Choose any random string and keep it consistent — changing it after data has been inserted will break password verification.
 
-See the **Setup & Config** section of `docs/dgzDocs.md` for the full list of available variables including mail, JWT, Stripe, Twilio, and module flags.
+Fill in the values of the `.env.local` too, if you are using it for the local setup.
+
+Then edit configs/app.php to pull from the values you set in .env, though you can add extra literal environment values there too. 
+
+See the **Setup & Config** section of `docs` for the full list of available variables including mail, JWT, Stripe, Twilio, and module flags.
 
 ### 4. Create the database
 
@@ -87,13 +98,16 @@ This creates all the core tables (users, logs, jobs, SEO, contact form messages,
 php dgz db:seed
 ```
 
-This seeds the default super-admin account (see credentials below).
+This seeds the default super-admin account (see credentials below), and your application's baseSettings table with some default values to get you started.
 
 ### 6. Point your web server at the project root
 
-**Apache (MAMP / XAMPP / Laragon)**
+**Apache (MAMP / XAMPP)**
 
 Set the document root (or virtual host) so that `http://localhost/yourAppName` points to the project root directory containing `index.php`. Apache's `mod_rewrite` must be enabled and `AllowOverride All` must be set for the directory so that `.htaccess` is processed.
+
+The visit: `http://localhost/yourAppName` and your web application should work.
+
 
 **Built-in PHP development server**
 
@@ -121,8 +135,8 @@ A standard user account is pre-configured in the sample app so you can log in im
 
 | Field    | Value                    |
 |----------|--------------------------|
-| Email    | dorguzen@dorguzen.com    |
-| Password | dorguzen                 |
+| Email    | admin@dorguzen.com       |
+| Password | Admin123                 |
 
 > Change these credentials once you start customising the app for your own project.
 

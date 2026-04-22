@@ -5,14 +5,14 @@ namespace Dorguzen\Database\Seeders;
 use Dorguzen\Core\Database\Seeders\Seeder;
 
 /**
- * Seeds the default Dorguzen super-admin account.
+ * Seeds the default super admin account for your application.
  *
  * Safe to run multiple times — INSERT IGNORE means the row is skipped
  * if the email already exists (unique constraint on users_email).
  *
  * After first setup, log in with:
  *   Email:    admin@dorguzen.com
- *   Password: Admin1234!
+ *   Password: Admin123
  *
  * ⚠️  Change these credentials immediately after your first login.
  */

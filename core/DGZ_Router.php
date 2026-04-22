@@ -437,28 +437,20 @@ class DGZ_Router {
         // Work out where to get controller files.
         /* There differnt types of routes to handle:
                 -1) regular routes (non-module)
-                -2) regular API routes (non-module)
-                -3) regular modules 
-                -4) API modules
+                -2) API routes (non-module)
+                -3) module routes 
         */
         // Only the presence of a module name makes a route a module route
-        // Only the presence of a module name & version makes a route an API module route
-        // So when defining APIs in defined routes, the version number MUST be given.
 
-        // -1) if version not given, & no module name given, this is not a module & not an API. ------ GOOD (regular route)
+        // -1) if version not given, this is a regular route (no version, and no module name given)
         if ($apiVersion == '' && $module == '')
         {
             // regular, non-module & non-API controllers path
-            // TODO: The line above was original line, restore if issues arise (01/31/2026)
             $controllerRootPath = '/src/controllers/'. ucfirst($controllerInput).'Controller.php';
             $controllerPath = base_path($controllerRootPath);
             
             if (file_exists($controllerPath))
             {
-                /*throw new Exception(
-                'in DGZ_Router getDefinedRouteControllerPath() Controller EXISTS: ' .
-                json_encode($controllerPath)
-            );*/
                 $controller = 'Dorguzen\Controllers\\'. ucfirst($controllerInput).'Controller';
             }
             else 
@@ -473,10 +465,9 @@ class DGZ_Router {
             }
         }
 
-        // -2) if version given & no module name given, this is a non-module API.               ------ GOOD (regular API route)
+        // -2) if version given & no module name given, this is an API route. 
         else if ($apiVersion != '' && $module == '')
         {
-            // TODO: The line above was original line, restore if issues arise (01/31/2026)
             $apiRootPath = '/src/api/' . ucfirst($apiVersion).'/Controllers/'.ucfirst($controllerInput).'Controller.php';
             $apiPath = base_path($apiRootPath);
 
@@ -496,7 +487,7 @@ class DGZ_Router {
             }
         }
 
-        // -3) if no version given & module name given, this is a non-API module.               ------ GOOD (regular module)
+        // -3) if no version given & module name given, this is a module.               ------ GOOD (regular module)
         else if ($apiVersion == '' && $module != '')
         {
             // Module controllers path
@@ -541,40 +532,8 @@ class DGZ_Router {
     // TODO: We should probably move this from the router to the Kernel
     public function runGlobalMiddleware($controller, $controllerShortName, $method)
     {
-        // NOTE: The commented out code below was moved to loadGlobalMiddleware()
-        // below so we can take advantage of middleware caching.
-
-        /*$middlewareDir = DGZ_BASE_PATH . '/middleware/globalMiddleware';
-        $middlewareFiles = glob($middlewareDir . '/*Middleware.php');
-        $middlewares = [];
-
-        // Load classes from files and instantiate
-        foreach ($middlewareFiles as $file) {
-            $contents = file_get_contents($file);
-            if (preg_match('/^namespace\s+([^;]+);/m', $contents, $matches)) {
-                $namespace = trim($matches[1]);
-                $className = $namespace . '\\' . basename($file, '.php');
-            } else {
-                $className = basename($file, '.php');
-            }
-
-            if (!class_exists($className)) {
-                require_once $file;
-            }
-
-            // instantiate safely (assume parameterless constructor for legacy middleware)
-            $middlewares[] = new $className();
-        }*/
-
         // Load global middleware (from cache if available, filesystem otherwise)
         $middlewares = $this->getGlobalMiddlewareCache();
-
-        // Sort by optional property 'priority' (default 10)
-        /*usort($middlewares, function ($a, $b) {
-            $aPriority = property_exists($a, 'priority') ? $a->priority : 10;
-            $bPriority = property_exists($b, 'priority') ? $b->priority : 10;
-            return $aPriority <=> $bPriority;
-        });*/ 
 
         // Sort middleware descriptors by 'priority' (default 10-lower runs first)
         usort($middlewares, function ($a, $b) {
@@ -685,12 +644,12 @@ class DGZ_Router {
         return ($finalResult === null || $finalResult === true) ? true : $finalResult;
     }
 
-    //---------------------------- use caching with middleware handling ----------------------
+    // cache middleware
     protected function getGlobalMiddlewareCache(): array
     {
         $cacheFile = DGZ_BASE_PATH . '/storage/cache/middleware.php';
 
-        // ✅ Prefer cache if it exists and is readable
+        // Prefer cache if it exists and is readable
         if (file_exists($cacheFile)) {
             // require immediately gives usable middleware instances
             // No need for reflection, or autoloading, or filesystem scan
@@ -797,7 +756,6 @@ class DGZ_Router {
 
         return $middlewares;
     }
-    //--------------------------- end of using caching with middleware handling ----------------
 
 
 
@@ -813,7 +771,7 @@ class DGZ_Router {
         list($controller, $method, $controllerInput, $straightUrlId) = self::getControllerAndMethod(true);
         return [$controller, $method, $controllerInput, $straightUrlId];
     }
-    //------------------------------ END DEFINED ROUTES ----------------------------------
+
 
 
     /**
@@ -936,32 +894,6 @@ class DGZ_Router {
                 // Make sure its not NULL-which is the case if nothing follows the trailing slash
                 // http://localhost:port/yourApp/
                 if (!empty($urlString[3])) { 
-                    // TODO: COPY THIS SECTION OVER TO DOCS, TO EXPLAIN HOW DGZ PROCESSES ROUTE VIA AUTO-DISCOVERY 
-                    /*//---------------------------------- START OF DOCS NOTES --------------------------------
-                                
-                    We need to handle modules here. So, because $urlString[3] exists, it means $urlString[2]
-                    exists, so we must check 
-                        if $urlString[2] is a module. If so, we must 
-                                also check 
-                            if this $urlString[3] is one of the controllers in that module. 
-                            If both checks return true, we should set the target controller to $urlString[3] in
-                                that module. Then we must also check 
-                                if $urlString[4] exists and set it as the method of the 
-                                    controller in that module, 
-                                else if $urlString[4] doesn't exist, the default method will be called on that 
-                                    module controller, so we dont need to do anything.
-                            else if $urlString[2] is a module but $urlString[3] is not its controller, we simply
-                                use $urlString[3] as method2 (2nd method) in that module's main controller class
-                        if $urlString[2] is not a module, we simply use $urlString[3] as a method 
-                            of the given controller (in $urlString[2]).
-
-                    We should do all this in an if-else statements inside this block
-
-                    If this works, create it on LIVE too.
-                    ApiController has these controllers: ['AllController', 'AdController'];
-                    Test calling any of its controllers like so: AllController->getAllAds();
-                    //------------------------------- END OF DOCS NOTES -----------------------------------------*/
-
 
                     $requestParts = SELF::correctModuleOrControllerName($urlString[2]);
                     $moduleString = $requestParts[0];
@@ -1052,22 +984,7 @@ class DGZ_Router {
                     $method3 = $filterUrl5[0];
                 }
             }
-
-
-
-
-
-
-            //------------- THE NEXT PART DEALS WITH THE PRODUCTION ENVIRONMENT --------------------//
-            // STILL NEED TO TEST ON LIVE FOR MODULE ROUTES
-
-
-
-
-
-
-
-
+            // Bridge between local and production environment
             else
             {
                 //http://yourApp/text
@@ -1093,8 +1010,6 @@ class DGZ_Router {
                         $method3 = []; // for module second method
                         $apiVersion = $config->getConfig()['api_module_default_version'] ?? '';
 
-
-                        ////$get_input = $urlString[1];
                         $checkApiVersion = SELF::correctModuleOrControllerName($urlString[1]);
                         $get_input = $checkApiVersion[0];
                         $apiVersion = $checkApiVersion[1] != '' ? $checkApiVersion[1] : $apiVersion;
@@ -1118,42 +1033,14 @@ class DGZ_Router {
                     $rootPath = true;
                 }
 
-                //there may not be a method specified (2nd slash level) eg when a user visits the home page, so check if there's one
                 //http://yourApp/text/text2
-                if (!empty($urlString[2])) { // TODO: ADD THIS CHANGE TO MAKE SURE ITS NOT NULL-wh is the case if nothing follows the trailing slash (mon 29/9/25)
-
-                    //- - - - - - - - - - - START- - - - - - - - - - - - - - - - //
-                    /*//---------------------------------- TESTING START --------------------------------
-                                
-                    We need to handle modules here. So, because $urlString[2] exists, it means $urlString[1]
-                    exists, so we must check 
-                        if $urlString[1] is a module. If so, we must 
-                                also check 
-                            if this $urlString[2] is one of the controllers in that module. 
-                            If both checks return true, we should set the target controller to $urlString[2] in
-                                that module. Then we must also check 
-                                if $urlString[3] exists and set it as the method of the 
-                                    controller in that module, 
-                                else if $urlString[3] doesn't exist, the default method will be called on that 
-                                    module controller, so we dont need to do anything.
-                            else if $urlString[1] is a module but $urlString[2] is not its controller, we simply
-                                use $urlString[2] as method2 (2nd method) in that module's main controller class
-                        if $urlString[1] is not a module, we simply use $urlString[2] as a method 
-                            of the given controller (in $urlString[1]).
-
-                    If this works, create it on LIVE too.
-                    ApiController has these controllers: ['AllController', 'AdController'];
-                    Test calling any of its controllers like so: AllController->getAllAds();
-                    //---------------------------------- TESTING END ----------------------------------*/
-                    
-                    //------------------------------ IMPLEMENTING THE TEST -----------------------------
+                if (!empty($urlString[2])) { 
                     $requestParts = SELF::correctModuleOrControllerName($urlString[1]);
                     $moduleString = $requestParts[0];
                     if ($requestParts[1] != "")
                     {
                         $apiVersion = $requestParts[1];
                     }
-
 
 
                     // Check if it's a module
@@ -1223,44 +1110,19 @@ class DGZ_Router {
                         $filterUrl = explode('?', $urlString[2]);
                         $method = $filterUrl[0];
                     }
-
-                    //--------------------------- END OF IMPLEMENTING THE TEST -------------------------
-                    //- - - - - - - - - - - - END- - - - - - - - - - - - - - - //
                 }
 
                 if (!empty($urlString[3]))
                 {
-                    /*//---------------------------------- TESTING START --------------------------------
-                                
-                    We need to handle modules here. So, because $urlString[3] exists, it means $urlString[1]
-                    and $urlString[2] existed, so we must check 
-                        if $urlString[1] is a module. If so, we must 
-                                also check 
-                            if this $urlString[2] is one of the controllers in that module. 
-                                If both checks return true, we should use $urlString[3] as a method in the 
-                                    $urlString[2] controller of that module, otherwise, 
-                            if $urlString[1] is a module but if $urlString[2] is not its controller, we simply
-                                use $urlString[3] as method2 (2nd method) in that module's main controller class
-                        if $urlString[1] is not a module, we use $urlString[2] as a method of the given 
-                            controller, and $urlString[3] as method2 (2nd method) in the $urlString[1]
-                            controller. 
-                    We should do all this in an if-else statements inside this block
-
-                    If this works, create it on LIVE too.
-                    //---------------------------------- TESTING END ----------------------------------*/
-
-                    //Extract the method name by splitting the rest of the string by the '?' character if any
                     $filterUrl3 = explode('?', $urlString[3]);
                     $method2 = $filterUrl3[0];
                 }
 
                 if (!empty($urlString[4])) { 
-                    // HTTPS://CAMCOM/API/ALL/5
-                    //Extract the method name by splitting the rest of the string by the '?' character if any
+                    // https://yourApp/api/all/5
                     $filterUrl4 = explode('?', $urlString[4]);
                     $method3 = $filterUrl4[0];
                 }
-
             }
 
 
@@ -1280,7 +1142,6 @@ class DGZ_Router {
                     // This is a special kind of module; APIs, which has versions, & so needs to be routed differently 
                     if ($apiVersion)
                     {
-                        // TODO: The line above was original line, restore if issues arise (01/31/2026)
                         $apiRootPath = '/modules/' . strtolower($moduleOrControllerBaseName) .'/'. strtolower($apiVersion).'/controllers/'.ucfirst($get_input).'Controller.php';
                         $apiPath = base_path($apiRootPath);
 
@@ -1315,7 +1176,6 @@ class DGZ_Router {
                 else
                 {
                     // this is a non-API module
-                    // TODO: The line above was original line, restore if issues arise (01/31/2026)
                     $moduleRootPath = '/modules/' . ucfirst(strtolower($moduleOrControllerBaseName)) .'/Controllers/'.ucfirst($get_input).'Controller.php';
                     $modulePath = base_path($moduleRootPath);
 
@@ -1329,9 +1189,6 @@ class DGZ_Router {
             else
             {
                 // this is a regular (non-module) request
-                // DGZ runs all requests through controllers or modules. Therefore here, we load the target controller 
-                // or module class
-                // TODO: The line above was original line, restore if issues arise (01/31/2026)
                 $controllerRootPath = '/src/controllers/'. ucfirst($get_input).'Controller.php';
 				$controllerPath = base_path($controllerRootPath);
 
@@ -1405,7 +1262,7 @@ class DGZ_Router {
             // URL parameters for methods that have the same spelling as the controller parameter, which will neither look sensible visually, nor be good for
             // search engines. This basically means we would end up having neat URLs that look like: 'http://appName/news' instead of 'http://appName/news/news'.
             if(empty($method)) {
-                //we make an exception for the HomeController-if no controller & no method parameter are given in the URL, go straight to its defaultAction() method.
+                // we make an exception for the HomeController-if no controller & no method parameter are given in the URL, go straight to its defaultAction() method.
                 if (strtoupper($get_input) == 'HOME') {
                     if ($rootPath == true) {
                         $method = $object->getDefaultAction();
@@ -1423,7 +1280,7 @@ class DGZ_Router {
             }
 
 
-            //when we got the classReflector on this page above, it was just to see if the controller exists
+            // when we got the classReflector on this page above, it was just to see if the controller exists
             // Now we check if $method2 exists and make it the applicable method. However, before we pass the $urlString[3] 
             // for a method; (this is important), we check that its value is not an integer. If the value is an integer, then 
             // we take that to be an ID & inject it as an argument into the method at $urlString[2] (in our example above-the 
@@ -1456,7 +1313,7 @@ class DGZ_Router {
             }
 
 
-            //Handle any hyphens in the URL method param by referring the handling to a matching underscored or camel-cased controller method
+            // Handle any hyphens in the URL method param by referring the handling to a matching underscored or camel-cased controller method
             if (preg_match('/-/', $method))
             {
                 $methodPieces = explode('-', $method);
@@ -1503,11 +1360,6 @@ class DGZ_Router {
      */
     public function dispatchRequest()
     {
-        /*if ($router === null) {
-            echo "ROUTER IS NULL) ooh\n";
-            $router = self::getInstance(); // fallback for web
-        }*/
-
         $config = container(Config::class);
 
         // Static-asset 404 guard: when a referenced asset file is missing from disk,
@@ -1566,33 +1418,9 @@ class DGZ_Router {
                 }
                 
             }
-            //--------------------
 
-            //--------------------------- MIDDLEWARE (ADD TO DOC THEN DELETE)---------------------------------//;
-            /*  TODO: MAKE MIDDLEWARE CALL MODULAR
-                -add user middleware to /middleware/moduleNameMiddleware.php starting with the 
-                    DGZ's own middleware calls as seen below. The current MiddleWare.php will 
-                    be DGZ's middleware, and the code to process the checks (conditionals below)
-                    will be placed in a handler() method of that Middleware class. All user-defined
-                    (module) middleware should run in the same fashion.
-                -loop thru all these middlewar (mw) & call their boot() 
-                -then call their handle() method passing it controllerInput and $method
-                    so they can be granular about handling the request to the method level
-                -each of the handlers should have code in it that looks like all the if statements below
-                -this should suffice seeing that each time any if statements or whatever conditionals the 
-                    user placed in there throws an exception, this script will abort, and the exception 
-                    will be caught and handled nicely below.  
-            */
-
-            /*
-            Notes
-                -You load every *Middleware.php file in /middleware.
-                -You instantiate each middleware.
-                -You sort them safely by $priority (default 10 if not set).
-                -You run them in proper order.
-            */
             $this->runGlobalMiddleware($controller, $controllerInput, $method);
-            //--------------------------- END MIDDLEWARE DOCS NOTES ---------------------------------//
+
             try {
                 /*If no method is passed to the URL and the controller has a default method (declared as 'defaultAction()'),
                 the getControllerAndMethod() above would have set that default method as that $method.
@@ -1652,7 +1480,7 @@ class DGZ_Router {
              *
              */
             $exceptionController = container(ExceptionController::class);
-            //-------------START TESTING ----------------------------------------
+
             // is it a ValidationException
             if ($e instanceof ValidationException) {
                 $errorMsg = "";
@@ -1680,9 +1508,6 @@ class DGZ_Router {
                 exit;
             }
             else
-            //-------------------END TESTING----------------------------------
-
-
             // Is this a DGZ_Exception?
             if ($e instanceof DGZ_Exception) {
                 $view = DGZ_View::getView('DGZExceptionView', $exceptionController, 'html');
@@ -1694,7 +1519,6 @@ class DGZ_Router {
 
             $app = new DGZ_Application();
             // If this is a HTML format response then we can use a default layout/view to show the error somewhat nicely.
-            //WE DONT HAVE TO WORRY ABOUT THIS FOR NOW AS FORMAT WILL NOT BE USED-HOWEVER WE MAY COME BACK AT A LATER DATE AND DECIDE IF WE NEED FORMATS (FOR DATA)
             if (!isset($_REQUEST['format']) || $_REQUEST['format'] == 'html') 
             {
                 
@@ -1816,34 +1640,6 @@ TEXT;
             ) {
 
             $routeData = $this->buildRouteForTesting($route);
-            /*throw new Exception(
-                'in DGZ_Router resolveDefinedRouteForTesting() CONTENT OF $routeData is: ' .
-                json_encode($routeData)
-            );*/
-
-            /* {
-                    "uri":"ping",
-                    "controller":"TestController",
-                    "method":"ping",
-                    "params":[],
-                    "apiVersion":"",
-                    "module":"","name":null,
-                    "middleware":[]
-                }
-            */
-
-            /*
-                return [
-                'uri'           => $uri,
-                'controller'    => $controller,
-                'method'        => $action,
-                'params'        => $matches,
-                'apiVersion'    => $apiVersion,
-                'module'        => $module,
-                'name'          => $routeName,
-                'middleware'    => $middleware,
-            ];
-            */
 
                 return [
                     'controller' => $this->getDefinedRouteControllerPath($routeData),

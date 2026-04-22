@@ -4,8 +4,6 @@ namespace Dorguzen\Core;
 
 use Exception;
 use ReflectionClass;
-use Dorguzen\Models\Favs;
-use Dorguzen\Models\Product_categories;
 use Dorguzen\Core\DGZ_Router;
 use Dorguzen\Core\DGZ_Validator;
 use Dorguzen\Core\DGZ_Translator;
@@ -253,9 +251,6 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
 
 
-
-
-
 	/**
 	 * Changes the default layout for any specific page.
 	 * If you want your page to use a specific layout from the default one, override the default layout here.
@@ -264,8 +259,6 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 	public function setLayoutView($newLayout) {
 		$this->defaultLayout = $newLayout;
 	}
-
-
 
 
 
@@ -616,16 +609,10 @@ abstract class DGZ_Controller implements DGZ_Displayable {
                     }
                     if (isset($seoData[0]['seo_og_image']))
                     {
-                        //TODO: It depends on how the path is saved in this DB field, we may have to append that to the root path string here
-                        //instruct the user to put the fully qualified image URL in the form field. They should test in browser first to confirm
-                        //sp that it would just work here eg 'http://dorguzen/assets/social/site.png'
                         $pageHeaderSeoData[] = '<meta property="og:image" content="'.$seoData[0]['seo_og_image'].'" />';
                     }
                     if (isset($seoData[0]['seo_og_image_secure_url']))
                     {
-                        //TODO: It depends on how the path is saved in this DB field, we may have to append that to the root path string here
-                        //instruct the user to put the fully qualified image URL in the form field. They should test in browser first to confirm
-                        //sp that it would just work here eg: 'https://dorguzen/assets/social/site.png'
                         $pageHeaderSeoData[] = '<meta property="og:image:secure_url" content="'.$seoData[0]['seo_og_image_secure_url'].'" />';
                     }
                     if (isset($seoData[0]['seo_og_image_width']))
@@ -662,7 +649,6 @@ abstract class DGZ_Controller implements DGZ_Displayable {
                     } 
                     if (isset($seoData[0]['seo_twitter_image']))
                     {
-                        //TODO: It depends on how the path is saved in this DB field, we may have to append that to the root path string here
                         $pageHeaderSeoData[] = '<meta name="twitter:image" content="'.$seoData[0]['seo_twitter_image'].'" />';
                     } 
                     if (
@@ -685,11 +671,10 @@ abstract class DGZ_Controller implements DGZ_Displayable {
                         $pageHeaderSeoData[] = "<title>".$seoData[0]['seo_meta_title_'.$lang]."</title>";
                     } 
 
-                    //save it to this class to be forwarded to the target view
-                    //Note: calling addMetadata() is the same method you would have used if you were manually adding SEO data straight from 
-                    //within view files without using the SEO module.
+                    // save it to this class to be forwarded to the target view
+                    // Note: calling addMetadata() is the same method you would have used if you were manually adding SEO data straight from 
+                    // within view files without using the SEO module.
                     $this->addMetadata($pageHeaderSeoData);
-                    //--------------------------------------
                 }
                 else
                 {
@@ -842,7 +827,7 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 	/**
 	 * Calls the function as requested by $method with the given parameters
 	 * @param string $method. The name of the function to call
-	 * @param string $inputParameters. A numerically-indexed array to be passed in as arguments to the method.
+	 * @param array $inputParameters. A numerically-indexed array to be passed in as arguments to the method.
 	 * @param bool $needsMiddleware. Whether to run middelware validation before this view request is executed.
      *      This is handy because some request redirect to other views after middleware checks, and they will 
      *      pass false so that no more middleware checks are done, otherwise we will end up with an endless cycle 
@@ -865,70 +850,16 @@ abstract class DGZ_Controller implements DGZ_Displayable {
                 {
                     list($controller, $method, $controllerShortName) = DGZ_Router::getControllerAndMethod();
 
-                    //The main thing here is we just need to update the method since this is what this display() is all about
-                    //Point to note is that this DGZ_Controller now is acting as the instantiated controller that was called from DGZ_Router()
-                    //It just wants to update its methods and method arguments
-                    //--------------------------- MIDDLEWARE ---------------------------------//
+                    // The main thing here is we just need to update the method since this is what this display() is all about
+                    // Point to note is that this DGZ_Controller now is acting as the instantiated controller that was called from DGZ_Router()
+                    // It just wants to update its methods and method arguments
+                    
                     /** @var DGZ_Router $router */
                     $router = DGZ_Router::getInstance();
+
                     $router->runGlobalMiddleware($controller, $controllerShortName, $method); 
                 }
                 
-				/*$middleware = new Middleware($controller, $method);
-
-				$boot = $middleware->boot();
-				if (array_key_exists($controllerInput, $boot)) {
-					$middleWareIntent = $middleware->boot()[$controllerInput];
-
-                    if ($middleWareIntent === 'isActiveModule') { 
-                        //Check if a module is active & deny user access if not
-                        if (call_user_func([$middleware, $middleWareIntent], $controllerInput)) {  
-                            //The given module is active, so allow to proceed
-                        }
-                        else { 
-                            throw new DGZ_Exception('Not authorized', DGZ_Exception::PERMISSION_DENIED, 'You are trying access a non-existent module.');
-                        }
-                    }
-					if ($middleWareIntent === true) {
-						//call the middleware method and proceed if it returns true
-						if (call_user_func([$middleware, $controllerInput], $method)) {
-						}
-						else {
-							throw new DGZ_Exception('Not authorized', DGZ_Exception::PERMISSION_DENIED, 'You are trying to visit a restricted area of this application.');
-						}
-					}
-					if ($middleWareIntent === false) {
-						//call the middleware method and proceed if it returns false
-						if (call_user_func([$middleware, $controllerInput], $method) != false) {
-							throw new DGZ_Exception('Not authorized', DGZ_Exception::PERMISSION_DENIED, 'You are trying to visit a restricted area of this application.');
-						}
-						else {
-						}
-					}
-					if ($middleWareIntent === 'divert') {
-						//call the middleware method and proceed with a new controller & or, method
-						list($controller, $method, $inputParameters) = call_user_func([$middleware, $controllerInput], $method);
-					}
-                    if ($middleWareIntent === 'authorised') { 
-                        //Check if middleware authorised method returns true & proceed
-                        if (call_user_func([$middleware, $middleWareIntent], $method)) { 
-                            //The routing will proceed as normal with the requested controller & method
-                        }
-                        else { 
-                            throw new DGZ_Exception('Not authorized', DGZ_Exception::PERMISSION_DENIED, 'You are trying to visit a restricted area of this application.');
-                        }
-                    }
-                    if ($middleWareIntent === 'authenticated') { 
-                        //Check if middleware authorised method returns true & proceed
-                        if (call_user_func([$middleware, $middleWareIntent], $method)) { 
-                            //The routing will proceed as normal with the requested controller & method
-                        }
-                        else { 
-                            throw new DGZ_Exception('Not authorized', DGZ_Exception::PERMISSION_DENIED, 'You must be logged in to access this section.');
-                        }
-                    }
-				}*/
-				//--------------------------- END MIDDLEWARE -----------------------------//
 				if ($method == 'defaultAction')
 				{
 					$method = $this->defaultAction;
@@ -1347,13 +1278,6 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 		return str_replace('Controller', '', $shortName);
 	}
 
-    public function getCatNameFromId($catId)
-    {
-        $lang = $this->getLang();
-        $prodsCatClass = container(Product_categories::class);
-        return $prodsCatClass->getNameFromId($catId, $lang);
-    }
-
 
     /**
      * @param $data
@@ -1398,20 +1322,6 @@ abstract class DGZ_Controller implements DGZ_Displayable {
         return $result;
     }
 
-
-    
-    /**
-     * get items favorited by the user
-     */
-    public function getFavorites()
-    {
-        $favsModel = container(Favs::class);
-        $favs = null;
-        if (isset($_SESSION['authenticated'])) {
-            $favs = $favsModel->getFavProductIds($_SESSION['custo_id']);
-        }
-        return $favs;
-    }
 
 
     public function getLang()

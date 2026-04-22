@@ -14396,6 +14396,7 @@ BlogController and fail.
 all. Only add it when you introduce a second controller into the module.
 
 
+
   2. Defined Routes
   -----------------
   Defined routes give you full, explicit control. They work for any controller in any module,
@@ -15549,6 +15550,24 @@ It works seamlessly whether you are:
 
 Middleware is where you define logic that runs in between a request being received and your controller 
 being executed.
+
+Dorguzen makes working with middleware modular, as in, you can have one for each module in your application. Here's why it works.
+                
+    -you add user middleware to /middleware/moduleNameMiddleware.php starting with the DGZ's own middleware calls as seen below. The current MiddleWare.php will be DGZ's middleware, and the code to process the checks (conditionals below) will be placed in a handler() method of that Middleware class. All user-defined (module) middleware should run in the same fashion.
+                
+    -Dorguzen will loop thru all these middleware and call their boot() methods 
+    -then call their handle() methods, passing it the requested controller input 
+      and method so they can be granular about handling the request to the method level
+                
+    -each of the handlers should have code in it that handles the desired logic
+    -this should suffice seeing that each time any if statements or whatever 
+      conditionals the user placed in there throws an exception, this script will abort, and the exception will be caught and handled nicely below.  
+            
+    -So here are the steps
+        -You load every *Middleware.php file in /middleware.
+        -You instantiate each middleware.
+        -You sort them safely by $priority (default 10 if not set).
+        -You run them in proper order.
 
 
 

@@ -7,12 +7,12 @@ return [
     'appSlogan'       => env('APP_SLOGAN', 'Your Rapid Web Development Toolkit'),
     'appURL'          => env('APP_URL', 'https://www.dorguzen.com'),
 
-    'layoutDirectory' => env('LAYOUT_DIR', 'seoMaster'),
-    'defaultLayout'   => env('DEFAULT_LAYOUT', 'seoMasterLayout'),
+    'layoutDirectory' => env('APP_DEFAULT_LAYOUT_DIR', 'seoMaster'),
+    'defaultLayout'   => env('APP_DEFAULT_LAYOUT', 'seoMasterLayout'),
 
-    'localUrl'          => env('LOCAL_URL', 'http://localhost/dorguzen/'),
-    'liveUrl'           => env('LIVE_URL', 'https://www.dorguzen.com/'),
-    'liveUrlSecure'     => env('LIVE_URL_SECURE', 'https://www.dorguzen.com/'),
+    'localUrl'          => env('APP_LOCAL_URL', 'http://localhost/dorguzen/'),
+    'liveUrl'           => env('APP_LIVE_URL', 'https://www.dorguzen.com/'),
+    'liveUrlSecure'     => env('APP_LIVE_URL_SECURE', 'https://www.dorguzen.com/'),
     'fileRootPathLocal' => env('FILE_ROOT_PATH_LOCAL', '/dorguzen/'),
     'fileRootPathLive'  => env('FILE_ROOT_PATH_LIVE', '/'),
 
@@ -23,7 +23,7 @@ return [
     'locale'          => env('APP_LOCALE', 'en'),
     'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
 
-    'sliderType' => 'slider',
+    'sliderType' => env('SLIDER_TYPE', 'slider'),
 
     'maxFileUploadSize' => 10240000000,
     'defaultImageDir'   => 'images/',
@@ -31,8 +31,8 @@ return [
     'audioUploadDir'    => 'docs/audios/',
     'videoUploadDir'    => 'docs/videos/',
 
-    'site_contact_tel'    => env('SITE_TEL', ''),
-    'site_postal_address' => env('SITE_ADDRESS', ''),
+    'site_contact_tel'    => env('APP_CONTACT_TEL', ''),
+    'site_postal_address' => env('APP_POST_ADDRESS', ''),
 
     'appEmail'        => env('APP_EMAIL', 'your@email.com'),
     'appEmailOther'   => env('APP_EMAIL_OTHER', 'your@email.com'),
