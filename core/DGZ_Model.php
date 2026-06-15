@@ -1072,8 +1072,9 @@ class DGZ_Model
         try {
             $success = $db->execute($sql, $params);
 
-            // ✅ 5. Check affected rows
-            return $success && $db->getAffectedRows() > 0;
+            // ✅ 5. A successful execute with 0 affected rows is still a success —
+            // it means the data was already in the desired state.
+            return (bool) $success;
         }
         catch (Exception $e) {
             throw $e;

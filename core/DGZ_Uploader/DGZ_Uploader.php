@@ -2,27 +2,26 @@
 
 namespace Dorguzen\Core\DGZ_Uploader;
 
-use Dorguzen\Configs\config;
+use Dorguzen\Config\Config;
 use Exception;
 
 class DGZ_Uploader extends DGZ_Upload {
 
 	protected $_thumbDestination;
+	protected $_thumbMaxSize = 200;
 
 
 
 
 	/**
-	 * This constructor takes two arguments; the upload destination folder as a string, and an optional sub folder therein which could be
-	 * for example, an ID or image or product name.
-	 *
-	 * @param $path string the array key referencing the file upload destination path you set in Dorguzen\Configs\config.php
-	 * @param $uniqeSubFolder string (optional) that will contain the a sub-folder name for cases where unique records have their own sub folders, for example;
-	 * 	the images of a listed item in an e-commerce application. Take note that just like with the $path value; the trailing slash appended to
-	 * 	$uniqeSubFolder is crucial.
+	 * @param $path string  Either a key from configs/app.php that resolves to an absolute
+	 *                      directory path, OR an absolute path directly.
+	 * @param $uniqeSubFolder string (optional) sub-directory appended to the destination —
+	 *                      useful when each record stores its images in its own folder,
+	 *                      e.g. a product ID or portfolio item slug. Include a trailing slash.
 	 */
 	public function __construct($path, $uniqeSubFolder = '') {
-		$config = new config();
+		$config = container(Config::class);
 		if (array_key_exists($path, $config->getconfig()))
 		{
 			if ($uniqeSubFolder != '') {
@@ -55,10 +54,23 @@ class DGZ_Uploader extends DGZ_Upload {
 
 
 
+	/**
+	 * Set the maximum pixel dimension for generated thumbnails (default: 200).
+	 * The thumbnail is scaled proportionally so neither width nor height exceeds this value.
+	 * Call before move('resize').
+	 */
+	public function setThumbMaxSize(int $size): self {
+		$this->_thumbMaxSize = abs($size);
+		return $this;
+	}
 
 
 
 
+	/**
+	 * Direct thumbnails to a different folder from the originals.
+	 * Call before move(). If not called, thumbnails land in the same folder as the original.
+	 */
 	public function setThumbDestination($path) {
 		if (!is_dir($path) || !is_writable($path)) {
 			throw new Exception("$path must be a valid, writable directory.");
@@ -71,40 +83,10 @@ class DGZ_Uploader extends DGZ_Upload {
 
 
 
-
-
-
-
-	// TODO: Confirm if you had removed this. I see 
-	// no reference of it anywhere (15/10/2025)
-	/*public function setThumbSuffix($suffix) {
-		if (preg_match('/\w+/', $suffix))
-		{
-			if (strpos($suffix, '_') !== 0)
-			{
-				$this->_suffix = '_' . $suffix;
-			}
-			else
-			{
-				$this->_suffix = $suffix;
-			}
-		}
-		else {
-			$this->_suffix = '';
-		}
-	}*/
-
-
-
-
-
-
-
-
 	protected function createThumbnail($image) {
 		$thumb = new DGZ_Thumbnail($image);
 		$thumb->setDestination($this->_thumbDestination);
-		//$thumb->setSuffix($this->_suffix);
+		$thumb->setMaxSize($this->_thumbMaxSize);
 		$thumb->create();
 		$messages = $thumb->getMessages();
 		$this->_messages = array_merge($this->_messages, $messages);
@@ -113,39 +95,20 @@ class DGZ_Uploader extends DGZ_Upload {
 
 
 
-
-
-
-
 	/**
-	 * This method overrides that of the parent class (processFile()) in order to not only upload as its parent does, but to
-	 * resize the file.
+	 * Overrides DGZ_Upload::processFile() to add optional thumbnail generation.
 	 *
-	 * Having extended the DGZ_Upload parent class, notice how it calls the createThumbnail() method to generate a thumbnail from the uploaded image;
-	 * something its parent class does not do. The parent class only does an upload, that's it.
-	 * The DGZ_Thumbnail class which the createThumbnail method instantiates behind the scenes was a class
-	 * created just for this child class's use. So this class basically extends its parent's functionality of
-	 * only uploading, to uploading and resizing (thumbnail creation).
-	 * Use the parent DGZ_Upload class or Dorguzen\Core\FileUploader for uploading large files like videos, audios,
-	 * large images.
-	 * But use this DGZ_Uploader class for uploading and resizing images
+	 * move('original')       — upload only, no thumbnail (image types only, size-checked)
+	 * move('original-allow') — upload only, no validation (use in admin areas; allows any type)
+	 * move('resize')         — upload original + auto-generate _thb thumbnail in one step
 	 *
-	 * @param $filename
-	 * @param $error
-	 * @param $size
-	 * @param $type
-	 * @param $tmp_name
-	 * @param $path
-	 * @param $modify
-	 * @param $overwrite
-	 *
-	 * @return void
+	 * Use DGZ_Upload (the parent class) directly for videos, audio, PDFs, and other
+	 * non-image files where you need more control over validation.
 	 */
 	protected function processFile($filename, $error, $size, $type, $tmp_name, $path, $modify, $overwrite)
 	{
 		$OK = $this->checkError($filename, $error);
 		if ($OK) {
-			//------------------------------------------------------
 			if ($modify == 'original-allow')
 			{
 				$sizeOK = true;

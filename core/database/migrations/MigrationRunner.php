@@ -83,7 +83,7 @@ class MigrationRunner
                 $statements = $migration->getStatements();
 
                 if (empty($statements)) {
-                    return;
+                    continue;
                 }
 
                 // Execute or pretend
@@ -148,7 +148,7 @@ class MigrationRunner
                 $statements = $migration->getStatements();
 
                 if (empty($statements)) {
-                    return;
+                    continue;
                 }
 
                 // Execute or pretend
@@ -196,7 +196,7 @@ class MigrationRunner
                 $statements = $migration->getStatements();
 
                 if (empty($statements)) {
-                    return;
+                    continue;
                 }
 
                 // Execute or pretend

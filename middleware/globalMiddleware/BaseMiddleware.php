@@ -264,9 +264,16 @@ class BaseMiddleware implements DGZ_MiddlewareInterface
         $intent = $boot[$controllerShortName];
 
         switch ($intent) {
-            case 'authenticated': 
+            case 'authenticated':
+                // Public admin methods that don't require authentication
+                $publicAdminMethods = ['login'];
+                if (in_array($method, $publicAdminMethods)) {
+                    break;
+                }
                 if (!$this->authenticated()) {
-                    throw new DGZ_Exception('Not authorized', DGZ_Exception::PERMISSION_DENIED, 'You must be logged in to access this section.');
+                    // Redirect to admin login instead of throwing a 404/403 — better UX for site owners
+                    header('Location: ' . $this->config->getFileRootPath() . 'admin/login');
+                    exit();
                 }
                 break;
 

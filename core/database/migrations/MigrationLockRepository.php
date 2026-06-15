@@ -22,16 +22,23 @@ class MigrationLockRepository
         $sql = "
             CREATE TABLE IF NOT EXISTS {$this->table} (
                 id INT PRIMARY KEY,
-                locked_at TIMESTAMP NULL
+                locked_at DATETIME NULL DEFAULT NULL
             )
         ";
 
         $this->db->execute($sql);
 
+        // If the table already existed with locked_at NOT NULL (legacy schema), fix it.
+        // MODIFY COLUMN is a no-op when the column is already correct, so this is safe
+        // to run on every boot.
+        $this->db->execute(
+            "ALTER TABLE {$this->table} MODIFY COLUMN locked_at DATETIME NULL DEFAULT NULL"
+        );
+
         // Ensure a single lock row exists (compatible with both MySQL and SQLite)
         $existing = $this->db->query("SELECT id FROM {$this->table} WHERE id = 1");
         if (empty($existing)) {
-            $this->db->execute("INSERT INTO {$this->table} (id, locked_at) VALUES (1, NULL)");
+            $this->db->execute("INSERT INTO {$this->table} (id) VALUES (1)");
         }
     }
 

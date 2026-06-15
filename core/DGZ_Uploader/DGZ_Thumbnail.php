@@ -14,6 +14,7 @@ class DGZ_Thumbnail {
   protected $_destination;
   protected $_name;
   protected $_suffix = '_thb';
+  protected $_quality = 82;  // JPEG/WebP quality (1-100). 82 = excellent visual quality at ~60% the size of quality 100.
   protected $_messages = array();
 
   public function __construct($image) {
@@ -31,7 +32,7 @@ class DGZ_Thumbnail {
 
       $this->checkType($details['mime']);
 	} else {
-	  $this->_messages[] = "$image doesn't appear to be an image."; 
+	  $this->_messages[] = "$image doesn't appear to be an image.";
 	}
   }
 
@@ -56,27 +57,25 @@ class DGZ_Thumbnail {
 	}
   }
 
-
-
-	public function setSuffix($suffix) {
-		if (preg_match('/^\w+$/', $suffix))
-		{
-			if (strpos($suffix, '_') !== 0)
-			{
-				$this->_suffix = '_' . $suffix;
-			}
-			else
-			{
-				$this->_suffix = $suffix;
-			}
+  public function setSuffix($suffix) {
+	if (preg_match('/^\w+$/', $suffix)) {
+		if (strpos($suffix, '_') !== 0) {
+			$this->_suffix = '_' . $suffix;
+		} else {
+			$this->_suffix = $suffix;
 		}
-		else
-		{
-			$this->_suffix = '';
-		}
+	} else {
+		$this->_suffix = '';
 	}
+  }
 
-
+  /**
+   * Set JPEG and WebP output quality (1-100). Default is 82.
+   * Has no effect on PNG (which uses fixed compression level 6) or GIF output.
+   */
+  public function setQuality(int $quality): void {
+	$this->_quality = max(1, min(100, $quality));
+  }
 
   public function create() {
     if ($this->_canProcess && $this->_originalwidth != 0) {
@@ -84,14 +83,13 @@ class DGZ_Thumbnail {
 	  $this->getName();
 	  $this->createThumbnail();
 	} elseif ($this->_originalwidth == 0) {
-	  $this->_messages[] = 'Cannot determine size of ' . $this->_original; 
+	  $this->_messages[] = 'Cannot determine size of ' . $this->_original;
 	}
   }
-  
+
   public function getMessages() {
 	return $this->_messages;
   }
-
 
   public function test() {
 	echo 'File: ' . $this->_original . '<br>';
@@ -110,14 +108,13 @@ class DGZ_Thumbnail {
   }
 
   protected function checkType($mime) {
-	$mimetypes = array('image/jpeg', 'image/png', 'image/gif');
+	$mimetypes = array('image/jpeg', 'image/png', 'image/gif', 'image/webp');
 	if (in_array($mime, $mimetypes)) {
 	  $this->_canProcess = true;
-	  // extract the characters after 'image/'
 	  $this->_imageType = substr($mime, 6);
 	}
   }
-  
+
   protected function calculateSize($width, $height) {
 	if ($width <= $this->_maxSize && $height <= $this->_maxSize) {
 	  $ratio = 1;
@@ -131,7 +128,7 @@ class DGZ_Thumbnail {
   }
 
   protected function getName() {
-	$extensions = array('/\.jpg$/i', '/\.jpeg$/i', '/\.png$/i', '/\.gif$/i');
+	$extensions = array('/\.jpg$/i', '/\.jpeg$/i', '/\.png$/i', '/\.gif$/i', '/\.webp$/i');
 	$this->_name = preg_replace($extensions, '', basename($this->_original));
   }
 
@@ -141,32 +138,48 @@ class DGZ_Thumbnail {
 	} elseif ($this->_imageType == 'png') {
 	  return imagecreatefrompng($this->_original);
 	} elseif ($this->_imageType == 'gif') {
-      return imagecreatefromgif($this->_original); 
+      return imagecreatefromgif($this->_original);
+	} elseif ($this->_imageType == 'webp') {
+	  return imagecreatefromwebp($this->_original);
 	}
   }
 
   protected function createThumbnail() {
 	$resource = $this->createImageResource();
 	$thumb = imagecreatetruecolor($this->_thumbwidth, $this->_thumbheight);
+
+	// Preserve alpha channel for PNG and WebP
+	if ($this->_imageType == 'png' || $this->_imageType == 'webp') {
+	  imagealphablending($thumb, false);
+	  imagesavealpha($thumb, true);
+	}
+
 	imagecopyresampled($thumb, $resource, 0, 0, 0, 0, $this->_thumbwidth, $this->_thumbheight, $this->_originalwidth, $this->_originalheight);
-	$newname = $this->_name;
+
+	$newname = $this->_name . $this->_suffix;  // suffix (_thb by default) was previously missing
+
 	if ($this->_imageType == 'jpeg') {
 	  $newname .= '.jpg';
-	  $success = imagejpeg($thumb, $this->_destination . $newname, 100);
+	  // Quality 82: excellent visual quality at roughly 60% the file size of quality 100
+	  $success = imagejpeg($thumb, $this->_destination . $newname, $this->_quality);
 	} elseif ($this->_imageType == 'png') {
 	  $newname .= '.png';
-	  $success = imagepng($thumb, $this->_destination . $newname, 0);
+	  // PNG compression 0-9. Level 6 is the web standard — good size reduction, fast decode.
+	  $success = imagepng($thumb, $this->_destination . $newname, 6);
 	} elseif ($this->_imageType == 'gif') {
 	  $newname .= '.gif';
 	  $success = imagegif($thumb, $this->_destination . $newname);
+	} elseif ($this->_imageType == 'webp') {
+	  $newname .= '.webp';
+	  $success = imagewebp($thumb, $this->_destination . $newname, $this->_quality);
 	}
+
 	if ($success) {
 	  $this->_messages[] = "$newname created successfully.";
 	} else {
-      $this->_messages[] = "Couldn't create a thumbnail for " . basename($this->_original); 
+      $this->_messages[] = "Couldn't create a thumbnail for " . basename($this->_original);
 	}
 	imagedestroy($resource);
 	imagedestroy($thumb);
   }
-
 }
