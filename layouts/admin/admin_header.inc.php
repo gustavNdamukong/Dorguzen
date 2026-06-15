@@ -5,7 +5,7 @@
         <!-- Spinner Start -->
         <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
             <div class="spinner-grow text-primary" style="width: 3rem; height: 3rem;" role="status">
-                <span class="sr-only">Loading...</span>
+                <span class="visually-hidden">Loading...</span>
             </div>
         </div>
         <!-- Spinner End -->
@@ -14,9 +14,9 @@
         <!-- Navbar & Hero Start -->
         <div class="container-xxl position-relative p-0">
             <nav class="navbar navbar-expand-lg navbar-light px-4 px-lg-5 py-3 py-lg-0">
-                <a href="<?=$this->config->getHomePage()?>" class="navbar-brand p-0">
-                    <h1 class="m-0">Dor<span class="fs-9">Guzen</span></h1><!--It was 'fs-5'-->
-                    <!-- <img src="img/logo.png" alt="Logo"> -->
+                <a href="<?=$this->config->getHomePage()?>" class="navbar-brand p-0 d-flex flex-column align-items-center" style="line-height:1;">
+                    <img src="<?=$this->config->getFileRootPath()?>assets/images/dorguzen-logo.png" alt="Dorguzen" style="height:60px; width:auto;">
+                    <span style="font-size:0.7rem; font-weight:700; letter-spacing:2px; color:#fff; background:#0d6efd; padding:2px 8px; border-radius:3px; margin-top:3px; text-transform:uppercase;">ADMIN</span>
                 </a>
                 
                 <button onclick="toggleSlideMenu(event)" type="button" class="navbar-toggler" data-bs-toggle="collapse">
@@ -25,60 +25,61 @@
 
                 <div class="collapse navbar-collapse" id="navbarCollapse">
                     <div class="navbar-nav ms-auto py-0">
-                    <a href="<?=$this->config->getHomePage()?>" class="nav-item nav-link active"><i class="fa fa-home"></i>Home</a>
-                        <a href="<?=$this->config->getFileRootPath()?>feedback" class="nav-item nav-link">Contact</a>
-                        <?php
-                        if (!isset($_SESSION['authenticated'])) { ?>
-                            <a href="<?=$this->config->getFileRootPath()?>auth/login" class="nav-item nav-link">Login</a>
-                            <?php
-                             if (config('app.allow_registration') === true)
-                             { ?>
-                                <a href="<?=$this->config->getFileRootPath()?>auth/signup" type="button"  class="nav-item nav-link">Register</a>
-                             <?php
-                             }
-                        }
-                        else
-                        { ?>
-                            <a href="<?=$this->config->getFileRootPath()?>auth/logout" class="nav-item nav-link">Logout</a>
-                            <a href="<?=$this->config->getFileRootPath()?>admin/dashboard" class="nav-item nav-link">Dashboard</a>
-                            <?php
-                        } ?>
-                    </div>
 
-                    <butaton type="button" class="btn text-secondary ms-3" data-bs-toggle="modal" data-bs-target="#searchModal"><i class="fa fa-search"></i></butaton>
-                </div>
-            </nav>
+                        <a href="<?=$this->config->getHomePage()?>" class="nav-item nav-link"><i class="fa fa-home"></i> Home</a>
 
-            <?php
-            list($controller, $method) = getCurrentRoute();
-            ?>
-            <?php //<!--------------------------------------- FULL SITE SEARCH FORM -------------------------------------------------------> */?>
-                    <div class="modal fade" id="searchModal" tabindex="-1">
-                        <div class="modal-dialog modal-fullscreen">
-                            <div class="modal-content" style="background: rgba(29, 29, 39, 0.7);">
-                                <form method="get" action="<?=$this->config->getFileRootPath()?>search">
-
-
-                                    <div class="modal-header border-0">
-                                        <button type="button" class="btn bg-white btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-
-                                    <div class="modal-body d-flex align-items-center justify-content-center">
-                                        <div class="input-group" style="max-width: 600px;">
-                                            <input type="text" name="search_keyword" class="form-control bg-transparent border-light p-3" placeholder="Type search keyword">
-                                            <button type="submit" class="btn btn-light px-4"><i class="bi bi-search"></i></button>
-                                        </div>
-                                    </div>
-
-                                    <!--We send the current controller with this form, so the system knows which view the user searched from
-                                            as this search form is available every where on the site-->
-                                    <input type="hidden" name="searchOrigin" value="<?=$controller?>/<?=$method?>" />
-                                </form>
-
+                        <!-- Content dropdown -->
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-pencil-square-o me-1"></i> Content</a>
+                            <div class="dropdown-menu shadow-sm border-0 rounded-3 py-2">
+                                <a href="<?=$this->config->getFileRootPath()?>admin/news" class="dropdown-item">📰 News</a>
+                                <a href="<?=$this->config->getFileRootPath()?>admin/portfolio" class="dropdown-item">🖼️ Portfolio</a>
+                                <?php if (config('app.modules.gallery') === 'on'): ?>
+                                <a href="<?=$this->config->getFileRootPath()?>admin/gallery" class="dropdown-item">📷 Gallery</a>
+                                <?php endif; ?>
+                                <?php if (config('app.modules.videos') === 'on'): ?>
+                                <a href="<?=$this->config->getFileRootPath()?>admin/videos" class="dropdown-item">🎬 Videos</a>
+                                <?php endif; ?>
+                                <?php if (config('app.modules.blog') === 'on'): ?>
+                                <a href="<?=$this->config->getFileRootPath()?>admin/blog" class="dropdown-item">✍️ Blog</a>
+                                <?php endif; ?>
                             </div>
                         </div>
+
+                        <!-- Communications dropdown -->
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-comments-o me-1"></i> Communications</a>
+                            <div class="dropdown-menu shadow-sm border-0 rounded-3 py-2">
+                                <a href="<?=$this->config->getFileRootPath()?>admin/newsletters" class="dropdown-item">📧 Newsletters</a>
+                                <a href="<?=$this->config->getFileRootPath()?>admin/subscribers" class="dropdown-item">👥 Subscribers</a>
+                                <a href="<?=$this->config->getFileRootPath()?>admin/contactMessages" class="dropdown-item">✉️ Messages</a>
+                            </div>
+                        </div>
+
+                        <!-- Admin dropdown -->
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-cog me-1"></i> Admin</a>
+                            <div class="dropdown-menu shadow-sm border-0 rounded-3 py-2">
+                                <a href="<?=$this->config->getFileRootPath()?>admin/dashboard" class="dropdown-item">🏠 Dashboard</a>
+                                <a href="<?=$this->config->getFileRootPath()?>admin/manageUsers" class="dropdown-item">👤 Manage Users</a>
+                                <a href="<?=$this->config->getFileRootPath()?>admin/baseSettings?change=0" class="dropdown-item">⚙️ Settings</a>
+                                <a href="<?=$this->config->getFileRootPath()?>admin/log" class="dropdown-item">📋 Logs</a>
+                            </div>
+                        </div>
+
+                        <?php if (!isset($_SESSION['authenticated'])): ?>
+                            <a href="<?=$this->config->getFileRootPath()?>auth/login" class="nav-item nav-link">Login</a>
+                            <?php if (config('app.allow_registration') === true): ?>
+                                <a href="<?=$this->config->getFileRootPath()?>auth/signup" class="nav-item nav-link">Register</a>
+                            <?php endif; ?>
+                        <?php else: ?>
+                            <a href="<?=$this->config->getFileRootPath()?>auth/logout" class="nav-item nav-link">Logout</a>
+                        <?php endif; ?>
+
                     </div>
-            <?php //<!--------------------------------------------------------------------------------------------------------------------> */?>
+
+                </div>
+            </nav>
         </div>
 
         </div>

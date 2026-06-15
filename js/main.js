@@ -167,6 +167,8 @@
     const consentPopup = document.getElementById('consent-popup');
     const consentAcceptBtn = document.getElementById('accept-cookie-use');
 
+    if (!consentPopup || !consentAcceptBtn) return;
+
     //when accept btn is clicked
     const acceptFunc = event => {
         saveToStorage(storageType);

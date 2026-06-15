@@ -10,6 +10,9 @@
     <!-- Customized Bootstrap Stylesheet -->
     <link href="<?=$this->config->getFileRootPath()?>assets/css/bootstrap.min.css" rel="stylesheet">
 
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
     <!--Font Awesome-->
     <link href="<?=$this->config->getFileRootPath()?>assets/css/font-awesome.min.css" rel="stylesheet" type="text/css">
 

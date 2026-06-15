@@ -64,7 +64,7 @@ class AdminService
     public function buildLogPayload(): array
     {
         return [
-            'logs' => $this->getRecentLogs(50),
+            'logs' => $this->getRecentLogs(),
         ];
     }
 
@@ -325,7 +325,7 @@ class AdminService
      *
      * @param int $limit  Maximum number of rows to return (default 50).
      */
-    public function getRecentLogs(int $limit = 50): array
+    public function getRecentLogs(int $limit = 500): array
     {
         return $this->logs->getAll('logs_created DESC', $limit) ?: [];
     }

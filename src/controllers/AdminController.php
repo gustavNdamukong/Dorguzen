@@ -24,6 +24,20 @@ class AdminController extends DGZ_Controller
         $this->dashboard();
     }
 
+    /**
+     * Public entry point — /admin/login
+     * Authenticated users go straight to the dashboard; everyone else is sent to the login form.
+     */
+    public function login()
+    {
+        $appName = $this->config->getConfig()['appName'];
+        if (isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === 'Let Go-' . $appName) {
+            $this->redirect('admin', 'dashboard');
+            return;
+        }
+        $this->redirect('auth', 'login');
+    }
+
     public function dashboard()
     {
         $view = DGZ_View::getAdminView('adminHome', $this, 'html');
@@ -224,28 +238,67 @@ class AdminController extends DGZ_Controller
 
     public function log()
     {
+        $allLogs   = $this->adminService->buildLogPayload()['logs'];
+        $paginator = new \Dorguzen\Core\DGZ_Paginator($allLogs);
+        $pageNum   = max(1, (int) ($_GET['pageno'] ?? 1));
+        $offset    = ($pageNum - 1) * $paginator->getNumPerPage();
+        $pageLogs  = $paginator->paginate($pageNum, $offset);
+
         $view = DGZ_View::getAdminView('logs', $this, 'html');
         $this->setLayoutDirectory('admin');
         $this->setLayoutView('adminLayout');
-        $view->show($this->adminService->buildLogPayload());
+        $view->show([
+            'logs'        => $pageLogs,
+            'pageNum'     => $paginator->getCurrentPage(),
+            'numPages'    => $paginator->getNumPages(),
+            'totalCount'  => $paginator->getTotalCount(),
+            'perPage'     => $paginator->getNumPerPage(),
+            'isFirstPage' => $paginator->getFirstPage() === 'yes',
+            'isLastPage'  => $paginator->getLastPage() === 'yes',
+        ]);
     }
 
     public function log_errors_only()
     {
-        $runtimeErrorLogs = $this->adminService->getRuntimeErrorLogs();
-        $pagination       = $this->getPaginationMarkers($runtimeErrorLogs);
+        $allLogs   = $this->adminService->getRuntimeErrorLogs();
+        $paginator = new \Dorguzen\Core\DGZ_Paginator($allLogs);
+        $pageNum   = max(1, (int) ($_GET['pageno'] ?? 1));
+        $offset    = ($pageNum - 1) * $paginator->getNumPerPage();
+        $pageLogs  = $paginator->paginate($pageNum, $offset);
 
         $view = DGZ_View::getAdminView('logs_errors_only', $this, 'html');
         $this->setLayoutDirectory('admin');
         $this->setLayoutView('adminLayout');
-        $view->show($this->adminService->buildErrorsLogPayload($runtimeErrorLogs, $pagination));
+        $view->show([
+            'logs'        => $pageLogs,
+            'pageNum'     => $paginator->getCurrentPage(),
+            'numPages'    => $paginator->getNumPages(),
+            'totalCount'  => $paginator->getTotalCount(),
+            'perPage'     => $paginator->getNumPerPage(),
+            'isFirstPage' => $paginator->getFirstPage() === 'yes',
+            'isLastPage'  => $paginator->getLastPage() === 'yes',
+        ]);
     }
 
     public function logAdminLogins()
     {
+        $allLogs   = $this->adminService->getAdminLoginLogs();
+        $paginator = new \Dorguzen\Core\DGZ_Paginator($allLogs);
+        $pageNum   = max(1, (int) ($_GET['pageno'] ?? 1));
+        $offset    = ($pageNum - 1) * $paginator->getNumPerPage();
+        $pageLogs  = $paginator->paginate($pageNum, $offset);
+
         $view = DGZ_View::getAdminView('logs_admin_logins', $this, 'html');
         $this->setLayoutDirectory('admin');
         $this->setLayoutView('adminLayout');
-        $view->show($this->adminService->buildAdminLoginsPayload());
+        $view->show([
+            'logs'        => $pageLogs,
+            'pageNum'     => $paginator->getCurrentPage(),
+            'numPages'    => $paginator->getNumPages(),
+            'totalCount'  => $paginator->getTotalCount(),
+            'perPage'     => $paginator->getNumPerPage(),
+            'isFirstPage' => $paginator->getFirstPage() === 'yes',
+            'isLastPage'  => $paginator->getLastPage() === 'yes',
+        ]);
     }
 }

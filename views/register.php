@@ -46,8 +46,6 @@ class register extends \Dorguzen\Core\DGZ_HtmlView
                 <!-- START SIDE SLIDE-IN MENU -->
                 <?php
                 //Pull in the sidebar menu file
-                $slideInMenu = \Dorguzen\Core\DGZ_View::getInsideView('sideSlideInMenuPartial', $this->controller);
-                $slideInMenu->show();
                 ?>
                 <!-- END OF SIDE SLIDE-IN MENU --> 
 

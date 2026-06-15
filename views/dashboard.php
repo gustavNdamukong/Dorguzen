@@ -56,8 +56,6 @@ class dashboard extends \Dorguzen\Core\DGZ_HtmlView
 
                                 <!-- START SIDE SLIDE-IN MENU -->
                                 <?php
-                                $slideInMenu = \Dorguzen\Core\DGZ_View::getInsideView('sideSlideInMenuPartial', $this->controller);
-                                $slideInMenu->show();
                                 ?>
                                 <!-- END OF SIDE SLIDE-IN MENU -->
 

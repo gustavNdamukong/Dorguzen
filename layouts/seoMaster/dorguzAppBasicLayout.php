@@ -39,6 +39,11 @@ class dorguzAppBasicLayout extends \Dorguzen\Core\DGZ_Layout {
                  - END
             =========================== -->
 
+			<?php
+			$_dgzTheme = $this->config->getAppColorTheme();
+			if (!empty($_dgzTheme)) { ?>
+			<style>:root { --site-theme: <?= htmlspecialchars($_dgzTheme, ENT_QUOTES) ?>; }</style>
+			<?php } ?>
 		</head>
 		<body>
 

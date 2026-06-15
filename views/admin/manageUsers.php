@@ -93,39 +93,87 @@ class manageUsers extends \Dorguzen\Core\DGZ_AdminHtmlView
 
                          <div class="row">
 
+                              <style>
+                                   .mu-hero {
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: space-between;
+                                        background: #1a1a1a;
+                                        border-radius: 12px;
+                                        padding: 20px 24px;
+                                        margin-bottom: 24px;
+                                   }
+                                   .mu-hero-text h3 { color: var(--site-theme, #fd7e14); margin: 0 0 2px; font-size: 1.4rem; }
+                                   .mu-hero-text p  { color: #ccc; margin: 0; font-size: .95rem; }
+                                   .mu-create { margin-bottom: 20px; }
+                                   .mu-section-heading {
+                                        font-size: 1rem;
+                                        font-weight: 700;
+                                        text-transform: uppercase;
+                                        letter-spacing: .6px;
+                                        color: #495057;
+                                        margin: 28px 0 10px;
+                                        display: flex;
+                                        align-items: center;
+                                        gap: 8px;
+                                   }
+                                   .mu-section-heading .badge {
+                                        background: var(--site-theme, #fd7e14);
+                                        color: #fff;
+                                        border-radius: 20px;
+                                        padding: 2px 10px;
+                                        font-size: .75rem;
+                                   }
+                                   .mu-table { border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.07); margin-bottom: 8px; }
+                                   .mu-table table { margin-bottom: 0; }
+                                   .mu-table thead th {
+                                        background: var(--site-theme, #fd7e14);
+                                        color: #fff;
+                                        border: none;
+                                        font-weight: 600;
+                                        font-size: .85rem;
+                                        text-transform: uppercase;
+                                        letter-spacing: .4px;
+                                        padding: 12px 14px;
+                                   }
+                                   .mu-table tbody tr { transition: background .12s; }
+                                   .mu-table tbody tr:hover { background: #fff8f2; }
+                                   .mu-table tbody tr:nth-child(even) { background: #fafafa; }
+                                   .mu-table tbody tr:nth-child(even):hover { background: #fff8f2; }
+                                   .mu-table td { vertical-align: middle; padding: 10px 14px; font-size: .9rem; border-color: #f0f0f0; }
+                                   .mu-empty { color: #198754; font-style: italic; }
+                              </style>
+
                               <div class="jumbotron">
 
-                                   <div class="well pr-2 pt-1" style="text-align: center; color: white; background: black;">
-                                        <a href='<?=$this->controller->config->getFileRootPath()?>admin/dashboard' class="btn btn-md btn-primary pull-right">Back to Dashboard</a>
-                                        <div style="clear:both;"></div>
+                                   <div class="mu-hero">
+                                        <div class="mu-hero-text">
+                                             <h3>Total Users</h3>
+                                             <p><?= $numOfAllUsers ?> registered user<?= $numOfAllUsers != 1 ? 's' : '' ?></p>
+                                        </div>
+                                        <a href='<?=$this->controller->config->getFileRootPath()?>admin/dashboard'
+                                           class="btn btn-primary" style="white-space:nowrap;margin-right:8px;">← Back to Dashboard</a>
                                    </div>
 
-                                   <div class="well mb-2" style="text-align: center; color: white; background: black;"><h3 class="text-primary">Total Users</h3>
-                                        <p class="badge"><span><?=$numOfAllUsers?></span></p>
-                                        <div style="clear:both;"></div>
+                                   <div class="mu-create">
+                                        <?php if (in_array($_SESSION['user_type'], ['admin_gen', 'super_admin'])) { ?>
+                                             <a href='<?=$this->controller->config->getFileRootPath()?>admin/createUser'
+                                                class="btn btn-lg btn-primary">Create new User</a>
+                                        <?php } else { ?>
+                                             <a href="#" class="btn btn-lg btn-primary" title="You don't have permission to create a user" disabled>Create new User</a>
+                                        <?php } ?>
                                    </div>
-                                   <?php if (in_array($_SESSION['user_type'], ['admin_gen', 'super_admin'])) { ?>
-                                        <a href='<?=$this->controller->config->getFileRootPath()?>admin/createUser'
-                                           class="btn btn-lg btn-primary">Create new User</a>
-                                        <?php
-                                   }
-                                   else
-                                   { ?>
-                                        <a href="#" class="btn btn-lg btn-primary" title="You dont have permission create a user" disabled>Create new User</a>
-                                   <?php
-                                   } ?>
 
-
-                                   <h4>Super Admin Users <span class="badge"><?=$superAdminUserCounter?></span></h4>
-                                   <div class="table-responsive border">
+                                   <p class="mu-section-heading">Super Admin Users <span class="badge"><?= $superAdminUserCounter ?></span></p>
+                                   <div class="table-responsive mu-table">
                                         <table class="table table-bordered">
-                                             <tr>
-                                                  <th class="col-xs-2">First Name</th>
-                                                  <th class="col-xs-2">Last Name</th>
-                                                  <th class="col-xs-2">Username</th>
-                                                  <th class="col-xs-5">Created</th>
-                                                  <th class="col-xs-1">Action</th>
-                                             </tr>
+                                             <thead><tr>
+                                                  <th>First Name</th>
+                                                  <th>Last Name</th>
+                                                  <th>Username</th>
+                                                  <th>Created</th>
+                                                  <th>Action</th>
+                                             </tr></thead><tbody>
                                              <?php
                                              foreach($allUsers as $user) { ?>
                                                   <?php if ($user['users_type'] == 'super_admin') { ?>
@@ -145,7 +193,7 @@ class manageUsers extends \Dorguzen\Core\DGZ_AdminHtmlView
                                                                       <a href="<?=$this->controller->config->getFileRootPath()?>user/editUser?userId=<?=$user['users_id']?>"
                                                                            title="Edit this user"
                                                                            class="btn btn-primary btn-sm"><i class="fa fa-pencil"></i></a>
-                                                                      <a onclick="return confirm('Are you sure you wish to delete this user?')" 
+                                                                      <a onclick="return confirm('Are you sure you wish to delete this user?')"
                                                                            href="<?=$this->controller->config->getFileRootPath()?>admin/deleteUser?userId=<?=$user['users_id']?>"
                                                                            title="Delete this user"
                                                                            class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></a>
@@ -162,25 +210,22 @@ class manageUsers extends \Dorguzen\Core\DGZ_AdminHtmlView
                                                   }
                                              } ?>
 
-                                             <?php
-                                             if ($superAdminUserCounter == 0)
-                                             {
-                                                  echo '<tr style="color:green;"><td  colspan="5">There are no Super Admin Users</td></tr>';
-                                             } ?>
-                                        </table>
+                                             <?php if ($superAdminUserCounter == 0) { ?>
+                                                  <tr><td colspan="5" class="mu-empty">There are no Super Admin Users</td></tr>
+                                             <?php } ?>
+                                             </tbody></table>
                                    </div>
 
-
-                                   <h4>General Admin Users <span class="badge"><?=$adminGenUserCounter?></span></h4>
-                                   <div class="table-responsive border">
+                                   <p class="mu-section-heading">General Admin Users <span class="badge"><?= $adminGenUserCounter ?></span></p>
+                                   <div class="table-responsive mu-table">
                                         <table class="table table-bordered">
-                                             <tr>
-                                                  <th class="col-xs-2">First Name</th>
-                                                  <th class="col-xs-2">Last Name</th>
-                                                  <th class="col-xs-2">Username</th>
-                                                  <th class="col-xs-5">Created</th>
-                                                  <th class="col-xs-1">Action</th>
-                                             </tr>
+                                             <thead><tr>
+                                                  <th>First Name</th>
+                                                  <th>Last Name</th>
+                                                  <th>Username</th>
+                                                  <th>Created</th>
+                                                  <th>Action</th>
+                                             </tr></thead><tbody>
                                              <?php
                                              foreach($allUsers as $user) { ?>
                                                   <?php if ($user['users_type'] == 'admin_gen') { ?>
@@ -197,7 +242,7 @@ class manageUsers extends \Dorguzen\Core\DGZ_AdminHtmlView
                                                                       <a href="<?=$this->controller->config->getFileRootPath()?>user/editUser?userId=<?=$user['users_id']?>"
                                                                            title="Edit this user"
                                                                            class="btn btn-primary btn-sm"><i class="fa fa-pencil"></i></a>
-                                                                      <a onclick="return confirm('Are you sure you wish to delete this user?')" 
+                                                                      <a onclick="return confirm('Are you sure you wish to delete this user?')"
                                                                            href="<?=$this->controller->config->getFileRootPath()?>admin/deleteUser?userId=<?=$user['users_id']?>"
                                                                            title="Delete this user"
                                                                            class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></a>
@@ -214,25 +259,22 @@ class manageUsers extends \Dorguzen\Core\DGZ_AdminHtmlView
                                                   }
                                              } ?>
 
-                                             <?php
-                                             if ($adminGenUserCounter == 0)
-                                             {
-                                                  echo '<tr style="color:green;"><td  colspan="5">There are no General Admin Users</td></tr>';
-                                             } ?>
-                                        </table>
+                                             <?php if ($adminGenUserCounter == 0) { ?>
+                                                  <tr><td colspan="5" class="mu-empty">There are no General Admin Users</td></tr>
+                                             <?php } ?>
+                                             </tbody></table>
                                    </div>
 
-
-                                   <h4>Admin Users <span class="badge"><?=$adminUserCounter?></span></h4>
-                                   <div class="table-responsive border">
+                                   <p class="mu-section-heading">Admin Users <span class="badge"><?= $adminUserCounter ?></span></p>
+                                   <div class="table-responsive mu-table">
                                         <table class="table table-bordered">
-                                             <tr>
-                                                  <th class="col-xs-2">First name</th>
-                                                  <th class="col-xs-2">Last Name</th>
-                                                  <th class="col-xs-2">email</th>
-                                                  <th class="col-xs-2">Created</th>
-                                                  <th class="col-xs-1">Action</th>
-                                             </tr>
+                                             <thead><tr>
+                                                  <th>First Name</th>
+                                                  <th>Last Name</th>
+                                                  <th>Email</th>
+                                                  <th>Created</th>
+                                                  <th>Action</th>
+                                             </tr></thead><tbody>
                                              <?php
                                              foreach($allUsers as $user) { ?>
                                                   <?php if ($user['users_type'] == 'admin') { ?>
@@ -246,11 +288,11 @@ class manageUsers extends \Dorguzen\Core\DGZ_AdminHtmlView
                                                                  if ($_SESSION['user_type'] == 'super_admin' || $_SESSION['user_type'] == 'admin_gen')
                                                                  { ?>
                                                                       <a href="<?=$this->controller->config->getFileRootPath()?>admin/editUser?userId=<?=$user['users_id']?>&edit=0"
-                                                                           title="Edit this user"  
+                                                                           title="Edit this user"
                                                                            class="btn btn-primary btn-sm"><i class="fa fa-pencil"></i>
                                                                       </a>
 
-                                                                      <a onclick="return confirm('Are you sure you wish to delete this user?')" 
+                                                                      <a onclick="return confirm('Are you sure you wish to delete this user?')"
                                                                            href="<?=$this->controller->config->getFileRootPath()?>admin/deleteUser?userId=<?=$user['users_id']?>"
                                                                            title="Delete this user"
                                                                            class="btn btn-danger btn-sm"><i class="fa fa-trash"></i>
@@ -268,26 +310,22 @@ class manageUsers extends \Dorguzen\Core\DGZ_AdminHtmlView
                                                   }
                                              } ?>
 
-                                             <?php
-                                             if ($adminUserCounter == 0)
-                                             {
-                                                  echo '<tr style="color:green;"><td  colspan="5">There are no Admin Users</td></tr>';
-                                             } ?>
-                                        </table>
+                                             <?php if ($adminUserCounter == 0) { ?>
+                                                  <tr><td colspan="5" class="mu-empty">There are no Admin Users</td></tr>
+                                             <?php } ?>
+                                             </tbody></table>
                                    </div>
 
-
-                                   
-                                   <h4>Member Users <span class="badge"><?=$userCounter?></span></h4>
-                                   <div class="table-responsive border">
+                                   <p class="mu-section-heading">Member Users <span class="badge"><?= $userCounter ?></span></p>
+                                   <div class="table-responsive mu-table">
                                         <table class="table table-bordered">
-                                             <tr>
-                                                  <th class="col-xs-2">First name</th>
-                                                  <th class="col-xs-2">Last Name</th>
-                                                  <th class="col-xs-2">email</th>
-                                                  <th class="col-xs-2">Created</th>
-                                                  <th class="col-xs-1">Action</th>
-                                             </tr>
+                                             <thead><tr>
+                                                  <th>First Name</th>
+                                                  <th>Last Name</th>
+                                                  <th>Email</th>
+                                                  <th>Created</th>
+                                                  <th>Action</th>
+                                             </tr></thead><tbody>
                                              <?php
                                              foreach($allUsers as $user) { ?>
                                                   <?php if ($user['users_type'] == 'member') { ?>
@@ -301,11 +339,11 @@ class manageUsers extends \Dorguzen\Core\DGZ_AdminHtmlView
                                                                  if ($_SESSION['user_type'] == 'super_admin' || $_SESSION['user_type'] == 'admin_gen' || $_SESSION['user_type'] == 'admin')
                                                                  { ?>
                                                                       <a href="<?=$this->controller->config->getFileRootPath()?>admin/editUser?userId=<?=$user['users_id']?>&edit=0"
-                                                                           title="Edit this user"  
+                                                                           title="Edit this user"
                                                                            class="btn btn-primary btn-sm"><i class="fa fa-pencil"></i>
                                                                       </a>
 
-                                                                      <a onclick="return confirm('Are you sure you wish to delete this user?')" 
+                                                                      <a onclick="return confirm('Are you sure you wish to delete this user?')"
                                                                            href="<?=$this->controller->config->getFileRootPath()?>admin/deleteUser?userId=<?=$user['users_id']?>"
                                                                            title="Delete this user"
                                                                            class="btn btn-danger btn-sm"><i class="fa fa-trash"></i>
@@ -323,12 +361,10 @@ class manageUsers extends \Dorguzen\Core\DGZ_AdminHtmlView
                                                   }
                                              } ?>
 
-                                             <?php
-                                             if ($userCounter == 0)
-                                             {
-                                                  echo '<tr style="color:green;"><td  colspan="5">There are no Admin Users</td></tr>';
-                                             } ?>
-                                        </table>
+                                             <?php if ($userCounter == 0) { ?>
+                                                  <tr><td colspan="5" class="mu-empty">There are no Member Users</td></tr>
+                                             <?php } ?>
+                                             </tbody></table>
                                    </div>
 
                               </div>

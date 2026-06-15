@@ -55,8 +55,6 @@ class contact extends \Dorguzen\Core\DGZ_HtmlView
 				<!-- START SIDE SLIDE-IN MENU -->
                 <?php
                 //Pull in the PHP file that has the JS code that handles all the JS to do with placing an ad
-                $slideInMenu = \Dorguzen\Core\DGZ_View::getInsideView('sideSlideInMenuPartial', $this->controller);
-                $slideInMenu->show();
                 ?>
                 <!-- END OF SIDE SLIDE-IN MENU --> 
 
@@ -113,7 +111,7 @@ class contact extends \Dorguzen\Core\DGZ_HtmlView
 
 								<div class="col-md-6" style="margin-top:10px;">
 									<label></label>
-									<input type="submit" id='sendMessage' name="sendMessage" value="Get Quote" class="btn btn-primary" />
+									<input type="submit" id='sendMessage' name="sendMessage" value="Submit" class="btn btn-primary" />
 								</div>
 							</div>
 						</form>

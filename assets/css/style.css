@@ -3,6 +3,87 @@
 * Based on the SeoMaster template by ThemeWagon / HTML Codex
 */
 
+
+:root {
+    --site-theme: #fd7e14; /* default app theme colour — overridden at runtime via inline <style> from DB */
+    --bs-primary: var(--site-theme);
+}
+
+.nav-item {
+    color: var(--site-theme);
+}
+
+.text-secondary {
+    color: var(--site-theme) !important;
+}
+
+/*--------hero section-------*/
+.hero-header .btn-light {
+    color: var(--site-theme);
+}
+.hero-header .btn-outline-light:hover {
+    color: var(--site-theme);
+}
+/*---------------------------*/
+
+/*----testimonial section----*/
+.testimonial .btn-outline-light:hover {
+    color: var(--site-theme);
+}
+
+.testimonial .text-primary {
+    color: #fff !important;
+}
+/*---------------------------*/
+
+
+/* our team section */
+.text-primary {
+    color: var(--site-theme) !important;
+}
+
+.bg-primary, .btn-primary {
+    background-color: var(--site-theme) !important;
+    border-color: var(--site-theme);
+}
+
+.bg-primary:hover, .btn-primary:hover {
+    border-color: #fff;
+}
+
+.btn-outline-primary {
+    color: var(--site-theme);
+    border-color: var(--site-theme);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--site-theme) !important;
+    border-color: var(--site-theme);
+}
+
+/* back-to-top button */
+.bi-arrow-up::before {
+    content: "\f148";
+}
+
+/* the slash between breadcrumb items */
+.breadcrumb-item+.breadcrumb-item::before {
+    color: #fff !important;
+}
+
+.team-item:hover {
+    background-color: var(--site-theme);
+}
+
+.testimonial-carousel .testimonial-item {
+    background-color: #fff !important;
+    color: var(--site-theme) !important;
+}
+
+.testimonial-carousel::after {
+    height: 100% !important;
+}
+
 /*** Spinner ***/
 #spinner {
     opacity: 0;
@@ -353,6 +434,10 @@
     right: 45px;
     bottom: 45px;
     z-index: 99;
+}
+
+.back-to-top i {
+    color: #fff !important;
 }
 
 

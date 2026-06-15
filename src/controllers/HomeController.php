@@ -20,6 +20,8 @@ class HomeController extends DGZ_Controller
     public function defaultAction()
     {
         $view = DGZ_View::getView('home', $this, 'html');
+        $this->setLayoutDirectory($this->config->getConfig()['layoutDirectory']);
+        $this->setLayoutView($this->config->getConfig()['defaultLayout']);
         $this->setPageTitle('Home');
         $this->setImageSlider(true);
         $view->show();

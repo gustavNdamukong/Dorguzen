@@ -13,10 +13,12 @@ return [
     'localUrl'          => env('APP_LOCAL_URL', 'http://localhost/dorguzen/'),
     'liveUrl'           => env('APP_LIVE_URL', 'https://www.dorguzen.com/'),
     'liveUrlSecure'     => env('APP_LIVE_URL_SECURE', 'https://www.dorguzen.com/'),
-    'fileRootPathLocal' => env('FILE_ROOT_PATH_LOCAL', '/dorguzen/'),
-    'fileRootPathLive'  => env('FILE_ROOT_PATH_LIVE', '/'),
+    'fileRootPathLocal' => env('APP_FILE_ROOT_PATH_LOCAL', '/dorguzen/'),
+    'fileRootPathLive'  => env('APP_FILE_ROOT_PATH_LIVE', '/'),
 
-    'live' => env('APP_ENV', 'local') === 'production' ? 'true' : 'false',
+    'debug'             => env('APP_DEBUG', true),
+
+    'live' => in_array(env('APP_ENV', 'local'), ['prod', 'production']) ? 'true' : 'false',
 
     'allow_registration' => env('ALLOW_REGISTRATION', true),
 
@@ -55,6 +57,9 @@ return [
         'seo'      => env('MODULES_SEO_STATUS', 'on'),
         'payments' => env('MODULES_PAYMENTS_STATUS', 'off'),
         'sms'      => env('MODULES_SMS_STATUS', 'off'),
+        'gallery'  => env('MODULES_GALLERY_STATUS', 'off'),
+        'videos'   => env('MODULES_VIDEOS_STATUS', 'off'),
+        'blog'     => env('MODULES_BLOG_STATUS', 'off'),
     ],
 
     'permissions' => [

@@ -48,10 +48,14 @@
             </div>
             <div class="col-md-6 col-lg-3">
                 <h5 class="text-white mb-4">Newsletter</h5>
-                <p>Lorem ipsum dolor sit amet elit. Phasellus nec pretium mi. Curabitur facilisis ornare velit non vulpu</p>
-                <div class="position-relative w-100 mt-3">
-                    <input class="form-control border-0 rounded-pill w-100 ps-4 pe-5" type="text" placeholder="Your Email" style="height: 48px;">
-                    <button type="button" class="btn shadow-none position-absolute top-0 end-0 mt-1 me-2"><i class="fa fa-paper-plane text-primary fs-4"></i></button>
+                <p>Stay updated with our latest news, projects, and updates. Subscribe to our newsletter today.</p>
+                <div class="mt-3">
+                    <button type="button"
+                            class="btn btn-outline-light rounded-pill px-4 py-2 fw-semibold"
+                            data-bs-toggle="modal"
+                            data-bs-target="#subscribeModal">
+                        <i class="fa fa-envelope me-2"></i>Subscribe Now
+                    </button>
                 </div>
             </div>
         </div>
@@ -61,10 +65,7 @@
             <div class="row">
                 <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
                     &copy; <a class="border-bottom" href="#">Your Site Name</a>, All Right Reserved.
-
-                    <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
-                    Designed By <a class="border-bottom" href="https://htmlcodex.com">HTML Codex</a>
-                    <br>Distributed By: <a class="border-bottom" href="https://themewagon.com" target="_blank">ThemeWagon</a>
+                    Powered By Dorguzen
                 </div>
                 <div class="col-md-6 text-center text-md-end">
                     <div class="footer-menu">
@@ -83,3 +84,47 @@
 
 <!-- Back to Top -->
 <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top pt-2"><i class="bi bi-arrow-up"></i></a>
+
+<!-- Subscribe Modal (available on every page) -->
+<?php $_subscribeBase = $this->config->getFileRootPath(); ?>
+<div class="modal fade" id="subscribeModal" tabindex="-1" aria-labelledby="subscribeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius:12px; overflow:hidden;">
+            <div class="modal-header bg-primary text-white border-0 py-4 px-4">
+                <h5 class="modal-title fw-bold" id="subscribeModalLabel">
+                    Subscribe to Our Newsletter
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body px-4 py-4">
+                <p class="text-muted mb-4">Stay updated with our latest news and updates. Enter your details below.</p>
+                <form action="<?= $_subscribeBase ?>subscribe" method="post" id="subscribeForm">
+                    <input type="hidden" name="_csrf_token" value="<?= getCsrfToken() ?>">
+                    <div class="mb-3">
+                        <label for="sub_email" class="form-label fw-semibold">
+                            Email address <span class="text-danger">*</span>
+                        </label>
+                        <input type="email" id="sub_email" name="subscriber_email"
+                               class="form-control" placeholder="you@example.com" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="sub_firstname" class="form-label fw-semibold">
+                            First name <span class="text-muted fw-normal">(optional)</span>
+                        </label>
+                        <input type="text" id="sub_firstname" name="subscriber_firstname"
+                               class="form-control" placeholder="Your first name">
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg fw-semibold">
+                            Subscribe
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-0 px-4 pb-4 pt-0">
+                <small class="text-muted">We respect your privacy. Unsubscribe at any time.</small>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Subscribe Modal -->
