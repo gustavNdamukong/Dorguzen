@@ -5,3 +5,21 @@ vendor
 .env
 .env.local
 .env.*.local
+
+# Claude Code session data
+.claude/
+
+# Server-specific config
+.user.ini
+
+# Generated cache files
+bootstrap/cache/*.php
+bootstrap/cache/*.meta
+storage/cache/routes.php
+
+# User-uploaded content (kept as empty dirs via .gitkeep)
+assets/images/news/*
+assets/images/portfolio/*
+assets/images/newsletters/*
+assets/images/gallery/*/
+!assets/images/gallery/.gitkeep
