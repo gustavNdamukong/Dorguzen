@@ -122,7 +122,7 @@ class Config
      */
     public function getAppColorTheme()
     {
-        $colorTheme = $this->getBaseSettings()['app_color_theme'];
+        $colorTheme = $this->getBaseSettings()['app_color_theme'] ?? null;
         return $colorTheme;
     }
     
