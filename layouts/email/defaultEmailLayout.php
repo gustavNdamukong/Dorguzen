@@ -29,7 +29,7 @@
         img { -ms-interpolation-mode: bicubic; border: 0; display: block; outline: none; }
         body { margin: 0; padding: 0; background-color: #f4f4f4; }
         /* Link colours for clients that support <style> */
-        a { color: #E87169; text-decoration: none; }
+        a { color: <?= htmlspecialchars($accentColour, ENT_QUOTES) ?>; text-decoration: none; }
         a:hover { text-decoration: underline; }
         /* Responsive */
         @media only screen and (max-width: 620px) {
@@ -52,21 +52,22 @@
                        style="border-collapse:collapse;">
                     <tbody>
                         <tr>
-                            <td bgcolor="#333333" style="background-color:#333333;">
+                            <td bgcolor="<?= htmlspecialchars($accentColour, ENT_QUOTES) ?>"
+                                style="background-color:<?= htmlspecialchars($accentColour, ENT_QUOTES) ?>;">
                                 <table width="540" cellpadding="0" cellspacing="0" border="0" align="center">
                                     <tbody>
                                         <tr><td height="20"></td></tr>
                                         <tr>
                                             <td align="center"
                                                 style="color:#FFFFFF;font-family:Verdana,Geneva,sans-serif;
-                                                       font-size:42px;line-height:1.3;letter-spacing:-1px;">
+                                                       font-size:42px;line-height:1.3;letter-spacing:-1px;font-weight:bold;">
                                                 <?= htmlspecialchars($appBusinessName) ?>
                                             </td>
                                         </tr>
                                         <?php if (!empty($heading)): ?>
                                         <tr>
                                             <td align="center"
-                                                style="color:#AAAAAA;font-family:Helvetica,Arial,sans-serif;
+                                                style="color:rgba(255,255,255,0.85);font-family:Helvetica,Arial,sans-serif;
                                                        font-size:16px;line-height:1.5;padding-top:4px;">
                                                 <?= htmlspecialchars($heading) ?>
                                             </td>
@@ -105,7 +106,7 @@
 
                         <!-- Accent bar -->
                         <tr>
-                            <td bgcolor="#E87169" style="background-color:#E87169;">
+                            <td bgcolor="<?= htmlspecialchars($accentColour, ENT_QUOTES) ?>" style="background-color:<?= htmlspecialchars($accentColour, ENT_QUOTES) ?>;">
                                 <table width="540" cellpadding="0" cellspacing="0" border="0" align="center">
                                     <tbody>
                                         <tr><td height="12"></td></tr>
