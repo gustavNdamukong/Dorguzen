@@ -8,6 +8,7 @@ return new class extends Migration {
     public function up(): void
     {
         $sql = $this->schema->create('dgz_scheduled_task_locks', function (Blueprint $table) {
+            $table->string('task_key');
             $table->primaryKey('task_key');
             $table->timestamp('locked_at')->notNullable();
             $table->timestamp('expires_at')->notNullable();
