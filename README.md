@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/images/dorguzen-logo.png" alt="Dorguzen" width="320">
+</p>
+
 # Dorguzen Framework
 
 ### Powerful PHP Framework. No Black Box.

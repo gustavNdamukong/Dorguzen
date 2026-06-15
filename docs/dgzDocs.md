@@ -2119,6 +2119,22 @@ CASSSS
             -Dorguzen Environment Configuration (.env)
                 -Security Recommendations
             -Summary
+          -Dorguzen Environment Configuration (.env)
+            -1. The .env File
+            -2. Supported Syntax
+            -3. Environment Detection (APP_ENV)
+            -4. Environment-Specific .env Files
+            -5. Git & Security Best Practices
+            -6. Using Environment Variables in Config Files
+            -7. How env() Works (Conceptual)
+            -8. Important Guidelines
+            -9. Summary
+            -10. URL and Path Variables per Environment
+            -11. Server Upload Limits and the PHP SAPI (.htaccess and .user.ini)
+          -Customising a New Application After Cloning
+            -1. Rename Your Application
+            -2. Set the Colour Theme
+            -3. Summary: Two Different Customisation Paths
           -Runtime Database Settings (baseSettings)
             -What baseSettings Is
             -The Two-Tier Settings Design
@@ -2747,6 +2763,303 @@ env() bridges .env values into config files
 Sensitive data never touches Git
 
 
+10. URL and Path Variables per Environment
+
+Dorguzen's Config class uses several .env variables to serve the correct URLs and
+asset paths depending on which environment the app is running in. It is important
+to set these correctly in every environment, or assets, links, and emails will point
+to the wrong place.
+
+Key variables and their purpose:
+
+Variable               Purpose
+---------------------------------------------------------------------------
+APP_ENV                Identifies the environment. Recognised values: local,
+                       testing, staging, qa, prod, production.
+
+APP_URL                The full base URL of the application in this environment.
+                       Used by Config::getHomePage() and anywhere an absolute
+                       URL is needed (e.g. unsubscribe links in emails).
+                       Set this to the correct URL for every environment.
+
+                         local:    APP_URL=http://localhost/myapp
+                         staging:  APP_URL=https://staging.myapp.com
+                         prod:     APP_URL=https://myapp.com
+
+APP_FILE_ROOT_PATH_LOCAL   The URL path prefix used when the app runs locally
+                           under a web server sub-folder (e.g. MAMP).
+                           Example: /myapp/
+                           Used by Config::getFileRootPath() when APP_ENV is
+                           local or testing.
+
+APP_FILE_ROOT_PATH_LIVE    The URL path prefix used on deployed servers.
+                           Typically / (the app lives at the domain root).
+                           Used by Config::getFileRootPath() for staging, qa,
+                           prod, and production.
+
+How Config::getFileRootPath() decides which to use:
+
+  APP_ENV=local or testing  → returns APP_FILE_ROOT_PATH_LOCAL  (e.g. /myapp/)
+  Any other environment     → returns APP_FILE_ROOT_PATH_LIVE   (e.g. /)
+
+How Config::getHomePage() works:
+
+  Always returns APP_URL for the current environment, trimmed of trailing slash.
+  This means you only need to set APP_URL correctly in each environment's .env
+  and all absolute URL generation (links, emails, redirects) will work everywhere.
+
+Common mistake to avoid:
+
+  Before Dorguzen supported multiple named environments, the live/local switch
+  was driven by a boolean LIVE_ENV flag. If you see LIVE_ENV or APP_LIVE in an
+  older .env file, those are legacy — APP_ENV is the correct switch now.
+
+  Also ensure your .env variable names match exactly what configs/app.php reads.
+  For example, FILE_ROOT_PATH_LOCALL (two L's) is a typo that silently falls
+  through to the default — always verify against configs/app.php.
+
+
+
+
+11. Server Upload Limits and the PHP SAPI (.htaccess and .user.ini)
+--------------------------------------------------------------------
+
+This section explains how Dorguzen controls PHP upload and memory limits, why two
+separate configuration files are used, and what you need to know when deploying to
+different server environments.
+
+
+What is a PHP SAPI?
+
+SAPI stands for Server API. It is the layer that connects your web server (Apache,
+Nginx, etc.) to PHP — in other words, it is the mechanism by which Apache hands an
+incoming HTTP request to PHP for processing.
+
+There are two SAPIs you will commonly encounter:
+
+  mod_php
+    PHP is loaded directly inside Apache as a module. Apache and PHP are tightly
+    coupled. Configuration for PHP can be set inside .htaccess using the php_value
+    directive. This was the standard approach for many years and is still used on
+    some servers.
+
+  PHP-FPM (FastCGI Process Manager)
+    PHP runs as a completely separate process from Apache. Apache passes requests
+    to PHP-FPM over a FastCGI connection. They are decoupled. This is the modern
+    standard and what most up-to-date servers (including newer versions of MAMP)
+    use by default.
+
+    Because PHP is a separate process with PHP-FPM, Apache's php_value directives
+    in .htaccess have no effect — Apache cannot reach across into the PHP process
+    to set configuration values. A different mechanism is needed.
+
+The key question: which SAPI is my server using?
+
+  If you are using a modern version of MAMP, the answer is almost certainly PHP-FPM.
+  If you are on a traditional cPanel shared hosting plan, it may be mod_php.
+  If you are on a modern VPS or cloud server (DigitalOcean, AWS, etc.) it is
+  almost certainly PHP-FPM.
+
+  You do not need to be certain — Dorguzen ships both configuration files so the
+  correct one is always present regardless of the environment.
+
+
+What .htaccess does (and what it does not do)
+
+The .htaccess file in the project root has two jobs:
+
+  1. URL rewriting — redirect every request to index.php (the front controller),
+     unless the request is for a real file on disk (CSS, images, JS, etc.).
+     This is handled by Apache's mod_rewrite module and works identically on both
+     mod_php and PHP-FPM. The SAPI does not affect URL rewriting at all.
+
+  2. PHP settings (mod_php only) — set upload limits and memory using php_value
+     directives inside <IfModule mod_php8.c> blocks. These are silently ignored
+     when the server uses PHP-FPM.
+
+Dorguzen's .htaccess currently contains:
+
+  # ------------------------------- RULE: catch-all (any depth)
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^ index.php [L]
+
+  <IfModule mod_php7.c>
+     php_value upload_max_filesize 50M
+     php_value post_max_size 50M
+     php_value memory_limit 256M
+  </IfModule>
+  <IfModule mod_php8.c>
+     php_value upload_max_filesize 50M
+     php_value post_max_size 50M
+     php_value memory_limit 256M
+  </IfModule>
+
+The <IfModule> wrapper is important: it tells Apache to only apply those directives
+if the named module is loaded. Without it, Apache would throw a 500 error on any
+server that does not have mod_php installed. With it, the block is simply skipped
+on PHP-FPM servers — safely and silently.
+
+Blocks for both mod_php7.c and mod_php8.c are included to cover PHP 7.x and 8.x
+mod_php installations respectively.
+
+
+What .user.ini does (PHP-FPM only)
+
+PHP-FPM reads a special file called .user.ini from the document root of each
+project. Think of it as the PHP-FPM equivalent of the php_value directives in
+.htaccess. It uses standard PHP ini syntax — plain key = value pairs, no Apache
+directives, no module wrappers.
+
+Dorguzen's .user.ini currently contains:
+
+  upload_max_filesize = 50M
+  post_max_size = 50M
+  memory_limit = 256M
+
+This file is read automatically by PHP-FPM on every request and requires no
+special setup. It also works on shared hosting running PHP-FPM where you do not
+have access to the server's main php.ini — making it the correct solution for
+the majority of modern hosting environments.
+
+
+Why both files exist
+
+Dorguzen ships both .htaccess and .user.ini so that the same upload limits apply
+regardless of which SAPI the server uses:
+
+  Server uses mod_php  → .htaccess php_value blocks take effect
+                          .user.ini is ignored (PHP-FPM is not running)
+
+  Server uses PHP-FPM  → .user.ini takes effect
+                          .htaccess php_value blocks are silently skipped
+
+You do not need to choose one or delete the other. Keep both files in place and
+the correct one will be picked up automatically.
+
+
+What happens when an upload exceeds the limit
+
+PHP has two relevant ini settings that work together:
+
+  post_max_size       — the maximum size of the entire HTTP POST body (all form
+                        fields plus all uploaded files combined).
+
+  upload_max_filesize — the maximum size of a single uploaded file.
+
+post_max_size must always be equal to or larger than upload_max_filesize, because
+the uploaded file travels inside the POST body.
+
+If a request body exceeds post_max_size, PHP silently discards the entire $_POST
+array before your application runs. This has an important side effect: the CSRF
+token (which travels in $_POST) also disappears, causing the CSRF middleware to
+appear to fail with a misleading "Invalid or missing CSRF token" error.
+
+Dorguzen's CsrfPsrMiddleware detects this situation before checking the CSRF
+token. When it finds that the incoming Content-Length exceeds post_max_size, it
+throws a clear exception:
+
+  "Uploaded file exceeds server max size limit"
+  "The data you submitted (X MB) exceeds the server's maximum allowed POST size
+  (50M). Please upload a smaller file."
+
+This means you will always get a meaningful error instead of a confusing CSRF
+failure when a file is too large.
+
+Note: PHP emits its own low-level warning about this ("POST Content-Length of X
+bytes exceeds the limit of Y bytes in Unknown on line 0") before your application
+code runs. This warning appears in the browser on local/development environments
+because display_errors is on. It is suppressed automatically in production because
+Dorguzen calls setupErrorHandling($env) in index.php, which turns display_errors
+off for any environment that is not local.
+
+
+    Customising a New Application After Cloning
+    ---------------------------------------------
+
+When you clone or install a fresh Dorguzen application, there are two kinds of
+customisation you will want to do immediately: rename the application and set its
+colour theme. These are handled in two different places by design.
+
+1. Rename Your Application
+
+Open your .env file and update the following variables to reflect your new project:
+
+    APP_NAME=my-app-slug          # used internally (e.g. for logging)
+    APP_BUSINESS_NAME="My App"    # the human-readable brand name shown in the UI
+                                  # and in email headers
+    APP_SLOGAN="Your tagline here"
+    APP_URL=http://localhost/my-app   # base URL for this environment
+
+These values are read by configs/app.php via env() and are available throughout
+the application via $this->config->get('app.appName') etc., and are injected
+automatically into email layouts.
+
+Do NOT hardcode the app name in layout files or views — always read it from config
+so a single .env change renames the whole application consistently.
+
+2. Set the Colour Theme
+
+The colour theme is NOT set in .env. It is controlled at runtime through the admin
+panel and stored in the baseSettings database table.
+
+After logging in as an admin, navigate to:
+
+    Admin Dashboard → Settings
+
+Find the app_color_theme field and enter a valid CSS colour value — any hex code,
+rgb(), or named colour works:
+
+    Examples:  #e63946   #3a86ff   #2ecc71   rgb(52, 152, 219)
+
+How the override mechanism works:
+
+  Every layout file (seoMasterLayout.php, adminLayout.php, etc.) reads the
+  app_color_theme value from the database via $this->config->getAppColorTheme()
+  and injects it as an inline <style> block in the page <head>:
+
+      <style>:root { --site-theme: #3a86ff; }</style>
+
+  This inline declaration overrides the default value defined in assets/css/style.css:
+
+      :root {
+          --site-theme: #fd7e14;  /* default orange — overridden by DB value at runtime */
+      }
+
+  Because inline <style> has higher specificity than an external stylesheet, the
+  DB value always wins on every page load. No CSS file needs to be edited, no
+  deployment is required — the change is instant and affects the entire site.
+
+  Email layouts (layouts/email/defaultEmailLayout.php) use the same value via the
+  $accentColour variable, which is injected by DGZ_Messenger::renderEmail() the
+  same way.
+
+What --site-theme controls:
+
+  The CSS variable --site-theme is referenced throughout assets/css/style.css for:
+  - Primary button background and border colours (.btn-primary, .bg-primary)
+  - Outline button colours (.btn-outline-primary)
+  - Navigation link and nav-item colours
+  - Text highlights (.text-primary, .text-secondary)
+  - Hero section button accent colours
+  - Team card and testimonial carousel accent colours
+  - Breadcrumb separator and back-to-top button icon
+  - Email header background and footer accent bar
+
+  Changing app_color_theme in the admin panel therefore recolours the entire
+  application at once with no code changes.
+
+3. Summary: Two Different Customisation Paths
+
+  What you're changing         Where to change it
+  ---------------------------------------------------------------
+  App name, slogan, URL        .env  (APP_NAME, APP_BUSINESS_NAME, APP_URL, etc.)
+  Colour theme                 Admin Dashboard → Settings → app_color_theme
+  Layout structure / markup    layout PHP files in layouts/
+  CSS overrides beyond colour  assets/css/style.css
+
+Never hardcode the app name or the colour value in templates — keep both as
+single points of truth so they stay consistent across views, emails, and admin.
 
 
 
@@ -2853,7 +3166,6 @@ Use the `baseSettings` DB table for settings that:
   - Take effect immediately on the next page load without any deployment step
 
 Examples of settings that belong here:
-  - show_brand_slider   — whether the brand image carousel is displayed site-wide
   - brand_slider_source — the path to the directory containing the slider images
   - app_color_theme     — the CSS colour theme applied to the site
   - Any future UI toggle an admin should control (e.g. maintenance mode banner,
@@ -2872,14 +3184,10 @@ loaded — the database is only queried the first time it is called on a given r
     // In a controller, layout, or view partial:
     $baseSettings = $this->config->getBaseSettings();
 
-    if ($baseSettings['show_brand_slider'] == 'true') {
-        // render the brand slider
-    }
-
     $colorTheme = $this->config->getAppColorTheme();
     // equivalent to $this->config->getBaseSettings()['app_color_theme']
 
-Important: do NOT mix the two tiers. Do not call config('app.show_brand_slider') —
+Important: do NOT mix the two tiers. Do not call config('app.app_color_theme') —
 that key does not exist in the file config. And do not call getBaseSettings() to
 read database credentials — they are not in the DB table. Each tier has its own
 access method for a reason.
@@ -2890,14 +3198,10 @@ The baseSettings DB Table
 The table has a simple structure:
 
     settings_id    INT  (primary key, auto-increment)
-    settings_name  VARCHAR  (the key, e.g. 'show_brand_slider')
+    settings_name  VARCHAR  (the key, e.g. 'brand_slider_source')
     settings_value VARCHAR  (the value, e.g. 'true')
 
 Current entries:
-
-    show_brand_slider    'true' or 'false'
-                         Controls whether the brand image carousel is rendered
-                         in supported layouts (seoMasterLayout, dorguzAppLayout).
 
     brand_slider_source  e.g. 'assets/images/gallery'
                          The path (relative to the app root) of the directory
@@ -2937,32 +3241,39 @@ To add a new runtime setting:
 What It Is
 -----------
 The brand slider is a horizontal image carousel that sits between the main page
-content and the footer on every page of your site. It is designed to showcase a
-set of images — typically brand logos, product photos, or portfolio images — in
-a continuously scrolling strip. It is powered by Owl Carousel.
+content and the footer. It is designed to showcase a set of images — typically
+brand logos, product photos, or portfolio images — in a continuously scrolling
+strip. It is powered by Owl Carousel.
 
-It is a site-wide feature: when enabled, it appears on every page that uses a
-supported layout. It is not a per-page decision. The two supported layouts are:
+It is a per-page opt-in feature: it is off by default on every page. Each
+controller method that wants the slider must explicitly enable it. The two
+supported layouts are:
 
   - layouts/seoMaster/seoMasterLayout.php   (the recommended default layout)
   - layouts/dorguzApp/dorguzAppLayout.php   (the older full-featured layout)
 
 
-How to Enable It
------------------
-The brand slider is toggled via the `show_brand_slider` setting in the
-`baseSettings` database table. Set it to 'true' to show it, 'false' to hide it.
+How to Enable It (Per Page)
+----------------------------
+The brand slider is controlled from the controller via the inherited
+`setImageSlider()` method. Call it before rendering the view:
 
-You can do this either:
+    public function home(): void
+    {
+        $this->setImageSlider(true);   // show the slider on this page only
 
-  a) Through the admin panel (Settings page) — recommended for runtime changes.
+        $view = DGZ_View::getView('home', $this, 'html');
+        $view->show($this->homeService->homePayload());
+    }
 
-  b) Directly in the database:
-         UPDATE baseSettings SET settings_value = 'true'
-         WHERE settings_name = 'show_brand_slider';
+Pages that do not call `$this->setImageSlider(true)` will never show the slider.
+The layout checks the `$this->showImageSlider` property (which defaults to false)
+and skips the carousel HTML entirely — no empty space, no placeholder.
 
-When set to 'false' the carousel HTML is not rendered at all — no empty space,
-no placeholder, nothing. The layout renders as if the feature does not exist.
+This is preferable to a global DB toggle because:
+  - Different pages can make independent decisions
+  - A developer can clearly see from the controller whether a page has a slider
+  - No database round-trip is needed just to decide whether to render a section
 
 
 How to Configure the Image Source (brand_slider_source)
@@ -3000,8 +3311,8 @@ Steps:
   1. Decide on your image directory (e.g. assets/images/gallery/).
   2. Update brand_slider_source in the DB to match (e.g. 'assets/images/gallery').
   3. Drop your images into that directory.
-  4. Set show_brand_slider to 'true'.
-  5. Load any page — the slider appears between the content and the footer.
+  4. Call $this->setImageSlider(true) in any controller method that should show it.
+  5. Load that page — the slider appears between the content and the footer.
 
 To remove an image from the slider, delete the file from the directory.
 To add more images, drop them into the directory. No code changes needed.
@@ -3018,14 +3329,16 @@ How It Works Internally
 ------------------------
 In both seoMasterLayout and dorguzAppLayout, the brand slider block:
 
-  1. Calls $this->config->getBaseSettings() to retrieve both show_brand_slider
-     and brand_slider_source from the database.
+  1. Checks $this->showImageSlider (a boolean property on DGZ_Layout, defaulting
+     to false). This value is set by the framework automatically from the
+     controller's own $showImageSlider property, which the developer sets via
+     $this->setImageSlider(true) before calling $view->show().
 
-  2. If show_brand_slider is not 'true', nothing is rendered.
+  2. If $this->showImageSlider is false, nothing is rendered.
 
-  3. Builds the absolute file system path from DGZ_BASE_PATH (the app root
-     constant defined in index.php) and the brand_slider_source value, then
-     uses PHP's glob() to discover all image files in that directory.
+  3. Calls $this->config->getBaseSettings() to retrieve brand_slider_source,
+     then builds the absolute file system path from DGZ_BASE_PATH and that value,
+     using PHP's glob() to discover all image files in that directory.
 
   4. Renders an <img> tag for each file found, building the browser URL from
      getFileRootPath() (which resolves correctly for both local and live
@@ -10480,6 +10793,155 @@ Steps to add Twig:
 
 
 
+Partial Views — Reusable View Fragments with getInsideView()
+-------------------------------------------------------------
+
+A partial view is a regular Dorguzen view class that is embedded inside another view rather
+than being rendered as a full page. Partials are how you reuse a chunk of HTML — a slide-in
+navigation menu, a pagination widget, a social-share bar, a comment form, a related-articles
+list — across many views without duplicating the markup.
+
+Any class that extends DGZ_HtmlView (or DGZ_AdminHtmlView) and exposes a show() method can be
+used as a partial. There is nothing special about the class — what makes it a partial is simply
+how it is consumed: via DGZ_View::getInsideView() rather than via the normal controller/layout
+pipeline.
+
+
+Creating a partial
+-------------------
+
+Create the view class exactly as you would any view. By convention, partial files are named
+with a "Partial" suffix so they are easy to recognise at a glance:
+
+  // views/relatedArticlesPartial.php
+  namespace Dorguzen\Views;
+
+  class relatedArticlesPartial extends \Dorguzen\Core\DGZ_HtmlView
+  {
+      public function show(array $viewModel = []): void
+      {
+          extract($viewModel); // $articles
+          ?>
+          <aside class="related-articles">
+              <h4>Related Articles</h4>
+              <ul>
+                  <?php foreach ($articles as $article): ?>
+                      <li><a href="<?= $this->rootPath() ?>news/<?= $article['slug'] ?>">
+                          <?= htmlspecialchars($article['title']) ?>
+                      </a></li>
+                  <?php endforeach; ?>
+              </ul>
+          </aside>
+          <?php
+      }
+  }
+
+
+Embedding a partial inside another view
+-----------------------------------------
+
+Call DGZ_View::getInsideView() from within any view's show() method, passing the partial's
+class name (without the namespace) and the current controller:
+
+  // Inside another view's show() method:
+  $related = \Dorguzen\Core\DGZ_View::getInsideView('relatedArticlesPartial', $this->controller);
+  $related->show(['articles' => $articles]);
+
+getInsideView() resolves the partial's class, injects the controller reference, and returns
+the partial instance. Calling show() on the result renders the partial's HTML inline at that
+point in the page. You can pass a view-model array to show() just as you would any view.
+
+getInsideView() is a general mechanism — it works for any partial, anywhere a controller
+reference is available. Admin views, frontend views, module views: all can use it.
+
+
+
+Where NOT to use getInsideView() for the slide-in menu
+-------------------------------------------------------
+
+The slide-in navigation menu (sideSlideInMenuPartial) is a special case. It is automatically
+included in all frontend views via the layout header (layouts/seoMaster/header.inc.php).
+Calling getInsideView('sideSlideInMenuPartial') from a frontend view on top of that would
+produce two #side-menu divs on the page. The JavaScript toggle functions target
+document.getElementById('side-menu'), which finds only the first one, leaving the second as
+unreachable dead HTML.
+
+The correct rule:
+
+  Frontend views (rendered through seoMasterLayout):
+    Do NOT include sideSlideInMenuPartial manually. The layout handles it automatically.
+
+  Admin views (rendered through adminLayout):
+    DO include sideSlideInMenuPartial manually via getInsideView(). The admin layout does
+    not auto-include it, so each admin view that needs the mobile slide-in menu must include
+    it explicitly:
+
+      $slideInMenu = \Dorguzen\Core\DGZ_View::getInsideView('sideSlideInMenuPartial', $this->controller);
+      $slideInMenu->show();
+
+
+
+How the slide-in menu works
+-----------------------------
+
+The slide-in menu is a hidden off-canvas panel (display:none, id="side-menu") that slides
+into view on mobile when the hamburger button (navbar-toggler) is tapped. The panel is
+controlled by two JavaScript functions defined in the layout header:
+
+  toggleSlideMenu(e)   — opens the panel if closed, closes it if open
+  closeSlideMenu(e)    — always closes the panel
+
+The hamburger button in the navbar calls toggleSlideMenu(event) via onclick:
+
+  <button onclick="toggleSlideMenu(event)" type="button" class="navbar-toggler">
+      <span class="fa fa-bars"></span>
+  </button>
+
+The close button inside the panel calls closeSlideMenu(event).
+
+On desktop the navbar collapses and Bootstrap's own collapse mechanism handles the nav links.
+The slide-in panel is hidden on desktop and is only relevant on mobile-sized viewports.
+
+
+
+Customising the menu for a specific view
+------------------------------------------
+
+Because the menu is now in the layout header and shared by all frontend views, customising
+it per-view is intentionally limited. Two practical options:
+
+  Option 1 — Use JavaScript to show/hide specific links.
+    Give conditional links a class (e.g. "nav-link-members-only") and toggle their visibility
+    with a short inline <script> block in the view that runs after the layout renders:
+
+      <script>
+          document.querySelectorAll('.nav-link-members-only').forEach(function (el) {
+              el.style.display = '<?= isset($_SESSION['authenticated']) ? 'block' : 'none' ?>';
+          });
+      </script>
+
+  Option 2 — PHP conditionals in the layout header.
+    For cases where a link should always/never appear based on module status or session role,
+    add the conditional directly in header.inc.php. The file has access to $_SESSION and the
+    config() helper, making it straightforward to gate links on module flags or user type:
+
+      <?php if (config('app.modules.gallery') === 'on'): ?>
+      <a href="...">Gallery</a>
+      <?php endif; ?>
+
+  Option 3 — A completely custom slide-in menu for one view.
+    If a view's menu is genuinely unique (different links, different structure), override
+    the auto-include by giving its slide-in div a different id (e.g. id="side-menu-custom")
+    and re-point the navbar toggler button for that view with a data attribute or custom JS.
+    This is an advanced pattern and should be used sparingly.
+
+For most applications the single shared menu with PHP conditionals (Option 2) covers all
+real-world cases cleanly.
+
+
+
+
+
 ——————————————————————
 	PACKAGE MANAGEMENT
 ——————————————————————
@@ -10599,30 +11061,967 @@ FFIIEENA
 	FILE MANAGEMENT
 ——————————————————————
 
--The managing of files is a very important part of every software application. This topic will demonstrate how your programming language is able to manage files (create, view, modify, delete, and transmit them through local/remote networks).
+Contents:
+    1. Image Uploads — DGZ_Uploader
+        1.1  Overview and Architecture
+        1.2  Choosing the Right Class
+        1.3  The $modify Parameter — the Key to Everything
+        1.4  DGZ_Upload — Base Class Reference
+        1.5  DGZ_Uploader — Child Class Reference
+        1.6  DGZ_Thumbnail — Thumbnail Engine Reference
+        1.7  Scenarios and Code Examples
+             A. Simple image upload (no thumbnail)
+             B. Image upload with automatic thumbnail
+             C. Upload with thumbnail in a separate folder
+             D. Upload images into a per-record sub-folder
+             E. Uploading a document (PDF)
+             F. Uploading a video or audio file
+             G. Multiple file upload
+             H. Controlling thumbnail dimensions and quality
+             I. Generating a thumbnail from an already-uploaded file
+             J. Displaying uploaded images in a view
+        1.8  Supported File Types
+        1.9  Config Integration (configs/app.php)
+        1.10 Error Handling and Messages
+        1.11 Backwards Compatibility Notes
 
--This section also deals with the ability of 
-  your application code to reference local 
-  and remote assets and use them as if they 
-  were local to it.
--A notable example is the inclusion of other 
-  files that contain code that we want to 
-  include or import into the current file and 
-  use. This helps facilitate code re-use, 
-  which is known to be a good practice.
--The file being referenced can be either 
-  local in the same directory, or a different 
-  directory, in a different locally installed 
-  software package or software, or remote 
-  on a whole different domain.
--While some programming languages let 
-  you reference external code into the 
-  current code using the 'include' keyword, 
-  like PHP, others use the keyword like Java, 
-  Python and Golang, but the idea behind 
-  them all is the same.
+    2. PDF Generation
+        2.1  Choosing a PDF Library
+        2.2  Why We Recommend Dompdf
+        2.3  Installing Dompdf
+        2.4  Code Examples
+             A. Simple HTML string to PDF (download)
+             B. Saving a PDF to disk
+             C. Rendering a PHP view file as a PDF
+             D. Paper size and orientation
+             E. Inline display in the browser
 
 
+================================================================================
+1. Image Uploads — DGZ_Uploader
+================================================================================
+
+1.1  Overview and Architecture
+--------------------------------
+Dorguzen ships a three-class file upload system in core/DGZ_Uploader/:
+
+    ┌─────────────────────────────────────────────────────────────────────────┐
+    │                         core/DGZ_Uploader/                              │
+    │                                                                         │
+    │  DGZ_Upload          ← base class                                       │
+    │    Validation, move_uploaded_file(), conflict-safe renaming.             │
+    │    Works for images, documents, videos — any file type.                 │
+    │    Does NOT generate thumbnails.                                        │
+    │                                                                         │
+    │  DGZ_Uploader        ← child class (extends DGZ_Upload)                 │
+    │    Everything DGZ_Upload does, PLUS optional thumbnail generation.      │
+    │    This is the class you use for image uploads in web features.         │
+    │                                                                         │
+    │  DGZ_Thumbnail       ← thumbnail engine (used by DGZ_Uploader)          │
+    │    PHP GD-based proportional resize, quality control, WebP support.     │
+    │    Can also be used standalone on already-uploaded files.               │
+    └─────────────────────────────────────────────────────────────────────────┘
+
+The flow when you call move('resize') on a DGZ_Uploader instance:
+
+    HTTP upload ($_FILES)
+        │
+        ▼
+    DGZ_Uploader::move('resize')
+        │
+        ├── validates MIME type
+        ├── validates file size
+        ├── move_uploaded_file() → saves original  (e.g. photo.jpg)
+        │
+        └── DGZ_Thumbnail::create()
+                ├── reads image dimensions with getimagesize()
+                ├── calculates proportional thumbnail size (max 200px longest side)
+                ├── imagecopyresampled()   ← high-quality bilinear resampling
+                └── saves thumbnail        (e.g. photo_thb.jpg, quality 82)
+
+
+1.2  Choosing the Right Class
+-------------------------------
+
+    Scenario                                    Use
+    ──────────────────────────────────────────  ─────────────────────────────
+    Upload an image, no thumbnail needed        DGZ_Upload with 'original'
+    Upload an image + generate a thumbnail      DGZ_Uploader with 'resize'
+    Upload an admin image, skip all checks      DGZ_Uploader with 'original-allow'
+    Upload a PDF or text document               DGZ_Upload + addPermittedTypes()
+    Upload a video or audio file                DGZ_Upload with 'original-allow'
+    Re-thumbnail an already-uploaded image      DGZ_Thumbnail standalone
+
+
+1.3  The $modify Parameter — the Key to Everything
+----------------------------------------------------
+Both classes have a single move() method. The $modify string argument controls
+what happens. Think of it as the upload mode:
+
+    move('original')
+        Validates MIME type and file size. Saves the file as-is. No thumbnail.
+        This is the default and the safe choice for image uploads.
+
+    move('original-allow')
+        Bypasses ALL validation — no type check, no size check. The file is
+        saved unconditionally. Use this for admin-only upload forms where you
+        trust the user, or for file types outside the built-in whitelist
+        (videos, audio, ZIP files, etc.).
+        ⚠ Never expose this mode to unauthenticated users.
+
+    move('resize')
+        Validates MIME type and file size, saves the original, then
+        automatically generates a _thb thumbnail. Only meaningful on
+        DGZ_Uploader (calling it on DGZ_Upload just does a plain upload).
+
+The second argument, $overwrite (bool, default false), controls what happens
+when a file with the same name already exists at the destination:
+
+    false (default) — keeps both files; the new one is renamed (photo_1.jpg,
+                      photo_2.jpg, etc.)
+    true            — overwrites the existing file silently
+
+
+1.4  DGZ_Upload — Base Class Reference
+----------------------------------------
+File: core/DGZ_Uploader/DGZ_Upload.php
+
+Constructor:
+    new DGZ_Upload(string $destinationPath)
+    $destinationPath — absolute filesystem path to the upload directory.
+    Must already exist and be writable.
+
+Public methods:
+
+    move(string $modify = 'original', bool $overwrite = false) : void
+        Triggers the upload pipeline. Reads from $_FILES automatically.
+        See §1.3 for the $modify values.
+
+    getMessages() : array
+        Returns an array of human-readable outcome strings, one per file:
+            "photo.jpg uploaded successfully"
+            "photo.jpg exceeds maximum size: 50.0kB"
+            "video.mp4 is not a permitted type of file."
+        Always check this after move() to give feedback to the user.
+
+    extension(string $filename) : string  [static]
+        Returns the file extension of a filename without the dot.
+            DGZ_Upload::extension('sunset.jpg')   // 'jpg'
+            $uploader->extension($filenames[0])   // instance call also works
+
+    thumbName(string $filename, string $suffix = '_thb') : string  [static]
+        Derives the thumbnail filename from an original filename.
+        Use this anywhere you need to display the thumbnail — in views,
+        services, or API responses — without repeating the pathinfo() logic.
+            DGZ_Upload::thumbName('sunset.jpg')          // 'sunset_thb.jpg'
+            DGZ_Upload::thumbName('hero.PNG', '_sm')     // 'hero_sm.PNG'
+            $uploader->thumbName($filenames[0])          // instance call also works
+        The $suffix must match whatever was passed to DGZ_Thumbnail::setSuffix().
+        When using the default suffix (_thb), the second argument can be omitted.
+
+    getFilenames() : array
+        Returns the final saved filename(s) after any conflict renaming.
+        Store this in your database — it is the name that was actually written
+        to disk, which may differ from what the user uploaded.
+
+        By design, getFilenames() returns ONLY the original file names, never
+        the thumbnail names. This is intentional: thumbnail names do not need
+        to be stored because they are always mechanically derivable from the
+        original. Strip the extension, append _thb, put the extension back —
+        that is always the thumbnail name. Since the thumbnail is generated from
+        the original in the same operation, conflict renaming applies to both at
+        once: if the original is saved as sunset_1.jpg (because sunset.jpg was
+        already taken), the thumbnail will be sunset_1_thb.jpg. They are always
+        in sync, so there is nothing extra to store or look up.
+
+        The one exception: if you explicitly call DGZ_Thumbnail::setSuffix() to
+        use a suffix other than _thb, make sure you use that same suffix
+        consistently wherever you derive the thumbnail name in your views.
+        Since _thb is the default and there is rarely a reason to change it,
+        in practice this is never an issue.
+
+    setMaxSize(int|string $size) : void
+        Overrides the default 50 KB file size limit.
+
+        Accepts a human-readable string (recommended) or a raw integer in bytes.
+        The string is case-insensitive and the space between number and unit is
+        optional. Decimal values are supported.
+
+            $uploader->setMaxSize('2MB');       // 2 megabytes
+            $uploader->setMaxSize('500KB');     // 500 kilobytes
+            $uploader->setMaxSize('1.5 MB');    // 1.5 megabytes
+            $uploader->setMaxSize('1GB');       // 1 gigabyte (large video, admin only)
+            $uploader->setMaxSize(5242880);     // raw bytes — still works (5 MB)
+            $uploader->setMaxSize(5 * 1024 * 1024); // expression — still works
+
+        Supported units: B, KB, MB, GB (case-insensitive).
+        If no unit is given the value is treated as bytes.
+
+    getMaxSize() : string
+        Returns the current limit formatted for display: e.g. "50.0kB".
+
+    addPermittedTypes(array $mimes) : void
+        Appends extra MIME types to the whitelist. Only types from the
+        $alsoValid list inside isValidMime() are accepted:
+            'image/tiff', 'image/webp', 'application/pdf',
+            'text/plain', 'text/rtf'
+        Example: $uploader->addPermittedTypes(['application/pdf'])
+
+Default permitted image types:
+    image/gif, image/jpeg, image/pjpeg, image/png, image/webp
+
+
+1.5  DGZ_Uploader — Child Class Reference
+-------------------------------------------
+File: core/DGZ_Uploader/DGZ_Uploader.php
+
+Inherits everything from DGZ_Upload and adds thumbnail support.
+
+Constructor:
+    new DGZ_Uploader(string $path, string $uniqueSubFolder = '')
+
+    $path — EITHER a key from your configs/app.php array that maps to an
+    absolute directory path, OR an absolute path directly. If the key is found
+    in config, that value is used as the destination. Otherwise, $path itself
+    is used as an absolute path.
+
+    $uniqueSubFolder — optional sub-directory under $path. Useful when each
+    record (portfolio item, news article, product) has its own image folder.
+    Example: passing '42/' gives destination '/absolute/path/portfolioImages/42/'
+    The constructor ensures a trailing slash.
+
+    The constructor also reads maxFileUploadSize from configs/app.php and
+    applies it automatically. You do not need to call setMaxSize() manually
+    unless you want a different limit than the global config.
+
+Additional methods (beyond DGZ_Upload):
+
+    setThumbMaxSize(int $pixels) : self
+        Sets the maximum pixel dimension for the generated thumbnail.
+        Default: 200. The thumbnail is scaled proportionally so neither
+        width nor height exceeds this value. The original file is always
+        saved at its full uploaded size — only the thumbnail is capped.
+        Call before move('resize').
+
+            $uploader = new DGZ_Uploader('galleryImagesPath');
+            $uploader->setThumbMaxSize(150);
+            $uploader->move('resize');
+
+        Returns $this so calls can be chained.
+
+    setThumbDestination(string $path) : void
+        Redirects thumbnail output to a different folder from the original.
+        Must be called before move(). If not called, thumbnails land in the
+        same directory as the original.
+
+
+1.6  DGZ_Thumbnail — Thumbnail Engine Reference
+-------------------------------------------------
+File: core/DGZ_Uploader/DGZ_Thumbnail.php
+
+Used internally by DGZ_Uploader. Also usable standalone when you need to
+re-thumbnail a file that was already uploaded, or batch-process existing images.
+
+Constructor:
+    new DGZ_Thumbnail(string $absoluteImagePath)
+    Reads the image from disk. If unreadable or not a supported format,
+    errors are added to getMessages() and create() will do nothing safely.
+
+Default settings:
+    $_maxSize = 500     DGZ_Thumbnail's own internal default, longest side in pixels.
+                        NOTE: when DGZ_Uploader calls this class via move('resize'),
+                        it overrides this to 200px automatically. The 500px default
+                        only applies when you use DGZ_Thumbnail standalone (e.g.
+                        batch re-thumbnailing). A 1200×800 image becomes 500×333.
+                        To change the default when used via DGZ_Uploader, call
+                        $uploader->setThumbMaxSize() before move('resize') instead
+                        of setMaxSize() on DGZ_Thumbnail directly.
+    $_suffix  = '_thb'  appended to base filename before the extension:
+                        hero.jpg → hero_thb.jpg
+    $_quality = 82      JPEG and WebP output quality (1–100).
+                        82 is the web industry standard: excellent visual quality
+                        at roughly 60% the file size of quality 100.
+                        PNG always uses compression level 6 (level 0 =
+                        uncompressed; level 9 = maximum compression).
+
+Public methods:
+
+    setDestination(string $path) : void
+        Sets the output directory for the thumbnail. Called automatically by
+        DGZ_Uploader. Must be called before create() when using standalone.
+
+    setMaxSize(int $pixels) : void
+        Change the thumbnail size cap. Default 500. Example: setMaxSize(300)
+        caps the longest dimension at 300px.
+
+    setSuffix(string $suffix) : void
+        Change the thumbnail suffix. Leading underscore is added automatically
+        if missing. setSuffix('thumb') produces _thumb. setSuffix('_sm') stays _sm.
+        setSuffix('') removes the suffix entirely (thumbnail saves with same
+        base name as original — careful, may overwrite!).
+
+    setQuality(int $quality) : void
+        Sets JPEG and WebP output quality. Accepts 1–100.
+        Recommendations:
+            90    near-lossless, larger files — use for print-quality originals
+            82    default — excellent for web display
+            75    good quality, noticeably smaller — use for heavily-trafficked pages
+            60    visible compression artefacts — use only for thumbnails of thumbnails
+
+    create() : void
+        Runs the resize pipeline: calculateSize → getName → createThumbnail.
+        Safe to call even if the image was unreadable — it will just add a
+        message and do nothing.
+
+    getMessages() : array
+        Returns outcome strings: "hero_thb.jpg created successfully." or
+        "Couldn't create a thumbnail for hero.jpg"
+
+Supported input → output formats:
+    JPEG (.jpg/.jpeg)  →  JPEG
+    PNG (.png)         →  PNG  (alpha transparency preserved)
+    GIF (.gif)         →  GIF
+    WebP (.webp)       →  WebP (alpha transparency preserved)
+
+Images smaller than $_maxSize on both sides are saved at their original
+dimensions — they are never upscaled, only downscaled.
+
+
+1.7  Scenarios and Code Examples
+----------------------------------
+
+────────────────────────────────────────────────────────────────────────────
+A. Simple image upload (no thumbnail)
+────────────────────────────────────────────────────────────────────────────
+Upload a user's avatar or a news article hero image when a thumbnail is not
+needed. Uses DGZ_Upload directly.
+
+    use Dorguzen\Core\DGZ_Uploader\DGZ_Upload;
+
+    // HTML form: <input type="file" name="news_image">
+    $destination = '/Applications/MAMP/htdocs/myapp/assets/images/news/';
+    $uploader = new DGZ_Upload($destination);
+    $uploader->move('original');   // validate + upload, no thumbnail
+
+    $messages  = $uploader->getMessages();
+    $filenames = $uploader->getFilenames();
+
+    if (!empty($filenames)) {
+        $savedAs = $filenames[0];  // e.g. 'hero.jpg' or 'hero_1.jpg' if renamed
+        // save $savedAs to your database row
+    } else {
+        // upload failed — show $messages to the user
+    }
+
+
+────────────────────────────────────────────────────────────────────────────
+B. Image upload with automatic thumbnail (the recommended pattern)
+────────────────────────────────────────────────────────────────────────────
+This is the pattern to use for news articles, portfolio items, newsletters,
+blog posts, gallery images — anywhere you show a grid of thumbnails and open
+the full-size image on click.
+
+move('resize') uploads the original AND generates the _thb thumbnail in one
+call. You only ever store the original filename in the database; the thumbnail
+name is always reconstructable from it.
+
+    use Dorguzen\Core\DGZ_Uploader\DGZ_Uploader;
+
+    // 'portfolioImagesPath' is a key in configs/app.php pointing to the
+    // absolute upload folder. See §1.9 for how to set this up.
+    $uploader = new DGZ_Uploader('portfolioImagesPath');
+    $uploader->move('resize');
+
+    $messages  = $uploader->getMessages();
+    $filenames = $uploader->getFilenames();
+
+    if (!empty($filenames)) {
+        $original  = $filenames[0];  // 'sunset.jpg'  — save this in the DB
+        // thumbnail saved automatically as 'sunset_thb.jpg' in the same folder
+    }
+
+    // --- In your view, deriving the thumbnail name ---
+    // Never store the thumbnail name in the DB. Use the built-in helper:
+    $thumb = DGZ_Upload::thumbName($original);   // 'sunset_thb.jpg'
+
+
+────────────────────────────────────────────────────────────────────────────
+C. Upload with thumbnail in a separate folder
+────────────────────────────────────────────────────────────────────────────
+Useful when you want full-resolution originals in one place and
+web-displayable thumbnails in another (e.g. originals in /full/, thumbs
+in /thumbs/ for CDN delivery).
+
+    $uploader = new DGZ_Uploader('portfolioImagesPath');
+    $uploader->setThumbDestination(
+        '/Applications/MAMP/htdocs/myapp/assets/images/portfolio/thumbs/'
+    );
+    $uploader->move('resize');
+
+    $filenames = $uploader->getFilenames();
+    // Original: /assets/images/portfolio/sunset.jpg
+    // Thumbnail: /assets/images/portfolio/thumbs/sunset_thb.jpg
+
+
+────────────────────────────────────────────────────────────────────────────
+D. Upload images into a per-record sub-folder
+────────────────────────────────────────────────────────────────────────────
+For features like a portfolio or product catalogue where each item has its
+own directory. Pass the record's ID (or slug) as the second constructor arg.
+The folder must already exist and be writable — create it when you create
+the DB record.
+
+    // After INSERT, get the new record ID:
+    $itemId = $this->portfolioModel->getLastInsertId();
+
+    // Create the sub-folder (only if it doesn't exist yet):
+    $basePath = '/Applications/MAMP/htdocs/myapp/assets/images/portfolio/';
+    $subDir   = $basePath . $itemId . '/';
+    if (!is_dir($subDir)) {
+        mkdir($subDir, 0755, true);
+    }
+
+    // Upload into that sub-folder:
+    $uploader = new DGZ_Uploader('portfolioImagesPath', $itemId . '/');
+    $uploader->move('resize');
+
+    // Files land at: /assets/images/portfolio/42/hero.jpg
+    //                /assets/images/portfolio/42/hero_thb.jpg
+
+
+────────────────────────────────────────────────────────────────────────────
+E. Uploading a document (PDF or plain text)
+────────────────────────────────────────────────────────────────────────────
+DGZ_Upload's default whitelist only allows images. To accept PDFs, you must
+add the MIME type with addPermittedTypes(). You also need to raise the max
+size since the default 50 KB limit is too small for most documents.
+
+    use Dorguzen\Core\DGZ_Uploader\DGZ_Upload;
+
+    $uploader = new DGZ_Upload('/Applications/MAMP/htdocs/myapp/storage/docs/');
+    $uploader->addPermittedTypes(['application/pdf']);
+    $uploader->setMaxSize('10MB');
+    $uploader->move('original');
+
+    $messages  = $uploader->getMessages();
+    $filenames = $uploader->getFilenames();
+
+Note: PHP's own upload size limits (upload_max_filesize and post_max_size in
+php.ini) also apply and must be raised server-side for large files. The
+setMaxSize() call here adds an application-level guard on top of that.
+
+
+────────────────────────────────────────────────────────────────────────────
+F. Uploading a video or audio file
+────────────────────────────────────────────────────────────────────────────
+Videos and audio files have MIME types not in the DGZ whitelist at all
+(video/mp4, audio/mpeg, etc.). The cleanest approach is 'original-allow'
+mode, which bypasses all type and size checks. Reserve this for admin forms.
+
+    use Dorguzen\Core\DGZ_Uploader\DGZ_Upload;
+
+    // Admin-only: upload a video with no type or size restriction.
+    // 'original-allow' bypasses setMaxSize() too, so no need to set it here.
+    $uploader = new DGZ_Upload('/Applications/MAMP/htdocs/myapp/storage/videos/');
+    $uploader->move('original-allow');
+
+    $messages  = $uploader->getMessages();
+    $filenames = $uploader->getFilenames();
+
+⚠ Important: PHP still enforces upload_max_filesize and post_max_size from
+php.ini regardless of $modify. For large video files, raise these in your
+php.ini or .htaccess:
+
+    upload_max_filesize = 512M
+    post_max_size       = 512M
+    max_execution_time  = 300
+
+Alternative: for public-facing video upload with type checking, use
+addPermittedTypes() and setMaxSize() — but do NOT use isValidMime() for
+video MIME types as they are not in its allowed list. You would need to
+extend the class and override isValidMime() for that use case.
+
+
+────────────────────────────────────────────────────────────────────────────
+G. Multiple file upload
+────────────────────────────────────────────────────────────────────────────
+The class handles multi-file inputs automatically. Your HTML form just needs
+the multiple attribute and array notation in the name:
+
+    <input type="file" name="gallery_images[]" multiple>
+
+The PHP side is identical to a single upload:
+
+    $uploader = new DGZ_Uploader('galleryImagesPath');
+    $uploader->move('resize');
+
+    $filenames = $uploader->getFilenames();
+    // $filenames = ['photo1.jpg', 'photo2.jpg', 'photo3_thb.jpg' ... ]
+    // Wait — getFilenames() returns only the originals, not thumbnails.
+    // Thumbnails are generated silently alongside each original.
+
+    foreach ($filenames as $name) {
+        // save each $name to the database
+    }
+
+    // Messages are collected for each file individually:
+    foreach ($uploader->getMessages() as $msg) {
+        echo $msg . "\n";
+        // "photo1.jpg uploaded successfully"
+        // "photo2.jpg uploaded successfully and renamed photo2_1.jpg"
+        // "huge.jpg exceeds maximum size: 50.0kB"
+    }
+
+
+────────────────────────────────────────────────────────────────────────────
+H. Controlling thumbnail dimensions and quality
+────────────────────────────────────────────────────────────────────────────
+DGZ_Uploader creates thumbnails with default settings (200px max side,
+quality 82). The original file is always saved at full uploaded size.
+
+To override the thumbnail max size, call setThumbMaxSize() before move():
+
+    $uploader = new DGZ_Uploader('galleryImagesPath');
+    $uploader->setThumbMaxSize(300);   // cap thumbnail at 300px longest side
+    $uploader->move('resize');
+
+    $filenames = $uploader->getFilenames();
+    // original: photo.jpg (full size)  |  thumbnail: photo_thb.jpg (≤300px)
+
+To also override quality, use DGZ_Thumbnail standalone after the upload:
+
+Step 1 — upload the original only (no thumbnail yet):
+
+    $uploader = new DGZ_Uploader('galleryImagesPath');
+    $uploader->move('original');
+    $filenames = $uploader->getFilenames();
+
+Step 2 — generate a custom thumbnail with full control:
+
+    use Dorguzen\Core\DGZ_Uploader\DGZ_Thumbnail;
+
+    $destDir  = '/Applications/MAMP/htdocs/myapp/assets/images/gallery/';
+    $original = $destDir . $filenames[0];
+
+    $thumb = new DGZ_Thumbnail($original);
+    $thumb->setDestination($destDir);
+    $thumb->setMaxSize(300);   // cap at 300px longest side
+    $thumb->setQuality(75);    // slightly more compression (default is 82)
+    $thumb->create();
+
+    foreach ($thumb->getMessages() as $msg) {
+        echo $msg;  // "photo_thb.jpg created successfully."
+    }
+
+Quality guide:
+    90  — near-lossless, ~40% larger than default; good for high-quality prints
+    82  — default, excellent web quality
+    75  — still good, noticeably smaller files; good for high-traffic pages
+    60  — visible artefacts; only for tiny thumbnails where size is critical
+
+
+────────────────────────────────────────────────────────────────────────────
+I. Generating a thumbnail from an already-uploaded file
+────────────────────────────────────────────────────────────────────────────
+If you have images on disk that were uploaded without thumbnails (e.g. before
+DGZ_Uploader was adopted), you can batch-generate thumbnails using
+DGZ_Thumbnail standalone.
+
+    use Dorguzen\Core\DGZ_Uploader\DGZ_Thumbnail;
+
+    $sourceDir = '/Applications/MAMP/htdocs/myapp/assets/images/portfolio/';
+    $thumbDir  = $sourceDir . 'thumbs/';  // must already exist
+
+    foreach (glob($sourceDir . '*.{jpg,jpeg,png,gif,webp}', GLOB_BRACE) as $file) {
+        // skip files that are already thumbnails
+        if (strpos(basename($file), '_thb.') !== false) continue;
+
+        $thumb = new DGZ_Thumbnail($file);
+        $thumb->setDestination($thumbDir);
+        $thumb->create();
+
+        foreach ($thumb->getMessages() as $msg) {
+            echo $msg . "\n";
+        }
+    }
+
+Run this as a one-off CLI script or a controller action behind an admin route.
+
+
+────────────────────────────────────────────────────────────────────────────
+J. Displaying uploaded images in a view
+────────────────────────────────────────────────────────────────────────────
+Store only the original filename in your database column. In your view, build
+the file path using getFileRootPath() from Config, and derive the thumbnail
+name from the original filename.
+
+In your service/controller, pass the image filename to the view:
+
+    $item = $this->portfolioModel->getItem($id);
+    // $item['portfolio_image'] = 'sunset.jpg'
+
+In your view:
+
+    <?php
+    use Dorguzen\Core\DGZ_Uploader\DGZ_Upload;
+
+    $imgPath   = $this->controller->config->getFileRootPath() . 'assets/images/portfolio/';
+    $original  = $item['portfolio_image'];                         // 'sunset.jpg'
+    $thumbnail = DGZ_Upload::thumbName($original);                 // 'sunset_thb.jpg'
+    ?>
+
+    <!-- Thumbnail in grid (fast load): -->
+    <img src="<?= $imgPath . $thumbnail ?>" alt="Portfolio item">
+
+    <!-- Link to full-size on click: -->
+    <a href="<?= $imgPath . $original ?>">
+        <img src="<?= $imgPath . $thumbnail ?>" alt="Portfolio item">
+    </a>
+
+
+1.8  Supported File Types
+---------------------------
+For image upload and thumbnail generation:
+
+    Format  MIME type        Upload   Thumbnail   Notes
+    ──────  ───────────────  ───────  ──────────  ──────────────────────────────
+    JPEG    image/jpeg       ✓        ✓           Most common for photos
+    JPEG    image/pjpeg      ✓        ✓           Progressive JPEG (IE legacy)
+    PNG     image/png        ✓        ✓           Alpha transparency preserved
+    GIF     image/gif        ✓        ✓           Animation is not preserved
+    WebP    image/webp       ✓        ✓           25-35% smaller than JPEG
+
+For other file types (via addPermittedTypes or 'original-allow'):
+
+    Format  MIME type              Upload   Thumbnail   Notes
+    ──────  ─────────────────────  ───────  ──────────  ──────────────────────
+    PDF     application/pdf        ✓        ✗           Via addPermittedTypes()
+    TXT     text/plain             ✓        ✗           Via addPermittedTypes()
+    RTF     text/rtf               ✓        ✗           Via addPermittedTypes()
+    TIFF    image/tiff             ✓        ✗           Via addPermittedTypes()
+    Video   video/* (any)          ✓        ✗           Use 'original-allow' mode
+    Audio   audio/* (any)          ✓        ✗           Use 'original-allow' mode
+
+
+1.9  Config Integration (configs/app.php)
+------------------------------------------
+DGZ_Uploader's constructor looks up path keys in your configs/app.php array.
+Define your upload destinations there rather than hardcoding absolute paths:
+
+    // configs/app.php
+    return [
+        // ... other config ...
+        'newsImagesPath'       => '/Applications/MAMP/htdocs/myapp/assets/images/news/',
+        'portfolioImagesPath'  => '/Applications/MAMP/htdocs/myapp/assets/images/portfolio/',
+        'galleryImagesPath'    => '/Applications/MAMP/htdocs/myapp/assets/images/gallery/',
+        'newsletterImagesPath' => '/Applications/MAMP/htdocs/myapp/assets/images/newsletters/',
+        'maxFileUploadSize'    => '2MB',
+    ];
+
+Then in your controller or service:
+
+    $uploader = new DGZ_Uploader('newsImagesPath');   // looks up config key
+    $uploader->move('resize');
+
+maxFileUploadSize is automatically applied by DGZ_Uploader's constructor —
+you do not need to call setMaxSize() separately.
+
+Remember: in production the absolute path changes. Set the correct absolute
+paths per environment in their respective configs/app.php or use APP_ENV
+branching inside configs/app.php to resolve the right path.
+
+
+1.10  Error Handling and Messages
+-----------------------------------
+Always check getMessages() after move(). A successful upload produces a
+message like "photo.jpg uploaded successfully". A failed upload produces an
+error message — but the method does NOT throw an exception, so you must check:
+
+    $uploader->move('resize');
+
+    $filenames = $uploader->getFilenames();
+    $messages  = $uploader->getMessages();
+
+    if (empty($filenames)) {
+        // Nothing was saved — show messages as user-facing errors
+        $errors = $messages;
+    } else {
+        $savedAs = $filenames[0];
+        // Check messages anyway — some may be warnings (e.g. renamed)
+    }
+
+Common messages:
+
+    "photo.jpg uploaded successfully"
+    "photo.jpg uploaded successfully and renamed photo_1.jpg"
+    "photo.jpg exceeds maximum size: 50.0kB"
+    "video.mp4 is not a permitted type of file."
+    "No file selected."
+    "Error uploading photo.jpg. Please try again."      ← partial upload
+    "System error uploading photo.jpg. Contact webmaster."
+    "photo_thb.jpg created successfully."
+    "Couldn't create a thumbnail for photo.jpg"
+
+
+1.11  Backwards Compatibility Notes
+--------------------------------------
+The following improvements were made to the class system. All changes are
+backwards compatible — no public method signatures were altered.
+
+Behaviour changes in DGZ_Thumbnail:
+
+  1. Thumbnails now correctly receive the _thb suffix.
+     Previously the $_suffix property was defined ('_thb') but was never
+     actually applied in createThumbnail() — a bug meaning thumbnails were
+     saved with the SAME name as the original, silently overwriting it.
+     This is now fixed: hero.jpg generates hero_thb.jpg.
+     If you have thumbnails on disk from before this fix, they will have been
+     saved without the suffix (same name as original). New thumbnails will
+     use the suffix. Keep this in mind when displaying older uploaded images.
+
+  2. JPEG output quality changed from 100 to 82.
+     Quality 100 is lossless JPEG — the largest possible file size with no
+     visible benefit over 82. Quality 82 is the web industry standard.
+
+  3. PNG compression changed from 0 to 6.
+     Level 0 means uncompressed — PNG files at full size. Level 6 is the
+     standard web default: good compression ratio, fast decode.
+
+  4. WebP is now a supported upload and thumbnail format (was silently
+     rejected before). Alpha transparency is preserved for WebP and PNG.
+
+  5. setQuality() method added to DGZ_Thumbnail for per-use quality control.
+
+  6. Default thumbnail dimension changed from 500px to 200px (DGZ_Uploader).
+     DGZ_Uploader now passes 200px to DGZ_Thumbnail automatically when calling
+     move('resize'). Previously the thumbnail inherited DGZ_Thumbnail's own
+     default of 500px, meaning a 500×400 source image produced an identically-
+     sized thumbnail. Thumbnails are now always a fraction of the main image.
+     DGZ_Thumbnail's own internal default (500px) is unchanged — this only
+     affects thumbnails generated through DGZ_Uploader::move('resize').
+     To override: call $uploader->setThumbMaxSize(n) before move('resize').
+     New method added: DGZ_Uploader::setThumbMaxSize(int $pixels): self
+
+
+================================================================================
+2. PDF Generation
+================================================================================
+
+Dorguzen does not ship a built-in PDF library. PDF generation is an opt-in
+capability — install a Composer package when your application needs it. This
+keeps the framework lean for applications that never generate PDFs.
+
+
+2.1  Choosing a PDF Library
+-----------------------------
+There are several well-maintained PHP PDF libraries. Here is an honest
+comparison so you can make the right choice for your use case:
+
+    ┌──────────────┬────────────────┬───────────────────────────────────────────┐
+    │ Library      │ Approach       │ Strengths and best use cases              │
+    ├──────────────┼────────────────┼───────────────────────────────────────────┤
+    │ Dompdf       │ HTML → PDF     │ Easiest to use. You write HTML/CSS and    │
+    │              │                │ it renders to PDF. Perfect for receipts,  │
+    │              │                │ invoices, reports where you already have  │
+    │              │                │ a design in HTML.                         │
+    ├──────────────┼────────────────┼───────────────────────────────────────────┤
+    │ mPDF         │ HTML → PDF     │ Same idea as Dompdf. Better Unicode and   │
+    │              │                │ multilingual/RTL text support. Good if    │
+    │              │                │ your PDFs contain non-Latin characters    │
+    │              │                │ (Arabic, Chinese, etc.).                  │
+    ├──────────────┼────────────────┼───────────────────────────────────────────┤
+    │ TCPDF        │ Programmatic   │ Low-level, no HTML rendering. You build   │
+    │              │                │ the PDF by calling methods (drawLine,     │
+    │              │                │ addCell, etc.). More code but total       │
+    │              │                │ control. Good for complex layouts like    │
+    │              │                │ certificates or formatted tables.         │
+    ├──────────────┼────────────────┼───────────────────────────────────────────┤
+    │ Browsershot  │ Headless       │ Uses a real browser (Puppeteer/Chrome)    │
+    │ (Puppeteer)  │ browser → PDF  │ to render HTML. Pixel-perfect output,    │
+    │              │                │ supports modern CSS (flexbox, grid,       │
+    │              │                │ custom fonts). Requires Node.js on the    │
+    │              │                │ server. Overkill for most web apps but    │
+    │              │                │ the best option for print-quality output. │
+    └──────────────┴────────────────┴───────────────────────────────────────────┘
+
+
+2.2  Why We Recommend Dompdf
+------------------------------
+For most Dorguzen applications — receipts, order confirmations, reports,
+invoices, subscription summaries — Dompdf is the right starting point:
+
+  - Pure PHP, no external binaries or Node.js required.
+  - You design PDF content as an HTML template, exactly like you already
+    design email templates. The same HTML skills apply.
+  - Actively maintained (composer package: dompdf/dompdf).
+  - Handles CSS styling, embedded images, page headers/footers, and most
+    common layouts out of the box.
+  - Easy to swap to mPDF later if you hit Unicode limitations — both share
+    the HTML-in, PDF-out model.
+
+If your application has significant multilingual content (especially RTL
+languages), start with mPDF instead. If you need pixel-perfect rendering
+of complex modern CSS, consider Browsershot.
+
+
+2.3  Installing Dompdf
+-----------------------
+    composer require dompdf/dompdf
+
+That is all. No server configuration needed. Dompdf works on any PHP 7.1+
+environment including MAMP, shared hosting, and cloud servers.
+
+
+2.4  Code Examples
+-------------------
+
+────────────────────────────────────────────────────────────────────────────
+A. Simple HTML string to PDF (download)
+────────────────────────────────────────────────────────────────────────────
+The simplest possible usage — convert an HTML string to a PDF and stream
+it to the browser as a file download.
+
+    use Dompdf\Dompdf;
+
+    $dompdf = new Dompdf();
+    $dompdf->loadHtml('
+        <h1>Order Receipt</h1>
+        <p>Thank you for your order.</p>
+        <p><strong>Total: $49.99</strong></p>
+    ');
+    $dompdf->setPaper('A4', 'portrait');
+    $dompdf->render();
+    $dompdf->stream('receipt.pdf', ['Attachment' => true]);
+    exit;
+
+stream() sends the PDF directly to the browser. ['Attachment' => true]
+triggers a file download. ['Attachment' => false] displays it inline
+(see example E).
+
+Always call exit after stream() to prevent any further PHP output from
+corrupting the PDF binary.
+
+
+────────────────────────────────────────────────────────────────────────────
+B. Saving a PDF to disk
+────────────────────────────────────────────────────────────────────────────
+Useful when you want to store a generated receipt or report on the server
+(e.g. in storage/pdfs/) to attach to an email or serve later.
+
+    use Dompdf\Dompdf;
+
+    $dompdf = new Dompdf();
+    $dompdf->loadHtml('<h1>Invoice #1042</h1><p>Amount due: $120.00</p>');
+    $dompdf->setPaper('A4', 'portrait');
+    $dompdf->render();
+
+    $pdfContent = $dompdf->output();  // returns the PDF as a string
+    $savePath   = '/absolute/path/to/storage/pdfs/invoice_1042.pdf';
+    file_put_contents($savePath, $pdfContent);
+
+    // Now you can attach $savePath to an email, or redirect to a download route.
+
+
+────────────────────────────────────────────────────────────────────────────
+C. Rendering a PHP view file as a PDF
+────────────────────────────────────────────────────────────────────────────
+The most practical pattern for Dorguzen applications: design your receipt or
+report as a PHP view file (just like any other view), capture its output,
+and pass it to Dompdf. This keeps your PDF layout in a maintainable template
+rather than hardcoded strings.
+
+Step 1 — Create the view file at views/pdfs/receipt.php:
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <style>
+            body  { font-family: DejaVu Sans, sans-serif; font-size: 13px; }
+            h1    { color: #333; border-bottom: 2px solid #fd7e14; }
+            table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+            th    { background: #fd7e14; color: #fff; padding: 8px; text-align: left; }
+            td    { padding: 8px; border-bottom: 1px solid #eee; }
+            .total { font-weight: bold; font-size: 15px; }
+        </style>
+    </head>
+    <body>
+        <h1>Order Receipt</h1>
+        <p>Thank you, <?= htmlspecialchars($name) ?>. Here is your order summary:</p>
+        <table>
+            <tr><th>Item</th><th>Qty</th><th>Price</th></tr>
+            <?php foreach ($items as $item): ?>
+            <tr>
+                <td><?= htmlspecialchars($item['name']) ?></td>
+                <td><?= (int) $item['qty'] ?></td>
+                <td>$<?= number_format($item['price'], 2) ?></td>
+            </tr>
+            <?php endforeach; ?>
+        </table>
+        <p class="total">Total: $<?= number_format($total, 2) ?></p>
+        <p style="color:#999; font-size:11px;">Generated on <?= date('d M Y') ?></p>
+    </body>
+    </html>
+
+Step 2 — In your controller or service, render the view to a string and
+pass it to Dompdf:
+
+    use Dompdf\Dompdf;
+
+    // Capture the view output into a string (ob = output buffer)
+    $name  = $order['customer_name'];
+    $items = $order['items'];
+    $total = $order['total'];
+
+    ob_start();
+    include BASE_PATH . '/views/pdfs/receipt.php';
+    $html = ob_get_clean();
+
+    // Generate and stream the PDF
+    $dompdf = new Dompdf();
+    $dompdf->loadHtml($html);
+    $dompdf->setPaper('A4', 'portrait');
+    $dompdf->render();
+    $dompdf->stream('receipt.pdf', ['Attachment' => true]);
+    exit;
+
+Note: Dompdf renders PDF in a browser-like environment, not a web server
+context. Use absolute filesystem paths for any embedded images (not URLs),
+and use DejaVu Sans (or another font known to Dompdf) for reliable
+character rendering.
+
+For embedded images, reference them with an absolute path:
+    <img src="/absolute/path/to/assets/images/logo.png">
+
+
+────────────────────────────────────────────────────────────────────────────
+D. Paper size and orientation
+────────────────────────────────────────────────────────────────────────────
+setPaper() takes a size name and orientation:
+
+    $dompdf->setPaper('A4', 'portrait');   // standard document
+    $dompdf->setPaper('A4', 'landscape');  // wide table or chart
+    $dompdf->setPaper('letter', 'portrait'); // US letter size
+
+Common size names: 'A4', 'A3', 'letter', 'legal', 'folio'.
+Or pass custom dimensions in points (1 inch = 72 points):
+
+    $dompdf->setPaper([0, 0, 595, 842]);   // A4 in points (width x height)
+
+
+────────────────────────────────────────────────────────────────────────────
+E. Inline display in the browser (no download prompt)
+────────────────────────────────────────────────────────────────────────────
+To open the PDF directly in the browser's built-in PDF viewer rather than
+triggering a download, set 'Attachment' to false:
+
+    $dompdf->render();
+    $dompdf->stream('receipt.pdf', ['Attachment' => false]);
+    exit;
+
+This is useful for a "preview receipt" page. Whether the browser displays
+it inline or still prompts a download depends on the user's browser settings,
+but modern browsers (Chrome, Firefox, Safari) all display PDFs inline by
+default.
 
 
 
@@ -10659,6 +12058,23 @@ FFIIEENA
                 -Template System (renderEmail)
                 -File Locations
                 -Customising Email Templates
+                -The Newsletter and Subscription System
+                    -Overview
+                    -The Subscription Flow
+                    -The subscribers Table — active vs inactive
+                    -The Admin Newsletter Workflow
+                    -The pending_emails Table
+                    -Email Templates and the newsletter_template Field
+                    -How Newsletter Images Are Handled
+                    -The Welcome Email vs The Regular Newsletter
+                    -The Unsubscribe Flow
+                    -The Scheduler — How It Works
+                    -Running the Scheduler
+                        -Option A: Manual run (development / testing)
+                        -Option B: Server cron job (recommended for production)
+                        -Option C: Supervisor / process manager
+                    -The Infrastructure Table: dgz_scheduled_task_locks
+                    -End-to-End Summary (Quick Reference)
 
 
 
@@ -11777,13 +13193,15 @@ are caught internally and logged via DGZ_Logger).
         — Forwards a website contact form submission to the site admin email.
           Also used by sendShopContactMsgToShopOwner() to forward to a shop owner.
 
-    sendNewsletterWelcomeMsg($subscriber_name, $email, $heading, $subject, $message, $image, $imageCaption)
+    sendNewsletterWelcomeMsg($subscriber_name, $email, $heading, $subject, $message, $image, $imageCaption, $template = 'newsletter-welcome')
         — Sends the first newsletter to a new subscriber.
           $image and $imageCaption are optional — pass '' to omit the image block.
+          $template selects which email view to render (default: 'newsletter-welcome').
 
-    sendNewsletterMsg($subscriber_name, $email, $heading, $subject, $message, $image, $imageCaption)
+    sendNewsletterMsg($subscriber_name, $email, $heading, $subject, $message, $image, $imageCaption, $template = 'newsletter')
         — Sends a regular newsletter to an existing subscriber.
           Same signature as sendNewsletterWelcomeMsg().
+          $template selects which email view to render (default: 'newsletter').
 
     sendEmailActivationEmail($name, $email, $subject, $message)
         — Account activation email. $message should contain the activation link HTML.
@@ -11895,6 +13313,761 @@ for transactional receipts):
       
 
 
+
+
+
+6. THE NEWSLETTER AND SUBSCRIPTION SYSTEM
+——————————————————————————————————————————
+
+This section documents the full newsletter feature end to end — from a visitor
+subscribing on the public site through to receiving emails, and how an admin
+manages it all. It also covers how images attached to newsletters are handled,
+what the scheduler does, and how to keep it running in production.
+
+
+6.0  Administrator's Guide — Using the Newsletter Feature
+----------------------------------------------------------
+This sub-section is written for the person managing the site from the admin
+dashboard, not the developer building it. If you are the developer, read this
+section first so you understand what your admin user will experience; then
+continue to sections 6.1 onwards for the technical internals.
+
+
+6.0.1  Understanding Subscriber Statuses
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Every person who subscribes via the public form is stored in the subscribers
+table with one of three effective states, visible as a badge in the
+Admin → Subscribers view:
+
+  NEW (green badge)
+    The subscriber signed up but has never received a welcome email. They are
+    active and willing to receive mail — they are just waiting for their first
+    contact from you.
+
+  ACTIVE (grey badge)
+    The subscriber has been sent at least one welcome email. They are a regular
+    subscriber and will receive future bulk newsletters.
+
+  UNSUBSCRIBED (red badge)
+    The subscriber clicked the Unsubscribe link in one of the emails. They will
+    NEVER receive another email from the system — not welcome emails, not bulk
+    sends. This is enforced at two levels: the bulk send form only submits active
+    subscriber IDs, and the service layer also skips inactive subscribers even if
+    an ID is submitted manually.
+
+Important: the "Total Subscribers" stat card shows ALL subscribers including
+unsubscribed ones (for record-keeping). The "Send Bulk Email (N)" button shows
+only the count of ACTIVE subscribers who will actually receive the email.
+
+
+6.0.2  The Two Types of Emails You Can Send
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The newsletter system distinguishes between two send types:
+
+  WELCOME EMAIL
+    Sent to new subscribers (status = NEW) who have never been contacted before.
+    This is usually a warm introduction to your brand — "Thanks for subscribing,
+    here is what to expect." Once delivered, the subscriber's status changes from
+    NEW to ACTIVE automatically. The recommended template is "newsletter-welcome".
+
+  BULK EMAIL
+    Sent to all ACTIVE subscribers. This is your regular newsletter — monthly
+    updates, promotions, announcements. The recommended template is "newsletter".
+    Unsubscribed and NEW (unwelcomed) subscribers are excluded automatically.
+
+Tip: you can technically send a bulk email to NEW subscribers too — they will
+receive it but their "welcomed" flag will not be set by a bulk send. Always
+send a welcome email first, then follow up with bulk sends.
+
+
+6.0.3  Step-by-Step: Sending Your First Welcome Email
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This is the sequence you follow when a new subscriber signs up and you want to
+send them a welcome email.
+
+  Step 1 — Create a Welcome Newsletter record (one-time setup)
+    Admin Dashboard → Newsletters → Create Newsletter
+
+    Fill in:
+      Subject    — e.g. "Welcome to our newsletter!"
+      Body       — Your welcome message. HTML is supported.
+      Template   — Choose "newsletter-welcome" from the dropdown.
+      Image      — Optional header image.
+
+    Click "Create Newsletter". This saves the record — nothing is sent yet.
+    You only need to create this record once. Reuse it for every future welcome
+    send unless you want to change the welcome message.
+
+  Step 2 — Queue the welcome email
+    Admin Dashboard → Subscribers
+
+    Click "Send Welcome Emails (N)" — the number shows how many new subscribers
+    are waiting. A modal appears:
+
+      Select Newsletter   — Choose the welcome newsletter record you just created.
+      Click "Send Now"
+
+    This does NOT send the email immediately. It queues one row per subscriber
+    in the pending_emails table with status = 'pending'. You will see a success
+    message: "N welcome email(s) queued. They will be sent automatically on the
+    next scheduler run."
+
+  Step 3 — Run the scheduler to send
+    The scheduler processes the queue and actually sends the emails.
+
+    Manual trigger (development / testing):
+      Open a terminal in your project directory and run:
+          php dgz schedule:run
+
+    Automated (production):
+      Set up a cron job — see section 6.11 for full instructions.
+
+    When the scheduler runs it will:
+      - Pick up all queued rows
+      - Send each email via SMTP (configured in .env)
+      - Mark each row as 'sent'
+      - Set the subscriber's status to ACTIVE (welcomed = 1)
+
+
+6.0.4  Step-by-Step: Sending a Bulk Newsletter
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This is the sequence for sending a regular newsletter to all active subscribers.
+
+  Step 1 — Create a Bulk Newsletter record
+    Admin Dashboard → Newsletters → Create Newsletter
+
+    Fill in:
+      Subject    — e.g. "June Update: What's new this month"
+      Body       — Your newsletter content. HTML is supported.
+      Template   — Choose "newsletter" from the dropdown.
+      Image      — Optional header image.
+
+    Note: Create a NEW newsletter record for each campaign. Do not reuse
+    the welcome newsletter record for bulk sends — it uses the welcome template,
+    which may have different styling or wording ("Welcome to our newsletter!")
+    that would be out of place in a regular bulk send.
+
+  Step 2 — Queue the bulk email
+    Admin Dashboard → Subscribers
+
+    Click "Send Bulk Email (N)" — the number shows how many active subscribers
+    will receive the email. A modal appears:
+
+      Select Newsletter   — The dropdown shows all your newsletter records with
+                            their template name in brackets, e.g.:
+                              "June Update (newsletter)"
+                              "Welcome to our newsletter! (newsletter-welcome)"
+                            Choose the correct bulk newsletter record.
+      Click "Send Now"
+
+    Emails are queued in pending_emails — not sent immediately.
+
+  Step 3 — Run the scheduler (same as 6.0.3 Step 3 above).
+
+
+6.0.5  Understanding the Email Queue (pending_emails)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+When you click "Send Now" the system does NOT connect to your SMTP server
+immediately. Instead it writes one row per email into the pending_emails table
+with status = 'pending'. This is intentional:
+
+  - Large batches (hundreds of subscribers) do not block the browser request.
+  - If one email fails to send, the others are not affected.
+  - You can see exactly what is queued, sent, or failed in the database.
+  - The scheduler processes up to 50 emails per run, preventing SMTP timeouts
+    on large lists.
+
+The pending_emails table columns you will interact with most:
+
+  status          'pending' — waiting to be sent
+                  'sent'    — successfully sent and timestamp recorded in sent_at
+                  'failed'  — SMTP error occurred; tries counter is incremented.
+                              Will NOT be retried automatically. To retry, manually
+                              reset status = 'pending' in the database.
+
+  tries           How many send attempts were made for this row.
+
+  last_attempt_at Timestamp of the most recent attempt (including failures).
+
+  sent_at         Timestamp of successful delivery.
+
+
+6.0.6  Adding a New Email Template
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The template dropdown on the Create Newsletter form is built automatically from
+PHP files in two directories:
+
+  core/email-views/     Framework defaults (do not edit these files)
+  views/emails/         Your app's templates (create new templates here)
+
+To add a new template:
+
+  1. Create a file in views/emails/, e.g. views/emails/promo.php
+  2. Write your HTML email body in that file (inner body only — no <html>,
+     <head>, or <body> tags — the email layout wraps it automatically).
+  3. Reload the Create Newsletter form — "promo" will appear in the dropdown.
+
+No configuration, no registration — just create the file.
+
+The two templates that ship with Dorguzen:
+
+  newsletter-welcome.php    — Designed for first-contact welcome emails.
+                              Use this when creating a welcome newsletter record.
+
+  newsletter.php            — Designed for regular bulk newsletters.
+                              Use this when creating any campaign/bulk send record.
+
+IMPORTANT: Never type a template name manually into the database that does not
+correspond to an actual .php file. If the file does not exist the scheduler will
+crash when it tries to render that row. Always create the file first, then
+create the newsletter record that references it.
+
+
+6.0.7  Running the Scheduler in Different Environments
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Emails are sent by the scheduler, not by the web request. You must ensure the
+scheduler runs regularly in every environment.
+
+  LOCAL DEVELOPMENT (MAMP / local PHP)
+    Run the scheduler manually in a terminal whenever you want to send queued
+    emails:
+        php dgz schedule:run
+
+    There is no need to set up a cron locally — manual triggering is the
+    simplest approach during development and testing.
+
+  SHARED HOSTING
+    Most shared hosts provide a "Cron Jobs" section in cPanel or a similar
+    control panel. Add a cron job that runs every minute:
+
+        * * * * * cd /home/youruser/public_html/yourapp && php dgz schedule:run
+
+    Check your host's documentation for the correct PHP binary path — it is
+    often something like /usr/local/bin/php or /opt/alt/php82/usr/bin/php.
+
+  VPS / DEDICATED SERVER
+    Edit the server's crontab:
+        crontab -e
+
+    Add:
+        * * * * * cd /var/www/yourapp && php dgz schedule:run >> /dev/null 2>&1
+
+    Optionally log output for debugging:
+        * * * * * cd /var/www/yourapp && php dgz schedule:run >> /var/log/dgz-scheduler.log 2>&1
+
+  DOCKER / CONTAINERS
+    Either add the cron to a Dockerfile, or run the scheduler in a sidecar
+    container with a simple shell loop:
+        while true; do php dgz schedule:run; sleep 60; done
+
+  IMPORTANT — each environment manages its own cron independently. Setting up
+  a cron on your local Mac has NO effect on your production server, and vice
+  versa. Configure the cron on the server where the app is deployed.
+
+
+6.0.8  Troubleshooting the Scheduler
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Symptom: Scheduler runs ("Schedule run process complete") but emails stay
+          as 'pending' and nothing is sent.
+
+  Cause 1 — Stale lock in dgz_scheduled_task_locks
+    If a previous scheduler run crashed before it could clean up, a lock row
+    may have been left in the dgz_scheduled_task_locks table. While the lock
+    is present, every subsequent run silently skips the job.
+
+    Fix (Dorguzen 1.x and later): The lock system automatically deletes expired
+    locks before trying to acquire a new one. Locks expire after 60 seconds, so
+    simply wait one minute and run the scheduler again.
+
+    Manual fix (if you need to unblock immediately):
+        DELETE FROM dgz_scheduled_task_locks;
+
+  Cause 2 — dgz_scheduled_task_locks table does not exist
+    The scheduler silently skips all ->withoutOverlapping() jobs if the lock
+    table is missing. Create it — see section 6.12 for the CREATE TABLE statement.
+
+  Cause 3 — Wrong SMTP credentials
+    Check your .env file:
+        MAIL_HOST=sandbox.smtp.mailtrap.io   (Mailtrap for dev)
+        MAIL_PORT=587
+        MAIL_USERNAME=your-mailtrap-username
+        MAIL_PASSWORD=your-mailtrap-password
+        MAIL_ENCRYPTION=tls
+
+    If credentials are wrong the scheduler will mark the row as 'failed' and
+    log the error. Check bootstrap/logs/php_errors.log or the server error log.
+
+  Cause 4 — Template file missing
+    If newsletters.newsletter_template references a file that does not exist
+    (e.g. 'welcome_mail' instead of 'newsletter-welcome'), the scheduler will
+    throw an error. Reset status = 'pending' in pending_emails after creating
+    or correcting the template file, then run the scheduler again.
+
+  Cause 5 — Subscriber marked as inactive
+    A subscriber with subscriber_active = 0 (Unsubscribed) will always be
+    skipped. Even if their ID is in the pending_emails queue, the service
+    checks the live subscriber record at send time and skips inactive ones.
+
+
+6.1  Overview
+--------------
+The newsletter system has four moving parts that work together:
+
+  ┌─────────────────────┐     ┌─────────────────────┐
+  │   Public visitor    │     │   Admin dashboard    │
+  │  (subscribe form)   │     │ (create newsletters, │
+  └────────┬────────────┘     │  manage subscribers) │
+           │                  └──────────┬────────────┘
+           │ POST /subscribe             │ POST /admin/newsletters/create
+           ▼                             ▼
+  ┌─────────────────────────────────────────────────┐
+  │              subscribers table                  │
+  │              newsletters table                  │
+  │              pending_emails table               │
+  └─────────────────────┬───────────────────────────┘
+                        │
+                        │  php dgz schedule:run  (or cron)
+                        ▼
+  ┌─────────────────────────────────────────────────┐
+  │         SendPendingEmailsJob (scheduler)        │
+  │   reads pending rows → sends via DGZ_Messenger  │
+  │   → marks rows sent/failed                      │
+  └─────────────────────────────────────────────────┘
+
+
+6.2  The Subscription Flow
+---------------------------
+A visitor fills in the subscribe form on the public site (typically in the
+footer or a modal). The form POSTs to:
+
+    POST /subscribe   →   NewsletterController::subscribe()
+
+The controller validates the email, then calls:
+
+    NewsletterService::saveSubscriber([
+        'subscriber_email'     => $email,
+        'subscriber_firstname' => $name,
+    ]);
+
+This inserts a row into the `subscribers` table with:
+
+    subscriber_welcomed = 0   (has not yet received a welcome email)
+    subscriber_active   = 1   (is an active subscriber)
+
+Nothing is emailed immediately. The subscriber is simply stored, ready for an
+admin to queue a welcome email at their discretion.
+
+
+6.3  The subscribers Table — active vs inactive
+-------------------------------------------------
+Every subscriber row carries two status flags:
+
+  subscriber_active    1 = active, receives emails
+                       0 = inactive (unsubscribed), never receives emails
+
+  subscriber_welcomed  0 = new subscriber, has not been sent a welcome email yet
+                       1 = has been welcomed — this is a regular subscriber now
+
+These two flags control two different things:
+
+  - subscriber_active controls whether emails are EVER sent to this person.
+    When someone clicks the Unsubscribe link in any email, the system calls
+    Subscribers::deactivateByEmail() which sets subscriber_active = 0. They
+    will never appear in bulk send selections again.
+
+  - subscriber_welcomed controls which email template is used for the FIRST send.
+    An admin sees "new subscribers" (welcomed=0) separately in the dashboard
+    so they can be given a welcome email. Once a welcome email is sent and
+    delivered, the scheduler sets subscriber_welcomed = 1.
+
+A subscriber can be active=1 and welcomed=0 (new, awaiting welcome email),
+active=1 and welcomed=1 (regular subscriber), or active=0 (unsubscribed —
+welcomed value is irrelevant at this point).
+
+
+6.4  The Admin Newsletter Workflow
+------------------------------------
+Admins manage everything from:
+
+    Admin Dashboard → Subscribers    (manage subscribers, queue emails)
+    Admin Dashboard → Newsletters    (create/edit newsletter records)
+
+Step 1 — Create a newsletter
+
+    Navigate to Newsletters → Create Newsletter. Fill in:
+
+      Subject        — The email subject line
+      Body           — The email body (HTML is supported)
+      Template       — Which email template to use for rendering (see 6.6)
+      Image          — Optional image to attach to the newsletter
+
+    On submit, a row is inserted into the `newsletters` table:
+
+        newsletter_subject   "Our spring collection is here"
+        newsletter_body      "<p>Hello...</p>"
+        newsletter_template  "newsletter"
+        newsletter_image     "assets/images/newsletters/nl_abc123.jpg"  (or NULL)
+
+Step 2 — Queue emails
+
+    Navigate to Subscribers. Two send actions are available:
+
+    a) Send Welcome Email
+       Select one or more new subscribers (welcomed=0) and a newsletter record.
+       This calls NewsletterService::queueWelcomeEmails(), which inserts one
+       row per subscriber into the `pending_emails` table with status='pending'.
+
+    b) Send Bulk Email
+       Select any active subscribers and a newsletter record.
+       This calls NewsletterService::queueBulkEmail() — same mechanics, same
+       table. The distinction between "welcome" and "bulk" is tracked by the
+       subscriber_welcomed flag at send time, not at queue time.
+
+Both actions only insert into pending_emails. No email is sent immediately.
+
+Step 3 — The scheduler sends them (see 6.7)
+
+
+6.5  The pending_emails Table
+-------------------------------
+This table is the outbound email queue. Each row represents one email to be
+sent to one subscriber for one newsletter.
+
+    id                  Primary key (auto-increment)
+    subscriber_id       FK to subscribers
+    subscriber_email    Denormalised email address (for fast access in the job)
+    subscriber_name     Denormalised first name
+    newsletter_id       FK to newsletters
+    newsletter_subject  Denormalised subject
+    status              'pending' | 'sent' | 'failed'
+    tries               Number of send attempts (incremented on failure)
+    last_attempt_at     Timestamp of last attempt
+    sent_at             Timestamp of successful send
+    created_at          When the row was inserted
+
+Denormalising the email/subject onto this table means the job never has to
+join tables — it fetches the newsletter and subscriber fresh on each run to
+get the latest body and image, but has the routing data immediately.
+
+
+6.6  Email Templates and the newsletter_template Field
+-------------------------------------------------------
+When creating a newsletter, the admin picks a template from a dropdown. This
+list is built dynamically by NewsletterService::scanEmailTemplates(), which
+scans two directories and merges the results:
+
+    core/email-views/       Framework default templates
+    views/emails/           App-level overrides (same filename = takes precedence)
+
+Any .php file in either directory appears in the dropdown automatically. To
+add a new newsletter template, simply create the file:
+
+    views/emails/my-template.php
+
+It will appear in the dropdown on the next page load with no further
+configuration needed.
+
+The chosen template name is stored in newsletters.newsletter_template. At
+send time the scheduler reads this value and passes it to DGZ_Messenger:
+
+    $messenger->sendNewsletterMsg(
+        $name, $email, $subject, $subject, $body, $image, '', $template
+    );
+
+DGZ_Messenger then calls its internal renderEmail() method:
+
+    renderEmail($template, [...data...])
+
+which resolves to views/emails/{template}.php (app override) or
+core/email-views/{template}.php (framework default).
+
+IMPORTANT — What variables are available in a newsletter template:
+
+    $subscriber_name    Subscriber's first name
+    $message            The newsletter body HTML (with unsubscribe link appended)
+    $image              Relative path stored in newsletters.newsletter_image
+                        e.g. 'assets/images/newsletters/nl_abc123.jpg'
+    $imageCaption       Currently always '' (reserved for future use)
+    $heading            The newsletter subject (used as the email heading)
+    $appURL             Full base URL of the app (auto-injected)
+    $appName            App name (auto-injected)
+    $appBusinessName    Business name (auto-injected)
+    $appSlogan          Slogan (auto-injected)
+    $accentColour       App colour theme hex value (auto-injected)
+    $appYear            Current year (auto-injected)
+
+Your template file should output inner body HTML only — no <html>, <head>, or
+<body> tags. The layout (layouts/email/defaultEmailLayout.php) wraps it.
+
+Example minimal newsletter template:
+
+    <!-- views/emails/my-template.php -->
+    <p style="font-family:Helvetica,Arial,sans-serif;font-size:16px;color:#444;">
+        Hi <?= htmlspecialchars($subscriber_name) ?>,
+    </p>
+
+    <?php if (!empty($image)): ?>
+    <img src="<?= htmlspecialchars(rtrim($appURL, '/') . '/' . ltrim($image, '/')) ?>"
+         alt="" style="max-width:100%;display:block;margin:0 0 16px;">
+    <?php endif; ?>
+
+    <div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;color:#444;line-height:1.7;">
+        <?= $message ?>
+    </div>
+
+Note: use <?= $message ?> (raw output), NOT htmlspecialchars($message), because
+the newsletter body contains HTML. The unsubscribe link is already appended to
+$message by the scheduler job before it reaches the template.
+
+Why the core newsletter templates escape $message:
+    The framework's core/email-views/newsletter.php uses htmlspecialchars($message)
+    because it was designed for plain-text messages. App-level overrides in
+    views/emails/ use raw output to support HTML bodies. This is the correct
+    pattern — override, don't modify core.
+
+
+6.7  How Newsletter Images Are Handled
+----------------------------------------
+When an admin uploads an image on the Create Newsletter form:
+
+  1. The file is saved to:
+         assets/images/newsletters/nl_<unique_id>.<ext>
+
+  2. The relative path is stored in newsletters.newsletter_image:
+         'assets/images/newsletters/nl_6a2af2ff434b29.jpg'
+
+  3. At send time the scheduler passes this path as $image to the messenger.
+
+  4. In the email template the full URL is constructed as:
+         rtrim($appURL, '/') . '/' . ltrim($image, '/')
+         → https://myapp.com/assets/images/newsletters/nl_6a2af2ff434b29.jpg
+
+  5. This URL is embedded in the <img> tag in the sent email.
+
+Important: the image URL is baked into the email at the moment it is sent.
+If APP_URL changes after sending (e.g. domain migration), old sent emails
+will have broken image links. This is standard behaviour for all email systems.
+
+Local development note: when testing locally, $appURL will be something like
+http://localhost/myapp — a URL that external mail-testing services (Mailtrap,
+etc.) cannot reach. The image tag IS present in the email HTML (you can verify
+by viewing the raw source in Mailtrap), but the image will not render because
+the file is on your local machine. This is expected. Once deployed to a public
+server the images will appear correctly.
+
+
+6.8  The Welcome Email vs The Regular Newsletter
+-------------------------------------------------
+The scheduler distinguishes between a subscriber's first email and all
+subsequent ones using the subscriber_welcomed flag:
+
+    $isFirstSend = empty($subscriber['subscriber_welcomed']);
+
+    if ($isFirstSend) {
+        $messenger->sendNewsletterWelcomeMsg(..., $template ?: 'newsletter-welcome');
+    } else {
+        $messenger->sendNewsletterMsg(..., $template ?: 'newsletter');
+    }
+
+If the newsletter's template field is empty or unset, the system falls back to
+the appropriate default:
+
+  First send     → 'newsletter-welcome'  (core/email-views/newsletter-welcome.php)
+  Subsequent     → 'newsletter'          (core/email-views/newsletter.php)
+
+After a successful first send, the scheduler marks the subscriber as welcomed:
+
+    $subscribers->markAsWelcomed($subscriberId);
+    // sets subscriber_welcomed = 1
+
+From this point on, all future sends for this subscriber use sendNewsletterMsg().
+
+The practical implication: if you select a specific template on the newsletter
+record, that same template is used whether it is a first send or a repeat send.
+The welcome/regular distinction affects the fallback default only.
+
+
+6.9  The Unsubscribe Flow
+--------------------------
+Every email sent by the scheduler includes an unsubscribe link in the footer.
+The link is appended directly to the newsletter body ($message) by the job
+before passing it to the messenger:
+
+    $unsubscribeUrl = rtrim($baseUrl, '/') . '/unsubscribe?email=' . urlencode($email);
+    $body = $newsletter['newsletter_body']
+        . '<p style="...">You are receiving this because you subscribed. '
+        . '<a href="' . htmlspecialchars($unsubscribeUrl) . '">Unsubscribe</a>'
+        . '</p>';
+
+When the subscriber clicks the link:
+
+    GET /unsubscribe?email=user@example.com
+    → NewsletterController::unsubscribe()
+    → NewsletterService::unsubscribeByEmail($email)
+    → Subscribers::deactivateByEmail($email)   sets subscriber_active = 0
+
+The subscriber sees a confirmation page. They will never receive emails again
+(the active=0 check means they will never be selectable for future sends).
+The system does not reveal whether the email was found — it always shows the
+same confirmation page to prevent email enumeration.
+
+
+6.10  The Scheduler — How It Works
+------------------------------------
+The scheduler is the engine that processes the pending_emails queue. It is
+NOT a background daemon — it is a one-shot CLI command:
+
+    php dgz schedule:run
+
+Each time it runs it:
+  1. Loads src/CLI/console/Schedule.php and reads all registered tasks
+  2. For each task, checks whether its frequency filter is satisfied
+     (e.g. ->everyMinute() means "run if at least 60 seconds have elapsed
+     since the last run" — it does NOT mean "loop forever every minute")
+  3. Acquires a DB lock (dgz_scheduled_task_locks table) via ->withoutOverlapping()
+     to prevent two concurrent runs of the same job
+  4. Dispatches the job — for QUEUE_DRIVER=sync this calls handle() immediately
+  5. Releases the lock
+  6. Exits
+
+The SendPendingEmailsJob is registered in src/CLI/console/Schedule.php:
+
+    $schedule->job(\Dorguzen\Jobs\SendPendingEmailsJob::class)
+             ->everyMinute()
+             ->withoutOverlapping();
+
+Each run of handle() processes up to 50 pending rows and marks each one
+as 'sent' or 'failed'. If a send fails, the row stays as 'failed' and the
+tries counter is incremented — it will NOT be retried automatically unless
+you reset the status to 'pending' manually.
+
+
+6.11  Running the Scheduler
+-----------------------------
+
+Option A — Manual run (development / testing)
+
+    cd /path/to/your/app
+    php dgz schedule:run
+
+Run this after queuing emails to process them immediately. Useful during
+development when you want to trigger sends on demand.
+
+
+Option B — Server cron job (recommended for production)
+
+Set up a cron job on your server that calls the scheduler every minute.
+This is the standard approach used by most PHP frameworks (Laravel, Symfony,
+etc.):
+
+    # crontab -e
+    * * * * * cd /path/to/your/app && php dgz schedule:run >> /dev/null 2>&1
+
+Breaking this down:
+  * * * * *       — fire every minute
+  cd /path/...    — change to the app directory (required — the CLI needs
+                    to find bootstrap/app.php relative to the working dir)
+  php dgz schedule:run  — the one-shot scheduler command
+  >> /dev/null 2>&1     — discard output (or redirect to a log file
+                           e.g. >> /var/log/dgz-scheduler.log 2>&1)
+
+The scheduler's ->everyMinute() filter then controls which registered jobs
+actually run on any given invocation. Cron provides the heartbeat; the
+scheduler provides the frequency logic.
+
+To use a log file instead of discarding output:
+
+    * * * * * cd /path/to/app && php dgz schedule:run >> /var/log/dgz-scheduler.log 2>&1
+
+
+Option C — Supervisor / process manager (alternative to cron)
+
+If your server has Supervisor installed, you can keep a persistent worker
+process running instead of cron:
+
+    [program:dgz-scheduler]
+    command=bash -c "while true; do php dgz schedule:run; sleep 60; done"
+    directory=/path/to/your/app
+    autostart=true
+    autorestart=true
+    stderr_logfile=/var/log/dgz-scheduler.err.log
+    stdout_logfile=/var/log/dgz-scheduler.out.log
+
+This shell loop runs the scheduler, sleeps 60 seconds, then runs it again —
+effectively the same behaviour as a per-minute cron job, but managed by
+Supervisor which handles auto-restart if the process dies.
+
+Which option to use:
+  Development        → Option A (manual, on demand)
+  Shared hosting     → Option B (cron — most hosts provide crontab access)
+  VPS / dedicated    → Option B or C (both work; Supervisor gives better
+                       visibility and auto-restart)
+  Docker / containers → Option C or a dedicated sidecar container running
+                        the cron
+
+
+6.12  The Infrastructure Table: dgz_scheduled_task_locks
+---------------------------------------------------------
+The ->withoutOverlapping() call on a scheduled job uses a database table to
+prevent two concurrent runs of the same job:
+
+    dgz_scheduled_task_locks
+        task_key    VARCHAR  — the job class name (unique key)
+        locked_at   DATETIME — when the lock was acquired
+        expires_at  DATETIME — when the lock should be considered stale
+
+This table must exist in your database. It is NOT created by a migration file
+— it is an infrastructure table that should be created when setting up the
+database for any Dorguzen application. Create it with:
+
+    CREATE TABLE dgz_scheduled_task_locks (
+        task_key   VARCHAR(191) NOT NULL,
+        locked_at  DATETIME     NOT NULL,
+        expires_at DATETIME     NOT NULL,
+        PRIMARY KEY (task_key)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+If this table is missing, ->withoutOverlapping() silently treats every job as
+"already running" and skips it — the scheduler will appear to run but nothing
+will be processed. This is a known gotcha: always verify this table exists
+when setting up a new environment.
+
+
+6.13  End-to-End Summary (Quick Reference)
+--------------------------------------------
+
+  1.  Visitor submits subscribe form
+          POST /subscribe → subscribers table (active=1, welcomed=0)
+
+  2.  Admin creates a newsletter
+          Admin → Newsletters → Create → newsletters table
+
+  3.  Admin queues emails
+          Admin → Subscribers → select subscribers + newsletter
+          → Send Welcome Email or Send Bulk Email
+          → pending_emails table (status='pending')
+
+  4.  Scheduler runs (cron / manual)
+          php dgz schedule:run
+          → SendPendingEmailsJob::handle()
+          → fetches up to 50 pending rows
+          → for each row:
+               a. fetches newsletter record (body, image, template)
+               b. fetches subscriber record (name, email, welcomed flag)
+               c. appends unsubscribe link HTML to body
+               d. calls sendNewsletterWelcomeMsg() [first send]
+                  OR sendNewsletterMsg() [repeat send]
+               e. DGZ_Messenger::renderEmail($template, $data)
+                    → resolves views/emails/{template}.php
+                      OR core/email-views/{template}.php
+                    → wraps in layouts/email/defaultEmailLayout.php
+                    → PHPMailer sends via SMTP
+               f. marks row as 'sent'; if first send, marks subscriber welcomed=1
+               g. on exception: marks row as 'failed', logs error
+
+  5.  Subscriber clicks Unsubscribe in email
+          GET /unsubscribe?email=... → subscriber_active = 0
+          → subscriber never receives emails again
 
 
 
@@ -18274,3 +20447,320 @@ This helps you understand how to set up your computer to code in your chosen pro
   the ability to roll back database 
   migrations.
 -The other option is to learn git.
+
+
+——————————————————————————————————————————————————————————————————
+  NEWSLETTER & EMAIL SYSTEM
+——————————————————————————————————————————————————————————————————
+
+Overview
+————————
+
+  Dorguzen ships with a complete newsletter and subscriber management system
+  out of the box. Any DGZ application that has run the newsletter migrations
+  gets two database tables (subscribers and newsletters), two models, a
+  service layer, and a full admin UI for creating newsletters, managing
+  subscribers, and dispatching email campaigns.
+
+  The system is split into two distinct phases:
+
+    Phase 1 — Admin creates newsletters and selects recipients.
+              The controller calls NewsletterService::queueWelcomeEmails()
+              or queueBulkEmail(), which writes one row into pending_emails
+              for every selected subscriber. The HTTP request returns
+              immediately; no email is sent inline.
+
+    Phase 2 — The Dorguzen scheduler runs SendPendingEmailsJob on a
+              cron-like schedule. The task picks up pending rows in batches
+              of 50, renders each email template, sends via DGZ_Messenger
+              (PHPMailer / SMTP), and marks the row as 'sent' or 'failed'.
+
+  This two-phase design keeps HTTP response times fast regardless of how
+  many recipients are in the list and gives you full visibility into the
+  sending state through a single database table.
+
+
+The pending_emails Queue Table
+——————————————————————————————
+
+  The pending_emails table acts as a durable, inspectable queue between
+  the admin action and the actual SMTP call. Every outbound newsletter
+  email starts life as a row in this table.
+
+  Key columns:
+
+    id                  Auto-increment primary key.
+    subscriber_id       FK to subscribers.subscriber_id.
+    subscriber_email    Denormalised email address — avoids a join per row
+                        during bulk sends.
+    subscriber_name     Denormalised first name used in the template greeting.
+    newsletter_id       FK to newsletters.newsletter_id.
+    newsletter_subject  Denormalised subject — cached at queue time so that
+                        an admin editing the newsletter mid-send does not
+                        break in-flight emails.
+    status              enum('pending','sent','failed'). Default 'pending'.
+    tries               Integer counter incremented on each failed attempt.
+    last_attempt_at     Timestamp of the most recent send attempt, whether
+                        it succeeded or failed.
+    scheduled_at        Optional future date-time; not enforced by the task
+                        itself but useful if you want to implement deferred
+                        sends at the application layer.
+    sent_at             Set to NOW() when status transitions to 'sent'.
+    created_at          Set automatically by the database on INSERT.
+    updated_at          Updated automatically by the database on every change.
+
+  Status lifecycle:
+
+      pending  →  sent      (happy path)
+      pending  →  failed    (SMTP error, missing subscriber, missing template)
+
+  Failed rows are NOT automatically retried. Retrying is a deliberate
+  action — you can reset rows to 'pending' with a direct SQL UPDATE and
+  they will be picked up on the next scheduler run.
+
+  To inspect the queue directly:
+
+      SELECT status, COUNT(*) AS n FROM pending_emails GROUP BY status;
+
+      SELECT * FROM pending_emails WHERE status = 'failed' ORDER BY created_at DESC;
+
+  The tries column tells you how many attempts were made before the row
+  was abandoned, and last_attempt_at tells you when.
+
+
+How Email Sending Works
+———————————————————————
+
+  The full flow from admin action to delivered email:
+
+    1. Admin visits /admin/subscribers, selects one or more subscribers,
+       picks a newsletter, and clicks Send Welcome Emails or Send Bulk.
+
+    2. NewsletterController calls NewsletterService::queueWelcomeEmails()
+       or queueBulkEmail(). Both methods delegate to the same internal
+       insertPendingRows() helper, which:
+         a. Loads the newsletter row to get the subject.
+         b. Loads each subscriber row to get the email address and name.
+         c. INSERTs one row into pending_emails per subscriber.
+       The controller immediately redirects back with a flash message
+       confirming how many emails were queued.
+
+    3. The Dorguzen scheduler runs php dgz schedule:run once per minute
+       (or on whatever cadence you configure). ScheduleRunCommand calls
+       ScheduleLoader::load(), which requires src/CLI/console/Schedule.php
+       and calls the closure inside it with a Schedule object.
+
+    4. Schedule.php registers SendPendingEmailsJob as a job with
+       ->everyMinute()->withoutOverlapping(). When the task is due,
+       Scheduler::runJob() instantiates the class and calls dispatch(),
+       which in turn calls handle() via the QueueManager.
+
+    5. SendPendingEmailsJob::handle() calls
+       PendingEmails::getPendingEmails(50) and iterates the rows.
+       For each row:
+         a. Loads the newsletter and subscriber from their respective models.
+         b. Resolves the template file from views/emails/{template_name}.php,
+            falling back to views/emails/welcome_mail.php if the file is missing.
+         c. Extracts variables into scope and renders the template using
+            output buffering (ob_start / ob_get_clean).
+         d. Calls DGZ_Messenger::sendNewsletterMsg() with the rendered HTML.
+         e. On success: calls PendingEmails::markSent() and (for first-time
+            recipients) Subscribers::markAsWelcomed().
+         f. On failure: catches the Throwable, logs it, calls
+            PendingEmails::markFailed().
+
+    6. DGZ_Messenger uses PHPMailer internally. It reads SMTP credentials
+       from .env at construction time and sends via the configured host.
+
+
+Email Templates
+———————————————
+
+  Email templates live in views/emails/ inside your DGZ application.
+  Each template is a plain PHP file rendered using output buffering.
+  The rendered string is passed directly to DGZ_Messenger as the HTML body.
+
+  Variables available inside every newsletter template:
+
+    $subscriber_firstname    The subscriber's first name (may be empty).
+    $newsletter_subject      The newsletter's subject line.
+    $newsletter_body         The newsletter's main body content (HTML string
+                             as stored in the newsletters table).
+    $newsletter_image_url    Fully qualified URL to the newsletter image,
+                             or empty string if none was uploaded.
+    $site_name               The application name from Config (APP_NAME in .env).
+    $unsubscribe_url         A pre-built unsubscribe link:
+                             {base_url}unsubscribe?email={encoded_email}
+
+  To create a new email template:
+
+    1. Add a .php file to views/emails/, for example views/emails/promo.php.
+    2. Use the variables listed above anywhere in the file.
+    3. The template scanner (NewsletterService::scanEmailTemplates()) discovers
+       all .php files in that directory automatically, so the new template
+       appears in the admin Create Newsletter dropdown without any further
+       configuration.
+
+  The scanEmailTemplates() method:
+
+      It uses glob() to find all *.php files in views/emails/, strips the
+      .php extension, sorts the names alphabetically, and returns the array.
+      This array is passed to the create-newsletter view as $templates. Adding
+      a file is the only registration step required.
+
+  Note: DGZ_Messenger also has its own renderEmail() method, which wraps
+  content views in an email layout from layouts/email/. That method is used
+  by the built-in contact-form and password-reset emails, but newsletter
+  emails use the raw template approach (include + ob_start) so that admins
+  get full HTML control over the newsletter layout.
+
+
+Powering It with the Dorguzen Scheduler
+—————————————————————————————————————————
+
+  Dorguzen includes an internal task scheduler that removes the need for
+  a cPanel cron job or a shell-level crontab entry for most scheduled work.
+
+  Architecture:
+
+    Schedule           — a fluent registry of tasks (command, job, or event)
+                         defined in src/CLI/console/Schedule.php.
+    ScheduleLoader     — loads that file and returns the populated Schedule
+                         object to the runner.
+    ScheduleRunCommand — the CLI command (schedule:run) that iterates tasks,
+                         checks whether each is due, and calls Scheduler::run().
+    Scheduler          — dispatches the task to the correct subsystem
+                         (CLI, queue, or event bus) and enforces overlap locking.
+
+  Registering SendPendingEmailsJob:
+
+    In src/CLI/console/Schedule.php return a closure that accepts a Schedule
+    instance and registers the job:
+
+        use Dorguzen\Core\Console\Scheduling\Schedule;
+
+        return function (Schedule $schedule): void {
+            $schedule->job(\Dorguzen\Jobs\SendPendingEmailsJob::class)
+                     ->everyMinute()
+                     ->withoutOverlapping();
+        };
+
+    The ->withoutOverlapping() call acquires a database lock when the task
+    starts. If the previous run has not finished (e.g. a large batch is
+    still sending), the new run is skipped silently, preventing duplicate
+    sends.
+
+  Starting the scheduler:
+
+      php dgz schedule:run
+
+  IMPORTANT — this is a one-shot command. Each invocation:
+    1. Checks which registered tasks are due right now.
+    2. Runs any that are due.
+    3. Exits.
+
+  It does NOT stay running in the background or loop by itself. The
+  ->everyMinute() / ->hourly() / ->dailyAt() calls are filters — they
+  tell the scheduler "only run this task when the command is invoked AND
+  the required interval has elapsed since the last run." They do not make
+  the command self-perpetuating.
+
+  To achieve continuous, automatic execution you need something external
+  to invoke php dgz schedule:run repeatedly (see the production
+  recommendation below).
+
+  Available frequency helpers on a registered task:
+
+      ->everyMinute()          runs every minute (* * * * *)
+      ->hourly()               runs at the top of every hour
+      ->daily()                runs at midnight every day
+      ->dailyAt('08:00')       runs at 08:00 every day
+      ->weekly()               runs at midnight on Sunday
+      ->monthly()              runs at midnight on the 1st of each month
+      ->cron('*/5 * * * *')    raw cron expression for any other cadence
+
+  Production recommendation:
+
+    Use Supervisor (or an equivalent process manager) to keep a loop alive
+    that fires php dgz schedule:run every minute:
+
+        [program:dgz-scheduler]
+        command=bash -c "while true; do php /path/to/app/dgz schedule:run; sleep 60; done"
+        autostart=true
+        autorestart=true
+
+    On shared hosting without Supervisor, a single crontab entry that runs
+    the command every minute achieves the same result:
+
+        * * * * * php /path/to/app/dgz schedule:run >> /dev/null 2>&1
+
+    Either way, only one entry point is needed — the Schedule.php file
+    controls everything else from inside the codebase.
+
+
+Why Not Sync Queue / RabbitMQ / Standard Cron?
+————————————————————————————————————————————————
+
+  Sync queue (QUEUE_DRIVER=sync):
+    Jobs run inline before the HTTP response is returned. For a list of
+    500 subscribers this means the admin waits 30–90 seconds for the page
+    to load, often hitting PHP's max_execution_time limit. Sync is fine for
+    development but unsuitable for any list with more than a handful of
+    recipients.
+
+  RabbitMQ:
+    RabbitMQ is the right tool for very high-throughput messaging at scale.
+    However it requires a separate broker process, additional system
+    dependencies (php-amqplib), and familiarity with exchange/queue
+    topology. For a newsletter feature on a self-hosted PHP application
+    this is significant infrastructure overhead.
+
+  Standard cron (server-level crontab or cPanel scheduler):
+    Cron works, but it requires SSH or hosting-panel access to configure,
+    is not part of the codebase, and is easy to lose track of across
+    deployments. New team members have no visibility into what is scheduled
+    unless they check the server.
+
+  Dorguzen Scheduler:
+    The scheduler runs inside the application process, is registered in
+    plain PHP (src/CLI/console/Schedule.php), is version-controlled
+    alongside the rest of the code, requires no external services, and
+    works identically on a local Mac, a shared hosting account, and a
+    cloud VPS. The pending_emails table provides full observability into
+    what was sent, when, and whether it failed.
+
+
+SMTP Configuration
+——————————————————
+
+  DGZ_Messenger reads all mail settings from .env at construction time.
+  No code changes are needed to switch between providers.
+
+  Required .env keys:
+
+    MAIL_HOST          SMTP hostname, e.g. smtp.mailgun.org or
+                       sandbox.smtp.mailtrap.io
+    MAIL_PORT          SMTP port, typically 587 (STARTTLS) or 465 (SSL)
+    MAIL_USERNAME      SMTP authentication username
+    MAIL_PASSWORD      SMTP authentication password
+    MAIL_ENCRYPTION    tls or ssl
+    MAIL_FROM_ADDRESS  The From address recipients see, e.g.
+                       noreply@yourdomain.com
+    MAIL_FROM_NAME     The From name recipients see, e.g. "Your App Name"
+
+  Development:
+    Point at Mailtrap (https://mailtrap.io) or any local mail catcher.
+    Mailtrap provides sandbox SMTP credentials that capture all outbound
+    email without delivering it to real inboxes. Set MAIL_HOST to
+    sandbox.smtp.mailtrap.io and MAIL_PORT to 587.
+
+  Production:
+    Any transactional SMTP provider works: Mailgun, SendGrid, Amazon SES,
+    Postmark, or your web host's own SMTP server. Copy the provider's SMTP
+    credentials into .env and set LIVE_ENV=true.
+
+  DGZ_Messenger uses PHPMailer under the hood. PHPMailer is included as a
+  Composer dependency — no additional installation is required. The
+  messenger initialises a single PHPMailer instance in its constructor and
+  reuses it across method calls within the same request/task run, calling
+  clearAddresses() between sends to avoid recipient accumulation.
