@@ -18,7 +18,11 @@ class home extends \Dorguzen\Core\DGZ_HtmlView
         <div class="container my-5 py-5 px-lg-5">
             <div class="row g-5 py-5">
                 <div class="col-12 text-center">
-                    <h1 class="text-white animated slideInDown">Dorguzen</h1>
+                    <div class="animated slideInDown mb-4">
+                        <img src="<?=$this->controller->config->getFileRootPath()?>assets/images/dorguzen-logo.png"
+                             alt="Dorguzen"
+                             style="height:200px; width:auto; background:#fff; border-radius:50%; padding:24px; box-shadow:0 4px 24px rgba(0,0,0,0.18);">
+                    </div>
                     <h1 class="text-white animated slideInDown">Powerful PHP Framework. No Black Box.</h1>
                     <hr class="bg-white mx-auto mt-0" style="width: 90px;">
                     <nav aria-label="breadcrumb">
@@ -42,8 +46,6 @@ class home extends \Dorguzen\Core\DGZ_HtmlView
 
     <!-- START SIDE SLIDE-IN MENU -->
     <?php
-    $slideInMenu = \Dorguzen\Core\DGZ_View::getInsideView('sideSlideInMenuPartial', $this->controller);
-    $slideInMenu->show();
     ?>
     <!-- END OF SIDE SLIDE-IN MENU -->
 

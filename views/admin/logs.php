@@ -15,7 +15,7 @@ class logs extends \Dorguzen\Core\DGZ_AdminHtmlView
           $jsValidation = \Dorguzen\Core\DGZ_View::getInsideView('sideSlideInMenuPartial', $this->controller);
           $jsValidation->show();
           ?>
-          <!-- END OF SIDE SLIDE-IN MENU -->  
+          <!-- END OF SIDE SLIDE-IN MENU -->
 
           <!-- ==========================
           BREADCRUMB - START
@@ -62,12 +62,19 @@ class logs extends \Dorguzen\Core\DGZ_AdminHtmlView
                          <div class="container">
 
                               <div class="row">
-                              <h2 style="color:#000;" class="text-center">General Log Feed</h2>
-                                   <?php
-                                   if ($logs) {
+                                   <div class="col-12 d-flex align-items-center justify-content-between mb-3">
+                                        <h2 style="color:#000;" class="mb-0">General Log Feed</h2>
+                                        <?php if ($totalCount > 0) { ?>
+                                        <small class="text-muted">
+                                             Showing <?= (($pageNum - 1) * $perPage) + 1 ?>–<?= min($pageNum * $perPage, $totalCount) ?> of <?= $totalCount ?> entries
+                                        </small>
+                                        <?php } ?>
+                                   </div>
+
+                                   <?php if ($logs) {
                                         foreach ($logs as $log) {
-                                             $title = $log['logs_title'];
-                                             $message = $log['logs_message'];
+                                             $title        = $log['logs_title'];
+                                             $message      = $log['logs_message'];
                                              $date_created = date("d-m-Y", strtotime($log['logs_created'])); ?>
 
                                              <div class="col-md-12 well">
@@ -75,53 +82,63 @@ class logs extends \Dorguzen\Core\DGZ_AdminHtmlView
                                                        <div class="card-header">
                                                             <h3>
                                                                  <i class="fa fa-bullhorn section-title-icon"></i>&nbsp;<span
-                                                                      class="col-form-label"><b><?= $title ?></b> (<?=$date_created?>)</span>
+                                                                      class="col-form-label"><b><?= $title ?></b> (<?= $date_created ?>)</span>
                                                             </h3>
                                                        </div>
-
                                                        <div class="card-body">
                                                             <div class="container bg-light p-2">
                                                                  <div class="row">
                                                                       <div class="col-md-2 col-sm-12">
-                                                                           <span class="font-weight-bold section-title"> Message:</span>
+                                                                           <span class="font-weight-bold section-title">Message:</span>
                                                                       </div>
-
                                                                       <div class="col-md-10 col-sm-12">
-                                                                           <div id="policy-number"
-                                                                                class="bg-white rounded-top p1-2">
+                                                                           <div class="bg-white rounded-top p1-2">
                                                                                 <p><?= $message ?></p>
                                                                            </div>
                                                                       </div>
                                                                  </div>
-                                                                 <div class="row">
-                                                                      <div class="col-md-6 col-sm-12">
-                                                                           <div class="row">
-                                                                                <div class="col-md-4 col-sm-12">
-                                                                                     <span
-                                                                                     class="font-weight-bold section-title">Date:</span>
-                                                                                </div>
-
-                                                                                <div class="col-md-8 col-sm-12">
-                                                                                     <div id="policy-number"
-                                                                                          class="bg-white rounded-top p1-2">
-                                                                                          <small><?= $date_created ?></small>
-                                                                                     </div>
-                                                                                </div>
-                                                                           </div>
+                                                                 <div class="row mt-2">
+                                                                      <div class="col-md-2 col-sm-12">
+                                                                           <span class="font-weight-bold section-title">Date:</span>
+                                                                      </div>
+                                                                      <div class="col-md-10 col-sm-12">
+                                                                           <small><?= $date_created ?></small>
                                                                       </div>
                                                                  </div>
                                                             </div>
                                                        </div>
                                                   </div>
                                              </div>
-                                             <?php
-                                        }
-                                   }
-                                   else
-                                   { ?>
-                                        <h3>There are no logs yet</h3>     
-                                   <?php
-                                   } ?>
+                                        <?php }
+                                   } else { ?>
+                                        <h3>There are no logs yet</h3>
+                                   <?php } ?>
+
+                                   <?php if ($numPages > 1) {
+                                        $baseUrl = $this->controller->config->getFileRootPath() . 'admin/log'; ?>
+                                   <div class="col-12 mt-4">
+                                        <nav aria-label="Log pagination">
+                                             <ul class="pagination justify-content-center flex-wrap">
+
+                                                  <li class="page-item <?= $isFirstPage ? 'disabled' : '' ?>">
+                                                       <a class="page-link" href="<?= $baseUrl ?>?pageno=<?= $pageNum - 1 ?>">&#8249; Prev</a>
+                                                  </li>
+
+                                                  <?php for ($p = 1; $p <= $numPages; $p++) { ?>
+                                                  <li class="page-item <?= $p === $pageNum ? 'active' : '' ?>">
+                                                       <a class="page-link" href="<?= $baseUrl ?>?pageno=<?= $p ?>"><?= $p ?></a>
+                                                  </li>
+                                                  <?php } ?>
+
+                                                  <li class="page-item <?= $isLastPage ? 'disabled' : '' ?>">
+                                                       <a class="page-link" href="<?= $baseUrl ?>?pageno=<?= $pageNum + 1 ?>">Next &#8250;</a>
+                                                  </li>
+
+                                             </ul>
+                                        </nav>
+                                   </div>
+                                   <?php } ?>
+
                               </div>
                          </div>
                     </div>

@@ -46,8 +46,6 @@ class howToActivateEmailAfterRegis extends \Dorguzen\Core\DGZ_HtmlView
                          <!-- START SIDE SLIDE-IN MENU -->
                          <?php
                          //Pull in the PHP file that has the JS code that handles all the JS to do with placing an ad
-                         $slideInMenu = \Dorguzen\Core\DGZ_View::getInsideView('sideSlideInMenuPartial', $this->controller);
-                         $slideInMenu->show();
                          ?>
                          <!-- END OF SIDE SLIDE-IN MENU --> 
 

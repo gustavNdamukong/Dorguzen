@@ -33,8 +33,14 @@ class seoMasterLayout extends \Dorguzen\Core\DGZ_Layout {
 			<!-- Include custom styles meant for individual views. These can override those set above -->
 			 <?= $this->getCssHtml()  ?>
 
-
 			<?php include('html_dependencies_top.inc.php'); ?>
+
+			<?php
+			// Inject DB-driven theme colour. Falls back silently if the setting is missing.
+			$_dgzTheme = $this->config->getAppColorTheme();
+			if (!empty($_dgzTheme)) { ?>
+			<style>:root { --site-theme: <?= htmlspecialchars($_dgzTheme, ENT_QUOTES) ?>; }</style>
+			<?php } ?>
 		</head>
 		<body>
 
@@ -108,8 +114,8 @@ class seoMasterLayout extends \Dorguzen\Core\DGZ_Layout {
 					BRAND SLIDER - START
 				=========================== -->
 				<?php
-				$baseSettings = $this->config->getBaseSettings();
-				if ($baseSettings['show_brand_slider'] == 'true') {
+				if ($this->showImageSlider) {
+					$baseSettings = $this->config->getBaseSettings();
 					$srcDir      = $baseSettings['brand_slider_source'] ?? 'assets/images/gallery';
 					$fullDirPath = rtrim(DGZ_BASE_PATH, '/') . '/' . ltrim($srcDir, '/');
 					$brandImages = glob($fullDirPath . '/*.{jpg,jpeg,png,gif,webp}', GLOB_BRACE) ?: [];

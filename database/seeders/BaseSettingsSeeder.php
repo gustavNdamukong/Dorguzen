@@ -19,7 +19,7 @@ class BaseSettingsSeeder extends Seeder
                     `settings_name`, `settings_value`) 
                 VALUES ('show_brand_slider', 'true'),
                 ('brand_slider_source', 'assets/images/gallery'),
-                ('app_color_theme', 'blue')";
+                ('app_color_theme', '#0d6efd')";
 
         $this->db->execute($sql);
     }

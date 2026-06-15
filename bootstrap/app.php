@@ -27,9 +27,24 @@ use Dorguzen\Models\Password_reset;
 use Dorguzen\Models\ContactFormMessage;
 use Dorguzen\Models\BaseSettings;
 use Dorguzen\Models\Refresh_tokens;
+use Dorguzen\Models\News;
 use Dorguzen\Services\AuthService;
 use Dorguzen\Services\AdminService;
 use Dorguzen\Services\FeedbackService;
+use Dorguzen\Services\NewsService;
+use Dorguzen\Modules\Gallery\Models\GalleryAlbum;
+use Dorguzen\Modules\Gallery\Models\GalleryImage;
+use Dorguzen\Modules\Gallery\Services\GalleryService;
+use Dorguzen\Modules\Gallery\Services\GalleryAdminService;
+use Dorguzen\Modules\Videos\Models\VideoAlbum;
+use Dorguzen\Modules\Videos\Models\Video;
+use Dorguzen\Modules\Videos\Services\VideoService;
+use Dorguzen\Modules\Videos\Services\VideoAdminService;
+use Dorguzen\Modules\Blog\Models\BlogCategory;
+use Dorguzen\Modules\Blog\Models\BlogPost;
+use Dorguzen\Modules\Blog\Models\BlogComment;
+use Dorguzen\Modules\Blog\Services\BlogService;
+use Dorguzen\Modules\Blog\Services\BlogAdminService;
 
 
 /**
@@ -87,6 +102,7 @@ $container->singleton(Password_reset::class,   fn($c) => new Password_reset($c->
 $container->singleton(ContactFormMessage::class, fn($c) => new ContactFormMessage($c->get(Config::class)));
 $container->singleton(BaseSettings::class,     fn($c) => new BaseSettings($c->get(Config::class)));
 $container->singleton(Refresh_tokens::class,   fn($c) => new Refresh_tokens($c->get(Config::class)));
+$container->singleton(News::class,             fn($c) => new News($c->get(Config::class)));
 
 // Services
 $container->singleton(AuthService::class, fn($c) => new AuthService(
@@ -104,6 +120,50 @@ $container->singleton(AdminService::class, fn($c) => new AdminService(
 
 $container->singleton(FeedbackService::class, fn($c) => new FeedbackService(
     $c->get(ContactFormMessage::class),
+));
+
+$container->singleton(NewsService::class, fn($c) => new NewsService(
+    $c->get(News::class),
+));
+
+// Gallery module
+$container->singleton(GalleryAlbum::class,  fn($c) => new GalleryAlbum($c->get(Config::class)));
+$container->singleton(GalleryImage::class,  fn($c) => new GalleryImage($c->get(Config::class)));
+$container->singleton(GalleryService::class, fn($c) => new GalleryService(
+    $c->get(GalleryAlbum::class),
+    $c->get(GalleryImage::class),
+));
+$container->singleton(GalleryAdminService::class, fn($c) => new GalleryAdminService(
+    $c->get(GalleryAlbum::class),
+    $c->get(GalleryImage::class),
+));
+//--------------------------------------------------------------------------------------
+
+// Videos module
+$container->singleton(VideoAlbum::class, fn($c) => new VideoAlbum($c->get(Config::class)));
+$container->singleton(Video::class,      fn($c) => new Video($c->get(Config::class)));
+$container->singleton(VideoService::class, fn($c) => new VideoService(
+    $c->get(VideoAlbum::class),
+    $c->get(Video::class),
+));
+$container->singleton(VideoAdminService::class, fn($c) => new VideoAdminService(
+    $c->get(VideoAlbum::class),
+    $c->get(Video::class),
+));
+
+// Blog module
+$container->singleton(BlogCategory::class,     fn($c) => new BlogCategory($c->get(Config::class)));
+$container->singleton(BlogPost::class,         fn($c) => new BlogPost($c->get(Config::class)));
+$container->singleton(BlogComment::class,      fn($c) => new BlogComment($c->get(Config::class)));
+$container->singleton(BlogService::class, fn($c) => new BlogService(
+    $c->get(BlogCategory::class),
+    $c->get(BlogPost::class),
+    $c->get(BlogComment::class),
+));
+$container->singleton(BlogAdminService::class, fn($c) => new BlogAdminService(
+    $c->get(BlogCategory::class),
+    $c->get(BlogPost::class),
+    $c->get(BlogComment::class),
 ));
 //--------------------------------------------------------------------------------------
 

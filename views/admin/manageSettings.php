@@ -87,50 +87,36 @@ class manageSettings extends \Dorguzen\Core\DGZ_AdminHtmlView
                                                          }
 
 
-                                                         if ($val['settings_name'] == 'app_color_theme') { ?>
-                                                             <label for="app_color_theme">Choose your app's color theme</label>
-                                                             <select id="app_color_theme" name="app_color_theme" class="form-control">
-                                                                 <option
-                                                                     value="blue" <?= $val['settings_value'] == 'blue' ? 'selected="true"' : '' ?>>
-                                                                     Blue
-                                                                 </option>
-                                                                 <option
-                                                                     value="brown" <?= $val['settings_value'] == 'brown' ? 'selected="true"' : '' ?>>
-                                                                     Brown
-                                                                 </option>
-                                                                 <option
-                                                                     value="dark-blue" <?= $val['settings_value'] == 'dark-blue' ? 'selected="true"' : '' ?>>
-                                                                     Dark-blue
-                                                                 </option>
-                                                                 <option
-                                                                     value="dark-red" <?= $val['settings_value'] == 'dark-red' ? 'selected="true"' : '' ?>>
-                                                                     Dark-red
-                                                                 </option>
-                                                                 <option
-                                                                     value="green" <?= $val['settings_value'] == 'green' ? 'selected="true"' : '' ?>>
-                                                                     Green
-                                                                 </option>
-                                                                 <option
-                                                                     value="light-green" <?= $val['settings_value'] == 'light-green' ? 'selected="true"' : '' ?>>
-                                                                     Light-green
-                                                                 </option>
-                                                                 <option
-                                                                     value="orange" <?= $val['settings_value'] == 'orange' ? 'selected="true"' : '' ?>>
-                                                                     Orange
-                                                                 </option>
-                                                                 <option
-                                                                     value="purple" <?= $val['settings_value'] == 'purple' ? 'selected="true"' : '' ?>>
-                                                                     Purple
-                                                                 </option>
-                                                                 <option
-                                                                     value="red" <?= $val['settings_value'] == 'red' ? 'selected="true"' : '' ?>>
-                                                                     Red
-                                                                 </option>
-                                                                 <option
-                                                                     value="yellow" <?= $val['settings_value'] == 'yellow' ? 'selected="true"' : '' ?>>
-                                                                     Yellow
-                                                                 </option>
-                                                             </select>
+                                                         if ($val['settings_name'] == 'app_color_theme') {
+                                                             // Normalise legacy named values so the colour picker always gets a hex value
+                                                             $themeVal = $val['settings_value'];
+                                                             $legacyMap = [
+                                                                 'blue'        => '#0d6efd',
+                                                                 'dark-blue'   => '#3949ab',
+                                                                 'brown'       => '#795548',
+                                                                 'dark-red'    => '#b71c1c',
+                                                                 'green'       => '#198754',
+                                                                 'light-green' => '#65a30d',
+                                                                 'orange'      => '#fd7e14',
+                                                                 'purple'      => '#6f42c1',
+                                                                 'red'         => '#dc3545',
+                                                                 'yellow'      => '#ffc107',
+                                                             ];
+                                                             if (isset($legacyMap[$themeVal])) {
+                                                                 $themeVal = $legacyMap[$themeVal];
+                                                             }
+                                                             ?>
+                                                             <div class="mb-3">
+                                                                 <label for="app_color_theme" class="form-label fw-semibold">App colour theme</label>
+                                                                 <div class="d-flex align-items-center gap-2 mt-1">
+                                                                     <input type="color"
+                                                                            id="app_color_theme"
+                                                                            name="app_color_theme"
+                                                                            value="<?= htmlspecialchars($themeVal, ENT_QUOTES) ?>"
+                                                                            style="width:60px;height:40px;border:1px solid #ced4da;border-radius:8px;cursor:pointer;padding:2px;">
+                                                                     <span class="text-muted small">Pick any colour — becomes your site's primary theme on save.</span>
+                                                                 </div>
+                                                             </div>
                                                              <hr/>
                                                              <?php
                                                          }

@@ -36,7 +36,12 @@ RewriteRule ^ index.php [L]
 # ------------------------------- PHP upload limits
 #increase the PHP max file upload size and max post size to enable the uploading of bigger files
 <IfModule mod_php7.c>
-   php_value upload_max_filesize 2G
-   php_value post_max_size 2G
-   php_value memory_limit 900M
+   php_value upload_max_filesize 50M
+   php_value post_max_size 50M
+   php_value memory_limit 256M
+</IfModule>
+<IfModule mod_php8.c>
+   php_value upload_max_filesize 50M
+   php_value post_max_size 50M
+   php_value memory_limit 256M
 </IfModule>
