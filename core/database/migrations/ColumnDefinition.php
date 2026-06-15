@@ -20,6 +20,12 @@ class ColumnDefinition
         return $this;
     }
 
+    public function unsigned(): self
+    {
+        $this->type = rtrim($this->type) . ' UNSIGNED';
+        return $this;
+    }
+
     public function nullable(): self
     {
         $this->modifiers[] = 'NULL';

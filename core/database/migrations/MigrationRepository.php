@@ -34,6 +34,11 @@ class MigrationRepository
         ";
 
         $this->db->execute($sql);
+
+        // Fix legacy tables where created_at was created without DEFAULT CURRENT_TIMESTAMP
+        $this->db->execute(
+            "ALTER TABLE {$this->table} MODIFY COLUMN created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP"
+        );
     }
 
 

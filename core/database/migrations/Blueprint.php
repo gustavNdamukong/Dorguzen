@@ -30,21 +30,22 @@ class Blueprint
     }
 
     /**
-     * primaryKey allows developers to add another primary key field to a table.
-     * This can be handly for example, when creating primary key fields that are 
-     * not auto-incremented, or multiple primary key fields on a cross-reference tables.
-     * @param string $pkField
-     * @return ColumnDefinition
+     * Declare a PRIMARY KEY constraint over one or more already-defined columns.
+     * Use this on cross-reference / pivot tables, or any table where the primary
+     * key should not be auto-incremented.
+     *
+     *   // Single-column PK:
+     *   $table->string('slug'); $table->primaryKey('slug');
+     *
+     *   // Composite PK (pivot table):
+     *   $table->unsignedInteger('user_id'); $table->unsignedInteger('role_id');
+     *   $table->primaryKey('user_id', 'role_id');
      */
-    public function primaryKey(string $pkField): ColumnDefinition
+    public function primaryKey(string ...$fields): self
     {
-        $column = new ColumnDefinition(
-            $pkField,
-            'VARCHAR(255) PRIMARY KEY'
-        );
-
-        $this->columns[] = $column;
-        return $column;
+        $cols = implode(', ', array_map(fn (string $f) => "`{$f}`", $fields));
+        $this->indexes[] = "PRIMARY KEY ({$cols})";
+        return $this;
     }
 
     /**
@@ -189,15 +190,15 @@ class Blueprint
      */
     public function timestamp(string $name): ColumnDefinition
     {
-        $column = new ColumnDefinition($name, 'DATETIME');
+        $column = (new ColumnDefinition($name, 'DATETIME'))->nullable();
         $this->columns[] = $column;
         return $column;
     }
 
     public function timestamps(): self
     {
-        $this->columns[] = new ColumnDefinition("created_at", "DATETIME");
-        $this->columns[] = new ColumnDefinition("updated_at", "DATETIME");
+        $this->columns[] = (new ColumnDefinition("created_at", "DATETIME"))->useCurrent();
+        $this->columns[] = (new ColumnDefinition("updated_at", "DATETIME"))->nullable();
         return $this;
     }
 
@@ -243,7 +244,7 @@ class Blueprint
             $suffix = '';
         }
 
-        $sql = "CREATE TABLE `{$this->table}` (\n    {$this->implodeColumns($cols)}\n){$suffix}";
+        $sql = "CREATE TABLE IF NOT EXISTS `{$this->table}` (\n    {$this->implodeColumns($cols)}\n){$suffix}";
 
         if ($driver === 'sqlite' && !empty($this->separateIndexColumns)) {
             foreach ($this->separateIndexColumns as $col) {

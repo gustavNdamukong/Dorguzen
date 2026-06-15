@@ -154,13 +154,14 @@ class DGZ_Messenger
 
 
     public function sendNewsletterWelcomeMsg(
-        $subscriber_name, 
-        $email, 
+        $subscriber_name,
+        $email,
         $newsletter_heading,
         $newsletter_subject,
         $newsletter_message,
         $newsletter_image,
-        $newsletter_image_caption)
+        $newsletter_image_caption,
+        string $template = 'newsletter-welcome')
     {
 
         /*
@@ -207,7 +208,7 @@ class DGZ_Messenger
         }*/
         //--------------------------
         try {
-            $msg = $this->renderEmail('newsletter-welcome', [
+            $msg = $this->renderEmail($template, [
                 'heading'         => $newsletter_heading,
                 'subscriber_name' => $subscriber_name,
                 'message'         => $newsletter_message,
@@ -236,13 +237,14 @@ class DGZ_Messenger
 
 
     public function sendNewsletterMsg(
-        $subscriber_name, 
-        $email, 
-        $newsletter_heading, 
-        $newsletter_subject, 
+        $subscriber_name,
+        $email,
+        $newsletter_heading,
+        $newsletter_subject,
         $newsletter_message,
         $newsletter_image,
-        $newsletter_image_caption)
+        $newsletter_image_caption,
+        string $template = 'newsletter')
     {
         
 
@@ -275,7 +277,7 @@ class DGZ_Messenger
         }*/
         //--------------------------
         try {
-            $msg = $this->renderEmail('newsletter', [
+            $msg = $this->renderEmail($template, [
                 'heading'         => $newsletter_heading,
                 'subscriber_name' => $subscriber_name,
                 'message'         => $newsletter_message,
@@ -524,6 +526,7 @@ class DGZ_Messenger
             'appURL'          => $this->_appURL,
             'appYear'         => date('Y'),
             'heading'         => '',
+            'accentColour'    => $this->_config->getAppColorTheme() ?: '#E87169',
         ], $data);
 
         // Resolve the content-view path
@@ -542,6 +545,41 @@ class DGZ_Messenger
         ob_start();
         include $layoutPath;
         return ob_get_clean();
+    }
+
+
+    // ═══════════════════════════════════════════════════════════════════
+    // RAW HTML SEND
+    // ═══════════════════════════════════════════════════════════════════
+
+    /**
+     * Send a pre-rendered HTML email body directly via PHPMailer.
+     *
+     * Use this when your calling code has already rendered the email template
+     * (e.g. via ob_start/include/ob_get_clean) and simply needs it delivered.
+     * Unlike the other send* methods, this method does NOT call renderEmail()
+     * internally — the HTML you pass is used as-is as the email body.
+     *
+     * @param  string $toEmail    Recipient email address.
+     * @param  string $toName     Recipient display name (used by PHPMailer).
+     * @param  string $subject    Email subject line.
+     * @param  string $htmlBody   Complete HTML string for the email body.
+     * @return bool               true on success, false on failure.
+     */
+    public function sendHtml(string $toEmail, string $toName, string $subject, string $htmlBody): bool
+    {
+        try {
+            $this->_phpMailer->clearAddresses();
+            $this->_phpMailer->addAddress($toEmail, $toName);
+            $this->_phpMailer->isHTML(true);
+            $this->_phpMailer->Subject = $subject;
+            $this->_phpMailer->Body    = $htmlBody;
+            $this->_phpMailer->send();
+            return true;
+        } catch (\Exception $e) {
+            $this->_logger->log('Email failed to send from: sendHtml()', "Mailer Error: {$this->_phpMailer->ErrorInfo}");
+            return false;
+        }
     }
 
 

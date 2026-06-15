@@ -3,7 +3,7 @@
 namespace Dorguzen\Core\DGZ_Uploader;
 
 use Exception;
-use \src\controllers\ExceptionController;
+use Dorguzen\Controllers\ExceptionController;
 
 class DGZ_Upload {
 
@@ -27,7 +27,8 @@ class DGZ_Upload {
 	protected $_permitted = array('image/gif',
 								'image/jpeg',
 								'image/pjpeg',
-								'image/png'
+								'image/png',
+								'image/webp'
 								);
 
 
@@ -45,21 +46,14 @@ class DGZ_Upload {
   public function __construct($path) {
 	  try {
 		  if (!is_dir($path) || !is_writable($path)) {
-			  throw new Dorguzen\Core\DGZ_Exception("$path must be a valid, writable directory.");
+			  throw new \InvalidArgumentException("$path must be a valid, writable directory.");
 		  }
 	  }
 	  catch (\Exception $e)
 	  {
 		$exceptionController = new ExceptionController();
-		  if ($e instanceof Dorguzen\Core\DGZ_Exception) {
-
-			  $view = Dorguzen\Core\DGZ_View::getView('DGZExceptionView', $exceptionController, 'html');
-			  $view->show($e);
-		  }
-		  else {
-			  $view = Dorguzen\Core\DGZ_View::getView('ExceptionView', $exceptionController, 'html');
-			  $view->show($e);
-		  }
+		  $view = \Dorguzen\Core\DGZ_View::getView('ExceptionView', $exceptionController, 'html');
+		  $view->show($e);
 	  }
 
 	$this->_destination = $path;
@@ -81,11 +75,30 @@ class DGZ_Upload {
 
 
 
-	public function setMaxSize($num) {
-		if (!is_numeric($num)) {
-			throw new Exception("Maximum size must be a number.");
+	/**
+	 * Set the maximum permitted upload file size.
+	 *
+	 * Accepts a human-readable string or a raw integer (bytes).
+	 *
+	 * String examples (case-insensitive, space optional):
+	 *     '50KB'   '50 KB'   '5MB'   '5 MB'   '5.5MB'   '1GB'   '1.5 GB'
+	 *
+	 * Raw integer (bytes) also accepted for backwards compatibility:
+	 *     5 * 1024 * 1024   (5 MB)
+	 *
+	 * @param int|string $size
+	 */
+	public function setMaxSize($size) {
+		if (is_string($size) && preg_match('/^\s*(\d+\.?\d*)\s*(KB|MB|GB|B)?\s*$/i', $size, $m)) {
+			$value = (float) $m[1];
+			$unit  = strtoupper($m[2] ?? 'B');
+			$multipliers = ['B' => 1, 'KB' => 1024, 'MB' => 1048576, 'GB' => 1073741824];
+			$this->_max = (int) round($value * $multipliers[$unit]);
+		} elseif (is_numeric($size)) {
+			$this->_max = (int) $size;
+		} else {
+			throw new Exception("Invalid size value '$size'. Use a number (bytes) or a string like '5MB', '500KB', '1.5GB'.");
 		}
-		$this->_max = (int) $num;
 	}
 
 
@@ -207,6 +220,41 @@ class DGZ_Upload {
 	}
 
 
+	/**
+	 * Returns the file extension of the given filename (without the dot).
+	 *
+	 *     DGZ_Upload::extension('sunset.jpg')      // 'jpg'
+	 *     DGZ_Upload::extension('photo.PNG')       // 'PNG'
+	 *     $uploader->extension($filenames[0])      // instance call also works
+	 *
+	 * @param  string $filename  Filename or full path.
+	 * @return string
+	 */
+	public static function extension(string $filename): string {
+		return pathinfo($filename, PATHINFO_EXTENSION);
+	}
+
+
+	/**
+	 * Derives the thumbnail filename from an original filename.
+	 * Assumes the default '_thb' suffix unless you pass a custom one.
+	 *
+	 *     DGZ_Upload::thumbName('sunset.jpg')          // 'sunset_thb.jpg'
+	 *     DGZ_Upload::thumbName('hero.PNG', '_sm')     // 'hero_sm.PNG'
+	 *     $uploader->thumbName($filenames[0])          // instance call also works
+	 *
+	 * @param  string $filename  Original filename (not a full path).
+	 * @param  string $suffix    Thumbnail suffix. Must match whatever was passed
+	 *                           to DGZ_Thumbnail::setSuffix() — default '_thb'.
+	 * @return string
+	 */
+	public static function thumbName(string $filename, string $suffix = '_thb'): string {
+		$ext  = pathinfo($filename, PATHINFO_EXTENSION);
+		$base = pathinfo($filename, PATHINFO_FILENAME);
+		return $base . $suffix . ($ext !== '' ? '.' . $ext : '');
+	}
+
+
 
 
 	/**
@@ -220,6 +268,7 @@ class DGZ_Upload {
 	 */
 	protected function isValidMime($types) {
 		$alsoValid = array('image/tiff',
+			'image/webp',
 			'application/pdf',
 			'text/plain',
 			'text/rtf');

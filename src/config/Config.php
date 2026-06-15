@@ -138,31 +138,29 @@ class Config
             return "http://{$host}:{$port}/";
         }
 
-        if ($this->get('app.live') == 'true')
-        {
-            return $this->get('app.fileRootPathLive');
-        }
-        else
-        {
+        $env = strtolower(env('APP_ENV', 'local'));
+
+        // local and testing use the local path; all deployed envs use the live path
+        if (in_array($env, ['local', 'testing'])) {
             return $this->get('app.fileRootPathLocal');
         }
+
+        return $this->get('app.fileRootPathLive');
     }
 
 
 
     /**
-     * Get the URL to the home page of the app to link to
+     * Get the absolute home-page URL for the current environment.
+     *
+     * Reads APP_URL from .env — set it to the correct base URL for each
+     * environment (local, staging, qa, prod) and this method always works.
+     * Falls back to localUrl if APP_URL is not set.
      */
-    public function getHomePage()
+    public function getHomePage(): string
     {
-        if ($this->get('app.live') == 'true')
-        {
-            return $this->get('app.liveUrl');
-        }
-        else
-        {
-            return $this->get('app.localUrl');
-        }
+        $url = $this->get('app.appURL') ?: $this->get('app.localUrl');
+        return rtrim($url, '/');
     }
 
 
