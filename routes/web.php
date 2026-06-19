@@ -119,6 +119,15 @@ $router->get('/admin/blog/comments',          'BlogController@manageComments', '
 $router->get('/admin/blog/approveComment',    'BlogController@approveComment', 'blog');
 $router->get('/admin/blog/deleteComment',     'BlogController@deleteComment',  'blog');
 
+// -----------------------------------------------------------------------
+// TESTIMONIALS MODULE ROUTES
+// -----------------------------------------------------------------------
+$router->get('/testimonials',                   'TestimonialsController@index',   'testimonials');
+$router->post('/testimonials/submit',           'TestimonialsController@submit',  'testimonials');
+$router->get('/admin/testimonials',             'TestimonialsController@manage',  'testimonials');
+$router->post('/admin/testimonials/approve',    'TestimonialsController@approve', 'testimonials');
+$router->get('/admin/testimonials/delete',      'TestimonialsController@delete',  'testimonials');
+
 $router->get('/admin/news',            'NewsController@manageNews');
 $router->get('/admin/news/create',    'NewsController@createNews');
 $router->post('/admin/news/create',   'NewsController@createNews');

@@ -9,11 +9,11 @@ class blogIndex extends \Dorguzen\Core\DGZ_HtmlView
         extract($viewModel);
         // $posts, $categories, $recentPosts, $currentPage, $totalPages, $total, $categoryId, $search
         $rootPath  = $this->controller->config->getFileRootPath();
-        $themeColor = 'var(--site-theme, #fd7e14)';
+        $themeColor = 'var(--site-theme, #1565C0)';
         ?>
 
         <!-- Hero -->
-        <div style="background:linear-gradient(135deg, <?= $themeColor ?> 0%, #c75000 100%); padding:60px 0 40px; margin-bottom:0;">
+        <div style="background:linear-gradient(135deg, <?= $themeColor ?> 0%, #0d47a1 100%); padding:60px 0 40px; margin-bottom:0;">
             <div class="container text-center text-white">
                 <h1 class="fw-bold mb-2" style="font-size:2.4rem; letter-spacing:-0.5px;">Our Blog</h1>
                 <p class="mb-0 opacity-75" style="font-size:1.05rem;">Insights, news and stories from our team</p>
@@ -109,7 +109,7 @@ class blogIndex extends \Dorguzen\Core\DGZ_HtmlView
                                         <?php else: ?>
                                             <a href="<?= $rootPath ?>blog/post?slug=<?= urlencode($post['slug']) ?>"
                                                class="d-block d-flex align-items-center justify-content-center"
-                                               style="height:200px; background:linear-gradient(135deg,<?= $themeColor ?>,#c75000);">
+                                               style="height:200px; background:linear-gradient(135deg,<?= $themeColor ?>,#0d47a1);">
                                                 <i class="fa fa-pencil-square-o fa-3x text-white opacity-50"></i>
                                             </a>
                                         <?php endif; ?>
@@ -122,7 +122,7 @@ class blogIndex extends \Dorguzen\Core\DGZ_HtmlView
                                                         <?= htmlspecialchars($post['category_name']) ?>
                                                     </a>
                                                 <?php endif; ?>
-                                                <span style="font-size:.78rem; color:#555;"><?= $postDate ?></span>
+                                                <span style="font-size:.78rem; color:var(--nlm-text-muted, #555);"><?= $postDate ?></span>
                                             </div>
                                             <h5 class="card-title fw-bold mb-2" style="font-size:1rem; line-height:1.4;">
                                                 <a href="<?= $rootPath ?>blog/post?slug=<?= urlencode($post['slug']) ?>"
@@ -130,7 +130,7 @@ class blogIndex extends \Dorguzen\Core\DGZ_HtmlView
                                                     <?= htmlspecialchars($post['title']) ?>
                                                 </a>
                                             </h5>
-                                            <p class="card-text mb-3" style="font-size:.88rem; flex:1; color:#444;">
+                                            <p class="card-text mb-3" style="font-size:.88rem; flex:1; color:var(--nlm-text-muted, #444);">
                                                 <?= $excerpt ?>
                                             </p>
                                             <a href="<?= $rootPath ?>blog/post?slug=<?= urlencode($post['slug']) ?>"
@@ -199,10 +199,10 @@ class blogIndex extends \Dorguzen\Core\DGZ_HtmlView
                                             <li class="list-group-item border-0 py-3">
                                                 <a href="<?= $rootPath ?>blog/post?slug=<?= urlencode($rp['slug']) ?>"
                                                    class="text-decoration-none fw-semibold d-block mb-1"
-                                                   style="font-size:.88rem; line-height:1.3; color:#1a1a1a;">
+                                                   style="font-size:.88rem; line-height:1.3; color:var(--nlm-text, #1a1a1a);">
                                                     <?= htmlspecialchars($rp['title']) ?>
                                                 </a>
-                                                <span style="font-size:.75rem; color:#555;"><?= $rpDate ?></span>
+                                                <span style="font-size:.75rem; color:var(--nlm-text-muted, #555);"><?= $rpDate ?></span>
                                             </li>
                                         <?php endforeach; ?>
                                     </ul>
@@ -224,7 +224,7 @@ class blogIndex extends \Dorguzen\Core\DGZ_HtmlView
                                             <li class="list-group-item border-0 py-2 px-3">
                                                 <a href="<?= $rootPath ?>blog?category=<?= (int) $cat['category_id'] ?>"
                                                    class="d-flex justify-content-between align-items-center text-decoration-none"
-                                                   style="font-size:.88rem; color:#1a1a1a; font-weight:500;">
+                                                   style="font-size:.88rem; color:var(--nlm-text, #1a1a1a); font-weight:500;">
                                                     <span><?= htmlspecialchars($cat['name']) ?></span>
                                                     <span class="badge rounded-pill" style="background:<?= $themeColor ?>; font-size:.7rem;">
                                                         <?= (int) $cat['post_count'] ?>

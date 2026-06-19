@@ -45,6 +45,8 @@ use Dorguzen\Modules\Blog\Models\BlogPost;
 use Dorguzen\Modules\Blog\Models\BlogComment;
 use Dorguzen\Modules\Blog\Services\BlogService;
 use Dorguzen\Modules\Blog\Services\BlogAdminService;
+use Dorguzen\Modules\Testimonials\Models\Testimonials;
+use Dorguzen\Modules\Testimonials\Services\TestimonialsService;
 
 
 /**
@@ -164,6 +166,15 @@ $container->singleton(BlogAdminService::class, fn($c) => new BlogAdminService(
     $c->get(BlogCategory::class),
     $c->get(BlogPost::class),
     $c->get(BlogComment::class),
+));
+//--------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------
+// Testimonials module
+//--------------------------------------------------------------------------------------
+$container->singleton(Testimonials::class, fn($c) => new Testimonials($c->get(Config::class)));
+$container->singleton(TestimonialsService::class, fn($c) => new TestimonialsService(
+    $c->get(Testimonials::class),
 ));
 //--------------------------------------------------------------------------------------
 

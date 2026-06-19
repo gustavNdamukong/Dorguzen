@@ -43,6 +43,9 @@
                                 <?php if (config('app.modules.blog') === 'on'): ?>
                                 <a href="<?=$this->config->getFileRootPath()?>admin/blog" class="dropdown-item">✍️ Blog</a>
                                 <?php endif; ?>
+                                <?php if (config('app.modules.testimonials') === 'on'): ?>
+                                <a href="<?=$this->config->getFileRootPath()?>admin/testimonials" class="dropdown-item">⭐ Testimonials</a>
+                                <?php endif; ?>
                             </div>
                         </div>
 

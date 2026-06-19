@@ -81,7 +81,7 @@ class adminManageComments extends \Dorguzen\Core\DGZ_HtmlView
                         <div class="card border-0 shadow-sm" style="border-radius:12px; overflow:hidden;">
                             <div class="table-responsive">
                                 <table class="table table-hover align-middle mb-0">
-                                    <thead style="background:#fff8e1; font-size:.82rem; text-transform:uppercase; letter-spacing:.5px;">
+                                    <thead style="background:var(--site-theme, #3949ab); font-size:.82rem; text-transform:uppercase; letter-spacing:.5px;">
                                         <tr>
                                             <th>Post</th>
                                             <th>Author</th>
@@ -141,7 +141,7 @@ class adminManageComments extends \Dorguzen\Core\DGZ_HtmlView
                         <div class="card border-0 shadow-sm" style="border-radius:12px; overflow:hidden;">
                             <div class="table-responsive">
                                 <table class="table table-hover align-middle mb-0">
-                                    <thead style="background:#e8f5e9; font-size:.82rem; text-transform:uppercase; letter-spacing:.5px;">
+                                    <thead style="background:var(--site-theme, #3949ab); font-size:.82rem; text-transform:uppercase; letter-spacing:.5px;">
                                         <tr>
                                             <th>Post</th>
                                             <th>Author</th>

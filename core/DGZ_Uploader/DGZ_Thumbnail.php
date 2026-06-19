@@ -158,8 +158,12 @@ class DGZ_Thumbnail {
 
 	$newname = $this->_name . $this->_suffix;  // suffix (_thb by default) was previously missing
 
+	// Preserve the original file extension so thumbnail filenames stay consistent
+	// with what callers expect (e.g. photo.jpeg → photo_thb.jpeg, not photo_thb.jpg).
+	$originalExt = strtolower(pathinfo($this->_original, PATHINFO_EXTENSION));
+
 	if ($this->_imageType == 'jpeg') {
-	  $newname .= '.jpg';
+	  $newname .= '.' . $originalExt;
 	  // Quality 82: excellent visual quality at roughly 60% the file size of quality 100
 	  $success = imagejpeg($thumb, $this->_destination . $newname, $this->_quality);
 	} elseif ($this->_imageType == 'png') {

@@ -31,8 +31,6 @@ class UserController extends DGZ_Controller
     {
         $view = DGZ_View::getView('dashboard', $this, 'html');
         $this->setPageTitle('Dashboard');
-        $this->setLayoutDirectory('seoMaster');
-        $this->setLayoutView('seoMasterLayout');
         $view->show();
     }
 
@@ -41,8 +39,6 @@ class UserController extends DGZ_Controller
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $view = DGZ_View::getView('changepw', $this, 'html');
             $this->setPageTitle('Change Password');
-            $this->setLayoutDirectory('seoMaster');
-            $this->setLayoutView('seoMasterLayout');
             $view->show();
             return;
         }

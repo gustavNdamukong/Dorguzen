@@ -159,8 +159,11 @@ class Config
      */
     public function getHomePage(): string
     {
-        $url = $this->get('app.appURL') ?: $this->get('app.localUrl');
-        return rtrim($url, '/');
+        $env = strtolower(env('APP_ENV', 'local'));
+        if (in_array($env, ['local', 'testing'])) {
+            return rtrim($this->get('app.localUrl'), '/');
+        }
+        return rtrim($this->get('app.liveUrl') ?: $this->get('app.appURL'), '/');
     }
 
 

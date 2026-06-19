@@ -120,7 +120,7 @@ class videosAlbum extends \Dorguzen\Core\DGZ_HtmlView
                 <?php endif; ?>
 
                 <div class="mt-5">
-                    <a href="<?= $base ?>videos" class="btn btn-outline-dark">
+                    <a href="<?= $base ?>videos" class="btn btn-outline-secondary">
                         <i class="fa fa-arrow-left me-1"></i> Back to Videos
                     </a>
                 </div>
@@ -150,7 +150,8 @@ class videosAlbum extends \Dorguzen\Core\DGZ_HtmlView
         function openVideo(card) {
             var embed = card.getAttribute('data-embed');
             var title = card.getAttribute('data-title');
-            document.getElementById('videoFrame').src = embed + '&autoplay=1';
+            var sep = embed.indexOf('?') === -1 ? '?' : '&';
+            document.getElementById('videoFrame').src = embed + sep + 'autoplay=1';
             document.getElementById('videoModalLabel').textContent = title;
             var modal = new bootstrap.Modal(document.getElementById('videoModal'));
             modal.show();

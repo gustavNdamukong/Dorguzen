@@ -258,29 +258,29 @@ function show(array $viewModel = [])
                                              <span class="dgz-label">Typhoon SEO</span>
                                         </a>
 
-                                        <?php if (config('app.modules.gallery') === 'on'): ?>
                                         <a href="<?=$this->controller->config->getFileRootPath()?>admin/gallery"
-                                             class="dgz-dash-card dgz-c-orange">
+                                             class="dgz-dash-card dgz-c-orange <?= config('app.modules.gallery') !== 'on' ? 'dgz-disabled' : '' ?>">
                                              <span class="dgz-icon">🖼️</span>
                                              <span class="dgz-label">Gallery</span>
                                         </a>
-                                        <?php endif; ?>
 
-                                        <?php if (config('app.modules.videos') === 'on'): ?>
                                         <a href="<?=$this->controller->config->getFileRootPath()?>admin/videos"
-                                             class="dgz-dash-card dgz-c-dark">
+                                             class="dgz-dash-card dgz-c-slate <?= config('app.modules.videos') !== 'on' ? 'dgz-disabled' : '' ?>">
                                              <span class="dgz-icon">🎬</span>
                                              <span class="dgz-label">Videos</span>
                                         </a>
-                                        <?php endif; ?>
 
-                                        <?php if (config('app.modules.blog') === 'on'): ?>
-                                        <a href="<?= $this->controller->config->getFileRootPath() ?>admin/blog"
-                                             class="dgz-dash-card dgz-c-brown">
+                                        <a href="<?=$this->controller->config->getFileRootPath()?>admin/blog"
+                                             class="dgz-dash-card dgz-c-brown <?= config('app.modules.blog') !== 'on' ? 'dgz-disabled' : '' ?>">
                                              <span class="dgz-icon">✍️</span>
                                              <span class="dgz-label">Blog</span>
                                         </a>
-                                        <?php endif; ?>
+
+                                        <a href="<?=$this->controller->config->getFileRootPath()?>admin/testimonials"
+                                             class="dgz-dash-card dgz-c-teal <?= config('app.modules.testimonials') !== 'on' ? 'dgz-disabled' : '' ?>">
+                                             <span class="dgz-icon">⭐</span>
+                                             <span class="dgz-label">Testimonials</span>
+                                        </a>
 
                                         <a href="<?=$this->controller->config->getFileRootPath()?>payments"
                                              class="dgz-dash-card dgz-c-green dgz-disabled">

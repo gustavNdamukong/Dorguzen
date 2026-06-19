@@ -30,8 +30,6 @@ class AuthController extends DGZ_Controller
         $this->checkReferral();
         $view = DGZ_View::getView('login', $this, 'html');
         $this->setPageTitle('Login');
-        $this->setLayoutDirectory('seoMaster');
-        $this->setLayoutView('seoMasterLayout');
         $view->show($email);
     }
 
@@ -53,8 +51,6 @@ class AuthController extends DGZ_Controller
 
         $view = DGZ_View::getView('register', $this, 'html');
         $this->setPageTitle('Register');
-        $this->setLayoutDirectory('seoMaster');
-        $this->setLayoutView('seoMasterLayout');
         $view->show(
             $old['firstname'] ?? '',
             $old['surname']   ?? '',
@@ -177,8 +173,6 @@ class AuthController extends DGZ_Controller
     public function emailActivationInstructions()
     {
         $view = DGZ_View::getView('howToActivateEmailAfterRegis', $this, 'html');
-        $this->setLayoutDirectory('seoMaster');
-        $this->setLayoutView('seoMasterLayout');
         $view->show();
     }
 
@@ -348,8 +342,6 @@ class AuthController extends DGZ_Controller
         }
 
         $view = DGZ_View::getView('resetPw', $this, 'html');
-        $this->setLayoutDirectory('seoMaster');
-        $this->setLayoutView('seoMasterLayout');
         $view->show([
             'userId'    => $record['password_reset_users_id'],
             'userEmail' => $record['password_reset_email'],
@@ -380,8 +372,6 @@ class AuthController extends DGZ_Controller
         } else {
             $this->addErrors($fail);
             $view = DGZ_View::getView('resetPw', $this, 'html');
-            $this->setLayoutDirectory('seoMaster');
-            $this->setLayoutView('seoMasterLayout');
             $view->show(['userId' => $reset_user_id, 'userEmail' => $reset_email]);
         }
     }

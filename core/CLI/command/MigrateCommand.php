@@ -69,6 +69,9 @@ class MigrateCommand extends AbstractCommand
             $this->output->writeln('<info>Because of your --pretend flag, no queries were ran.</info>');
         } else {
             $this->output->writeln($outputMessage);
+            if (!$file) {
+                $this->output->writeln('<comment>Tip: If this is a fresh install, run `php dgz db:seed` to create the default admin account and base settings.</comment>');
+            }
         }
         
         return self::SUCCESS;

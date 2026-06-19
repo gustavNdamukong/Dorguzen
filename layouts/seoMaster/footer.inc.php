@@ -22,6 +22,9 @@
                 <a class="btn btn-link" href="">Privacy Policy</a>
                 <a class="btn btn-link" href="">Terms & Condition</a>
                 <a class="btn btn-link" href="">Career</a>
+                <?php if (config('app.modules.testimonials') === 'on'): ?>
+                <a class="btn btn-link" href="<?=$this->config->getFileRootPath()?>testimonials">Leave review</a>
+                <?php endif; ?>
             </div>
             <div class="col-md-6 col-lg-3">
                 <h5 class="text-white mb-4">Project Gallery</h5>

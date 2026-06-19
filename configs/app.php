@@ -59,7 +59,8 @@ return [
         'sms'      => env('MODULES_SMS_STATUS', 'off'),
         'gallery'  => env('MODULES_GALLERY_STATUS', 'off'),
         'videos'   => env('MODULES_VIDEOS_STATUS', 'off'),
-        'blog'     => env('MODULES_BLOG_STATUS', 'off'),
+        'blog'         => env('MODULES_BLOG_STATUS', 'off'),
+        'testimonials' => env('MODULES_TESTIMONIALS_STATUS', 'off'),
     ],
 
     'permissions' => [

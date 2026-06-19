@@ -14,7 +14,7 @@
         <!-- Navbar & Hero Start -->
         <div class="container-xxl position-relative p-0">
             <nav class="navbar navbar-expand-lg navbar-light px-4 px-lg-5 py-3 py-lg-0">
-                <a href="<?=$this->config->getHomePage()?>" class="navbar-brand p-0">
+                <a href="<?=$this->config->getFileRootPath()?>" class="navbar-brand p-0">
                     <img src="<?=$this->config->getFileRootPath()?>assets/images/dorguzen-logo.png" alt="Dorguzen" style="height:70px; width:auto;">
                 </a>
 
@@ -25,7 +25,7 @@
                 <div class="collapse navbar-collapse" id="navbarCollapse">
                     <div class="navbar-nav ms-auto py-0">
 
-                        <a href="<?=$this->config->getHomePage()?>" class="nav-item nav-link active"><i class="fa fa-home me-1"></i> Home</a>
+                        <a href="<?=$this->config->getFileRootPath()?>" class="nav-item nav-link active"><i class="fa fa-home me-1"></i> Home</a>
 
                         <!-- Content dropdown -->
                         <div class="nav-item dropdown">
@@ -45,6 +45,9 @@
                             </div>
                         </div>
 
+                        <?php if (config('app.modules.testimonials') === 'on'): ?>
+                        <a href="<?=$this->config->getFileRootPath()?>testimonials" class="nav-item nav-link"><i class="fa fa-star me-1"></i> Review</a>
+                        <?php endif; ?>
                         <a href="<?=$this->config->getFileRootPath()?>feedback" class="nav-item nav-link"><i class="fa fa-envelope me-1"></i> Contact</a>
 
                         <?php if (!isset($_SESSION['authenticated'])): ?>
@@ -122,6 +125,9 @@
             <?php endif; ?>
             <?php if (config('app.modules.blog') === 'on'): ?>
             <a href="<?=$this->config->getFileRootPath()?>blog" class="list-group-item list-group-item-action"><i class="fa fa-pencil-square fa-fw me-2"></i> Blog</a>
+            <?php endif; ?>
+            <?php if (config('app.modules.testimonials') === 'on'): ?>
+            <a href="<?=$this->config->getFileRootPath()?>testimonials" class="list-group-item list-group-item-action"><i class="fa fa-star fa-fw me-2"></i> Review</a>
             <?php endif; ?>
             <a href="<?=$this->config->getFileRootPath()?>feedback" class="list-group-item list-group-item-action"><i class="fa fa-envelope fa-fw me-2"></i> Contact</a>
             <?php if (!isset($_SESSION['authenticated'])): ?>

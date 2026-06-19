@@ -31,8 +31,6 @@ class PortfolioController extends DGZ_Controller
         $payload = $this->portfolioService->portfolioPayload();
 
         $view = DGZ_View::getView('portfolio', $this, 'html');
-        $this->setLayoutDirectory('seoMaster');
-        $this->setLayoutView('seoMasterLayout');
         $this->setPageTitle('Portfolio');
         $view->show($payload);
     }
