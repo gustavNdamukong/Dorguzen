@@ -78,8 +78,81 @@ class DGZ_Messenger
     }
 
 
+    // ═══════════════════════════════════════════════════════════════════
+    // GENERIC SEND
+    // ═══════════════════════════════════════════════════════════════════
 
-    // DONE
+    /**
+     * Send an email — with or without an HTML template.
+     *
+     * When $template is provided the email is rendered via renderEmail() and
+     * sent as HTML. When omitted, $body is sent as plain text. This covers
+     * every custom email need without requiring changes to this class.
+     *
+     * Usage — templated HTML:
+     *   $messenger->sendEmail(
+     *       toEmail:  'user@example.com',
+     *       toName:   'Jane',
+     *       subject:  'Your booking is confirmed',
+     *       replyTo:  $visitorEmail,
+     *       data:     ['heading' => 'Booking Confirmed', 'name' => $name, ...],
+     *       template: 'booking-confirmation',
+     *   );
+     *
+     * Usage — plain text:
+     *   $messenger->sendEmail('user@example.com', 'Jane', 'Hello', 'Just a quick note.');
+     *
+     * @param  string $toEmail     Recipient email address.
+     * @param  string $toName      Recipient display name.
+     * @param  string $subject     Email subject line.
+     * @param  string $body        Plain-text body (used when $template is empty).
+     * @param  string $replyTo     Reply-To address (optional).
+     * @param  string $replyToName Reply-To display name (optional).
+     * @param  array  $data        Template variables passed to renderEmail() (optional).
+     * @param  string $template    Email template name without .php (optional).
+     * @return bool                true on success, false on failure.
+     */
+    public function sendEmail(
+        string $toEmail,
+        string $toName      = '',
+        string $subject     = '',
+        string $body        = '',
+        string $replyTo     = '',
+        string $replyToName = '',
+        array  $data        = [],
+        string $template    = '',
+    ): bool {
+        try {
+            $this->_phpMailer->clearAddresses();
+            $this->_phpMailer->addAddress($toEmail, $toName);
+
+            if ($replyTo !== '') {
+                $this->_phpMailer->addReplyTo($replyTo, $replyToName);
+            }
+
+            if ($template !== '') {
+                $body   = $this->renderEmail($template, $data);
+                $isHtml = true;
+            } else {
+                $isHtml = false;
+            }
+
+            $this->_phpMailer->isHTML($isHtml);
+            $this->_phpMailer->Subject = $subject;
+            $this->_phpMailer->Body    = $body;
+            $this->_phpMailer->send();
+            return true;
+        } catch (Exception $e) {
+            $this->_logger->log('Email failed to send from: sendEmail()', "Mailer Error: {$this->_phpMailer->ErrorInfo}");
+            return false;
+        }
+    }
+
+
+    // ═══════════════════════════════════════════════════════════════════
+    // BUILT-IN FRAMEWORK EMAILS
+    // ═══════════════════════════════════════════════════════════════════
+
     public function sendContactFormMsgToAdmin($name, $visitorEmail, $phone, $message)
     {
         try {
@@ -90,67 +163,18 @@ class DGZ_Messenger
                 'phone'   => $phone,
                 'message' => $message,
             ]);
-    		$this->_phpMailer->addAddress($this->_appEmail, 'Admin');
+            $this->_phpMailer->addAddress($this->_appEmail, 'Admin');
             $this->_phpMailer->addReplyTo($visitorEmail);
             $this->_phpMailer->isHTML(true);
-    		$this->_phpMailer->Subject = "From website contact form";
-    		$this->_phpMailer->Body    = $msg;
-    		$this->_phpMailer->send();
+            $this->_phpMailer->Subject = "From website contact form";
+            $this->_phpMailer->Body    = $msg;
+            $this->_phpMailer->send();
             return true;
         } catch (Exception $e) {
-            $this->_logger->log('The email: sendContactFormMsgToAdmin() failed to send', "Mailer Error: {$this->_phpMailer->ErrorInfo}");
+            $this->_logger->log('Email failed to send from: sendContactFormMsgToAdmin()', "Mailer Error: {$this->_phpMailer->ErrorInfo}");
             return false;
         }
     }
-
-
-    // DONE
-    public function sendShopContactMsgToShopOwner($shopVisitorName, $shopVisitorEmail, $shopOwnerEmail, $phone, $message)
-    {
-        /*
-        $headers  = "From: $this->_headerFrom\r\n";
-        $headers .= "Reply-To: $shopOwnerEmail\r\n";
-        $headers .= "Content-type: text/html; charset=utf-8\r\n";
-
-        $to = "$shopOwnerEmail";
-        $subject = "Message from your Camerooncom Shop contact form";
-
-        $msg = $this->sendContactFormMsgToAdminTemplate($shopVisitorName, $shopVisitorEmail, $phone, $message);
-
-        // And send the email!
-        $send = mail($to, $subject, $msg, $headers);
-        if ($send)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }*/
-
-        //--------------------------
-        try {
-            $msg = $this->renderEmail('contact-form', [
-                'heading' => 'Shop Contact Form Message',
-                'name'    => $shopVisitorName,
-                'email'   => $shopVisitorEmail,
-                'phone'   => $phone,
-                'message' => $message,
-            ]);
-    		$this->_phpMailer->addAddress($shopOwnerEmail, 'Shop owner');
-            $this->_phpMailer->addReplyTo($shopVisitorEmail);
-            $this->_phpMailer->isHTML(true);
-    		$this->_phpMailer->Subject = "Message from your Camerooncom Shop contact form";
-    		$this->_phpMailer->Body    = $msg;
-    		$this->_phpMailer->send();
-            return true;
-        } catch (Exception $e) {
-            // Log this error
-            $this->_logger->log('Email failed to send from: sendShopContactMsgToShopOwner()', "Mailer Error: {$this->_phpMailer->ErrorInfo}");
-            return false;
-        }
-    }
-
 
 
     public function sendNewsletterWelcomeMsg(
@@ -163,50 +187,6 @@ class DGZ_Messenger
         $newsletter_image_caption,
         string $template = 'newsletter-welcome')
     {
-
-        /*
-        //----------------------------------------
-        $sent = $messenger->sendNewsletterWelcomeMsg(
-                    $emailData['subscriber_name'], 
-                    $emailData['subscriber_email'], 
-                    $emailData['newsletter_heading'],
-                    $emailData['newsletter_subject'],
-                    $emailData['newsletter_message'],
-                    $emailData['newsletter_image'],
-                    $emailData['newsletter_image_caption']
-                );
-        //----------------------------------------
-         */
-        //Get the newsletter data from the DB
-        //$newsletterWelcome = new Newsletter();
-        //$sql = "SELECT * FROM newsletter WHERE newsletter_name = '$letterName'";
-        //$welcomeletterData = $newsletterWelcome->query($sql);
-
-        //$subject = $welcomeletterData[0]['newsletter_subject'];
-
-        /*
-        // Add your "sending" email below, better to get this fron the config file
-        $headers  = "From: $this->_headerFrom\r\n";
-        $headers .= "Reply-To: $this->_headerReplyTo\r\n";
-        $headers .= "Content-type: text/html; charset=utf-8\r\n";
-
-        // We'll set the email "to" address to the database record
-        $to = "$email";
-
-        //TODO: TEST THIS
-        $msg = $this->sendNewsletterWelcomeMsgTemplate($welcomeletterData[0]['newsletter_heading'], $name, $welcomeletterData[0]['newsletter_message'], $welcomeletterData[0]['newsletter_image'], $welcomeletterData[0]['newsletter_image_caption']);
-
-        // And send the email!
-        $send = mail($to, $subject, $msg, $headers);
-        if ($send)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }*/
-        //--------------------------
         try {
             $msg = $this->renderEmail($template, [
                 'heading'         => $newsletter_heading,
@@ -216,24 +196,18 @@ class DGZ_Messenger
                 'imageCaption'    => $newsletter_image_caption,
             ]);
 
-            // Clear addresses from previous loop iteration
             $this->_phpMailer->clearAddresses();
-
-    		$this->_phpMailer->addAddress($email);
+            $this->_phpMailer->addAddress($email);
             $this->_phpMailer->isHTML(true);
-    		$this->_phpMailer->Subject = $newsletter_subject;
-    		$this->_phpMailer->Body    = $msg;
-    		$this->_phpMailer->send();
+            $this->_phpMailer->Subject = $newsletter_subject;
+            $this->_phpMailer->Body    = $msg;
+            $this->_phpMailer->send();
             return true;
         } catch (Exception $e) {
-            // Log this error
             $this->_logger->log('Email failed to send from: sendNewsletterWelcomeMsg()', "Mailer Error: {$this->_phpMailer->ErrorInfo}");
             return false;
         }
     }
-
-
-
 
 
     public function sendNewsletterMsg(
@@ -246,36 +220,6 @@ class DGZ_Messenger
         $newsletter_image_caption,
         string $template = 'newsletter')
     {
-        
-
-        //$newsletter = new Newsletter();
-        //$sql = "SELECT * FROM newsletter WHERE newsletter_id = $newsletterId";
-        //$newsletterData = $newsletter->query($sql);
-
-        //$subject = $newsletterData[0]['newsletter_subject'];
-        /*
-        // Add your "sending" email below, better to get this fron the config file
-        $headers  = "From: $this->_headerFrom\r\n";
-        $headers .= "Reply-To: $this->_headerReplyTo\r\n";
-        $headers .= "Content-type: text/html; charset=utf-8\r\n";
-
-        // We'll set the email "to" address to the database record
-        $to = "$email";
-
-        //TODO: TEST THIS
-        $msg = $this->sendNewsletterMsgTemplate($newsletterData[0]['newsletter_heading'], $name, $newsletterData[0]['newsletter_message'], $newsletterData[0]['newsletter_image'], $newsletterData[0]['newsletter_image_caption']);
-
-        // And send the email!
-        $send = mail($to, $subject, $msg, $headers);
-        if ($send)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }*/
-        //--------------------------
         try {
             $msg = $this->renderEmail($template, [
                 'heading'         => $newsletter_heading,
@@ -285,213 +229,106 @@ class DGZ_Messenger
                 'imageCaption'    => $newsletter_image_caption,
             ]);
 
-            // Clear addresses from previous loop iteration
             $this->_phpMailer->clearAddresses();
-
-    		$this->_phpMailer->addAddress($email);
+            $this->_phpMailer->addAddress($email);
             $this->_phpMailer->isHTML(true);
-    		$this->_phpMailer->Subject = $newsletter_subject;
-    		$this->_phpMailer->Body    = $msg;
-    		$this->_phpMailer->send();
+            $this->_phpMailer->Subject = $newsletter_subject;
+            $this->_phpMailer->Body    = $msg;
+            $this->_phpMailer->send();
             return true;
         } catch (Exception $e) {
-            // Log this error
             $this->_logger->log('Email failed to send from: sendNewsletterMsg()', "Mailer Error: {$this->_phpMailer->ErrorInfo}");
             return false;
         }
     }
 
 
-
-    // DONE
     public function sendEmailActivationEmail($name, $email, $subject, $message)
     {
-        /*
-        //prepare to send an email to the new user with a link to activate their account
-        //Time to send a welcome email to the new member with an account activation code
-        $to = "$email";
-
-        // Add your "sending" email below, notice we are getting this from the config file
-        $headers  = "From: $this->_headerFrom\r\n";
-        $headers .= "Reply-To: $this->_headerReplyTo\r\n";
-        $headers .= "Content-type: text/html; charset=utf-8\r\n";
-
-        $msg = $this->createNewMemberTemplate($name, $message);
-
-        // And send the email!
-        $send = mail($to, $subject, $msg, $headers);
-        if ($send)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }*/
-        //--------------------------
         try {
             $msg = $this->renderEmail('member-email', [
                 'heading' => 'Activate Your Account',
                 'name'    => $name,
                 'message' => $message,
             ]);
-    		$this->_phpMailer->addAddress($email);
+            $this->_phpMailer->addAddress($email);
             $this->_phpMailer->isHTML(true);
-    		$this->_phpMailer->Subject = $subject;
-    		$this->_phpMailer->Body    = $msg;
-    		$this->_phpMailer->send();
+            $this->_phpMailer->Subject = $subject;
+            $this->_phpMailer->Body    = $msg;
+            $this->_phpMailer->send();
             return true;
         } catch (Exception $e) {
-            // Log this error
             $this->_logger->log('Email failed to send from: sendEmailActivationEmail()', "Mailer Error: {$this->_phpMailer->ErrorInfo}");
             return false;
         }
     }
 
 
-
-    // DONE
     public function sendWelcomeEmail($name, $email, $subject, $message)
     {
-        /*
-        //prepare to send an email to the new user with a link to activate their account
-        //Time to send a welcome email to the new member with an account activation code
-        $to = "$email";
-
-        // Add your "sending" email below, notice we are getting this from the config file
-        $headers  = "From: $this->_headerFrom\r\n";
-        $headers .= "Reply-To: $this->_headerReplyTo\r\n";
-        $headers .= "Content-type: text/html; charset=utf-8\r\n";
-
-        $msg = $this->createNewMemberTemplate($name, $message);
-
-        // And send the email!
-        $send = mail($to, $subject, $msg, $headers);
-        if ($send)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }*/
-        //--------------------------
         try {
             $msg = $this->renderEmail('member-email', [
                 'heading' => 'Welcome to ' . $this->_appBusinessName,
                 'name'    => $name,
                 'message' => $message,
             ]);
-    		$this->_phpMailer->addAddress($email);
+            $this->_phpMailer->addAddress($email);
             $this->_phpMailer->isHTML(true);
-    		$this->_phpMailer->Subject = $subject;
-    		$this->_phpMailer->Body    = $msg;
-    		$this->_phpMailer->send();
+            $this->_phpMailer->Subject = $subject;
+            $this->_phpMailer->Body    = $msg;
+            $this->_phpMailer->send();
             return true;
         } catch (Exception $e) {
-            // Log this error
             $this->_logger->log('Email failed to send from: sendWelcomeEmail()', "Mailer Error: {$this->_phpMailer->ErrorInfo}");
             return false;
         }
     }
 
 
-
-
-    // DONE
     public function sendPasswordResetEmail($email, $firstname, $resetCode)
     {
-        $subject = "Reset your password at ".$this->_appBusinessName;
+        $subject = "Reset your password at " . $this->_appBusinessName;
 
-        /*
-        $to = "$email";
-
-        // Add your "sending" email below, notice we are getting this from the config file
-        $headers  = "From: $this->_headerFrom\r\n";
-        $headers .= "Reply-To: $this->_headerReplyTo\r\n";
-        $headers .= "Content-type: text/html; charset=utf-8\r\n";
-
-        $msg = $this->passwordResetTemplate($firstname, $resetCode);
-
-        // And send the email!
-        $send = mail($to, $subject, $msg, $headers);
-
-        if ($send)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }*/
-        //--------------------------
         try {
             $msg = $this->renderEmail('password-reset', [
                 'heading'  => 'Reset Your Password',
                 'name'     => $firstname,
                 'resetUrl' => $this->_config->getHomePage() . 'auth/reset?em=' . $resetCode,
             ]);
-    		$this->_phpMailer->addAddress($email);
+            $this->_phpMailer->addAddress($email);
             $this->_phpMailer->isHTML(true);
-    		$this->_phpMailer->Subject = $subject;
-    		$this->_phpMailer->Body    = $msg;
-    		$this->_phpMailer->send();
+            $this->_phpMailer->Subject = $subject;
+            $this->_phpMailer->Body    = $msg;
+            $this->_phpMailer->send();
             return true;
         } catch (Exception $e) {
-            // Log this error
             $this->_logger->log('Email failed to send from: sendPasswordResetEmail()', "Mailer Error: {$this->_phpMailer->ErrorInfo}");
             return false;
         }
     }
 
 
-    // DONE
     public function sendErrorLogMsgToAdmin($message)
     {
-        // Add your "sending" email below, better to get this from the config file
-        /*$headers  = "From: $this->_headerFrom\r\n";
-        $headers .= "Reply-To: $this->_headerReplyTo\r\n";
-        $headers .= "Content-type: text/html; charset=utf-8\r\n";*/
-
-        // We'll set the email "to" address to the database record
-        //$to = $email;
-        $to = $this->_appEmail;
-        $additionalReceiverEmail = $this->_appEmailOther;
         $subject = "An error has occurred on live and has been logged";
 
-        /*$msg = $this->sendErrorLogMsgToAdminTemplate($message);
-
-        // And send the email!
-        $send = mail($to, $subject, $msg, $headers);
-        if ($send)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }*/
-        //--------------------------
         try {
             $msg = $this->renderEmail('error-log', [
                 'heading' => 'Error Alert',
                 'message' => $message,
                 'logsUrl' => $this->_config->getHomePage() . 'admin/log',
             ]);
-    		$this->_phpMailer->addAddress($to);
+            $this->_phpMailer->addAddress($this->_appEmail);
             $this->_phpMailer->isHTML(true);
-    		$this->_phpMailer->Subject = $subject;
-    		$this->_phpMailer->Body    = $msg;
-    		$this->_phpMailer->send();
+            $this->_phpMailer->Subject = $subject;
+            $this->_phpMailer->Body    = $msg;
+            $this->_phpMailer->send();
             return true;
         } catch (Exception $e) {
-            // Log this error
             $this->_logger->log('Email failed to send from: sendErrorLogMsgToAdmin()', "Mailer Error: {$this->_phpMailer->ErrorInfo}");
             return false;
         }
     }
-
-
 
 
     // ═══════════════════════════════════════════════════════════════════
@@ -518,7 +355,6 @@ class DGZ_Messenger
      */
     private function renderEmail(string $view, array $data, string $layout = 'default'): string
     {
-        // Merge messenger-level context (caller's $data keys take precedence)
         $data = array_merge([
             'appName'         => $this->_appName,
             'appBusinessName' => $this->_appBusinessName,
@@ -529,18 +365,15 @@ class DGZ_Messenger
             'accentColour'    => $this->_config->getAppColorTheme() ?: '#E87169',
         ], $data);
 
-        // Resolve the content-view path
         $appView  = __DIR__ . "/../views/emails/{$view}.php";
         $coreView = __DIR__ . "/email-views/{$view}.php";
         $viewPath = file_exists($appView) ? $appView : $coreView;
 
-        // Render the content view into $content
         extract($data);
         ob_start();
         include $viewPath;
         $content = ob_get_clean();
 
-        // Wrap the content in the layout
         $layoutPath = __DIR__ . "/../layouts/email/{$layout}EmailLayout.php";
         ob_start();
         include $layoutPath;
@@ -556,12 +389,11 @@ class DGZ_Messenger
      * Send a pre-rendered HTML email body directly via PHPMailer.
      *
      * Use this when your calling code has already rendered the email template
-     * (e.g. via ob_start/include/ob_get_clean) and simply needs it delivered.
-     * Unlike the other send* methods, this method does NOT call renderEmail()
-     * internally — the HTML you pass is used as-is as the email body.
+     * and simply needs it delivered. Unlike sendEmail(), this does NOT call
+     * renderEmail() — the HTML you pass is used as-is as the email body.
      *
      * @param  string $toEmail    Recipient email address.
-     * @param  string $toName     Recipient display name (used by PHPMailer).
+     * @param  string $toName     Recipient display name.
      * @param  string $subject    Email subject line.
      * @param  string $htmlBody   Complete HTML string for the email body.
      * @return bool               true on success, false on failure.
@@ -584,4 +416,3 @@ class DGZ_Messenger
 
 
 }
-

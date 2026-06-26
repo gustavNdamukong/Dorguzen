@@ -13,8 +13,8 @@ class globalDetail extends \Dorguzen\Core\DGZ_HtmlView
 		$this->addStyle('seo.css');
 		?>
 
-		<script src="http://code.jquery.com/jquery-latest.min.js"></script>
-        <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
+		<script src="https://code.jquery.com/jquery-latest.min.js"></script>
+        <script src="https://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
 
 		<!-- ==========================
 			BREADCRUMB - START

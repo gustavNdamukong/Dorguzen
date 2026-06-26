@@ -261,4 +261,22 @@ class GalleryController extends DGZ_Controller implements DGZ_ModuleControllerIn
 
         $this->redirect('admin/gallery', "images?albumId={$albumId}");
     }
+
+    /**
+     * POST /admin/gallery/setFeatured
+     * Mark an album as the featured (home slider) album.
+     */
+    public function setFeatured(): void
+    {
+        $albumId = (int) ($_POST['albumId'] ?? 0);
+
+        if ($albumId > 0) {
+            $this->adminService->setFeaturedAlbum($albumId);
+            $this->addSuccess('This album now powers the homepage slider.', 'Done!');
+        } else {
+            $this->addErrors('Could not set the featured album.', 'Error');
+        }
+
+        $this->redirect('admin/gallery', '');
+    }
 }

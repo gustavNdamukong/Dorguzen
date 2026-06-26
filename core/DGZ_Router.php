@@ -1265,8 +1265,19 @@ class DGZ_Router {
                 // we make an exception for the HomeController-if no controller & no method parameter are given in the URL, go straight to its defaultAction() method.
                 if (strtoupper($get_input) == 'HOME') {
                     if ($rootPath == true) {
+                        // Bare site root "/" — this IS the canonical homepage URL, so render it normally.
                         $method = $object->getDefaultAction();
-                    } else { $method = $get_input; }
+                    } else {
+                        // We arrived here through an explicit homepage alias in the URL — "/home", "/index"
+                        // or "/index.php" — all of which auto-discovery resolves to the SAME page that the
+                        // canonical root "/" already serves. Rendering it here would expose the homepage at
+                        // several URLs (duplicate content), splitting its SEO ranking signals across them.
+                        // Instead we send a 301 "Moved Permanently" to the canonical root so search engines
+                        // consolidate everything onto one URL. This makes the fix automatic even for apps that
+                        // never declare an explicit "/home" route and rely purely on route auto-discovery.
+                        // redirectTo() lives on DGZ_Controller and exits the script after sending the header.
+                        $object->redirectTo($config->getHomePage(), 301);
+                    }
                 }
                 else
                 {
@@ -1365,8 +1376,8 @@ class DGZ_Router {
         // Static-asset 404 guard: when a referenced asset file is missing from disk,
         // Apache's !-f condition passes the request to PHP. Detect these by file extension
         // and return a plain 404 immediately — no controller lookup, no DB logging.
-        $requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
-        $realFilePath = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . $requestPath;
+        $requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '';
+        $realFilePath = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '/') . $requestPath;
         $staticExtensions = ['css', 'js', 'png', 'jpg', 'jpeg', 'gif', 'svg', 'ico',
                              'woff', 'woff2', 'ttf', 'eot', 'map', 'webp', 'pdf',
                              'mp4', 'mp3', 'ogg', 'wav', 'zip', 'gz'];
@@ -1534,12 +1545,25 @@ class DGZ_Router {
                 //----------------------------------------------------------
                 $hint = ($e instanceof DGZ_Exception) ? $e->getHint() : 'No hint available.';
 
-                DGZ_Logger::error($e->getMessage(), [
-                    'hint'  => $hint,
-                    'file'  => $e->getFile(),
-                    'line'  => $e->getLine(),
-                    'trace' => $e->getTraceAsString(),
-                ]);
+                // Don't DB-log routine routing 404s (unknown URL → no controller, or no such
+                // method) — almost entirely bot/scanner probes (wp-admin, wp-login.php,
+                // xmlrpc.php, wlwmanifest.xml …) that would otherwise flood the logs table.
+                // The 404 page is still shown.
+                $routeNotFoundTypes = [
+                    DGZ_Exception::CONTROLLER_CLASS_NOT_FOUND,   // no controller for the URL
+                    DGZ_Exception::MISSING_HANDLER_FOR_ACTION,   // controller found, no such method
+                ];
+                $isRouteNotFound = ($e instanceof DGZ_Exception)
+                    && in_array($e->getType(), $routeNotFoundTypes, true);
+
+                if (!$isRouteNotFound) {
+                    DGZ_Logger::error($e->getMessage(), [
+                        'hint'  => $hint,
+                        'file'  => $e->getFile(),
+                        'line'  => $e->getLine(),
+                        'trace' => $e->getTraceAsString(),
+                    ]);
+                }
                 //----------------------------------------------------------
 
                 // only show a hint to the user, for security reasons 

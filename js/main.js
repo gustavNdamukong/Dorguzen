@@ -159,7 +159,9 @@
     const storageType = cookieStorage; 
     //----------------------------------------------------------------------------------
 
-    const consentPropertyName = 'jdc_consent';
+    // App-unique key so the cookie consent doesn't clash across Dorguzen apps
+    // (window.dgzAppName is set by the layout from config('app.appName')).
+    const consentPropertyName = ((window.dgzAppName || 'dgz') + '_cookie_consent').toLowerCase();
 
     const shouldShowPopup = () => !storageType.getItem(consentPropertyName);
     const saveToStorage = () => storageType.setItem(consentPropertyName, true);

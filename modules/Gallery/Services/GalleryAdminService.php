@@ -171,6 +171,24 @@ class GalleryAdminService
         );
     }
 
+    /**
+     * Mark one album as the featured (home slider) album.
+     * Clears the flag on any currently-featured album first, so only one wins.
+     */
+    public function setFeaturedAlbum(int $albumId): bool
+    {
+        // Clear the flag on whichever album currently holds it.
+        $this->albumModel->updateObject(
+            ['album_is_featured' => 0],
+            ['album_is_featured' => 1]
+        );
+
+        return (bool) $this->albumModel->updateObject(
+            ['album_is_featured' => 1],
+            ['album_id' => $albumId]
+        );
+    }
+
     public function deleteAlbum(int $albumId): bool
     {
         $this->imageModel->deleteByAlbum($albumId);

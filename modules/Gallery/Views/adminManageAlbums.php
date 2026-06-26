@@ -65,6 +65,7 @@ class adminManageAlbums extends \Dorguzen\Core\DGZ_AdminHtmlView
                                         <th>Status</th>
                                         <th class="text-center">Images</th>
                                         <th>Created</th>
+                                        <th>Home Slider</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -93,6 +94,21 @@ class adminManageAlbums extends \Dorguzen\Core\DGZ_AdminHtmlView
                                             </td>
                                             <td class="text-center"><?= (int) $album['image_count'] ?></td>
                                             <td><small class="text-muted"><?= date('d M Y', strtotime($album['created_at'])) ?></small></td>
+                                            <td>
+                                                <?php if (!empty($album['album_is_featured'] ?? null)): ?>
+                                                    <span class="badge" style="background: var(--site-theme, #fd7e14);" title="This album powers the homepage slider">
+                                                        <i class="fa fa-star me-1"></i> Featured
+                                                    </span>
+                                                <?php else: ?>
+                                                    <form method="post" action="<?= $base ?>admin/gallery/setFeatured" style="margin:0;">
+                                                        <input type="hidden" name="_csrf_token" value="<?= getCsrfToken() ?>">
+                                                        <input type="hidden" name="albumId" value="<?= (int) $album['album_id'] ?>">
+                                                        <button type="submit" class="btn btn-sm btn-outline-secondary" title="Use this album for the homepage slider">
+                                                            <i class="fa fa-star me-1"></i> Make home
+                                                        </button>
+                                                    </form>
+                                                <?php endif; ?>
+                                            </td>
                                             <td>
                                                 <div class="d-flex gap-1 flex-wrap">
                                                     <a href="<?= $base ?>admin/gallery/images?albumId=<?= (int) $album['album_id'] ?>"

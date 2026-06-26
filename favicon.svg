@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32"><metadata><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/"><rdf:Description><dc:creator>RealFaviconGenerator</dc:creator><dc:source>https://realfavicongenerator.net</dc:source></rdf:Description></rdf:RDF></metadata><defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#17C3F5"></stop>
+      <stop offset="100%" stop-color="#F73B3B"></stop>
+    </linearGradient>
+    <clipPath id="clip">
+      <rect width="32" height="32" rx="7"></rect>
+    </clipPath>
+  </defs><rect width="32" height="32" rx="7" fill="#0a0a0f"></rect><rect width="32" height="2" rx="1" fill="url(#g)" opacity="0.6"></rect><g fill="url(#g)">
+    <!-- Left vertical bar -->
+    <rect x="5" y="8" width="4" height="16" rx="1"></rect>
+    <!-- Right vertical bar -->
+    <rect x="23" y="8" width="4" height="16" rx="1"></rect>
+    <!-- Diagonal crossbar (N shape) -->
+    <polygon points="5,8 9,8 27,24 23,24"></polygon>
+  </g></svg>

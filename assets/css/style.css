@@ -475,6 +475,8 @@
     background: #fff;
     z-index: 9999;
     overflow-x: hidden;
+    overflow-y: auto;                  /* scroll long menus instead of clipping them */
+    -webkit-overflow-scrolling: touch; /* momentum / swipe scroll on touch devices */
     transition: width .3s ease;
     box-shadow: 2px 0 5px rgba(0,0,0,0.1);
     padding-top: 60px;

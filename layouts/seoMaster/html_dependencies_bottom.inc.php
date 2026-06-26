@@ -11,12 +11,13 @@
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
 
 
-        <script src="<?=$this->config->getFileRootPath()?>assets/wow/wow.min.js"></script>
-        <script src="<?=$this->config->getFileRootPath()?>assets/js/easing/easing.min.js"></script>
-        <script src="<?=$this->config->getFileRootPath()?>assets/waypoints/waypoints.min.js"></script>
-        <script src="<?=$this->config->getFileRootPath()?>assets/owlcarousel/owl.carousel.min.js"></script>
-        <script src="<?=$this->config->getFileRootPath()?>assets/js/isotope/isotope.pkgd.min.js"></script>
-        <script src="<?=$this->config->getFileRootPath()?>assets/lightbox/js/lightbox.min.js"></script>
+        <script src="<?= assetVer('assets/wow/wow.min.js') ?>"></script>
+        <script src="<?= assetVer('assets/js/easing/easing.min.js') ?>"></script>
+        <script src="<?= assetVer('assets/waypoints/waypoints.min.js') ?>"></script>
+        <script src="<?= assetVer('assets/owlcarousel/owl.carousel.min.js') ?>"></script>
+        <script src="<?= assetVer('assets/js/isotope/isotope.pkgd.min.js') ?>"></script>
+        <script src="<?= assetVer('assets/lightbox/js/lightbox.min.js') ?>"></script>
 
         <!-- Template Javascript -->
-        <script src="<?=$this->config->getFileRootPath()?>js/main.js"></script>
+        <script>window.dgzAppName = <?= json_encode(config('app.appName') ?: 'dgz') ?>;</script>
+        <script src="<?= assetVer('js/main.js') ?>"></script>

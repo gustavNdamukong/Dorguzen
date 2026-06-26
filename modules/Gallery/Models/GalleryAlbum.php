@@ -50,6 +50,20 @@ class GalleryAlbum extends DGZ_Model
         return ($result && isset($result[0])) ? $result[0] : null;
     }
 
+    /**
+     * The active album flagged as featured (powers the homepage slider).
+     * Only one album should be featured at a time; the most recently updated wins.
+     */
+    public function getFeaturedAlbum(): ?array
+    {
+        $result = $this->query(
+            "SELECT * FROM gallery_albums
+             WHERE album_is_featured = 1 AND album_status = 'active'
+             ORDER BY updated_at DESC LIMIT 1"
+        );
+        return ($result && isset($result[0])) ? $result[0] : null;
+    }
+
     public function slugExists(string $slug, int $excludeId = 0): bool
     {
         $query  = "SELECT album_id FROM gallery_albums WHERE album_slug = ?";

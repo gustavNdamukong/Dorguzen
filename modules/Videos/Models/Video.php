@@ -55,6 +55,6 @@ class Video extends DGZ_Model
 
     public function deleteByAlbum(int $albumId): void
     {
-        $this->execute("DELETE FROM videos WHERE album_id = ?", [$albumId]);
+        $this->deleteWhere(['album_id' => $albumId]);
     }
 }

@@ -397,6 +397,28 @@ function config_path(string $fileName = ''): string
 // ----------------------------------------------------------------------
 
 
+/**
+ * Cache-busting asset URL. Appends ?v=<file-modified-time> so browsers fetch a
+ * fresh copy whenever the file changes — CSS/JS edits go live immediately and no
+ * visitor is stuck on a stale cached stylesheet/script.
+ *
+ * @param string $path Asset path relative to the project root, e.g. 'assets/css/style.css'
+ * @return string e.g. '/assets/css/style.css?v=1719357141'
+ */
+function assetVer(string $path): string
+{
+    $path = ltrim($path, '/');
+    $root = rtrim(container(\Dorguzen\Config\Config::class)->getFileRootPath(), '/') . '/';
+    $url  = $root . $path;
+    $full = (defined('DGZ_BASE_PATH') ? rtrim(DGZ_BASE_PATH, '/') : '.') . '/' . $path;
+    if (is_file($full)) {
+        $url .= '?v=' . filemtime($full);
+    }
+    return $url;
+}
+// ----------------------------------------------------------------------
+
+
 
 
 // ----------------------------------------------------------------------

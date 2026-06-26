@@ -19,7 +19,19 @@ class seoMasterLayout extends \Dorguzen\Core\DGZ_Layout {
 			<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
 			<?=$this->getGlobalSeoData() ?? ''?>
-			<?=($this->getMetadata() != null) ? $this->getMetadata() : "<title>".self::$appName."-".$this->pageTitle."</title>" ?>
+			<?php
+			// Always emit a <title>: when a view sets metadata but omits a <title>,
+			// still render the fallback title so the page is never titleless.
+			$dgzMeta = $this->getMetadata();
+			if ($dgzMeta === null || $dgzMeta === '') {
+				echo "<title>" . self::$appName . "-" . $this->pageTitle . "</title>";
+			} else {
+				if (stripos($dgzMeta, '<title') === false) {
+					echo "<title>" . self::$appName . "-" . $this->pageTitle . "</title>" . PHP_EOL;
+				}
+				echo $dgzMeta;
+			}
+			?>
 
 			<!-- Google Web Fonts -->
 			<link rel="preconnect" href="https://fonts.googleapis.com">
@@ -146,7 +158,7 @@ class seoMasterLayout extends \Dorguzen\Core\DGZ_Layout {
 			<section>
 				<div class="well">
 					<div id="consent-popup" class="consent-hidden">
-						<p>Be aware that we use cookies to improve your experience, and nothing more <a href="#">Link to your Terms & Conditions or Data Policy here</a>.
+						<p>Be aware that we use cookies to improve your experience, and nothing more. See our <a href="<?=$this->config->getFileRootPath()?>privacy">Privacy &amp; Cookie Policy</a>.
 							<a href="#" id="accept-cookie-use" class="btn btn-primary rounded-pill animated slidInRight">Okay</a>
 						</p>
 					</div>

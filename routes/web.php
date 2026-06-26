@@ -6,7 +6,9 @@
 // PUBLIC ROUTES
 // -----------------------------------------------------------------------
 $router->get('/',          'HomeController@defaultAction')->name('home');
-$router->get('/home',      'HomeController@defaultAction');
+$router->get('/terms',     'PagesController@terms')->name('terms');
+$router->get('/privacy',   'PagesController@privacy')->name('privacy');
+$router->get('/home',      'HomeController@homeRedirect');   // 301 -> canonical "/" (avoids duplicate homepage URL)
 
 $router->get("/portfolio",                "PortfolioController@portfolio");
 $router->get('/search',                   'SearchController@search');
@@ -101,6 +103,7 @@ $router->get('/admin/gallery/images',         'GalleryController@manageImages', 
 $router->post('/admin/gallery/upload',        'GalleryController@uploadImages',  'gallery');
 $router->get('/admin/gallery/deleteImage',    'GalleryController@deleteImage',   'gallery');
 $router->post('/admin/gallery/setCover',      'GalleryController@setCover',      'gallery');
+$router->post('/admin/gallery/setFeatured',   'GalleryController@setFeatured',   'gallery');
 
 // Blog module
 $router->get('/blog',                         'BlogController@index',          'blog');

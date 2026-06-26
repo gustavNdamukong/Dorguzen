@@ -4,9 +4,14 @@
         <div class="row g-5">
             <div class="col-md-6 col-lg-3">
                 <h5 class="text-white mb-4">Get In Touch</h5>
-                <p><i class="fa fa-map-marker-alt me-3"></i>123 Street, New York, USA</p>
-                <p><i class="fa fa-phone-alt me-3"></i>+012 345 67890</p>
-                <p><i class="fa fa-envelope me-3"></i>info@example.com</p>
+                <?php
+                $footerAddr  = trim((string) config('app.site_postal_address'));
+                $footerTel   = trim((string) config('app.site_contact_tel'));
+                $footerEmail = trim((string) config('app.appEmail'));
+                ?>
+                <?php if ($footerAddr !== ''): ?><p><i class="fas fa-map-marker-alt me-3"></i><?= htmlspecialchars($footerAddr) ?></p><?php endif; ?>
+                <?php if ($footerTel !== ''): ?><p><i class="fas fa-phone me-3"></i><a class="text-reset" href="tel:<?= htmlspecialchars(preg_replace('/[^0-9+]/', '', $footerTel)) ?>"><?= htmlspecialchars($footerTel) ?></a></p><?php endif; ?>
+                <?php if ($footerEmail !== ''): ?><p><i class="fas fa-envelope me-3"></i><a class="text-reset" href="mailto:<?= htmlspecialchars($footerEmail) ?>"><?= htmlspecialchars($footerEmail) ?></a></p><?php endif; ?>
                 <div class="d-flex pt-2">
                     <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-twitter"></i></a>
                     <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-facebook-f"></i></a>
@@ -17,38 +22,59 @@
             </div>
             <div class="col-md-6 col-lg-3">
                 <h5 class="text-white mb-4">Popular Link</h5>
-                <a class="btn btn-link" href="">About Us</a>
-                <a class="btn btn-link" href="">Contact Us</a>
-                <a class="btn btn-link" href="">Privacy Policy</a>
-                <a class="btn btn-link" href="">Terms & Condition</a>
-                <a class="btn btn-link" href="">Career</a>
+                <a class="btn btn-link" href="<?=$this->config->getFileRootPath()?>about">About Us</a>
+                <a class="btn btn-link" href="<?=$this->config->getFileRootPath()?>services">Our Services</a>
+                <a class="btn btn-link" href="<?=$this->config->getFileRootPath()?>feedback">Contact Us</a>
                 <?php if (config('app.modules.testimonials') === 'on'): ?>
                 <a class="btn btn-link" href="<?=$this->config->getFileRootPath()?>testimonials">Leave review</a>
                 <?php endif; ?>
             </div>
+            <?php
+            // Footer "Project Gallery" thumbnails: prefer the featured / most-recent gallery
+            // album; if there are NO albums, fall back to loose images in the gallery root
+            // folder (the same images the home slider uses).
+            $footerGalleryImages = [];   // each: ['src' => url, 'link' => url]
+            if (config('app.modules.gallery') === 'on') {
+                $fgBase = $this->config->getFileRootPath();
+                $fg = container(\Dorguzen\Modules\Gallery\Services\GalleryService::class)->footerGalleryPayload();
+                if ($fg) {
+                    $fgAlbumId = (int) $fg['album']['album_id'];
+                    $fgLink    = $fgBase . 'gallery/album?albumId=' . $fgAlbumId;
+                    foreach (array_slice($fg['images'], 0, 6) as $fgImg) {
+                        $footerGalleryImages[] = [
+                            'src'  => $fgBase . 'assets/images/gallery/' . $fgAlbumId . '/' . \Dorguzen\Core\DGZ_Uploader\DGZ_Upload::thumbName($fgImg['image_filename']),
+                            'link' => $fgLink,
+                        ];
+                    }
+                } else {
+                    // No album yet — use loose images in assets/images/gallery/ (link to the gallery page).
+                    $fgRootDir = rtrim(DGZ_BASE_PATH, '/') . '/assets/images/gallery';
+                    $fgRootImgs = glob($fgRootDir . '/*.{jpg,jpeg,png,gif,webp}', GLOB_BRACE) ?: [];
+                    foreach (array_slice($fgRootImgs, 0, 6) as $imgPath) {
+                        $footerGalleryImages[] = [
+                            'src'  => $fgBase . 'assets/images/gallery/' . basename($imgPath),
+                            'link' => null,   // root-folder images aren't an album — not clickable
+                        ];
+                    }
+                }
+            }
+            ?>
+            <?php if (!empty($footerGalleryImages)): ?>
             <div class="col-md-6 col-lg-3">
                 <h5 class="text-white mb-4">Project Gallery</h5>
                 <div class="row g-2">
+                    <?php foreach ($footerGalleryImages as $fgi): ?>
                     <div class="col-4">
-                        <img class="img-fluid" src="<?=$this->config->getFileRootPath()?>assets/images/portfolio-1.jpg" alt="Image">
+                        <?php if (!empty($fgi['link'])): ?>
+                        <a href="<?= htmlspecialchars($fgi['link']) ?>"><img class="img-fluid" src="<?= htmlspecialchars($fgi['src']) ?>" alt="Gallery image"></a>
+                        <?php else: ?>
+                        <img class="img-fluid" src="<?= htmlspecialchars($fgi['src']) ?>" alt="Gallery image">
+                        <?php endif; ?>
                     </div>
-                    <div class="col-4">
-                        <img class="img-fluid" src="<?=$this->config->getFileRootPath()?>assets/images/portfolio-2.jpg" alt="Image">
-                    </div>
-                    <div class="col-4">
-                        <img class="img-fluid" src="<?=$this->config->getFileRootPath()?>assets/images/portfolio-3.jpg" alt="Image">
-                    </div>
-                    <div class="col-4">
-                        <img class="img-fluid" src="<?=$this->config->getFileRootPath()?>assets/images/portfolio-4.jpg" alt="Image">
-                    </div>
-                    <div class="col-4">
-                        <img class="img-fluid" src="<?=$this->config->getFileRootPath()?>assets/images/portfolio-5.jpg" alt="Image">
-                    </div>
-                    <div class="col-4">
-                        <img class="img-fluid" src="<?=$this->config->getFileRootPath()?>assets/images/portfolio-6.jpg" alt="Image">
-                    </div>
+                    <?php endforeach; ?>
                 </div>
             </div>
+            <?php endif; ?>
             <div class="col-md-6 col-lg-3">
                 <h5 class="text-white mb-4">Newsletter</h5>
                 <p>Stay updated with our latest news, projects, and updates. Subscribe to our newsletter today.</p>
@@ -67,15 +93,13 @@
         <div class="copyright">
             <div class="row">
                 <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-                    &copy; <a class="border-bottom" href="#">Your Site Name</a>, All Right Reserved.
-                    Powered By Dorguzen
+                    &copy; <?= htmlspecialchars(config('app.appName')) ?>, All Rights Reserved.
+                    Powered By <a class="border-bottom" href="https://dorguzen.com/" target="_blank" rel="noopener">Dorguzen</a>
                 </div>
                 <div class="col-md-6 text-center text-md-end">
                     <div class="footer-menu">
-                        <a href="">Home</a>
-                        <a href="">Cookies</a>
-                        <a href="">Help</a>
-                        <a href="">FQAs</a>
+                        <a href="<?=$this->config->getFileRootPath()?>">Home</a>
+                        <a href="<?=$this->config->getFileRootPath()?>privacy">Cookies</a>
                     </div>
                 </div>
             </div>

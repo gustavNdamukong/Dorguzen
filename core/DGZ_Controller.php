@@ -1105,6 +1105,39 @@ abstract class DGZ_Controller implements DGZ_Displayable {
 
 
 
+    /**
+     * Redirects the browser to ANY URL (absolute or root-relative) using an explicit HTTP
+     * status code, then stops the script. This is the low-level redirect primitive.
+     *
+     * Use this (instead of redirect()) when you need to send the visitor somewhere other than
+     * a controller/action in this app, or when you need to control the redirect status:
+     *
+     *   - 301 "Moved Permanently": tells browsers AND search engines the old address is gone
+     *     for good and any ranking signals should transfer to the new URL. Use this to remove
+     *     duplicate URLs for SEO (e.g. sending "/home" to the canonical site root "/").
+     *   - 302 "Found" (the default): a temporary move; search engines keep the old URL indexed.
+     *     This matches redirect()'s behaviour and suits post-form-submit redirects.
+     *
+     * Example (permanent, SEO consolidation):
+     *
+     *      $this->redirectTo($this->config->getHomePage(), 301);
+     *
+     * @param string $url        An absolute URL (https://site/...) or a root-relative path (/path).
+     * @param int    $statusCode The HTTP redirect status to send. 301 = permanent, 302 = temporary (default).
+     */
+    public function redirectTo(string $url, int $statusCode = 302): void
+    {
+        // Mirror redirect()'s "last-one-wins" behaviour: drop any Location set earlier in the request.
+        if ($this->redirectPending()) {
+            header_remove('location');
+        }
+
+        header('Location: ' . $url, true, $statusCode);
+        exit();
+    }
+
+
+
 
 
     /**

@@ -48,7 +48,7 @@
                         <?php if (config('app.modules.testimonials') === 'on'): ?>
                         <a href="<?=$this->config->getFileRootPath()?>testimonials" class="nav-item nav-link"><i class="fa fa-star me-1"></i> Review</a>
                         <?php endif; ?>
-                        <a href="<?=$this->config->getFileRootPath()?>feedback" class="nav-item nav-link"><i class="fa fa-envelope me-1"></i> Contact</a>
+                        <a href="<?=$this->config->getFileRootPath()?>feedback" class="nav-item nav-link"><i class="fa fa-envelope me-1"></i> Contact Us</a>
 
                         <?php if (!isset($_SESSION['authenticated'])): ?>
                             <a href="<?=$this->config->getFileRootPath()?>auth/login" class="nav-item nav-link"><i class="fa fa-sign-in-alt me-1"></i> Login</a>
@@ -114,7 +114,7 @@
             <a href="#" class="btn btn-close btn-close-white btn-sm" onclick="closeSlideMenu(event)"></a>
         </div>
         <ul class="nav navbar-nav navbar-right list-group">
-            <a href="<?=$this->config->getFileRootPath()?>home" class="list-group-item list-group-item-action"><i class="fa fa-home fa-fw me-2"></i> Home</a>
+            <a href="<?=$this->config->getHomePage()?>" class="list-group-item list-group-item-action"><i class="fa fa-home fa-fw me-2"></i> Home</a>
             <a href="<?=$this->config->getFileRootPath()?>news" class="list-group-item list-group-item-action"><i class="fa fa-newspaper fa-fw me-2"></i> News</a>
             <a href="<?=$this->config->getFileRootPath()?>portfolio" class="list-group-item list-group-item-action"><i class="fa fa-briefcase fa-fw me-2"></i> Portfolio</a>
             <?php if (config('app.modules.gallery') === 'on'): ?>
@@ -129,7 +129,7 @@
             <?php if (config('app.modules.testimonials') === 'on'): ?>
             <a href="<?=$this->config->getFileRootPath()?>testimonials" class="list-group-item list-group-item-action"><i class="fa fa-star fa-fw me-2"></i> Review</a>
             <?php endif; ?>
-            <a href="<?=$this->config->getFileRootPath()?>feedback" class="list-group-item list-group-item-action"><i class="fa fa-envelope fa-fw me-2"></i> Contact</a>
+            <a href="<?=$this->config->getFileRootPath()?>feedback" class="list-group-item list-group-item-action"><i class="fa fa-envelope fa-fw me-2"></i> Contact Us</a>
             <?php if (!isset($_SESSION['authenticated'])): ?>
                 <a href="<?=$this->config->getFileRootPath()?>auth/login" class="list-group-item list-group-item-action"><i class="fa fa-sign-in-alt fa-fw me-2"></i> Login</a>
                 <?php if (config('app.allow_registration') === true): ?>

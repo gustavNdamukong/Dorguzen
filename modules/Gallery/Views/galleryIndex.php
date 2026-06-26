@@ -48,7 +48,7 @@ class galleryIndex extends \Dorguzen\Core\DGZ_HtmlView
                 <h2 class="text-center fw-bold mb-4" style="font-size:1.8rem; letter-spacing:.3px;">Gallery</h2>
                 <?php if (empty($albums)): ?>
                     <div class="text-center py-5 text-muted">
-                        <i class="fa fa-images fa-3x mb-3"></i>
+                        <i class="fas fa-images fa-3x mb-3"></i>
                         <p class="fs-5">No albums yet. Check back soon!</p>
                     </div>
                 <?php else: ?>
@@ -63,7 +63,7 @@ class galleryIndex extends \Dorguzen\Core\DGZ_HtmlView
                                                 <img src="<?= $base ?>assets/images/gallery/<?= (int) $album['album_id'] ?>/<?= htmlspecialchars(DGZ_Upload::thumbName($album['album_cover'])) ?>"
                                                      alt="<?= htmlspecialchars($album['album_name']) ?>">
                                             <?php else: ?>
-                                                <div class="cover-placeholder"><i class="fa fa-images"></i></div>
+                                                <div class="cover-placeholder"><i class="fas fa-images"></i></div>
                                             <?php endif; ?>
                                             <span class="album-badge">
                                                 <?= (int) $album['image_count'] ?> photo<?= $album['image_count'] != 1 ? 's' : '' ?>
