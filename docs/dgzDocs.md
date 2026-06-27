@@ -10635,6 +10635,113 @@ with the framework's philosophy.
   This also covers everything the users sees on the screen (UI), and the manipulation thereof, programmatically whether it be through printing data to the screen, how to create comments, passing data to the view in the case of development frameworks, passing to or retrieving data from the URL etc.
 
 
+Redirecting the Visitor — redirect() and redirectTo()
+------------------------------------------------------
+
+A "redirect" is when your application, instead of drawing a page, tells the visitor's browser
+"what you asked for actually lives at a different address — go there instead." The browser then
+makes a fresh request to that other address. This is an everyday need: after a successful login you
+send the user to their dashboard, after a form is saved you send them back to a list page, and so
+on. Dorguzen gives every controller TWO methods for this (both inherited from DGZ_Controller):
+redirect() and redirectTo(). They look alike but solve different problems, so it pays to know both.
+
+A word first on "HTTP status codes"
+-----------------------------------
+
+Every redirect carries a small number — the HTTP status code — that tells the browser, and any
+search engine, WHY the redirect is happening. Two of them matter here:
+
+  - 302 "Found" (a *temporary* redirect): "use this other address for now, but the original
+    address is still the real one — keep it." This is the safe, normal default for app navigation
+    such as post-login or post-save redirects.
+  - 301 "Moved Permanently": "the original address is gone for good; the real address is now this
+    new one." A search engine reacts to a 301 by moving the old page's ranking onto the new address
+    and dropping the old one from its index. Use a 301 only when an address should never be used
+    again — for example when two URLs show the exact same page and you want to collapse them into
+    one (see the canonical-URL example at the end of this topic).
+
+redirect() — jump to another controller/action inside THIS app
+--------------------------------------------------------------
+
+This is the one you will use most of the time. You give it a controller name (and optionally a
+method name), and it sends the visitor to that route inside your own application. It builds the
+full web address for you from your app's base URL (via Config::getFileRootPath()), so you never
+hard-code something like "http://localhost/myapp/..." — the same call works on your local machine
+and on the live server.
+
+  // inside any controller method:
+  $this->redirect('auth', 'login');                       // -> /auth/login
+  $this->redirect('auth/login');                          // -> /auth/login  (slash form, same thing)
+  $this->redirect('news');                                // -> /news        (NewsController's default action)
+  $this->redirect('');                                    // -> /            (the home page)
+  $this->redirect('shop', 'manage', ['userId' => 42]);    // -> /shop/manage?userId=42
+
+redirect() ALWAYS sends a 302 (temporary), and it ALWAYS calls exit() for you afterwards. That
+second point matters: a redirect is just an HTTP header, so without an exit() the rest of your
+method would keep running. redirect() takes care of that for you. (If you happen to call it more
+than once in one request, the last call wins — Dorguzen clears the earlier Location header first.)
+
+redirectTo() — send the browser to ANY URL, with a status code you choose
+-------------------------------------------------------------------------
+
+Sometimes "another controller/action in this app" is not what you need. You might want to send the
+visitor to a completely different website, or — far more commonly — you need to control the status
+code (a 301 instead of the default 302). That is exactly what redirectTo() adds:
+
+  public function redirectTo(string $url, int $statusCode = 302): void
+
+You hand it a finished URL — absolute like "https://example.com/" or root-relative like "/path" —
+and, optionally, the status code. Like redirect(), it calls exit() for you and obeys the same
+last-call-wins rule.
+
+  // permanent (301) redirect to your site's canonical home page:
+  $this->redirectTo($this->config->getHomePage(), 301);
+
+  // temporary (302 — the default) redirect to an external site:
+  $this->redirectTo('https://status.example.com');
+
+Which one should I use?
+-----------------------
+
+  | Question                      | redirect()                        | redirectTo()                       |
+  | ----------------------------- | --------------------------------- | ---------------------------------- |
+  | Where can it send the user?   | a controller/action in THIS app   | any URL (your app, or external)    |
+  | How do you name the target?   | controller + method names         | a finished URL string              |
+  | Builds the URL for you?       | yes, from getFileRootPath()       | no — you pass the full URL         |
+  | Status code                   | always 302 (temporary)            | your choice (302 default, or 301)  |
+  | Calls exit() for you?         | yes                               | yes                                |
+
+Rule of thumb: use redirect() for ordinary in-app navigation (after login, after saving a form).
+Reach for redirectTo() only when you need a specific status code (almost always a 301) or a target
+outside your own routes.
+
+You may wonder why we did not simply add a status-code option to redirect() itself. redirect()'s
+whole job is "go to a named route in this app", and plenty of existing code relies on that exact,
+simple behaviour. Bolting URL-and-status handling onto it would blur that contract and risk those
+callers. Keeping redirectTo() as a separate, small primitive leaves redirect() untouched while
+giving you the extra power for the rare cases that need it.
+
+A real example — the homepage "canonical URL" fix
+--------------------------------------------------
+
+A "canonical URL" is the single, official address for a page. A classic SEO (Search Engine
+Optimisation) problem is the SAME page answering at more than one address — for instance a home
+page reachable at "/", "/home", "/index" AND "/index.php". A search engine then sees four addresses
+showing identical content ("duplicate content") and splits that page's ranking across them instead
+of crediting one strong page.
+
+Dorguzen handles this for you. When an incoming request resolves to one of those homepage aliases
+(whether through an explicit /home route or through Dorguzen's route auto-discovery), the framework
+issues a 301 to the real root using exactly the call shown above:
+
+  $this->redirectTo($this->config->getHomePage(), 301);
+
+getHomePage() returns the correct absolute base URL for the current environment (local vs live), so
+this one line does the right thing everywhere. The outcome: any visitor or search-engine crawler
+that lands on "/home", "/index" or "/index.php" is permanently sent to "/", and the home page's
+ranking is consolidated onto a single canonical address.
+
+
 Templating Engines — What They Are, Why Dorguzen Does Not Need One, and How to Add One If You Want
 ----------------------------------------------------------------------------------------------------
 
