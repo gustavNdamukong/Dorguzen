@@ -22,17 +22,25 @@ class jsCreateUserValidationPartial extends \Dorguzen\Core\DGZ_HtmlView
     public function show()
     { ?>
         <script type="text/javascript">
-            $(document).ready(function () {
+            // Plain JavaScript — no jQuery. nolimitmedia's custom layout does not load
+            // jQuery, so this previously-jQuery partial is rewritten with DOMContentLoaded
+            // + addEventListener. checkEmail()/ajaxRequest() were already vanilla.
+            document.addEventListener('DOMContentLoaded', function () {
                 var dgzCsrfToken = "<?= getCsrfToken() ?>";
+
+                var regEmail = document.querySelector('#regis_form #email');
+                if (!regEmail) { return; }
 
                 // Only fire after the user has explicitly focused the field themselves.
                 // Guards against browsers that auto-focus email fields for autofill,
                 // which would otherwise trigger the check on every subsequent click.
                 var emailFocusedByUser = false;
 
-                $('#regis_form #email').on('focus', function() {
+                regEmail.addEventListener('focus', function () {
                     emailFocusedByUser = true;
-                }).on('blur', function() {
+                });
+
+                regEmail.addEventListener('blur', function () {
                     if (emailFocusedByUser) {
                         checkEmail(this);
                     }
@@ -67,7 +75,6 @@ class jsCreateUserValidationPartial extends \Dorguzen\Core\DGZ_HtmlView
                     request.send(params)
                 }
 
-
                 function ajaxRequest() {
                     try {
                         return new XMLHttpRequest();
@@ -76,7 +83,6 @@ class jsCreateUserValidationPartial extends \Dorguzen\Core\DGZ_HtmlView
                     }
                 }
             });
-
         </script>
         <?php
     }
