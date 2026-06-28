@@ -14599,9 +14599,14 @@ but before it returns true.
 ——————————————————————————————————————————————————————
         -Overview
         -Testing Emails locally with Mail Trap
-        -1. SMTP CONFIGURATION (.env)
-            -For local testing with MailTrap
-            -⚠️ Before deploying to production — switching to your live mail provider
+        -1. SMTP CONFIGURATION (.env and .env.local)
+            -How Dorguzen handles different environments (the important part)
+            -Also set APP_EMAIL — the admin recipient address
+            -⚠️ Before deploying to production — switch to your live mail provider
+            -Choosing a sender for production (cPanel email vs a transactional service)
+            -Receiving email, and why mail sometimes lands in Spam (MX, SPF, DKIM, DMARC)
+            -WARNING — the most common "my change did nothing" trap: the config cache
+            -Production checklist
         -2. PUBLIC SEND METHODS
         -3. RENDERING EMAILS (renderEmail)
         -4. FILE LOCATIONS
@@ -14614,8 +14619,10 @@ PHPMailer. It provides ready-made methods for every transactional email a typica
 needs — contact forms, account activation, welcome messages, password reset, newsletter sends,
 and admin error alerts.
 
-All SMTP credentials live in .env, so you can switch between your production mail provider
-and a local mail-catcher (e.g. MailTrap) without touching any code.
+All SMTP credentials live in your environment files (.env for live settings, .env.local for
+your local Mailtrap overrides), so you can switch between your production mail provider and a
+local mail-catcher (e.g. MailTrap) without touching any code — and without editing a single
+file when you deploy. See "1. SMTP CONFIGURATION" below for exactly how this layering works.
 
 
 
@@ -14679,30 +14686,22 @@ tab. This will reveal all those credentials you need, which should look somethin
       Password         ****380h
       ...
 
-Copy them over to your .env file, comment out the MAIL HOST group of directives meant for email 
-sending in the production environment, and create a replication to override that for Mail Trap 
-local testing. Here is what your .env file should look like:
+Copy these four values (Host, Port, Username, Password). You will place them in a special
+file called .env.local, explained fully in the next section. The short version: your real,
+live email settings live in .env, and your local Mailtrap testing settings live in
+.env.local. On your own computer Dorguzen automatically prefers .env.local, so while you
+develop, every email your app "sends" is quietly captured by Mailtrap instead of reaching a
+real person. On your live server (where there is no .env.local) the app uses the real
+settings in .env. You never have to edit anything when you deploy.
 
-      # SMTP / Mail 
-      #---------------------------------
-      # MAILGUN CREDENTIALS USING SMTP / Mail (PHPMailer)
-      # Switch MAIL_HOST/PORT/USERNAME/PASSWORD to MailTrap for local testing.
-      #---------------------------------
-      # MAIL_HOST=smtp.mailgun.org
-      # MAIL_PORT=587
-      # MAIL_USERNAME='postmaster@admin.camerooncom.com'
-      # MAIL_PASSWORD='postmaster_camcom@'
-      # MAIL_ENCRYPTION=tls
-      # MAIL_FROM_ADDRESS='noreply@admin.camerooncom.com'
-      # MAIL_FROM_NAME='Camerooncom'
+Your .env.local (local machine only) should contain the Mailtrap block:
 
-      #---------------------------------
-      # MAILTRAP TESTING
-      #---------------------------------
+      # SMTP / Mail — LOCAL TESTING ONLY (Mailtrap). Lives in .env.local; never uploaded.
       MAIL_HOST=sandbox.smtp.mailtrap.io
       MAIL_PORT=587
       MAIL_USERNAME='yourUsernameFromMailTrapIo'
-      MAIL_PASSWORD=yourPasswordhere
+      MAIL_PASSWORD='yourPasswordhere'
+      MAIL_ENCRYPTION=tls
 
 Next, you just have to trigger email sending from your application to confirm that the email sending 
 works. Do something to trigger email, for some, it is the submitting of a contact form your web app's 
@@ -14713,86 +14712,227 @@ inbox of your Sandbox for any in-coming emails, and you should see one.
 
 
 
-1. SMTP CONFIGURATION (.env)
-—————————————————————————————
+1. SMTP CONFIGURATION (.env and .env.local)
+—————————————————————————————————————————————
 
-Add the following block to your .env (and .env.example):
+First, a few terms defined plainly — email has a lot of jargon:
 
-    MAIL_HOST=smtp.mailgun.org       # your SMTP server
+  - SMTP (Simple Mail Transfer Protocol): the "language" servers use to hand an email from
+    one machine to another. To send mail, your app logs into an SMTP server (with a username
+    and password) and says, in effect, "please deliver this message."
+
+  - SMTP server / host: the address of the machine that accepts your outgoing mail, e.g.
+    smtp.mailgun.org or mail.yourdomain.com.
+
+  - Mailbox vs sending service: two different things people often confuse. A *mailbox* is an
+    inbox you log into and read (like info@yourdomain.com). A *sending service* only pushes
+    mail out and has no inbox to read. Some providers do one, some do both.
+
+  - Mailtrap: a free "fake inbox" for developers. While building locally you do NOT want real
+    customers receiving your test emails. Mailtrap catches every email your app sends and
+    shows it in a private sandbox inbox, so you can confirm your emails look right without
+    anyone real ever receiving them.
+
+  - Encryption (TLS / SSL): scrambles the connection so passwords and message content cannot
+    be read while travelling across the internet. Use port 587 with tls, or port 465 with
+    ssl.
+
+  - The "From" address: the sender shown to the recipient. Set with MAIL_FROM_ADDRESS (the
+    email) and MAIL_FROM_NAME (the friendly name, e.g. "Acme Support").
+
+At minimum, mail sending uses this block in .env (and document it in .env.example). The
+inline values are the defaults DGZ_Messenger falls back to; every one can be overridden:
+
+    MAIL_HOST=smtp.mailgun.org       # your SMTP server (default: smtp.mailgun.org)
     MAIL_PORT=587                    # 587 (TLS) or 465 (SSL)
     MAIL_USERNAME=postmaster@...     # SMTP username
     MAIL_PASSWORD=your-password      # SMTP password
     MAIL_ENCRYPTION=tls              # tls | ssl
     MAIL_FROM_ADDRESS=noreply@...    # envelope From address
     MAIL_FROM_NAME='Your App'        # envelope From display name
-
-For local testing with MailTrap (https://mailtrap.io):
-Test locally, after commenting out the code above which is for the production environment, the 
-four lines below are the only lines you need for local MailTrap testing. 
-
-    MAIL_HOST=sandbox.smtp.mailtrap.io
-    MAIL_PORT=587
-    MAIL_USERNAME=<mailtrap-user>
-    MAIL_PASSWORD=<mailtrap-password>
-    MAIL_ENCRYPTION=tls
-
-Just swap these four values in .env — no code changes needed. All emails will be
-caught by MailTrap's sandbox inbox instead of being delivered to real addresses.
+    MAIL_TIMEOUT=15                  # seconds DGZ_Messenger waits on SMTP (default: 15)
 
 Note: the MAIL_FROM_* values are always used as the envelope sender, regardless of
 which SMTP provider is active.
 
 
-⚠️  BEFORE DEPLOYING TO PRODUCTION — switch back to your live mail provider
-————————————————————————————————————————————————————————————————————————————
-This is a very common deployment mistake. The .env on your live server must
-NOT use Mailtrap credentials — Mailtrap is a sandbox that catches emails and
-prevents them from reaching real users. If you deploy with Mailtrap active,
-your registration activation emails, password reset emails, and all other
-transactional emails will silently disappear into a Mailtrap inbox instead of
-reaching your users.
+Also set APP_EMAIL — the admin recipient address
+-------------------------------------------------
+APP_EMAIL (read from config as appEmail in configs/app.php) is the admin inbox that
+DGZ_Messenger sends notifications TO. The built-in sendContactFormMsgToAdmin() and
+sendErrorLogMsgToAdmin() methods use this value as their To: address ($this->_appEmail).
 
-The convention is to keep both blocks in .env and simply comment/uncomment
-the right one depending on the environment:
+    APP_EMAIL=admin@yourapp.com
+    APP_EMAIL_OTHER=second-admin@yourapp.com   # optional secondary admin (appEmailOther)
 
-      # SMTP / Mail
-      #---------------------------------
-      # MAILGUN (production) — uncomment when deploying to live
-      #---------------------------------
-      MAIL_HOST=smtp.mailgun.org
-      MAIL_PORT=587
-      MAIL_USERNAME=postmaster@yourdomain.com
-      MAIL_PASSWORD=your-mailgun-smtp-password
-      MAIL_ENCRYPTION=tls
+⚠️  If APP_EMAIL is left empty, PHPMailer has no To: address and admin emails fail — the
+failure is logged as "Email failed to send from: …" with no further detail. Always set it
+to a real, non-empty address.
+
+
+How Dorguzen handles different environments (the important part)
+---------------------------------------------------------------
+In the old days you had to comment and uncomment blocks in .env every time you moved
+between your computer and your live server — and forgetting to do so was a very common,
+painful mistake (your real customers' emails would silently vanish into a test inbox).
+
+Dorguzen removes that risk completely with a layered system of environment files. You keep
+TWO files:
+
+  - .env        : your base settings. On your live server this holds the REAL mail settings.
+                  (.env is never committed to Git, and it is the file you upload to the
+                  server.)
+
+  - .env.local  : your personal, local-machine overrides. This holds your Mailtrap settings.
+                  It is NEVER uploaded to any server.
+
+Dorguzen loads them in this order (core/config/EnvLoader.php), and each file can override
+the one before it:
+
+      1. .env               (base — your real / live settings)
+      2. .env.{APP_ENV}     (optional, e.g. .env.staging — settings for a named environment)
+      3. .env.local         (loaded LAST — wins over everything; your local overrides)
+
+(The .env.local override is skipped when APP_ENV=testing, so the test suite always runs
+against the base .env.)
+
+So on your own computer, .env.local exists and its Mailtrap settings win, meaning every
+email goes to Mailtrap. On your live server there is no .env.local, so the real settings in
+.env are used and mail goes to real people. Same code, both environments, and you never edit
+a file when you deploy.
+
+IMPORTANT: because .env.local always wins, you must NEVER upload it to a server. If you do,
+your live site will start sending through Mailtrap and real emails will quietly stop arriving.
+
+Your live .env (uploaded to the server) — example using a free cPanel mailbox:
+
+      # SMTP / Mail — PRODUCTION
+      MAIL_HOST=mail.yourdomain.com         # your mail server (see "Choosing a sender" below)
+      MAIL_PORT=465                         # 465 = ssl, 587 = tls
+      MAIL_USERNAME=noreply@yourdomain.com  # log in AS this mailbox
+      MAIL_PASSWORD=your-mailbox-password
+      MAIL_ENCRYPTION=ssl                   # ssl (with port 465) or tls (with port 587)
       MAIL_FROM_ADDRESS=noreply@yourdomain.com
       MAIL_FROM_NAME='Your App Name'
 
-      #---------------------------------
-      # MAILTRAP (local testing only) — comment out before deploying
-      #---------------------------------
-      # MAIL_HOST=sandbox.smtp.mailtrap.io
-      # MAIL_PORT=587
-      # MAIL_USERNAME=<mailtrap-user>
-      # MAIL_PASSWORD=<mailtrap-password>
+Your .env.local (your computer only) — the Mailtrap block. You list ONLY the lines that
+differ locally; everything else is inherited from .env:
 
-On your local machine, the Mailgun block is commented out and Mailtrap is
-active. On the live server, the Mailtrap block is commented out and Mailgun
-(or your chosen provider) is active. One file, both environments, no code
-changes ever needed.
+      MAIL_HOST=sandbox.smtp.mailtrap.io
+      MAIL_PORT=587
+      MAIL_USERNAME=<mailtrap-user>
+      MAIL_PASSWORD=<mailtrap-password>
+      MAIL_ENCRYPTION=tls
 
-Production mail provider checklist:
-  ✔  MAIL_HOST — your live SMTP server (e.g. smtp.mailgun.org)
-  ✔  MAIL_PORT — 587 (TLS) or 465 (SSL); 25 is often blocked by hosting providers
-  ✔  MAIL_USERNAME / MAIL_PASSWORD — credentials from your mail provider dashboard
-  ✔  MAIL_ENCRYPTION — tls (recommended) or ssl
-  ✔  MAIL_FROM_ADDRESS — a verified sender address on your domain
-  ✔  MAIL_TIMEOUT — defaults to 15 seconds; increase if your provider is slow
-                    to respond, but do not set it too high or slow SMTP will
-                    block your web requests (see ShouldQueue below)
 
-If your activation or reset emails are still not arriving after switching to
-the live provider, check the logs table — DGZ_Messenger catches all PHPMailer
-failures and logs the exact SMTP error message so you can diagnose quickly.
+⚠️  BEFORE DEPLOYING TO PRODUCTION — switch to your live mail provider
+———————————————————————————————————————————————————————————————————————
+This is a very common, painful deployment mistake. The mail your live site sends must
+NOT go through Mailtrap — Mailtrap is a sandbox that CATCHES emails and prevents them from
+reaching real users. If your production app ends up using Mailtrap credentials, your
+registration activation emails, password-reset emails, and every other transactional email
+will silently disappear into a Mailtrap inbox instead of reaching your users.
+
+With Dorguzen's layered env files you do NOT comment/uncomment anything by hand — just make
+sure that:
+
+  • your live .env contains your REAL provider/mailbox credentials, and
+  • .env.local (your Mailtrap overrides) is NEVER uploaded to the server.
+
+Because .env.local always wins when present, uploading it is the one way to re-introduce
+this bug. Keep it on your machine only.
+
+
+Choosing a sender for production (cPanel email vs a transactional service)
+--------------------------------------------------------------------------
+Two common, practical choices:
+
+  A) cPanel email (free, simplest). If your site is hosted on cPanel (very common on shared
+     hosting such as GoDaddy, Namecheap, etc.), your hosting already includes email. Create a
+     mailbox like noreply@yourdomain.com in cPanel, then use it as BOTH your login and your
+     From address (as in the example above), with MAIL_HOST set to mail.yourdomain.com. This
+     costs nothing and places no limit on the number of domains — ideal if you host several
+     sites. The trade-off is deliverability (see DKIM below).
+
+  B) A transactional email service (better deliverability at scale). Services such as Mailgun,
+     Zoho ZeptoMail, SendGrid, or Amazon SES specialise in sending application email and are
+     more likely to reach the inbox rather than the spam folder. They are send-only (no inbox
+     to read), so you would still use cPanel — or any inbox — to RECEIVE. Watch their plans:
+     e.g. Mailgun's free and cheapest paid tiers allow only ONE domain, so if you run many
+     domains a service like ZeptoMail (many domains, pay-as-you-go) is friendlier.
+
+
+Receiving email, and why mail sometimes lands in Spam (MX, SPF, DKIM, DMARC)
+---------------------------------------------------------------------------
+Sending and receiving are separate concerns. A few DNS records govern them. (DNS is the
+internet's address book; these records are entries you add wherever your domain's DNS is
+managed — often your registrar, e.g. GoDaddy.)
+
+  - MX record ("Mail eXchanger"): tells the world WHERE to deliver mail addressed to your
+    domain. To receive at you@yourdomain.com via cPanel, your MX must point to your cPanel
+    mail server. (Tip: some hosts pre-point MX at their own paid email product, e.g. Microsoft
+    365. If your cPanel inbox stays empty, check this first.)
+
+  - SPF record: a TXT record listing which servers are ALLOWED to send mail for your domain,
+    so receivers can trust you. Example: v=spf1 include:secureserver.net -all
+
+  - DKIM: a digital signature added to each outgoing message, proving it truly came from your
+    domain and was not tampered with. Important: DKIM is created by the SENDING SERVER (it
+    signs with a secret key) and a matching public key is published in DNS. You cannot "add
+    DKIM" with a DNS record alone — the server must do the signing. Some shared hosts restrict
+    this; if so, ask support to enable it, or use a transactional service (option B), which
+    does DKIM for you automatically.
+
+  - DMARC: a TXT record (at _dmarc.yourdomain.com) telling receivers what to do if SPF/DKIM
+    checks fail, and where to send reports. A safe starting value is:
+    v=DMARC1; p=none; rua=mailto:you@yourdomain.com
+    Here p=none means "just monitor, do not block anything," so it can never accidentally stop
+    your mail.
+
+Practical takeaway: mail to your OWN inbox on the same server almost always arrives. Mail to
+OUTSIDE recipients (Gmail, Yahoo, Outlook) is judged by SPF/DKIM/DMARC — and without DKIM it
+can land in their Spam folder. For low volumes this is often acceptable; if it matters, enable
+DKIM (via your host) or switch sending to a transactional service.
+
+
+WARNING — the most common "my change did nothing" trap: the config cache
+------------------------------------------------------------------------
+For speed, Dorguzen caches your configuration into the file bootstrap/cache/config.php. This
+cached copy "freezes" the values it read from your .env at the moment it was built. So after
+you change ANY value in .env on your server, you must clear this cache, or your change will
+be ignored.
+
+Clear it by deleting these two files (they rebuild automatically on the next page load):
+
+      bootstrap/cache/config.php
+      storage/cache/routes.php
+
+A subtle version of this trap: the SMTP credentials (MAIL_HOST / MAIL_USERNAME / MAIL_PASSWORD,
+used by DGZ_Messenger) are read straight from .env on every request via env(), while others
+are read through the CACHED configuration (for example APP_EMAIL / appEmail, the address your
+contact-form notifications are sent TO). After editing .env you can therefore see half-updated
+behaviour — e.g. mail sends using your NEW SMTP login but to the OLD recipient address — until
+you clear the cache. Rule of thumb: after every .env change on the server, clear the cache.
+
+
+Production checklist
+--------------------
+  ✔  MAIL_HOST — your live SMTP server (e.g. mail.yourdomain.com or smtp.mailgun.org)
+  ✔  MAIL_PORT — 465 (ssl) or 587 (tls); port 25 is often blocked by hosts
+  ✔  MAIL_USERNAME / MAIL_PASSWORD — the mailbox login, or your provider's credentials
+  ✔  MAIL_ENCRYPTION — ssl (with 465) or tls (with 587)
+  ✔  MAIL_FROM_ADDRESS — a real address on your domain (ideally the same one you log in as)
+  ✔  MAIL_FROM_NAME — the friendly sender name your recipients see
+  ✔  APP_EMAIL — set to a real, non-empty admin address (admin notifications send TO it)
+  ✔  .env.local is NOT uploaded to the server
+  ✔  the config cache is cleared after any .env change
+  ✔  MAIL_TIMEOUT — defaults to 15 seconds; raise it only if your provider is slow to respond,
+                    but not too high, or a slow SMTP connection will hold up your web requests
+                    (see ShouldQueue below)
+
+If emails still do not arrive, check the logs table in your database — DGZ_Messenger catches
+every PHPMailer (the mail library Dorguzen uses) failure and records the exact error message,
+so you can see precisely what went wrong.
 
 
 
