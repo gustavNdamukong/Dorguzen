@@ -46,6 +46,12 @@ class AuthController extends DGZ_Controller
 
     public function signup()
     {
+        if (!$this->config->getConfig()['allow_registration']) {
+            $this->addErrors('Registration is not allowed!');
+            $this->redirect('home');
+            return;
+        }
+
         $old = $_SESSION['_old_signup'] ?? [];
         unset($_SESSION['_old_signup']);
 
