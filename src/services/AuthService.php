@@ -110,7 +110,19 @@ class AuthService
         $user->users_eactivationcode  = $data['activationCode'];
         $user->users_created          = $user->timeNow();
 
-        return $user->save();
+        try {
+            return $user->save();
+        } catch (\Exception $e) {
+            // Stay DB-engine agnostic: rather than inspect a driver-specific error
+            // code, ask the existing API whether the email now exists. If it does,
+            // the insert lost a race against another registration (register() already
+            // pre-checks emailExists()) -- report "not saved". Anything else is a
+            // genuine failure and must surface.
+            if ($this->emailExists($data['email'])) {
+                return false;
+            }
+            throw $e;
+        }
     }
 
 

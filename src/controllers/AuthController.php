@@ -116,6 +116,17 @@ class AuthController extends DGZ_Controller
             return;
         }
 
+        // Email must be unique. Check before inserting so a duplicate gives the
+        // user a friendly warning instead of a duplicate-key DB exception. The
+        // unique index is the final guard; registerNewUser() also handles the
+        // rare race between this check and the insert.
+        if ($this->authService->emailExists($email)) {
+            $_SESSION['_old_signup'] = compact('firstname', 'surname', 'email', 'phone');
+            $this->addWarning('That email address is already registered. Try logging in, or use a different email.');
+            $this->redirect('auth', 'signup');
+            return;
+        }
+
         $activationCode = md5(uniqid(rand(), true));
         $saved = $this->authService->registerNewUser([
             'user_type'      => 'member',
@@ -128,16 +139,9 @@ class AuthController extends DGZ_Controller
             'activationCode' => $activationCode,
         ]);
 
-        if ($saved === 1062) {
-            $_SESSION['_old_signup'] = compact('firstname', 'surname', 'email', 'phone');
-            $this->addErrors('That email address is already registered');
-            $this->redirect('auth', 'signup');
-            return;
-        }
-
         if ($saved) {
             $appName = $this->config->getConfig()['appName'];
-            $appURL  = $this->config->getConfig()['appURL'];
+            $appURL  = $this->config->getHomePage(); // env-aware (local vs live); appURL was a single fixed URL
             $subject = "Activate your {$appName} account";
             $message = "<h2>Your account has been created on {$appName}</h2>
                         <p>Click below to activate your account:</p>
