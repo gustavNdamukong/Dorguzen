@@ -293,7 +293,7 @@ class DGZ_Messenger
             $msg = $this->renderEmail('password-reset', [
                 'heading'  => 'Reset Your Password',
                 'name'     => $firstname,
-                'resetUrl' => $this->_config->getHomePage() . 'auth/reset?em=' . $resetCode,
+                'resetUrl' => $this->_config->getHomePage() . '/auth/reset?em=' . $resetCode,
             ]);
             $this->_phpMailer->addAddress($email);
             $this->_phpMailer->isHTML(true);
@@ -316,7 +316,7 @@ class DGZ_Messenger
             $msg = $this->renderEmail('error-log', [
                 'heading' => 'Error Alert',
                 'message' => $message,
-                'logsUrl' => $this->_config->getHomePage() . 'admin/log',
+                'logsUrl' => $this->_config->getHomePage() . '/admin/log',
             ]);
             $this->_phpMailer->addAddress($this->_appEmail);
             $this->_phpMailer->isHTML(true);

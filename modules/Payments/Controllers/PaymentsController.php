@@ -58,8 +58,8 @@ class PaymentsController extends \Dorguzen\Core\DGZ_Controller implements DGZ_Mo
         header('Content-Type: application/json');
 
         $baseUrl     = $this->config->getHomePage();
-        $successLink = $baseUrl . 'payments/success';
-        $landingPage = $baseUrl . 'payments';
+        $successLink = $baseUrl . '/payments/success';
+        $landingPage = $baseUrl . '/payments';
 
         $checkout_session = \Stripe\Checkout\Session::create([
 

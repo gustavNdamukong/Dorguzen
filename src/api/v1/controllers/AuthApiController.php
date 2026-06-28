@@ -137,7 +137,7 @@ class AuthApiController extends DGZ_Controller
         $config         = container(Config::class);
         $appUrl         = $config->getHomePage();
         $appName        = $config->getConfig()['appName'];
-        $activationLink = "{$appUrl}auth/verifyEmail?em={$activationCode}";
+        $activationLink = "{$appUrl}/auth/verifyEmail?em={$activationCode}";
 
         $messenger = new DGZ_Messenger();
         $subject   = "Activate your {$appName} account";
