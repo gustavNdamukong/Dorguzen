@@ -455,6 +455,51 @@ Important notes:
     before going to production.
 
 
+
+2.7 Named Routes
+
+Any defined route can be given a name by chaining ->name() onto its declaration. A name is just
+a stable, human-friendly handle for a route — useful when you want to refer to a route from
+elsewhere without hard-coding its URI:
+
+  $router->get('/',           'HomeController@defaultAction')->name('home');
+  $router->get('/gallery',    'GalleryController@index')->name('gallery');
+  $router->get('/auth/login', 'AuthController@login')->name('login');
+
+->name() works on every verb (get, post, put, patch, delete) and on module routes, because each
+route-registration method returns a DGZ_RouteDefinition object whose name() method records the
+name back onto the stored route.
+
+The router keeps a fast name→route lookup (built like a database index) so a named route can be
+retrieved directly:
+
+  $router->getRouteByName('home');   // returns that route's definition array, or null
+  $router->getNamedRoutes();         // returns the full map of name => route
+
+Names are preserved through the route cache (see 2.4) — they are reconstructed automatically when
+cached routes are loaded, so naming costs nothing at runtime.
+
+
+2.8 Middleware on Defined Routes
+
+Beyond global middleware (which runs on every request — see the Middleware section later in this
+guide), DGZ lets you attach route middleware to specific routes only, by alias. Declare it with
+->middleware([...]) and wrap the affected routes in a ->group() closure. Every route registered
+inside the group inherits that middleware, and the middleware is popped again once the group
+closes, so it never leaks onto routes declared later:
+
+  $router->middleware(['auth'])->group(function () use ($router) {
+      $router->get('/admin',              'AdminController@dashboard');
+      $router->get('/admin/manageUsers',  'AdminController@manageUsers');
+  });
+
+Aliases (e.g. 'auth') are resolved to classes in middleware/routeMiddleware/ by the HTTP kernel —
+'auth' maps to AuthMiddleware. When a matched route carries middleware, the router builds and runs
+that route-middleware pipeline before the controller is dispatched; routes with no middleware skip
+the step entirely. Like global middleware, route middleware is cacheable (see 2.4).
+
+
+
 3. Hybrid Routing
 -------------------
 
@@ -472,6 +517,109 @@ APIs, and complex routing logic. Both approaches support regular controllers, mo
 and API controllers equally well.
 
 Happy routing — the DGZ way.
+
+
+
+
+
+        WRITING CONTROLLERS IN DORGUZEN (DGZ)
+        -------------------------------------
+    Routing decides WHICH controller method runs; this section covers what goes INSIDE a
+controller — how it obtains services, fetches views, flashes messages to the visitor, retains
+form input, and sets its own title and layout. Every web controller extends DGZ_Controller
+(core/DGZ_Controller.php) and lives in src/controllers/ — one file, one class.
+
+
+1. Base Class and Constructor Injection
+----------------------------------------
+
+The cleanest way to obtain a service is constructor injection; the container autowires the
+dependency for you:
+
+  namespace Dorguzen\Controllers;
+
+  use Dorguzen\Core\DGZ_Controller;
+  use Dorguzen\Services\NewsService;
+
+  class NewsController extends DGZ_Controller
+  {
+      public function __construct(private NewsService $newsService)
+      {
+          parent::__construct();
+      }
+
+      public function getDefaultAction()
+      {
+          return 'news';
+      }
+  }
+
+A controller that needs no dependencies still calls parent::__construct() from its own
+constructor (or omits the constructor entirely).
+
+
+2. On-demand Service Resolution
+--------------------------------
+
+When you do not want a constructor dependency, resolve a service on demand through the global
+container() helper:
+
+  $payload = container(NewsService::class)->newsListingPayload();
+
+
+3. Fetching a View
+-------------------
+
+A controller method typically fetches a view, optionally sets a title/layout, then calls
+$view->show($payload). There are two factory methods:
+
+  // regular (front-end) view
+  $view = DGZ_View::getView('news', $this, 'html');
+  $view->show($payload);
+
+  // admin view (resolved from the admin views location)
+  $view = DGZ_View::getAdminView('manageNews', $this, 'html');
+  $view->show($payload);
+
+
+4. Flash Messages
+------------------
+
+Flash messages are stored in the session, survive a redirect, and are rendered between the menu
+and the page content by the default layouts. Each takes a message and an optional title.
+
+  Method                                Purpose
+  ------                                -------
+  $this->addSuccess('msg', 'Title')     success message
+  $this->addErrors('msg', 'Title')      error message
+  $this->addWarning('msg', 'Title')     warning message
+  $this->addNotice('msg', 'Title')      informational notice
+
+
+5. Sticky Forms (postBack)
+---------------------------
+
+To re-populate a form after a failed submission, hand the submitted input to postBack() before
+redirecting back to the form:
+
+  $this->postBack($_POST);
+  $this->redirect('admin', 'editUser');
+
+The view reads the retained values back from the session to refill the fields.
+
+
+6. Page Title and Layout
+-------------------------
+
+  $this->setPageTitle('Manage News');
+
+  // switch the layout directory and the layout file
+  $this->setLayoutDirectory('admin');
+  $this->setLayoutView('adminLayout');
+
+  // render with no layout (e.g. for AJAX partials)
+  $this->setNoLayout();
+
 
 
 
@@ -897,6 +1045,21 @@ Helper methods like:
       weekly()
 
 generate cron expressions automatically.
+
+
+Supported Field Operators
+--------------------------
+
+Each of the five cron fields is matched by CronEvaluator
+(core/console/scheduling/CronEvaluator.php) and supports:
+
+      Operator	  Example	    Meaning
+      *	          *	          Any value
+      exact	      5	          Exactly that value
+      list	      1,3,5	      Any value in the list
+      range	      1-5	        Any value within the range (inclusive)
+      step	      */5	        Every Nth value (only with a * base)
+
 
 🔒 Overlap Prevention
 Why It Exists
@@ -2273,6 +2436,32 @@ It also involves information on the best practice for organising your project di
 
 
 
+        Key Conventions
+        -------------------------------
+  A few rules govern how these directories are meant to be used:
+
+  core/     - Framework internals. Never edit these files. Customise by
+              extending or configuring them instead.
+
+  src/      - Your application code. Controllers, services, models, events
+              and listeners all live here.
+
+  modules/  - Self-contained feature modules. Each module mirrors the src/
+              structure with its own Controllers/, Models/, Services/ and
+              Views/ subdirectories.
+
+  views/    - PHP classes extending DGZ_HtmlView. They receive a $viewModel
+              array and render HTML. No business logic belongs here.
+
+  configs/  - Plain PHP arrays that return config values. Only env() calls
+              are appropriate here.
+
+  storage/  - The cache/ and logs/ subdirectories must be writable by the web
+              server. They are excluded from version control.
+
+
+
+
 
         Dorguzen Configuration System
         -------------------------------
@@ -2974,6 +3163,210 @@ Dorguzen calls setupErrorHandling($env) in index.php, which turns display_errors
 off for any environment that is not local.
 
 
+
+    Deploying to Production
+    -------------------------
+
+This section covers what you need to know when taking a Dorguzen application from
+your development machine to a live production server. The upload-limit, SAPI, and
+built-in-server material above already explains the server-environment fundamentals;
+what follows is the deployment workflow itself.
+
+
+Requirements
+
+Before deploying, confirm the target server provides:
+
+  - PHP 8.0 or higher
+  - One of: MySQL/MariaDB, PostgreSQL, or SQLite
+  - Composer
+  - PHP extensions: mysqli (for MySQL), pdo_mysql, pdo_pgsql, pdo_sqlite,
+    mbstring, openssl, json
+
+
+Environment Setup
+
+Copy the example file and fill in every value:
+
+    cp .env.example .env
+
+Key production values:
+
+    APP_ENV=prod
+    APP_DEBUG=false
+    APP_URL=https://yourapp.com
+    APP_LIVE_URL=https://yourapp.com
+
+    DB_CONNECTION=mysqli
+    DB_HOST=127.0.0.1
+    DB_USERNAME=your_db_user
+    DB_PASSWORD=your_db_password
+    DB_DATABASE=your_db_name
+    DB_KEY=your-random-aes-encryption-key
+
+    APP_JWT_SECRET=your-random-jwt-secret-40-chars-minimum
+    APP_JWT_ENCODING=HS256
+
+    APP_API_CSRF_EXCEPTION='/api/'
+    API_DOCS_ENABLED=false
+
+    QUEUE_DRIVER=db
+
+    MODULES_SEO_STATUS=on
+
+For mail configuration, see the production mail note in the newsletter/mailer
+material ("BEFORE DEPLOYING TO PRODUCTION — switch back to your live mail
+provider"): the development mail catcher must be swapped for your live provider
+before going live.
+
+Never commit .env to version control — it contains credentials.
+
+
+Deployment Steps
+
+    # 1. Install production dependencies (no dev packages, optimized autoloader)
+    composer install --no-dev --optimize-autoloader
+
+    # 2. Verify all required .env variables are set
+    php dgz env:check
+
+    # 3. Run database migrations
+    php dgz migrate
+
+    # 4. Seed initial data (first deploy only)
+    php dgz db:seed
+
+    # 5. Build caches
+    php dgz cache:config-clear       # clear any stale config cache
+    php dgz cache:route-cache        # pre-build route cache
+    php dgz cache:middleware-cache   # pre-build middleware cache
+
+    # 6. Set file permissions
+    chmod -R 755 storage/
+    chmod -R 755 bootstrap/cache/
+
+On subsequent deploys, re-run steps 1, 3 (migrations only), and 5 (clear and
+rebuild caches).
+
+
+Shared Hosting
+
+  Web root
+    Point your document root to the project root (the directory containing
+    index.php). The .htaccess file handles URL rewriting — ensure mod_rewrite
+    is enabled.
+
+  Database driver
+    DB_CONNECTION=mysqli is the most widely supported option on shared hosting.
+
+  SQLite (no MySQL available)
+
+        DB_CONNECTION=sqlite
+        DB_SQLITE_PATH=storage/database.sqlite
+
+    Create the storage directory and make it writable:
+
+        mkdir -p storage
+        chmod 755 storage
+        touch storage/database.sqlite
+
+    Do not prefix DB_SQLITE_PATH with a leading slash — it is a relative path
+    from the project root.
+
+  Queue workers
+    Shared hosting typically does not allow persistent daemon processes. Use
+    QUEUE_DRIVER=sync so queued listeners execute inline, or use a cron job to
+    periodically process the queue:
+
+        * * * * * php /path/to/your/app/dgz queue:work --once
+
+    For the scheduler cron, see "Running the Scheduler in Different
+    Environments" above.
+
+
+VPS / Dedicated Server
+
+  Web server
+    Configure Apache or Nginx to point to the project root. A minimal Apache
+    VirtualHost:
+
+        <VirtualHost *:443>
+            ServerName yourapp.com
+            DocumentRoot /var/www/yourapp
+
+            <Directory /var/www/yourapp>
+                AllowOverride All
+                Require all granted
+            </Directory>
+        </VirtualHost>
+
+  HTTPS
+
+        # Let's Encrypt via Certbot
+        certbot --apache -d yourapp.com
+
+    Then call enforceHttps() in your application bootstrap to redirect HTTP and
+    set an HSTS header (see "Enforcing HTTPS in Application Code" below).
+
+  Queue worker as a daemon
+    When QUEUE_DRIVER=db, run the worker as a persistent background process.
+    With Supervisor:
+
+        [program:dgz-worker]
+        command=php /var/www/yourapp/dgz queue:work
+        directory=/var/www/yourapp
+        autostart=true
+        autorestart=true
+        stopwaitsecs=60
+        stdout_logfile=/var/log/dgz-worker.log
+
+    The worker listens for SIGTERM/SIGINT and finishes the current job before
+    exiting — safe for graceful restarts.
+
+
+Enforcing HTTPS in Application Code
+
+Call this in your application bootstrap or a global middleware:
+
+    enforceHttps();
+
+This redirects all HTTP requests to HTTPS and sends a Strict-Transport-Security
+header. It respects Cloudflare and reverse-proxy headers (CF-Visitor,
+X-Forwarded-Proto) and supports a configurable trusted-proxy IP list. It only
+runs in production environments, so it is safe to leave in place during local
+development.
+
+
+Global CLI Tool
+
+To run dgz from any directory on your server:
+
+    php dgz install
+
+This creates a symlink at /usr/local/bin/dgz (Linux/macOS) or a dgz.bat wrapper
+(Windows).
+
+
+Post-Deploy Checklist
+
+  Check                              How
+  ---------------------------------  -------------------------------------------
+  APP_ENV=prod, APP_DEBUG=false      Verify in .env
+  API_DOCS_ENABLED=false             Disable Swagger UI
+  All migrations ran                 php dgz migrate:status
+  Env vars complete                  php dgz env:check
+  Caches built                       php dgz cache:route-cache &&
+                                     php dgz cache:middleware-cache
+  HTTPS enforced                     enforceHttps() called, or web server
+                                     handles it
+  storage/ writable                  chmod -R 755 storage/
+  bootstrap/cache/ writable          chmod -R 755 bootstrap/cache/
+  .env not web-accessible            Verify .htaccess blocks direct .env access
+  Queue worker running               Supervisor or equivalent
+  Cron entry active                  crontab -l to verify
+
+
+
     Customising a New Application After Cloning
     ---------------------------------------------
 
@@ -3614,6 +4007,60 @@ in the layouts — no additional JavaScript or CSS dependencies are needed.
 
 
 
+    Manual SEO override (bypassing the DB pipeline)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    The database-driven pipeline is optional. Any page can set its own meta tags
+    directly in code instead — handy when a page's SEO is too dynamic for a static
+    admin record, or when you simply prefer to keep it in the controller.
+
+
+    Overriding per-page meta tags in a controller or view
+    ------------------------------------------------------
+    Call addMetadata() with an array of fully-formed meta tag strings — either in a
+    controller method before display(), or at the top of a view's show() method:
+
+        public function about(): void
+        {
+            $this->setPageTitle('About Us');
+
+            $this->addMetadata([
+                '<title>About Us | My Company</title>',
+                '<meta name="description" content="Learn about our team and mission.">',
+                '<meta name="keywords" content="about, team, mission">',
+                '<meta property="og:title" content="About Us | My Company">',
+                '<meta property="og:description" content="Learn about our team.">',
+                '<meta property="og:image" content="https://yourapp.com/assets/images/about-og.jpg">',
+            ]);
+
+            $this->display('about');
+        }
+
+    Manual metadata takes precedence over the DB-driven pipeline. loadSeoData()
+    begins with if ($this->metadata == null), so once addMetadata() has set
+    $this->metadata, the automatic per-page lookup is skipped entirely and your
+    tags are output verbatim by getMetadata().
+
+    addMetadata() is available both on the controller (DGZ_Controller) and inside
+    views (DGZ_HtmlView). The view version runs each tag through htmlentities()
+    before passing it to the controller.
+
+
+    Setting global SEO data manually
+    ---------------------------------
+    The site-wide global tags can likewise be supplied in code instead of (or in
+    addition to) the seo_global admin record, via setGlobalSeoData():
+
+        $this->setGlobalSeoData([
+            '<meta property="og:site_name" content="My Company">',
+            '<meta name="twitter:site" content="@mycompany">',
+        ]);
+
+    Whatever you set is returned by getGlobalSeoData() and output by the layout's
+    first SEO line.
+
+
+
+
     Wiring up SEO in a layout file
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     If you create a custom layout (see next section), you must include exactly
@@ -3773,6 +4220,79 @@ in the layouts — no additional JavaScript or CSS dependencies are needed.
 
 
 
+
+    Key application variables reference
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    The sections above explain how the .env system works. The table below is the
+    concrete reference of the application-level variables Dorguzen reads in
+    configs/app.php (and configs/logging.php). Each is consumed via env() with the
+    fallback shown, so an unset variable degrades to a safe default rather than
+    failing.
+
+        Variable                  configs key             Purpose / notes
+        ---------------------------------------------------------------------------
+        APP_LOCAL_URL             app.localUrl            Base URL when running
+                                                          locally (e.g.
+                                                          http://localhost/myapp/).
+        APP_LIVE_URL              app.liveUrl             Base URL on the deployed
+                                                          server.
+        APP_LIVE_URL_SECURE       app.liveUrlSecure       HTTPS base URL for the
+                                                          live site.
+        APP_EMAIL                 app.appEmail            Admin recipient address
+                                                          used by DGZ_Messenger.
+                                                          MUST NOT be empty — it is
+                                                          also the default From /
+                                                          Reply-To (localHeaderFrom,
+                                                          liveHeaderFrom and
+                                                          headerReply-To all read
+                                                          APP_EMAIL).
+        APP_CONTACT_TEL           app.site_contact_tel    Public contact phone
+                                                          number.
+        APP_POST_ADDRESS          app.site_postal_address Public postal address.
+        APP_JWT_SECRET            app.jwt-secret-key       Secret key for signing
+                                                          API JWTs.
+        APP_JWT_ENCODING          app.encoding_algorithm  JWT signing algorithm
+                                                          (e.g. HS256).
+        APP_API_CSRF_EXCEPTION    app.csrf_except         Path prefix exempt from
+                                                          CSRF validation. Set to
+                                                          '/api/' to exempt all API
+                                                          routes (array_filter drops
+                                                          it when unset, so no
+                                                          blanket exemption).
+        QUEUE_DRIVER              app.queue_driver        Queue backend: sync (dev)
+                                                          | db | rabbitmq (prod).
+        ALLOW_REGISTRATION        app.allow_registration  Gates public self-service
+                                                          signup; new registrants
+                                                          default to 'member'.
+        APP_LOG_DRIVER            logging driver          Where logs go: file | db
+                                                          | both.
+        APP_LOG_FORMAT            logging format          Log line format: text |
+                                                          json.
+        API_DOCS_ENABLED          (read directly)         When true, exposes the API
+                                                          docs endpoint
+                                                          (DocsController). Leave
+                                                          false/unset in production.
+        SLACK_WEBHOOK_URL         (read by Slack channel) Incoming-webhook URL for
+                                                          Slack notifications.
+        SLACK_DEFAULT_CHANNEL     (read by Slack channel) Optional override of the
+                                                          webhook's own default
+                                                          channel (e.g. #general).
+
+    Module on/off flags follow the same pattern in app.modules — one MODULES_*_STATUS
+    flag (on | off) per module: MODULES_SEO_STATUS, MODULES_PAYMENTS_STATUS,
+    MODULES_SMS_STATUS, MODULES_GALLERY_STATUS, MODULES_VIDEOS_STATUS,
+    MODULES_BLOG_STATUS, MODULES_TESTIMONIALS_STATUS. See the module-toggle example
+    earlier in this section for the env() wiring.
+
+    Beyond the format examples shown earlier, the configs/ directory ships these real
+    PHP config files: app.php (identity, URLs, upload dirs, JWT, queue driver, module
+    toggles, role permissions), database.php (DB credentials/connections), events.php
+    (event → listener map), and logging.php (log driver/format).
+
+
+
+
+
 ——————————————————————
 	SECURITY
 ——————————————————————
@@ -3846,6 +4366,35 @@ in the layouts — no additional JavaScript or CSS dependencies are needed.
                         -DGZ Validation Rules - full list with usage and Custom messages
                         -Form submission and controller example
                             -Controller validation
+
+
+
+    Built-in protections worth knowing
+    ----------------------------------
+
+    Most of Dorguzen's concrete security mechanisms are documented alongside the
+    feature they belong to — CSRF tokens in the Forms and Input & Output sections,
+    password storage and parameterized queries in the Models & ORM section,
+    password-strength rules (`DGZ_CheckPassword`) and input sanitisation
+    (`DGZ_Validate::fix_string()`) in the Validation section, and JWT API auth in
+    the REST API section. Two further protections ship enabled by default and are
+    not covered elsewhere.
+
+    Automatic HTTPS enforcement
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    The global `enforceHttps()` helper (invoked from bootstrap/helpers_runtime.php)
+    redirects insecure traffic to https:// with a 301 and sends a
+    Strict-Transport-Security (HSTS) header. It acts only in the `live` environment
+    and skips CLI. It detects HTTPS behind proxies via the X-Forwarded-Proto,
+    X-Forwarded-Ssl and Cloudflare CF-Visitor headers, and an optional trusted-proxy
+    IP list controls whether those forwarded headers are honoured.
+
+    Honeypot spam protection
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Public form handlers (such as registration in AuthController) include a hidden
+    `captcha_hidden` field that genuine users never fill in. When it arrives
+    non-empty the request is treated as a bot, logged, and silently redirected away.
+
 
 
 
@@ -4289,6 +4838,129 @@ in the layouts — no additional JavaScript or CSS dependencies are needed.
                               list for $feature?
            permissions()    — returns all feature aliases this user's tier can access
            hasRoles()       — convenience alias for permissions()
+
+
+
+
+    Authentication flows — registration, verification, login, reset, logout
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    The end-to-end auth flows are handled by AuthController
+    (src/controllers/AuthController.php). The controller is intentionally thin —
+    it reads $_POST, manages $_SESSION keys, sets flash messages and issues
+    redirects. All database work and business logic is delegated to AuthService
+    (see below).
+
+    1. Registration
+
+       The public registration page is auth/signup (AuthController::signup());
+       the form POSTs to AuthController::register(). Both are gated by the
+       ALLOW_REGISTRATION toggle described above (config('app.allow_registration')) —
+       when off, both redirect to home. register() then:
+
+         a) sanitizes input, requires the Terms & Conditions checkbox, and rejects
+            bots via a honeypot field (captcha_hidden) — a filled honeypot is logged
+            via AuthService::logBotAttempt() and bounced to home;
+         b) validates the fields (AuthService::validateRegistrationInput()) and
+            enforces a unique email (AuthService::emailExists());
+         c) saves the user via AuthService::registerNewUser() with
+            users_type = 'member', users_emailverified = 'no' and a random activation
+            code (md5(uniqid(...)));
+         d) emails an activation link containing auth/verifyEmail?em={code}, then
+            redirects to auth/emailActivationInstructions.
+
+    2. Email verification
+
+       The user clicks the link auth/verifyEmail?em={code}
+       (AuthController::verifyEmail()). The code is looked up
+       (AuthService::getUserByActivationCode()); AuthService::activateUserEmail()
+       sets users_emailverified = 'yes' and clears the activation code, then the
+       user is redirected to auth/login.
+
+    3. Login
+
+       POST to auth/doLogin (AuthController::doLogin()) with login_email and
+       login_pwd, plus an optional rem_me checkbox. doLogin():
+
+         a) validates input (AuthService::validateLoginInput()) and authenticates
+            (AuthService::authenticateUser());
+         b) on success writes the session keys (see "How roles are stored" above)
+            and calls session_regenerate_id() to prevent session fixation;
+         c) records admin-tier logins (admin / admin_gen / super_admin) to the logs
+            table via AuthService::logAdminLogin();
+         d) if rem_me was checked, sets a rem_me cookie valid for 4 days (345600s;
+            HttpOnly, SameSite=Lax, Secure when on HTTPS);
+         e) redirects admins to admin/dashboard and members to user/dashboard (or to
+            a stored referBack target).
+
+       The same flow is available programmatically via
+       Auth()->login($u, $p, $rememberMe).
+
+    4. Forgot password / reset
+
+       The login form submits to doLogin with forgotstatus=yes, routed internally
+       to handleForgotPassword(). A single-use reset code is stored in the
+       password_reset table (AuthService::savePasswordResetRecord()) and emailed.
+       The user clicks the link auth/reset?em={code} (AuthController::reset()); the
+       record is consumed via AuthService::fetchAndConsumePasswordReset() (deleted
+       on retrieval — links are single-use) and rejected if older than 2 hours.
+       Finally POST auth/resetPw (AuthController::resetPw()) updates the password
+       via AuthService::resetUserPassword().
+
+    5. Logout
+
+       AuthController::logout() (and Auth()->logout()) empties $_SESSION, deletes
+       the session cookie and the rem_me cookie, and destroys the session.
+
+
+    AuthService — where the auth business logic lives
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    \Dorguzen\Services\AuthService holds all database operations and business
+    logic for the flows above. It never touches $_POST, $_SESSION or HTTP headers
+    directly — that separation keeps AuthController thin and the service unit
+    testable. Key methods:
+
+        registerNewUser()              persist a new member account
+        authenticateUser()             verify email + password; return the user
+                                       row, or false
+        getUserByActivationCode()      look up a user by email-activation code
+        activateUserEmail()            mark the email verified, clear the code
+        savePasswordResetRecord()      store a single-use reset code
+        fetchAndConsumePasswordReset() read AND delete a single-use reset record
+        getUserForPasswordReset()      load the user targeted by a reset
+        resetUserPassword()            update a user's password during reset
+        emailExists()                  uniqueness check at registration
+        logAdminLogin()                record an admin-tier login to the logs table
+        logBotAttempt()                record a tripped registration honeypot
+        validateRegistrationInput()    field validation for each flow
+        validateLoginInput()
+        validateForgotPasswordInput()
+        validatePasswordResetInput()
+
+
+    Controller-wide protection — BaseMiddleware::boot()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Beyond the DGZ_AdminHtmlView guard and the route-group middleware described
+    above, an ENTIRE controller can be gated by adding its short-name to the map
+    returned by BaseMiddleware::boot() (middleware/globalMiddleware/BaseMiddleware.php).
+    For example, mapping the admin controller to the 'authenticated' intent:
+
+        public function boot(): array
+        {
+            return [
+                'admin' => 'authenticated',
+                // ... 'divert' and 'isActiveModule' entries for other controllers
+            ];
+        }
+
+    Any request whose controller short-name matches a key is intercepted before
+    the controller method runs. The 'authenticated' intent requires a valid session —
+    BaseMiddleware::authenticated() checks that
+    $_SESSION['authenticated'] === 'Let Go-{appName}' — and redirects unauthenticated
+    visitors to admin/login. Public methods such as login are whitelisted so the
+    login page itself stays reachable. (The general boot()/handle() intent-dispatch
+    mechanism — including the 'divert' re-routing and 'isActiveModule' module-activation
+    intents — is documented in full in the Middleware section later in this guide.)
+
 
 
 
@@ -5030,6 +5702,161 @@ No tables. Pure list format with indentation, perfect for your notes app.
 # Want me to generate a **nice documentation-ready version** for your official DGZ docs?
 
 I can format it in your usual DGZ documentation style, or even generate the full HTML/Markdown page for you.
+
+
+
+
+        DGZ_Validate (legacy, field-by-field validator)
+        ------------------------------------------------
+  Alongside the rule-based DGZ_Validator, Dorguzen ships an older, lightweight helper, DGZ_Validate,
+  which provides one method per field type. Each method returns an HTML error string (with a trailing
+  <br />) when the value is invalid, or an empty string '' when it passes. It is still used inside
+  service classes (e.g. AuthService, AdminService) where simple, concatenated error strings are convenient.
+
+        use Dorguzen\Core\DGZ_Validate;
+
+        $val   = new DGZ_Validate();
+        $fail  = $val->validate_firstname($firstname);
+        $fail .= $val->validate_surname($surname);
+        $fail .= $val->validate_password($password);
+        $fail .= $val->validate_email($email);
+
+        if ($fail !== '') {
+            $this->addErrors($fail, 'Validation failed');
+            $this->redirect('register');
+            return;
+        }
+
+  Available methods:
+
+    validate_firstname($value)   — required (non-empty).
+    validate_surname($value)     — required (non-empty).
+    validate_username($value)    — required, at least 5 characters, only letters, numbers, - and _.
+    validate_password($value)    — required, at least 6 characters.
+    validate_email($value)       — required, must look like a valid email.
+    validate_phonenumber($value) — required, numeric (digits, - and spaces allowed).
+    validate_age($value)         — required, must be between 18 and 110.
+    validate_shop_name($value)   — required, only letters, numbers, - and _ (no spaces).
+
+  Sanitising input — fix_string():
+
+  DGZ_Validate::fix_string() cleans a raw input string before validation or storage. It applies
+  stripslashes(), then trim(), then htmlentities():
+
+        $val   = new DGZ_Validate();
+        $email = $val->fix_string($_POST['email']);
+
+
+
+
+        DGZ_CheckPassword (password strength)
+        -------------------------------------
+  For stronger password policies than validate_password()'s minimum-length check, use DGZ_CheckPassword.
+  It collects human-readable error messages you can surface to the user.
+
+        use Dorguzen\Core\DGZ_CheckPassword;
+
+        $checkPwd = new DGZ_CheckPassword($password, 8); // 2nd arg = minimum length (default 6)
+        $checkPwd->requireMixedCase();   // must contain both upper- and lowercase letters
+        $checkPwd->requireNumbers(1);    // at least N digits
+        $checkPwd->requireSymbols(1);    // at least N non-alphanumeric characters
+
+        if (!$checkPwd->check()) {
+            foreach ($checkPwd->getErrors() as $error) {
+                $fail .= $error;
+            }
+        }
+
+  Methods:
+
+    __construct($password, $minimumChars = 6) — the password to test and its minimum length.
+    requireMixedCase()       — require both upper- and lowercase letters.
+    requireNumbers($num = 1)  — require at least $num digits.
+    requireSymbols($num = 1)  — require at least $num non-alphanumeric characters.
+    check()                  — returns bool; also rejects passwords containing whitespace.
+    getErrors()              — returns the array of error message strings collected by check().
+
+
+
+
+        JetForms validation (middleware-based)
+        --------------------------------------
+  JetForms let you move validation out of the controller and into a reusable form class. The
+  FormValidationMiddleware intercepts the request, validates it against the form's own $rules, and only
+  lets the request reach the controller when validation passes.
+
+  A JetForm extends the abstract Dorguzen\Core\JetForms\JetForms class (itself a child of DGZ_Form). Each
+  child declares $name, $handler, $method and $redirectBack, plus its $rules/$messages, and implements
+  renderFields():
+
+        namespace src\forms;
+
+        use Dorguzen\Core\JetForms\JetForms;
+
+        class RegistrationForm extends JetForms
+        {
+            protected string $name         = 'registrationForm';
+            protected string $handler      = '/register/store';
+            protected string $method       = 'post';
+            protected string $redirectBack = '/register';
+
+            protected array $rules = [
+                'firstname' => 'required|min:2',
+                'surname'   => 'required|min:2',
+                'email'     => 'required|email',
+                'password'  => 'required|min:6',
+                'confirm'   => 'required|same:password',
+            ];
+
+            protected array $messages = [
+                'confirm.same' => 'Passwords do not match.',
+            ];
+
+            protected function renderFields(): void
+            {
+                // build fields with self::input(...), self::select(...), etc.
+            }
+        }
+
+  The form must be registered by its $name (the key used in bootstrap/app.php must match the $name
+  property). render() automatically emits three hidden fields the middleware relies on: _form_name,
+  _handler and _redirectBack.
+
+  When the form is submitted, FormValidationMiddleware (priority 5, so it runs after CSRF):
+
+    1. Detects the submission via the hidden _form_name field and resolves the form class through the
+       JetFormsRegistry.
+    2. Fills the form with the request payload and runs its validate() (which delegates to DGZ_Validator).
+    3. On failure, stores the submitted values in $_SESSION['old_input'] and the field errors in
+       $_SESSION['validation_errors'], then throws a ValidationException. The DGZ_Router catches it,
+       flashes the errors and redirects back to _redirectBack.
+    4. On success, stores the validated data in $_SESSION['old_input'] and lets the request continue to
+       the controller.
+
+  See the Forms section for the full JetForms walkthrough.
+
+
+
+
+        Displaying validation errors
+        -----------------------------
+  Errors added with $this->addErrors($message, $title) are stored in $_SESSION['_errors']. The layout
+  renders them automatically via the built-in ErrorsListView (Dorguzen\Core\DGZ_views\ErrorsListView) as
+  Bootstrap alert alert-danger blocks, then clears the session key — so you do not normally need to add
+  error-display markup to your views.
+
+  For inline, field-level errors (e.g. JetForms submissions), read $_SESSION['validation_errors'] directly
+  in the view:
+
+        <?php $errors = $_SESSION['validation_errors'] ?? []; ?>
+
+        <input type="email" name="email">
+        <?php if (!empty($errors['email'])): ?>
+            <div class="invalid-feedback d-block">
+                <?= htmlspecialchars($errors['email'][0]) ?>
+            </div>
+        <?php endif; ?>
+
 
 
 
@@ -8580,6 +9407,164 @@ MySQL, PosgreSQL, etc, and if any noSQL database system like Neo4j is supported
 
 
 
+      THE MODEL CRUD / QUERY API
+      ----------------------------
+
+      Once a model is mapped to its table, DGZ_Model gives you a set of ready-made methods for reading
+      and writing records. None of these require you to write SQL. (These are model-level convenience
+      methods — they sit on top of the lower-level driver query()/execute() API documented further
+      below under "Database Driver API Reference".)
+
+
+      Reading records
+      ----------------
+
+        // All records — auto-orders by tableName_name if that column exists
+        $news->getAll();
+        $news->getAll('news_created DESC');   // pass your own ORDER BY clause
+
+        // By primary key — returns a single associative row, or false
+        $news->getById(5);
+
+        // By the tableName_name field (DGZ naming convention)
+        $news->getByName('My Article');
+
+        // Flexible WHERE query
+        $news->selectWhere(
+            ['news_title', 'news_status'],       // columns to select (empty = all)
+            ['news_status' => 'published'],      // WHERE criteria (ANDed together)
+            'ORDER BY news_created DESC'         // optional raw ORDER BY clause
+        );
+
+        // Select specific columns, with optional WHERE, order field and direction
+        $news->selectOnly(
+            ['news_id', 'news_title'],           // columns to select
+            ['news_status' => 'published'],      // optional WHERE
+            'news_created',                      // order field (defaults to first column)
+            'DESC'                               // 'ASC' (default) or 'DESC'
+        );
+
+        // Total record count
+        $news->getCount();
+
+        // A paginated slice (LIMIT $start, $perPage)
+        $news->getPaginated($startOffset, $perPage);
+
+        // Raw parameterised SQL on the model, when you need full control
+        $news->query("SELECT * FROM news WHERE news_status = ?", ['published']);
+
+      getAll() and selectWhere() return an array of associative rows (an empty array if nothing
+      matches). getById() returns a single row or false. getCount() returns the integer total.
+
+
+      Writing records
+      ----------------
+
+      Insert
+
+        // Property assignment + save() — use a fresh container instance (see the instance rule below)
+        $news = container(News::class);
+        $news->news_title   = 'Breaking News';
+        $news->news_status  = 'published';
+        $news->news_created = $news->timeNow();
+        $newId = $news->save();   // returns the new insert ID
+
+        // Array + insert()
+        $newId = $news->insert([
+            'news_title'   => 'Breaking News',
+            'news_status'  => 'published',
+            'news_created' => $news->timeNow(),
+        ]);
+        // Returns: the new insert ID | '1062' on a duplicate-key error | false on failure
+
+      Update
+
+        // Property assignment + update() — pass the WHERE criteria
+        $news = container(News::class);
+        $news->news_status = 'draft';
+        $news->update(['news_id' => 5]);
+        // If you set $news->id on the object, you can call $news->update() with no argument
+
+        // Array + updateObject($data, $where)
+        $news->updateObject(
+            ['news_status' => 'draft', 'news_title' => 'Updated'],
+            ['news_id' => 5]
+        );
+
+      Delete
+
+        $news->deleteById('5');                 // delete by primary-key value
+        $news->deleteWhere(['news_id' => 5]);   // delete by any criteria
+
+      deleteWhere() automatically deletes matching child records first when $_hasChild is defined on
+      the model, so you do not orphan related rows. If a criteria field does not exist on the table it
+      returns an explanatory string instead of running the query.
+
+
+      Reads vs writes — the instance rule
+      ------------------------------------
+
+      This is an important practical rule. READS are safe on the injected/shared singleton instance
+      because they do not mutate the model's internal $data:
+
+        $rows = $this->news->selectWhere([], ['news_status' => 'published']);
+
+      WRITES THAT USE PROPERTY ASSIGNMENT require a FRESH instance, because assigning to a property
+      ($news->news_status = 'draft') populates the shared object's $data and would pollute the
+      singleton for later calls. Always resolve a new instance from the container for these:
+
+        $news = container(News::class);   // fresh instance
+        $news->news_status = 'draft';
+        $news->update(['news_id' => $id]);
+
+      RAW SQL WRITES are safe on the shared singleton, since they pass values directly and never touch
+      $data:
+
+        $this->news->query("DELETE FROM news WHERE news_id = ?", [$id]);
+
+
+      Fetch before delete
+      --------------------
+
+      A record is gone once you delete it, so always read any data you still need (for example to send
+      a notification e-mail) BEFORE the delete call, never after:
+
+        // Correct — read first, then delete
+        $item  = $this->news->getById($id);
+        $email = $item['news_author_email'];
+        $this->news->deleteWhere(['news_id' => $id]);
+
+        // Wrong — the record is already gone
+        $this->news->deleteWhere(['news_id' => $id]);
+        $item = $this->news->getById($id);  // returns false
+
+
+      Utility methods
+      ----------------
+
+      DGZ_Model exposes a few helpers you will reach for often:
+
+        $news->timeNow()         // current timestamp string, date("Y-m-d H:i:s") — for created/updated fields
+        $news->getTable()        // the resolved table name (e.g. 'news')
+        $news->getIdFieldName()  // the resolved primary-key field name (e.g. 'news_id')
+
+
+      Registering a model
+      --------------------
+
+      Every model is resolved from the DI container, so each one must be registered as a singleton in
+      bootstrap/app.php. Models always receive Config as their only constructor argument:
+
+        $container->singleton(News::class, fn($c) => new News($c->get(Config::class)));
+
+      After registration you obtain instances anywhere with the container() helper:
+
+        $news = container(News::class);
+
+
+
+
+
       THE DORGUZEN MIGRATION SYSTEM
       ---------------------------------
   The Dorguzen migration system is responsible for:
@@ -8885,6 +9870,51 @@ How to generate database field schemas:
       $table->unique('email');
     Adds:
       UNIQUE (`email`)
+
+
+  Tiny Integer
+      $table->tinyInteger('flag');
+    Creates:
+      TINYINT
+
+  Binary
+      $table->binary('payload');
+    Creates:
+      BLOB
+    Useful for AES-encrypted fields and raw binary data.
+
+  DateTime
+      $table->dateTime('verified_at');
+    dateTime() is an alias of timestamp() and creates a nullable column:
+      DATETIME NULL
+
+  Plain Index
+      $table->index('user_id');
+    Adds (MySQL):
+      INDEX (`user_id`)
+    On SQLite it is emitted as a separate CREATE INDEX statement, since SQLite
+    does not support inline INDEX in CREATE TABLE.
+
+  Column Modifiers
+    Modifiers are chained onto a column definition to refine it:
+
+      $table->string('email')->unique();
+      $table->string('name')->nullable();
+      $table->string('status')->notNullable();
+      $table->string('role')->default('user');
+      $table->integer('score')->unsigned();
+      $table->timestamp('created_at')->useCurrent();
+      $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
+
+    What each modifier emits:
+      ->nullable()           NULL                            Allows NULL values
+      ->notNullable()        NOT NULL                        Explicitly marks the column NOT NULL
+      ->unique()             UNIQUE                          Column-level unique constraint
+      ->unsigned()           appends UNSIGNED to the type    Makes a numeric column unsigned
+      ->default($value)      DEFAULT <value>                 String values are auto-quoted
+      ->useCurrent()         DEFAULT CURRENT_TIMESTAMP
+      ->useCurrentOnUpdate() ON UPDATE CURRENT_TIMESTAMP     MySQL only; skipped on SQLite
+
 
 
 
@@ -9698,6 +10728,111 @@ If you remember only three things, let it be these:
       php dgz migrate:fresh --seed
 
   The seeder is idempotent — it is safe to run it multiple times.
+
+
+
+  Generating a Seeder from the CLI
+  ---------------------------------
+
+  You don't have to hand-write seeder files. Generate one with:
+
+      php dgz make:seeder ProductSeeder
+
+  Or hint the table it targets:
+
+      php dgz make:seeder ProductSeeder --table=products
+
+  This creates database/seeders/ProductSeeder.php, pre-wired with the correct
+  namespace, a $table property, a run() method, and a getTable() method:
+
+      namespace Dorguzen\Database\Seeders;
+
+      use Dorguzen\Core\Database\Seeders\Seeder;
+
+      class ProductSeeder extends Seeder
+      {
+          protected string $table = 'products';
+
+          public function run(): void
+          {
+              $this->factory(ProductFactory::class)
+                  ->count(50)
+                  ->create($this->table);
+          }
+
+          public function getTable(): string
+          {
+              return $this->table;
+          }
+      }
+
+  If you omit --table, Dorguzen guesses the table name from the seeder name.
+
+  Inside a seeder, $this->factory(FactoryClass::class) returns a factory
+  instance, and create() takes the target table name. Every seeder also
+  defines getTable().
+
+
+  Seeding with Raw SQL
+  ---------------------
+
+  Factories are perfect for bulk fake data, but for fixed initial data
+  (settings, a default admin, lookup rows) you can write SQL directly. The
+  Seeder base class exposes the database adapter as $this->db:
+
+      public function run(): void
+      {
+          $sql = "INSERT IGNORE INTO `categories` (`category_name`, `category_slug`)
+                  VALUES (?, ?)";
+
+          $this->db->execute($sql, ['News', 'news']);
+          $this->db->execute($sql, ['Events', 'events']);
+      }
+
+  Use INSERT IGNORE whenever a unique constraint exists so the seeder is
+  idempotent — safe to run again without creating duplicates. This is exactly
+  how the seeders Dorguzen ships with work.
+
+
+  The BaseSettingsSeeder — Default Site Configuration
+  ----------------------------------------------------
+
+  Alongside SuperAdminSeeder, Dorguzen also registers a BaseSettingsSeeder in
+  DatabaseSeeder. It seeds the baseSettings table with the default site
+  configuration your application reads at runtime — for example the
+  brand-slider toggle and its image source, and the app colour theme. Like the
+  super-admin seeder it uses INSERT IGNORE, so it is safe to re-run:
+
+      class BaseSettingsSeeder extends Seeder
+      {
+          protected string $table = 'baseSettings';
+
+          public function run(): void
+          {
+              $sql = "INSERT IGNORE INTO `baseSettings`
+                          (`settings_name`, `settings_value`)
+                      VALUES ('show_brand_slider', 'true'),
+                             ('brand_slider_source', 'assets/images/gallery'),
+                             ('app_color_theme', '#0d6efd')";
+
+              $this->db->execute($sql);
+          }
+
+          public function getTable(): string
+          {
+              return $this->table;
+          }
+      }
+
+
+  Confirming a --pretend Run
+  ---------------------------
+
+  When a php dgz db:seed --pretend run finishes, Dorguzen confirms that nothing
+  was written with:
+
+      Because of your --pretend flag, no queries were ran.
+
 
 
   User Roles in Dorguzen
@@ -11209,6 +12344,173 @@ The returned object will ALWAYS be one and the same instance. The result is:
 ✅ No repeated error_log spam.
 
 This alone will drop page load times from over 30 seconds to < 1 second.
+
+
+
+
+  The Container Class
+    ---------------------------------
+
+The container is DGZ_Container (core/DGZ_Container.php). The global container()
+helper (defined in bootstrap/app.php) provides access everywhere:
+
+    // Resolve a class
+    $logs = container(Logs::class);
+
+    // Get the container itself
+    $c = container();
+
+    // Check if a class is resolvable before pulling it
+    if (container()->has(MyService::class)) {
+        $myService = container(MyService::class);
+    }
+
+-has() returns true if the class is already resolved, has a registered binding,
+  or is an autowirable (existing) class.
+
+
+
+  Autowiring
+    ---------------------------------
+
+If a class is not explicitly registered, the container uses PHP reflection to
+resolve it — inspecting the deepest constructor up the inheritance chain
+(getConstructor()), resolving each type-hinted parameter recursively
+(resolveDependencies()), then caching the result. Reflection objects themselves
+are cached in $reflectionCache so each class is reflected only once.
+
+    class NewsController extends DGZ_Controller
+    {
+        // Container sees the type hint and injects NewsService automatically
+        public function __construct(private NewsService $newsService)
+        {
+            parent::__construct();
+        }
+    }
+
+Requirements for autowiring:
+
+-Every dependency must be a type-hinted class (a non-builtin type). Untyped
+  parameters cannot be resolved.
+-Each dependency class must itself be resolvable.
+-Scalar parameters (string, int, etc.) must have default values; otherwise the
+  container cannot supply them and resolves them to null (or, via
+  resolveParameter(), throws "Cannot resolve parameter $...").
+
+
+
+  Registering Bindings: singleton(), set(), bind()
+    ---------------------------------
+
+singleton() registers a factory whose instance is created once and reused for
+the entire request:
+
+    $container->singleton(NewsService::class, fn($c) => new NewsService(
+        $c->get(News::class),
+    ));
+
+set() and bind() are equivalent ways to register a factory closure. The first
+get() call runs the closure and caches the resulting instance in $instances, so
+by default every binding behaves like a singleton for the rest of the request:
+
+    // set() — commonly used with a static guard for framework objects
+    $container->set(DGZ_Request::class, function() {
+        static $request;
+        if (!$request) {
+            $request = new DGZ_Request();
+        }
+        return $request;
+    });
+
+    // bind() — ergonomic alias of set()
+    $container->bind(SomeClass::class, fn($c) => new SomeClass($c->get(Config::class)));
+
+
+
+  Resolution Priority
+    ---------------------------------
+
+When you call container(Foo::class) (i.e. $container->get()), the order is:
+
+1. Cached instance — returned immediately if already resolved this request
+   ($instances).
+2. Registered binding — the factory closure is called and the result cached.
+3. Reflection autowiring — the class must exist (class_exists()), then its
+   constructor is inspected and dependencies resolved recursively.
+4. Exception — thrown if the class cannot be resolved or instantiated
+   ("Cannot resolve: ...", "Cannot instantiate abstract type: ...").
+
+
+
+  What Gets Registered at Bootstrap
+    ---------------------------------
+
+bootstrap/app.php pre-registers the framework and application classes.
+Representative groups:
+
+    Core framework   DGZ_Request, DGZ_Response, DGZ_Application, DGZ_Validator,
+                     DGZ_DBAdapter
+    Queue system     SyncQueue, DatabaseQueue, QueueManager
+    Event system     EventService (wires its own EventDispatcher +
+                     ListenerResolver internally)
+    Core models      Users, Logs, Password_reset, ContactFormMessage,
+                     BaseSettings, Refresh_tokens, News
+    Core services    AuthService, AdminService, FeedbackService, NewsService
+    Module models    GalleryAlbum, GalleryImage, BlogPost, BlogCategory,
+                     BlogComment, VideoAlbum, Video, Testimonials
+    Module services  GalleryService, GalleryAdminService, BlogService,
+                     BlogAdminService, VideoService, VideoAdminService,
+                     TestimonialsService
+
+
+
+  Adding a New Model and Service
+    ---------------------------------
+
+    // 1. Add use statements at top of bootstrap/app.php
+    use Dorguzen\Models\Portfolio;
+    use Dorguzen\Services\PortfolioService;
+
+    // 2. Register the model
+    $container->singleton(Portfolio::class, fn($c) => new Portfolio($c->get(Config::class)));
+
+    // 3. Register the service, injecting the model
+    $container->singleton(PortfolioService::class, fn($c) => new PortfolioService(
+        $c->get(Portfolio::class),
+    ));
+
+The service can then be injected into any controller via constructor injection
+or pulled with container(PortfolioService::class).
+
+
+
+  Circular Dependency Detection
+    ---------------------------------
+
+The container tracks classes currently being resolved in $resolving. If a class
+is requested while already being resolved, it logs and throws rather than
+recursing infinitely:
+
+    ⚠️ [Container] Circular dependency detected while resolving: App\Services\Foo
+
+Design your dependency graph one-way: lower-level services should not depend on
+higher-level ones.
+
+
+
+  Config and Environment Helpers
+    ---------------------------------
+
+Two global helpers (in bootstrap/helpers.php) work alongside the container:
+
+    env('APP_ENV', 'production')   // reads system env vars via getenv()/$_ENV/$_SERVER
+    config('app.defaultLayout')    // dot-notation reads from the config repository
+
+-env() is meant for config files only and casts well-known literals
+  (true/false/null/empty). The Config class (src/config/Config.php) is the
+  typed accessor injected into models and available on controllers as
+  $this->config.
+
 
 
 
@@ -13141,6 +14443,154 @@ but before it returns true.
 
 
 
+      The DGZ_Form method reference
+      -----------------------------
+    Below are the helper methods the DGZ_Form class exposes for building form fields. They were
+  used in the examples above. Each is called statically off the instance (e.g. $form::input(...)).
+
+    -DGZ_Form::open($name, $action, $method, $attributes)
+        opens the <form> tag and injects the _csrf_token hidden field for you
+    -DGZ_Form::input($name, $type, $attributes, $value)
+        an <input> element
+    -DGZ_Form::hidden($name, $value)
+        a hidden input
+    -DGZ_Form::label($targetField, $value, $attributes)
+        a <label> element
+    -DGZ_Form::checkbox($name, $value, $multiple, $attributes)
+        a checkbox, or a row of checkboxes when $multiple is set
+    -DGZ_Form::radio($name, $value, $attributes, $preselected)
+        a radio button
+    -DGZ_Form::select($name, $data, $preSelected, $multiple, $attributes)
+        a <select> element (see the select section above)
+    -DGZ_Form::submit($type, $value, $attributes)
+        a submit / reset / button input
+    -DGZ_Form::close()
+        closes </form> and clears the old-input session state
+
+
+
+
+      Handling a form submission in a controller
+      ------------------------------------------
+    Apart from Jet forms (whose validation runs automatically in middleware), a plain form posts
+  to a controller method where you handle it yourself. The typical flow is: sanitize the input,
+  validate it, and on failure flash an error and send the user back with their input preserved.
+
+      public function store(): void
+      {
+          if (isset($_POST['name'])) {
+              // 1. Sanitize
+              $name    = DGZ_Validate::fix_string($_POST['name']);
+              $email   = DGZ_Validate::fix_string($_POST['email']);
+              $message = DGZ_Validate::fix_string($_POST['message']);
+
+              // 2. Validate (see the Security docs for the DGZ_Validator)
+              $fail = $this->contactService->validateInput($name, $email, $message);
+
+              if ($fail !== '') {
+                  // 3a. On failure: flash an error, restore old input, redirect back
+                  $this->addErrors($fail);
+                  $this->postBack($_POST);
+                  $this->redirect('contact');
+                  return;
+              }
+
+              // 3b. On success
+              $this->contactService->save($name, $email, $message);
+              $this->addSuccess('Your message has been sent.');
+              $this->redirect('contact');
+          }
+
+          $this->display('contact');
+      }
+
+    Flashing feedback messages
+    --------------------------
+  DGZ_Controller provides four helpers for returning feedback to the user. Each stores its
+  messages in a session key that survives the redirect and is rendered automatically by the
+  layout (as a Bootstrap alert) before being cleared:
+
+    -$this->addErrors($msg)   stored in session key _errors,   rendered as alert-danger
+    -$this->addWarning($msg)  stored in session key _warnings, rendered as alert-warning
+    -$this->addNotice($msg)   stored in session key _notices,  rendered as alert-info
+    -$this->addSuccess($msg)  stored in session key _success,  rendered as alert-success
+
+    Sticking old input
+    ------------------
+  Call postBack() to retain what the user typed after a failed submission:
+
+      $this->postBack($_POST);
+
+  postBack() stores $_POST in $_SESSION['postBack'], so the values can be re-displayed after the
+  redirect (see Old input repopulation below).
+
+
+
+
+      Old input repopulation
+      ----------------------
+    DGZ_Form::getOldValue($key, $default) retrieves a previously submitted value, checking three
+  session sources in order:
+
+    1. $_SESSION['old_input']           — set by the JetForms validation middleware
+    2. $_SESSION['postBack']            — set by $this->postBack($_POST)
+    3. $_SESSION['old_input_for_forms'] — set by DGZ_Form::setOld()
+
+    Use it to repopulate a field after a failed submission:
+
+      <input type="email" name="email"
+             value="<?= htmlspecialchars(DGZ_Form::getOldValue('email', '')) ?>">
+
+  DGZ_Form::close() clears all three sources, so old values are shown once and then discarded on
+  the next render.
+
+
+
+
+      File uploads in forms
+      ---------------------
+    For a form that uploads files, add enctype="multipart/form-data" to the opening tag:
+
+      <form action="/profile/photo" method="post" enctype="multipart/form-data">
+          <input type="hidden" name="_csrf_token" value="<?=getCsrfToken()?>">
+          <input type="file"   name="photo">
+          <button type="submit">Upload</button>
+      </form>
+
+  Process the upload in the controller with DGZ_Uploader. See the File Uploads documentation for
+  the full upload API.
+
+
+
+
+      AJAX form submissions
+      ---------------------
+    For AJAX submissions, send the CSRF token as an X-CSRF-TOKEN request header instead of a hidden
+  field. Dorguzen's request object looks for the token in that header
+  (DGZ_Request::getCsrfTokenFromRequest()). Expose the token in the layout <head>:
+
+      <meta name="csrf-token" content="<?=getCsrfToken()?>">
+
+    Then read it and send it with the request:
+
+      const token = document.querySelector('meta[name="csrf-token"]').content;
+
+      fetch('/contact', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-TOKEN': token,
+          },
+          body: JSON.stringify({ name, email, message }),
+      });
+
+  (As noted earlier, REST routes under /api/ are CSRF-exempt via the 'csrf_except' config, so no
+  token is needed there.)
+
+
+
+
+
 
 
 
@@ -13352,6 +14802,80 @@ We are looking here at methods that send standard emails that Dorguzen ships wit
 are in the core/DGZ_Messenger class.
 All public methods return true on success and false on failure (PHPMailer exceptions
 are caught internally and logged via DGZ_Logger).
+
+When a send fails the PHPMailer exception is caught and the failure is logged
+as: "Email failed to send from: <method>()" — naming the public method that
+was called, so you can trace which email failed straight from the logs table.
+
+Generic method — sendEmail()
+............................
+For any email your app needs to send that is NOT one of the built-in
+transactional emails listed below, use sendEmail(). You never have to add a
+method to DGZ_Messenger or touch core code — create a template in views/emails/
+and call sendEmail() from your service or controller. Most parameters are
+optional, so use PHP 8 named arguments:
+
+    public function sendEmail(
+        string $toEmail,
+        string $toName      = '',
+        string $subject     = '',
+        string $body        = '',
+        string $replyTo     = '',
+        string $replyToName = '',
+        array  $data        = [],
+        string $template    = '',
+    ): bool
+
+Two modes, selected by whether $template is set:
+
+    $messenger = new DGZ_Messenger();
+
+    // Templated HTML email — when $template is set, the body is rendered via
+    // renderEmail($template, $data) and sent as HTML.
+    $messenger->sendEmail(
+        toEmail:     config('appEmail'),
+        toName:      'Admin',
+        subject:     'New booking from ' . $name,
+        replyTo:     $visitorEmail,
+        replyToName: $visitorName,
+        data:        ['heading' => 'Booking Details', 'name' => $name],
+        template:    'booking-confirmation',   // views/emails/booking-confirmation.php
+    );
+
+    // Plain-text email — when $template is omitted, $body is sent as plain text.
+    $messenger->sendEmail(
+        toEmail: 'user@example.com',
+        toName:  'Jane',
+        subject: 'Quick note',
+        body:    'Your request has been received.',
+    );
+
+Sending pre-rendered HTML — sendHtml()
+......................................
+When you have already built the complete HTML and just need it delivered, use
+sendHtml() — it sends a pre-rendered HTML body directly to one recipient with no
+template/layout rendering:
+
+    sendHtml($toEmail, $toName, $subject, $htmlBody)
+        — Sends $htmlBody as the email body, as-is, to a single recipient.
+          No renderEmail()/layout wrapping is applied.
+
+APP_EMAIL — the admin recipient address
+.......................................
+APP_EMAIL (read from config as appEmail in configs/app.php) is the admin inbox
+that DGZ_Messenger sends notifications TO. The built-in sendContactFormMsgToAdmin()
+and sendErrorLogMsgToAdmin() methods use this value as their To: address
+(internally $this->_appEmail).
+
+    APP_EMAIL=admin@yourapp.com
+    APP_EMAIL_OTHER=second-admin@yourapp.com   # optional secondary admin (appEmailOther)
+
+⚠️  If APP_EMAIL is left empty, PHPMailer has no To: address and admin emails
+fail — the failure is logged as "Email failed to send from: ..." with no further
+detail. Always set it to a real, non-empty address.
+
+The transactional send methods Dorguzen ships with are:
+
 
     sendContactFormMsgToAdmin($name, $visitorEmail, $phone, $message)
         — Forwards a website contact form submission to the site admin email.
@@ -14857,6 +16381,166 @@ That is all fine, as long as you don't store it on the controller.
 
 
 
+    Development vs Production
+    --------------------------
+  Dorguzen catches PHP errors and unhandled exceptions, logs them, and renders an appropriate response —
+  detailed in development, generic in production. The behaviour is controlled by APP_ENV in .env, which the
+  framework reduces to the config('live') flag (configs/app.php).
+
+      APP_ENV                config('live')   Error display
+      ---------------------  --------------   ---------------------------------------------------------
+      local                  'false'          Full exception details (dump with file, line, hint, trace)
+      prod / production      'true'           Generic message; details logged but never shown
+
+  Set it in .env:
+
+      APP_ENV=local   # development
+      APP_ENV=prod    # production
+
+  In 'local', bootstrap/helpers.php turns on display_errors and error_reporting(E_ALL). In production it
+  disables display, enables log_errors, and writes to a PHP error log file. In production, full exception
+  details are logged but never shown to the user.
+
+
+
+    How exceptions flow
+    --------------------
+  The path a PHP error or thrown exception takes through the framework:
+
+      PHP error / thrown exception
+          |
+      set_error_handler()  (bootstrap/helpers.php)
+          -> Converts PHP errors to DGZ_Exception (typed error constant + hint)
+          -> On production (config('live') === 'true'):
+                 emails the admin via DGZ_Messenger::sendErrorLogMsgToAdmin()
+          -> new ExceptionController()->redirect('exception', 'error')
+              |
+      ExceptionView
+          -> on local  (config('live') === 'false'): dump() the error details
+          -> on production: generic message
+
+  DGZ_Controller::display() additionally wraps controller actions in its own try/catch: an uncaught
+  DGZ_Exception (or any \Throwable) is rendered through ExceptionView, with a last-resort fallback if the
+  view itself fails.
+
+
+
+    DGZ_Exception
+    --------------
+  All framework errors are thrown as DGZ_Exception (core/DGZ_Exception.php). It extends \Exception and adds a
+  typed error constant and an optional developer hint.
+
+      throw new DGZ_Exception(
+          'User not found',
+          DGZ_Exception::NO_USER_RECORD,
+          'Check that the user ID exists before calling this method.'
+      );
+
+  The constructor signature is:
+
+      public function __construct($message, $errorType = self::EXCEPTION, $hint = 'No hint available')
+
+  Exception type constants:
+
+      EXCEPTION                              exception
+      NO_MENU_DEFINED                        noMenuDefined
+      NO_LAYOUT_FOUND                        noLayoutFound
+      NO_VIEW_FOUND                          noViewFound
+      FIELD_NOT_FOUND_ON_TABLE               fieldNotFoundOnTable
+      FILE_NOT_FOUND                         fileNotFound
+      CLASS_NOT_FOUND                        classNotFound
+      NO_VALIDATOR_FOUND                     noValidatorFound
+      QUERY_ERROR                            queryError
+      PERMISSION_DENIED                      permissionError
+      MISSING_PARAMETERS                     missingParametersError
+      IDENTIFIER_NOT_FOUND                   identifierNotFound
+      WRONG_PARAMETER_TYPE                   wrongParameterType
+      INCORRECT_USERNAME_PASSWORD            incorrectUsernameOrPassword
+      NO_USER_RECORD                         noUserRecord
+      WRONG_ADAPTER_FOR_MODEL                wrongAdapterForModel
+      MISSING_HANDLER_FOR_ACTION             missingHandlerForAction
+      CONTROLLER_CLASS_NOT_FOUND             controllerClassNotFound
+      INVALID_INPUT                          invalidInput
+      INVALID_CONFIG                         invalidConfig
+      INVALID_PARAMETER_VALUE                invalidParameterValue
+      PHP_FATAL_ERROR / PHP_ERROR /          PHP native errors converted by the error handler
+        PHP_WARNING / PHP_NOTICE / PHP_OTHER_ERROR
+      DATABASE_QUERY_ERROR                   databaseQueryError
+      DATABASE_EXPECTED_RECORD_NOT_RETURNED  databaseExpectedRecordNotReturned
+      NOT_IMPLEMENTED_EXCEPTION              notImplementedException
+      NO_CONTEXT_PROVIDED                    noContextProvided
+      GALLERY_ALBUM_NOT_FOUND                galleryAlbumNotFoundException
+
+  Access the type, hint and message on a caught exception:
+
+      try {
+          // ...
+      } catch (DGZ_Exception $e) {
+          $type = $e->getType();    // e.g. 'noUserRecord'
+          $hint = $e->getHint();    // developer hint string
+          $msg  = $e->getMessage();
+      }
+
+
+
+    Production error alerts
+    ------------------------
+  When the app is live (config('live') === 'true'), the error handler in bootstrap/helpers.php automatically
+  emails the site admin on every caught PHP error:
+
+      $messenger = new DGZ_Messenger();
+      $messenger->sendErrorLogMsgToAdmin($message);
+
+  Ensure SMTP is correctly configured in production so these alerts are delivered (see the Email section).
+
+
+
+    Validation errors
+    ------------------
+  Form and API validation failures use a separate exception class,
+  Dorguzen\Core\Exceptions\ValidationException:
+
+      use Dorguzen\Core\Exceptions\ValidationException;
+
+      throw new ValidationException(
+          errors:                  $validatorErrors,
+          input:                   $_POST,
+          validationErrorMessages: $messages,
+          redirectTo:              '/contact'
+      );
+
+  The constructor accepts $errors, $input, $validationErrorMessages, $message, $errorCode and $redirectTo
+  (all optional). DGZ_Router catches ValidationException, builds a combined error message from
+  getValidationErrorMessages(), flashes it via addErrors(), and redirects. You generally never throw this
+  manually — the validation layer does it for you. See the Validation and Forms sections for the full flow.
+
+
+
+    Custom exception handling
+    --------------------------
+  To handle a specific exception type in a controller, catch it directly and inspect its type:
+
+      public function show($id): void
+      {
+          try {
+              $post = $this->blogService->getPost($id);
+          } catch (DGZ_Exception $e) {
+              if ($e->getType() === DGZ_Exception::DATABASE_EXPECTED_RECORD_NOT_RETURNED) {
+                  $this->addErrors('Post not found.');
+                  $this->redirect('blog');
+                  return;
+              }
+              throw $e; // re-throw anything you don't handle
+          }
+
+          $this->display('blog/show', compact('post'));
+      }
+
+  Uncaught exceptions bubble up to DGZ_Controller::display(), which logs them and renders ExceptionView.
+
+
+
+
     The awesome dgzie() helper function
     -------------------------------------
 
@@ -16134,6 +17818,111 @@ If a test fails intermittently, it usually means state leakage
 Dorguzen's testing system favors clarity over convenience — and that is exactly what makes it reliable.
 
 
+
+HTTP Request & Assertion Reference
+----------------------------------
+The helpers above are scattered through the narrative for teaching. For day-to-day work
+it helps to have them all in one place. Everything below is provided by the testing traits
+mixed into the base TestCase (DispatchesHttpRequests, InteractsWithHttp,
+InteractsWithAuthentication) and by the TestResponse object every request returns.
+
+Request helpers
+---------------
+You have already seen get(), post() and http(). The full set also includes dedicated JSON
+helpers and a pair of fluent modifiers:
+
+    // Plain requests
+    $this->get('/blog');
+    $this->post('/contact', ['field' => 'value']);
+    $this->http('PUT', '/resource', ['name' => 'Updated']);   // any HTTP method
+
+    // JSON requests (Content-Type + Accept set to application/json, body sent via php://input)
+    $this->getJson('/api-v1/products');
+    $this->postJson('/api-v1/auth/login', ['email' => '...', 'password' => '...']);
+    $this->putJson('/api-v1/products/1', ['name' => 'Updated']);
+    $this->deleteJson('/api-v1/products/1');
+
+    // Fluent modifiers — chain these BEFORE the request
+    $this->withHeaders(['HTTP_ACCEPT' => 'application/json'])->get('/page');
+    $this->withSession(['key' => 'value'])->get('/dashboard');
+
+Status assertions
+-----------------
+    $response->assertStatus(200);
+    $response->assertOk();            // 200
+    $response->assertCreated();       // 201
+    $response->assertNoContent();     // 204
+    $response->assertNotFound();      // 404
+    $response->assertForbidden();     // 403
+    $response->assertUnauthorized();  // 401
+    $response->assertServerError();   // status >= 500
+
+Body, header & content-type assertions
+--------------------------------------
+    $response->assertSee('Welcome');
+    $response->assertDontSee('Error');
+    $response->assertHeader('Content-Type', 'application/json');  // value is optional
+    $response->assertJsonResponse();   // Content-Type: application/json
+    $response->assertHtmlResponse();   // Content-Type: text/html
+    $response->assertEmpty();          // body is empty
+
+JSON assertions
+---------------
+    $response->assertJson(['status' => 'ok']);                       // subset match
+    $response->assertExactJson(['success' => true, 'data' => null]); // strict equality (no extra keys)
+    $response->assertJsonPath('data.user.email', 'a@b.c');           // value at a dot path
+    $response->assertJsonCount(3);                                   // count at root
+    $response->assertJsonCount(5, 'data.items');                     // count at a dot path
+    $response->assertJsonMissing('data.password');                  // key absent (dot path)
+    $response->assertJsonFragment(['name' => 'Jane']);               // loose fragment match
+    $response->assertJsonStructure(['id', 'email', 'created_at']);   // top-level keys present
+    $response->assertError('Email is required');                    // checks the error|message key
+
+Auth-state assertions
+---------------------
+    $response->assertAuthenticated();
+    $response->assertGuest();
+
+The TestResponse parses JSON automatically and prints helpful output (status, headers, body)
+whenever an assertion fails, so you rarely have to reach for var_dump.
+
+Acting as a guest
+-----------------
+actingAs() attaches a user; its counterpart actingAsGuest() explicitly clears any acting
+user. Use it to prove that protected routes reject unauthenticated visitors:
+
+    $this->actingAsGuest()
+         ->get('/dashboard')
+         ->assertStatus(302); // redirected to login
+
+dgz test options
+----------------
+Beyond the bare `dgz test`, the command forwards a small set of common PHPUnit options and
+accepts one or more test paths to narrow the run:
+
+    dgz test --filter SomeTest        # filter by class or method name
+    dgz test tests/feature/http/      # run only a directory (or a single file)
+    dgz test --stop-on-failure        # stop at the first failing test
+    dgz test --coverage-text          # text coverage report
+
+Under the hood `dgz test` simply invokes PHPUnit with the project config, so you can always
+run PHPUnit directly instead:
+
+    vendor/bin/phpunit -c phpunit.xml
+
+Generating tests — dgz make:test
+--------------------------------
+The generator (TestCommand.php, described above) is driven by the make:test command. It takes
+the test type (unit or feature) and a name, then writes the file into the matching directory
+with the matching namespace (Dorguzen\Tests\Unit or Dorguzen\Tests\Feature):
+
+    dgz make:test feature Checkout    # -> tests/feature/CheckoutTest.php
+    dgz make:test unit Orders         # -> tests/unit/OrdersTest.php
+
+A "Test" suffix is appended automatically if you omit it.
+
+
+
 Environment Isolation in Dorguzen PHPUnit Testing
 ------------------------------------------
 Dorguzen is designed so that application runtime and test runtime are completely isolated from each other. 
@@ -17185,6 +18974,124 @@ logging in, because that's what will be used by the server to authenticate the u
 
 
 
+  AUTH ROUTES AND API REQUEST/RESPONSE REFERENCE
+  ================================================
+
+  Built-in auth routes
+  ---------------------
+  Dorguzen ships three ready-made authentication endpoints, registered in routes/api.php:
+
+      POST /api/v1/auth/register
+      POST /api/v1/auth/login
+      POST /api/v1/auth/refresh
+
+  The register and login endpoints are demonstrated above under WORKING API ROUTES. The third,
+  /api/v1/auth/refresh, accepts a valid refresh_token and issues a fresh access/refresh token
+  pair via DGZ_APITrait::refreshToken(). This is the endpoint the client calls when an
+  access_token has expired (see HOW ACCESS TOKENS WORK above).
+
+
+  Exempting the API from CSRF (.env)
+  -----------------------------------
+  Browser form submissions are protected by CSRF middleware, but a non-browser API client has no
+  CSRF token to send. Exempt the API paths in your .env:
+
+      APP_API_CSRF_EXCEPTION='/api/'
+
+  Any request path matching this value (e.g. all /api/ routes) bypasses the CSRF check. Without
+  it, API clients would be rejected. (For API_DOCS_ENABLED, see INTERACTIVE API DOCUMENTATION
+  below.)
+
+
+  Reading the JSON request body
+  ------------------------------
+  API clients send their payload as a JSON body. Read it through the request object:
+
+      $body  = request()->json();          // full decoded array
+      $email = request()->json('email');   // a single top-level key
+
+  Calling json() with no argument returns the whole decoded array; passing a key returns just
+  that top-level value (an optional default may be given as the second argument).
+
+
+  The standard response envelope
+  -------------------------------
+  API responses are sent with the DGZ_Response class and follow a consistent envelope:
+
+      {
+          "code":    200,
+          "status":  true,
+          "message": "Human-readable description",
+          "data":    { }
+      }
+
+  Error responses use the same shape with "status": false:
+
+      {
+          "code":    422,
+          "status":  false,
+          "message": "Email is required"
+      }
+
+  Build and send one like so:
+
+      use Dorguzen\Core\DGZ_Response;
+
+      $response = new DGZ_Response();
+      $response->json([
+          'code'    => 200,
+          'status'  => true,
+          'message' => 'Done',
+          'data'    => $result,
+      ])->send();
+
+
+  The JWT token payload
+  ----------------------
+  The tokens generated by DGZ_APITrait carry a standard JWT payload:
+
+      {
+          "iss":  "<your app homepage>",
+          "aud":  "<your app homepage>",
+          "iat":  1234567890,
+          "exp":  1234567890,
+          "data": { "user_id": 1 }
+      }
+
+  iss and aud are both set to the app's configured homepage, and the authenticated user id is
+  carried under data.user_id. After a successful validateToken(), that id is available as
+  $this->validatedUser['user_id'].
+
+
+  Token validation error codes
+  -----------------------------
+  validateToken() returns a 401 for any of the following, and also sets a
+  WWW-Authenticate: Bearer error='...' response header:
+
+      401                             Missing Authorization header
+      401                             Header is not in 'Bearer <token>' format
+      401                             Invalid token signature
+      401 with "expired_token": true  Token has expired
+      401                             Malformed token payload
+
+
+  CORS headers
+  ------------
+  setHeaders() (called at the top of every protected endpoint) emits the CORS and content-type
+  headers:
+
+      Access-Control-Allow-Origin: <your app homepage>
+      Access-Control-Allow-Credentials: true
+      Access-Control-Allow-Methods: GET, POST, PATCH, DELETE
+      Access-Control-Max-Age: 3600
+      Content-Type: application/json; charset=UTF-8
+
+  Note that the allowed origin is your app's configured homepage, NOT a wildcard (*) — a wildcard
+  is incompatible with Access-Control-Allow-Credentials: true.
+
+
+
+
 
   INTERACTIVE API DOCUMENTATION (Swagger UI / OpenAPI)
   ======================================================
@@ -17734,6 +19641,95 @@ Don't confuse DSN (Delivery Status Notification) with DNS (Domain Name System) �
        php dgz help db:seed
 
 
+
+   Command reference
+   -----------------
+   The commands below are the ones `dgz` ships with. Run `php dgz list` to see
+   the live list for your installed version, and `php dgz help <command>` for
+   the full option set of any one of them.
+
+   Scaffolding (make:*)
+       make:controller MyController      A new controller class
+       make:api-controller Foo           A new API controller class
+       make:model MyModel                A new model class
+       make:middleware MyMiddleware      A new middleware class
+       make:command MyCommand            A new CLI command class
+       make:event MyEvent                A new event class
+       make:job MyJob                    A new queue job class
+       make:factory MyFactory            A new model factory
+       make:seeder MySeeder              A new database seeder
+       make:migration create_users       A new migration file
+       make:test MyTest                  A new test class
+       make:jetform MyForm               A new JetForm class
+
+   Database
+       migrate                           Run pending migrations
+       migrate --file=<name>             Run a single migration file
+       migrate --pretend                 Print SQL without executing
+       migrate:rollback                  Roll back the last batch
+       migrate:status                    Show which migrations have/haven't run
+       migrate:refresh                   Roll back all, then re-run all
+       migrate:fresh                     Drop all tables, then re-run all migrations
+       migrate:fresh --force  (-f)       Skip confirmation
+       migrate:fresh --pretend           Print actions without executing
+       db:seed                           Seed the database with records
+       db:seed --class=<Seeder>          Run a specific seeder class
+       db:seed --all                     Run all seeder classes
+       db:seed --force                   Skip confirmation
+       db:seed --pretend                 Print actions without executing
+
+   Queue
+       queue:work                        Start a queue worker
+       queue:work --once                 Process one job then exit
+       queue:work --sleep=N              Seconds to sleep when the queue is empty
+       queue:work --max-jobs=N           Exit after N jobs processed
+       queue:work --timeout=N            Max seconds per job
+       queue:jobs                        List pending jobs
+       queue:stats                       Show queue statistics (pending/failed counts)
+       queue:failed                      List failed jobs
+       queue:retry <id>                  Retry a failed job (or `all` for every failed job)
+       queue:forget <id>                 Permanently delete a failed job
+       queue:removejob <id>              Remove a job from the queue
+       queue:clear                       Clear all pending jobs
+
+   Cache
+       cache:config-clear                Clear the configuration cache
+       cache:route-cache                 Cache application routes
+       cache:route-clear                 Clear the route cache
+       cache:middleware-cache            Cache global and route middleware metadata
+       cache:middleware-clear            Clear the cached middleware metadata
+
+   Scheduling
+       schedule:run                      Run scheduled tasks due now
+
+   Inspection
+       routes                            List all defined routes
+       config                            Display all configuration values
+       log                               Display recent application logs
+       log:tail                          Stream a log file in real time (like `tail -f`)
+       log:prune                         Delete log files older than N days
+       env:check                         Report `.env.example` variables missing from your live `.env`
+
+   Testing
+       php dgz test
+
+
+   Global install (optional, not recommended)
+   --------------------------------------------
+   `dgz` also ships `install` and `uninstall` commands. `install` attempts to
+   register `dgz` globally (a `/usr/local/bin/dgz` symlink on macOS/Linux, a
+   `dgz.bat` on Windows):
+
+       php dgz install
+       php dgz uninstall
+
+   Be aware this contradicts the project-local design described above: a global
+   symlink points every `dgz` invocation at one project's bootstrap, config, and
+   database. For day-to-day work prefer the shell alias shown earlier
+   (`alias dgz="php dgz"`), which keeps each project self-contained.
+
+
+
    ---
 
 
@@ -18046,6 +20042,94 @@ middleware such as BaseMiddleware, which may need to handle multiple controller 
 For example:
   -You might want to apply different authentication levels depending on the section of your app.
   -You can use the $intent values in the boot() array to trigger different logic paths dynamically.
+
+
+
+
+      The divert intent (re-dispatching a request)
+      ---------------------------------------------
+  Besides the guard intents shown above (authenticated, authorized, isActiveModule), BaseMiddleware also
+recognises a special 'divert' intent. When a controller short name maps to 'divert' in the boot() array, the
+middleware calls a method named after that controller, and that method returns a fresh target for the request —
+letting you transparently re-route to a different controller/method. The shipped example sends 'api' requests
+through an ApiController:
+
+    public function boot(): array
+    {
+        return [
+            'api' => 'divert',
+        ];
+    }
+
+Note also that a guard does not have to throw on failure. In BaseMiddleware, the different intents fail in
+different ways:
+
+  -An 'authenticated' failure redirects to the login page, e.g.
+        header('Location: ' . $this->config->getFileRootPath() . 'admin/login')
+  -An 'authorised' or 'isActiveModule' failure throws DGZ_Exception::PERMISSION_DENIED.
+
+How the checks themselves work:
+
+  -authenticated() — confirms the user is logged in.
+  -authorised() — builds on authenticated() by additionally calling $this->users->isAdmin(...).
+  -isActiveModule() — passes only when the module is set to 'on' in configs/app.php.
+
+So you can mix soft (redirect) and hard (exception) outcomes in a single middleware simply by choosing the
+intent, without writing separate handler branches.
+
+
+
+
+      Route Middleware & Route Groups
+      --------------------------------
+  The middleware covered so far is GLOBAL — DGZ auto-loads everything under middleware/globalMiddleware/ (e.g.
+BaseMiddleware, CsrfPsrMiddleware, FormValidationMiddleware) and runs it on every request. Dorguzen also supports
+ROUTE middleware, which is attached to specific routes or route groups and lives in middleware/routeMiddleware/.
+
+Route middleware is applied in routes/web.php (or routes/api.php) using the router's middleware() and group()
+methods:
+
+    $router->middleware(['AuthMiddleware'])->group(function () use ($router) {
+        $router->get('/user/dashboard', 'UserController@dashboard');
+        $router->get('/user/profile',   'UserController@profile');
+    });
+
+How it works:
+
+  -middleware() pushes a middleware layer onto the router's stack and returns $this.
+  -group() runs the closure so every route declared inside inherits that stack, then pops the layer afterwards
+    so it does not leak to routes added later.
+  -Each route stores its resolved middleware list, which the HTTP kernel runs (via runRouteMiddleware() /
+    executeRouteMiddlewarePipeline()) before dispatching to the controller.
+
+
+      AuthMiddleware (the shipped route guard)
+      -----------------------------------------
+  middleware/routeMiddleware/AuthMiddleware.php is the route guard shipped with DGZ. It is a PSR-style middleware
+whose process() lets the request continue (return $next->handle($request)) only when $_SESSION['authenticated']
+matches the expected token ('Let Go-' . appName); otherwise it throws DGZ_Exception::PERMISSION_DENIED, which the
+router converts into a redirect to the login page.
+
+
+
+
+      The CSRF contract (concrete details)
+      -------------------------------------
+  The CSRF middleware is described above in the PSR section, but here is its concrete contract so you can wire it
+into hand-written forms and AJAX calls:
+
+  -The token is read from the _csrf_token POST field (also accepted on the query string or JSON body) OR, for
+    AJAX, from the X-CSRF-TOKEN HTTP header — see DGZ_Request::getCsrfTokenFromRequest().
+  -Validation runs through DGZ_Request::validateCsrfToken().
+  -The global getCsrfToken() helper generates/returns the token. In a hand-written form, add it as a hidden field:
+
+        <input type="hidden" name="_csrf_token" value="<?= getCsrfToken() ?>">
+
+    (DGZ_Form / Jet Forms inject this for you automatically, so you only do this for manual forms.)
+  -Paths can be exempted from CSRF validation via the csrf_except list in configs/app.php, which is seeded from
+    APP_API_CSRF_EXCEPTION in .env. For example, APP_API_CSRF_EXCEPTION='/api/' exempts all API routes
+    (prefix-matched).
+
 
 
 
@@ -19726,6 +21810,85 @@ Loops efficiently
 
 This is professional-grade architecture.
 
+
+
+Queue & Job CLI Reference
+---------------------------
+
+Beyond dispatch() and a bare queue:work, Dorguzen ships a small set of CLI
+commands for scaffolding jobs, controlling the worker, and managing the queue
+and its failures.
+
+Generating a Job (make:job)
+---------------------------
+
+Rather than hand-writing the file, you can scaffold a Job class with the CLI:
+
+      php dgz make:job SendInvoice
+
+This generates a ready-to-edit class (the 'Job' suffix is appended
+automatically if you omit it) with a stubbed handle() method. Just fill in
+your logic:
+
+      namespace Dorguzen\Jobs;
+
+      class SendInvoiceJob
+      {
+          public function handle(): void
+          {
+              // TODO: Implement Job logic
+          }
+      }
+
+queue:work options and aliases
+---------------------------
+
+The worker command also answers to several aliases — q:work, qw,
+queue:consume and q:consume — and accepts the following options:
+
+      Option          Description
+      --------------  -------------------------------------------------------
+      --once          Process a single job, then exit
+      --sleep=N       Seconds to sleep when no job is available (default 1)
+      --max-jobs=N    Exit after processing N jobs
+      --timeout=N     Max execution time per job, in seconds (default 60)
+
+Examples:
+
+      php dgz queue:work --once
+      php dgz queue:work --sleep=5
+      php dgz queue:work --max-jobs=10
+      php dgz queue:work --timeout=300
+
+Graceful shutdown (SIGTERM / SIGINT)
+---------------------------
+
+Pressing CTRL + C sends a SIGINT. When the pcntl extension is available, the
+worker traps both SIGTERM and SIGINT and shuts down gracefully: instead of
+dying mid-job, it finishes the job currently in flight, then exits cleanly
+("Queue worker stopped gracefully."). This prevents a job being left
+half-processed when you stop a worker or a supervisor restarts it.
+
+Managing the queue
+---------------------------
+
+These commands let you inspect and manage the active queue and its failures:
+
+      php dgz queue:jobs           # list jobs currently in the queue
+      php dgz queue:stats          # show queue statistics (pending / failed counts)
+      php dgz queue:failed         # list all failed jobs
+      php dgz queue:retry <id>     # retry a single failed job by id
+      php dgz queue:retry all      # retry every failed job
+      php dgz queue:forget <id>    # permanently delete a failed job
+      php dgz queue:removejob <id> # remove a job from the active queue
+      php dgz queue:clear          # clear all pending jobs
+
+queue:retry accepts either a specific failed-job id or the literal 'all' to
+requeue every failed job at once. queue:forget permanently removes a single
+record from dgz_failed_jobs, while queue:clear empties the active dgz_jobs
+queue.
+
+
 Full Mental Model for Developers
 
 When a developer writes:
@@ -20526,8 +22689,8 @@ dispatch(new MyJob());
 
   3. Add the following to your .env file:
 
-         STRIPE_SECRET_KEY=sk_test_xxxxxxxxxxxxxxxxxxxxxxxx
-         STRIPE_PUBLISHABLE_KEY=pk_test_xxxxxxxxxxxxxxxxxxxxxxxx
+         STRIPE_SECRET_KEY=sk_test_<YOUR_TEST_SECRET_KEY>
+         STRIPE_PUBLISHABLE_KEY=pk_test_<YOUR_TEST_PUBLISHABLE_KEY>
 
      Use the test keys locally. Swap to the live secret key in production.
      API calls must be made with the SECRET key — the publishable key alone is not sufficient.
