@@ -55,7 +55,8 @@ class register extends \Dorguzen\Core\DGZ_HtmlView
                              <div class="wow fadeInUp" data-wow-delay="0.3s">
 
                              <form id="regis_form" method="post"
-                                      action="<?=$this->route('auth/register')?>">
+                                      action="<?=$this->route('auth/register')?>"
+                                      onSubmit="return validate(this)">
                                     <input type="hidden" name="_csrf_token" value="<?=getCsrfToken()?>">
                                     <div id="regis_panel" class="panel panel-primary">
                                         <a href="<?= $this->controller->config->getFileRootPath()?>auth/login" class="btn btn-success btn-lg pull-right">Already a member? Login</a>

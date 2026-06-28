@@ -25,28 +25,14 @@ class jsValidationPartial extends \Dorguzen\Core\DGZ_HtmlView
 
         <script type="text/javascript">
 
-            $(document).ready(function () {
-
-                //validate the registration form
-                $(document).on('submit', '#regis_form', function (e) {
-                    e.preventDefault();
-
-                    if (validate(this))
-                    {
-                        this.submit();
-                    }
-                });
-
-
-                //validate the login form
-                $(document).on('submit', '#loginForm', function (e) {
-                    e.preventDefault();
-
-                    if (validateLoginForm(this))
-                    {
-                        this.submit();
-                    }
-                });
+            // -------------------------------------------------------------------
+            // Plain JavaScript — no jQuery. The validator functions below are GLOBAL,
+            // so each form calls them directly through its inline submit handler, e.g.
+            //     <form ... onSubmit="return validateLoginForm(this)">
+            // (a handler that returns false cancels the submit). DOM event handlers that
+            // need elements — the forgot-password toggle and the username check — are
+            // attached lower down inside DOMContentLoaded listeners.
+            // -------------------------------------------------------------------
 
 
 
@@ -75,7 +61,7 @@ class jsValidationPartial extends \Dorguzen\Core\DGZ_HtmlView
                 //function to validate the login form
                 function validateLoginForm(form)
                 {
-                    if ($('#forgotstatus').val() == 'yes')
+                    if (document.getElementById('forgotstatus').value == 'yes')
                     {
                         fail = validateEmail(form.forgot_pass_input.value);
                         if (fail == "")
@@ -107,21 +93,31 @@ class jsValidationPartial extends \Dorguzen\Core\DGZ_HtmlView
 
 
 
-                //Handle the login forgot password feature
-                $('#forgot_pass').click(function(e) {
-                    e.preventDefault();
-                    $('.loginfieldinput').toggle();
+                //Handle the login forgot-password toggle (plain JS, no jQuery)
+                document.addEventListener('DOMContentLoaded', function () {
+                    var forgotLink = document.getElementById('forgot_pass');
+                    if (!forgotLink) { return; }
 
-                    $("#forgotstatus").val('yes');
+                    forgotLink.addEventListener('click', function (e) {
+                        e.preventDefault();
 
-                    if ($('#forgot_pass').html() == 'Reset form')
-                    {
-                        location.reload(true);
-                    }
-                    else
-                    {
-                        $('#forgot_pass').html('Reset form')
-                    }
+                        // Reveal the forgot-password email field and hide the login fields
+                        // (and vice-versa) — every element carrying .loginfieldinput is flipped.
+                        var fields = document.querySelectorAll('.loginfieldinput');
+                        for (var i = 0; i < fields.length; i++) {
+                            var el = fields[i];
+                            var isHidden = el.style.display === 'none' || getComputedStyle(el).display === 'none';
+                            el.style.display = isHidden ? '' : 'none';
+                        }
+
+                        document.getElementById('forgotstatus').value = 'yes';
+
+                        if (forgotLink.innerHTML.trim() === 'Reset form') {
+                            location.reload();
+                        } else {
+                            forgotLink.innerHTML = 'Reset form';
+                        }
+                    });
                 });
 
 
@@ -211,9 +207,13 @@ class jsValidationPartial extends \Dorguzen\Core\DGZ_HtmlView
 
 
                 //make an ajax call-this calls the function 'checkUsername()' below
-                $(document).on('blur', '#regis_form #username', function()
-                {   
-                    checkUsername(this);
+                document.addEventListener('DOMContentLoaded', function () {
+                    var regUsername = document.querySelector('#regis_form #username');
+                    if (regUsername) {
+                        regUsername.addEventListener('blur', function () {
+                            checkUsername(this);
+                        });
+                    }
                 });
 
 
@@ -276,7 +276,6 @@ class jsValidationPartial extends \Dorguzen\Core\DGZ_HtmlView
                         }
                         return request
                     }
-            });
 
         </script>
         <?php
