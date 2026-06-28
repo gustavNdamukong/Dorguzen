@@ -3152,7 +3152,9 @@ Examples:
   - Whether the app is live or local
   - Default locale and fallback locale
   - Module on/off flags (seo, payments, sms)
-  - allow_registration (a deployment decision, not a runtime toggle)
+  - allow_registration (a deployment decision, not a runtime toggle — gates public
+    self-service signup; new registrants default to the 'member' role. See
+    "Public registration & the default member role" under User Roles.)
 
 
 What Belongs in baseSettings (Runtime Settings)
@@ -3816,6 +3818,9 @@ in the layouts — no additional JavaScript or CSS dependencies are needed.
 
                          -User Roles and View-Level Authentication
                             -The four user roles
+                            -Public registration & the default member role
+                            -Changing a user's role
+                            -The member dashboard vs the admin dashboard
                             -How roles are stored (session keys)
                             -The Auth() helper — full method reference
                             -The views/admin/ directory and DGZ_AdminHtmlView
@@ -3871,6 +3876,58 @@ in the layouts — no additional JavaScript or CSS dependencies are needed.
                       irreversible platform-wide operations.
 
 
+
+
+    Public registration & the default member role
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Self-service registration from the public site is a deployment-level toggle,
+    set by ALLOW_REGISTRATION in .env and read in code as
+    config('app.allow_registration'). When it is true the registration page
+    (auth/signup) and its POST handler (AuthController::register()) are both
+    active; when it is false BOTH redirect to the home page, so the feature is
+    fully off. It is intentionally a developer/deployment decision — there is no
+    admin UI toggle for it at runtime.
+
+    Every account created through public registration is given
+    users_type = 'member', the lowest tier. A member can log in and reach their
+    own dashboard, but has no admin capabilities — DGZ_AdminHtmlView turns a
+    member away from any views/admin/ page.
+
+
+    Changing a user's role
+    ~~~~~~~~~~~~~~~~~~~~~~~
+    A users_type value is never changed by self-service. It can only be changed
+    in one of two places:
+
+      1. The admin UI — Admin Dashboard -> Manage Users (admin/manageUsers).
+         Access to this feature is governed by the 'manage_users' entry in the
+         configs/app.php 'permissions' map, which ships allowing admin, admin_gen
+         and super_admin (only the 'settings' feature is super_admin-only). The
+         role hierarchy described above still applies inside the screen — e.g. an
+         admin_gen cannot manage a super_admin.
+
+      2. Directly in the database — by updating the users.users_type column.
+
+    There is deliberately no public or member-facing path for a user to promote
+    themselves.
+
+
+    The member dashboard vs the admin dashboard
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Members get their OWN dashboard, separate from the admin backend:
+
+      user/dashboard    UserController::dashboard() -> views/dashboard.php
+                        Extends DGZ_HtmlView and is guarded by Auth()->check(),
+                        so any logged-in user (including a member) can reach it.
+
+      admin/dashboard   AdminController::dashboard() -> views/admin/adminHome.php
+                        Extends DGZ_AdminHtmlView, so only admin / admin_gen /
+                        super_admin can reach it.
+
+    Out of the box the member dashboard ships with a single card — Change Password
+    (user/changePw) — and nothing else. This is intentionally minimal: a clone
+    application is expected to build out the member area (profile, orders, saved
+    items, etc.) on top of it.
 
 
     How roles are stored
