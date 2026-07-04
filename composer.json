@@ -33,6 +33,7 @@
     ],
     "require": {
         "php": ">=8.0",
+        "ext-gd": "*",
         "firebase/php-jwt": "^7.0",
         "stripe/stripe-php": "^13.12",
         "twilio/sdk": "^7.16",

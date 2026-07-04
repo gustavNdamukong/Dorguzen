@@ -12588,6 +12588,17 @@ Dorguzen ships a three-class file upload system in core/DGZ_Uploader/:
     │    Can also be used standalone on already-uploaded files.               │
     └─────────────────────────────────────────────────────────────────────────┘
 
+    ⚙ SERVER REQUIREMENT — GD EXTENSION
+    ---------------------------------------------------------------------------
+    Thumbnail generation uses PHP's GD library (imagecreatefrompng(),
+    imagecreatefromjpeg(), imagecreatefromwebp(), etc.). The server's PHP must
+    have GD ENABLED, with support for the formats you upload (PNG, JPEG, GIF,
+    WebP). If GD is missing you'll get a fatal
+    "Call to undefined function ...imagecreatefrompng()" at upload time.
+    On shared / cPanel hosting, enable it under:
+        Select PHP Version -> Extensions -> gd
+    (This is declared as "ext-gd" in Dorguzen's composer.json require.)
+
 The flow when you call move('resize') on a DGZ_Uploader instance:
 
     HTTP upload ($_FILES)

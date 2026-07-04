@@ -19,6 +19,7 @@ Out of the box you get routing, controllers, models, views, an ORM, migrations, 
 ## Requirements
 
 - PHP >= 8.0
+- The **GD extension** (with PNG/JPEG/GIF/WebP support) — required by the bundled `DGZ_Uploader` for image thumbnails (Gallery, Portfolio, Blog image uploads). On cPanel: *Select PHP Version → Extensions → `gd`*.
 - Composer
 - MySQL / MariaDB (or PostgreSQL / SQLite for alternative drivers)
 - Apache with `mod_rewrite` enabled (or use the built-in development server — see below)
