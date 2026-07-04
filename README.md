@@ -243,3 +243,9 @@ Full developer documentation is in `docs/dgzDocs.md`. It covers routing, control
 ## License
 
 MIT
+
+---
+
+## Credits
+
+Dorguzen is developed and maintained by [Nolimit Media](https://nolimitmedia.ca).
