@@ -160,7 +160,7 @@ class DGZ_Thumbnail {
 
 	// Preserve the original file extension so thumbnail filenames stay consistent
 	// with what callers expect (e.g. photo.jpeg → photo_thb.jpeg, not photo_thb.jpg).
-	$originalExt = strtolower(pathinfo($this->_original, PATHINFO_EXTENSION));
+	$originalExt = strtolower(pathinfo($this->_original, PATHINFO_EXTENSION)) ?: 'jpg';
 
 	if ($this->_imageType == 'jpeg') {
 	  $newname .= '.' . $originalExt;
