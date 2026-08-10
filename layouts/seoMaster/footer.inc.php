@@ -93,7 +93,7 @@
         <div class="copyright">
             <div class="row">
                 <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-                    &copy; <?= htmlspecialchars(config('app.appName')) ?>, All Rights Reserved.
+                    &copy; <?= htmlspecialchars(config('app.appBusinessName') ?: config('app.appName')) ?>, All Rights Reserved.
                     Powered By <a class="border-bottom" href="https://dorguzen.com/" target="_blank" rel="noopener">Dorguzen</a>
                 </div>
                 <div class="col-md-6 text-center text-md-end">

@@ -6,7 +6,9 @@ class terms extends \Dorguzen\Core\DGZ_HtmlView
 {
     public function show(array $viewModel = []): void
     {
-        $business = trim((string) config('app.appName')) ?: 'this website';
+        // appBusinessName is the human-readable brand (dgzDocs "Rename Your
+        // Application"); appName is an internal slug used for logging.
+        $business = trim((string) (config('app.appBusinessName') ?: config('app.appName'))) ?: 'this website';
         $email    = trim((string) config('app.appEmail'));
 
         $this->addMetadata([
