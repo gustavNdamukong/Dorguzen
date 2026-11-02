@@ -195,6 +195,16 @@ if (class_exists(\Laudis\Neo4j\ClientBuilder::class)) {
 // Start sessions
 //--------------------------------------------------------------------------------------
 if (session_status() === PHP_SESSION_NONE) {
+    if (!headers_sent()) {
+        // Refuse session IDs the server didn't issue, and keep the cookie away from
+        // scripts and cross-site requests instead of relying on each host's defaults.
+        ini_set('session.use_strict_mode', '1');
+        session_set_cookie_params([
+            'httponly' => true,
+            'samesite' => 'Lax',
+            'secure'   => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+        ]);
+    }
     session_start();
 }
 //--------------------------------------------------------------------------------------

@@ -254,7 +254,7 @@ class AuthController extends DGZ_Controller
         if (!session_id()) { session_start(); }
         $_SESSION['authenticated'] = 'Let Go-' . $this->config->getConfig()['appName'];
         $_SESSION['start']         = time();
-        session_regenerate_id();
+        session_regenerate_id(true);
 
         $_SESSION['custo_id']   = $authenticated['users_id'];
         $_SESSION['user_type']  = $authenticated['users_type'];

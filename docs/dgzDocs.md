@@ -3201,6 +3201,11 @@ PHP security settings
           php_admin_value[session.upload_progress.enabled] = 0
     - cPanel: use the MultiPHP INI Editor, or your host's equivalent.
 
+  The .htaccess file only works if the host allows PHP settings there. A mod_php
+  host without "AllowOverride Options" returns a 500 error for every page. If that
+  happens, ask the host to allow it, or remove the mod_php block from .htaccess and
+  set these values in php.ini.
+
   This setting is also PHP's advised workaround for CVE-2026-115560, which the
   versions above do not fix.
 

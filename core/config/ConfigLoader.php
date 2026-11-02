@@ -188,7 +188,7 @@ class ConfigLoader
             return false;
         }
 
-        $meta = @unserialize(@file_get_contents($metaPath));
+        $meta = @unserialize(@file_get_contents($metaPath), ['allowed_classes' => false]);
         if (!is_array($meta) || !isset($meta['fingerprint'])) {
             return false;
         }
