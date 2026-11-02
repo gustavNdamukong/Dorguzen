@@ -31,9 +31,13 @@ class MigrationLockRepository
         // If the table already existed with locked_at NOT NULL (legacy schema), fix it.
         // MODIFY COLUMN is a no-op when the column is already correct, so this is safe
         // to run on every boot.
-        $this->db->execute(
-            "ALTER TABLE {$this->table} MODIFY COLUMN locked_at DATETIME NULL DEFAULT NULL"
-        );
+        // MODIFY COLUMN is MySQL syntax. SQLite and PostgreSQL reject it, and always get the
+        // correct column definition from the CREATE TABLE above.
+        if (in_array($this->db->getDriverName(), ['mysqli', 'pdo'], true)) {
+            $this->db->execute(
+                "ALTER TABLE {$this->table} MODIFY COLUMN locked_at DATETIME NULL DEFAULT NULL"
+            );
+        }
 
         // Ensure a single lock row exists (compatible with both MySQL and SQLite)
         $existing = $this->db->query("SELECT id FROM {$this->table} WHERE id = 1");

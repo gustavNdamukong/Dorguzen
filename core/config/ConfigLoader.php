@@ -97,8 +97,11 @@ class ConfigLoader
             $this->setByDottedKey($key, $data);
         }
 
-        // write cache
-        $this->writeCache($this->config);
+        // write cache, unless caching is off. A test run loads config with caching off, and
+        // writing its values here would point the whole application at the test database.
+        if ($this->useCache) {
+            $this->writeCache($this->config);
+        }
 
         return $this->config;
         

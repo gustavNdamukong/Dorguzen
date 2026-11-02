@@ -36,9 +36,13 @@ class MigrationRepository
         $this->db->execute($sql);
 
         // Fix legacy tables where created_at was created without DEFAULT CURRENT_TIMESTAMP
-        $this->db->execute(
-            "ALTER TABLE {$this->table} MODIFY COLUMN created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP"
-        );
+        // MODIFY COLUMN is MySQL syntax. SQLite and PostgreSQL reject it, and always get the
+        // correct column definition from the CREATE TABLE above.
+        if (in_array($this->db->getDriverName(), ['mysqli', 'pdo'], true)) {
+            $this->db->execute(
+                "ALTER TABLE {$this->table} MODIFY COLUMN created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP"
+            );
+        }
     }
 
 

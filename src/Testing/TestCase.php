@@ -47,10 +47,12 @@ abstract class TestCase extends PHPUnitTestCase
 
         require_once base_path('bootstrap/testing.php');
 
-        self::$frameworkBooted = true;
-
         if (method_exists($this, 'refreshDatabase')) {
             $this->refreshDatabase();
         }
+
+        // Only set once the database is ready. If migrations fail, every test
+        // reports it, instead of the rest of the suite running with no tables.
+        self::$frameworkBooted = true;
     }
 }

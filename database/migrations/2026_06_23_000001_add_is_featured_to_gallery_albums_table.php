@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         $this->addStatement(
             "ALTER TABLE gallery_albums
-                ADD COLUMN album_is_featured TINYINT(1) NOT NULL DEFAULT 0 AFTER album_status"
+                ADD COLUMN album_is_featured TINYINT(1) NOT NULL DEFAULT 0"
         );
     }
 
