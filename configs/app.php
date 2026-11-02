@@ -53,6 +53,8 @@ return [
 
     'queue_driver' => env('QUEUE_DRIVER', 'sync'),
 
+    'queue_signing_key' => env('QUEUE_SIGNING_KEY', ''),
+
     'modules' => [
         'seo'      => env('MODULES_SEO_STATUS', 'on'),
         'payments' => env('MODULES_PAYMENTS_STATUS', 'off'),

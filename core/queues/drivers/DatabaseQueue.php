@@ -4,6 +4,7 @@ namespace Dorguzen\Core\Queues\Drivers;
 
 use Dorguzen\Core\Queues\Drivers\QueueInterface;
 use Dorguzen\Core\Queues\QueuedJob;
+use Dorguzen\Core\Queues\QueuePayloadSigner;
 use Dorguzen\Core\DGZ_DBAdapter as DB;
 use RuntimeException;
 use Throwable;
@@ -17,7 +18,8 @@ use Throwable;
 class DatabaseQueue implements QueueInterface
 {
     public function __construct(
-        protected DB $db
+        protected DB $db,
+        protected QueuePayloadSigner $signer
     ) {}
 
     public function push(object $job, ?int $delaySeconds = null): void
@@ -26,7 +28,7 @@ class DatabaseQueue implements QueueInterface
 
         $this->db->insert('dgz_jobs', [
             'queue'        => 'default',
-            'payload'      => serialize($job),
+            'payload'      => $this->signer->sign($job),
             'attempts'     => 0,
             'max_attempts' => 3,
             'available_at' => date('Y-m-d H:i:s', $availableAt),
@@ -59,6 +61,7 @@ class DatabaseQueue implements QueueInterface
         }
         catch(Throwable $e) {
         echo "Error: {$e->getMessage()}";
+        return null;
         }
 
         // 2. Attempt to reserve it (optimistic locking)
@@ -69,18 +72,27 @@ class DatabaseQueue implements QueueInterface
             [$now, $job['id']]
         );
 
-        if (! $updated || $this->db->getAffectedRows() > 0) { 
+        if (! $updated || $this->db->getAffectedRows() === 0) { 
             // Another worker claimed it
             return null;
         }
 
-        // 3. Hydrate QueuedJob
+        // 3. Refuse a payload that isn't signed or has been changed
+        try {
+            $payload = $this->signer->verifyAndRestore($job['payload']);
+        }
+        catch (RuntimeException $e) {
+            $this->rejectPayload($job, $e);
+            return null;
+        }
+
+        // 4. Hydrate QueuedJob
         return new QueuedJob(
             queue: (string) $job['queue'],
-            payload: unserialize($job['payload']),
+            payload: $payload,
             attempts: (int) $job['attempts'] + 1,
             maxAttempts: (int) $job['max_attempts'],
-            availableAt: (int) $job['available_at'],
+            availableAt: strtotime($job['available_at']) ?: null,
             id: (int) $job['id'],
         );
     }
@@ -135,7 +147,7 @@ class DatabaseQueue implements QueueInterface
     {
         $this->db->insert('dgz_failed_jobs', [
             'queue'            => $job->queue,
-            'payload'          => serialize($job->payload),
+            'payload'          => $this->signer->sign($job->payload),
             'exception'        => $e->getMessage(),
             'exception_trace'  => $e->getTraceAsString(),
             'attempts'         => $job->attempts,
@@ -145,6 +157,27 @@ class DatabaseQueue implements QueueInterface
         // Remove job from active queue
         $this->db->execute(
             'DELETE FROM dgz_jobs WHERE id = ?', [$job->id]
+        );
+    }
+
+
+    /**
+     * Move a rejected row to failed jobs as it is. It is never rebuilt, so it stays
+     * available for inspection without being able to run.
+     */
+    private function rejectPayload(array $job, RuntimeException $e): void
+    {
+        $this->db->insert('dgz_failed_jobs', [
+            'queue'            => $job['queue'],
+            'payload'          => $job['payload'],
+            'exception'        => $e->getMessage(),
+            'exception_trace'  => $e->getTraceAsString(),
+            'attempts'         => (int) $job['attempts'] + 1,
+            'failed_at'        => date('Y-m-d H:i:s'),
+        ]);
+
+        $this->db->execute(
+            'DELETE FROM dgz_jobs WHERE id = ?', [$job['id']]
         );
     }
 

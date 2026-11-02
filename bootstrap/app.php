@@ -13,6 +13,7 @@ use Dorguzen\Core\Events\EventService;
 use Dorguzen\Core\Events\EventDispatcher;
 use Dorguzen\Core\Events\ListenerResolver;
 use Dorguzen\Core\Queues\QueueManager;
+use Dorguzen\Core\Queues\QueuePayloadSigner;
 use Dorguzen\Core\Queues\Drivers\SyncQueue;
 use Dorguzen\Core\Queues\Drivers\DatabaseQueue;
 use Dorguzen\Core\Database\Graph\DGZ_Neo4jClient;
@@ -87,7 +88,10 @@ $container->singleton(EventService::class, function ($c) {
 //--------------------------------------------------------------------------------------
 $container->singleton(SyncQueue::class, fn () => new SyncQueue());
 $container->singleton(DatabaseQueue::class, function ($c) {
-    return new DatabaseQueue($c->get(DGZ_DBAdapter::class));
+    return new DatabaseQueue(
+        $c->get(DGZ_DBAdapter::class),
+        new QueuePayloadSigner((string) $c->get(Config::class)->get('app.queue_signing_key'))
+    );
 });
 $container->singleton(QueueManager::class, function ($c) {
     return new QueueManager($c->get(Config::class), $c);

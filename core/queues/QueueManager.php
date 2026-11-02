@@ -43,6 +43,7 @@ class QueueManager
                 user:     (string) ($this->config->get('app.rabbitmq.user')     ?? 'guest'),
                 password: (string) ($this->config->get('app.rabbitmq.password') ?? 'guest'),
                 vhost:    (string) ($this->config->get('app.rabbitmq.vhost')    ?? '/'),
+                signer:   new QueuePayloadSigner((string) $this->config->get('app.queue_signing_key')),
                 queue:    (string) ($this->config->get('app.rabbitmq.queue')    ?? 'default'),
             ),
             default => throw new \RuntimeException("Unsupported queue driver [$driver]")

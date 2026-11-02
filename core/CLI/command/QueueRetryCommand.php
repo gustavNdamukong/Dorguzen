@@ -52,7 +52,7 @@ class QueueRetryCommand extends AbstractCommand
         foreach ($failedJobs as $job) {
             $this->db->insert('dgz_jobs', [
                 'queue'        => $job['queue'],
-                'payload'      => serialize($job['payload']),
+                'payload'      => $job['payload'],
                 'attempts'     => 0,
                 'max_attempts' => 3,
                 'reserved_at'  => null, 

@@ -3,6 +3,7 @@
 namespace Dorguzen\Core\Queues\Drivers;
 
 use Dorguzen\Core\Queues\QueuedJob;
+use Dorguzen\Core\Queues\QueuePayloadSigner;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Message\AMQPMessage;
 use PhpAmqpLib\Wire\AMQPTable;
@@ -53,6 +54,7 @@ class RabbitMQQueue implements QueueInterface
         private string $user,
         private string $password,
         private string $vhost,
+        private QueuePayloadSigner $signer,
         private string $queue       = 'default',
         private int    $maxAttempts = 3,
     ) {
@@ -77,7 +79,7 @@ class RabbitMQQueue implements QueueInterface
         ]);
 
         $msg = new AMQPMessage(
-            serialize($job),
+            $this->signer->sign($job),
             [
                 'delivery_mode'       => AMQPMessage::DELIVERY_MODE_PERSISTENT,
                 'application_headers' => $headers,
@@ -107,9 +109,17 @@ class RabbitMQQueue implements QueueInterface
             return null;
         }
 
+        // Refuse a payload that isn't signed or has been changed
+        try {
+            $payload = $this->signer->verifyAndRestore($message->getBody());
+        } catch (RuntimeException $e) {
+            $this->rejectMessage($message, $attempts, $maxAttempts, $e);
+            return null;
+        }
+
         return new QueuedJob(
             queue:       $this->queue,
-            payload:     unserialize($message->getBody()),
+            payload:     $payload,
             attempts:    $attempts + 1,
             maxAttempts: $maxAttempts,
             availableAt: $availableAt,
@@ -138,7 +148,7 @@ class RabbitMQQueue implements QueueInterface
         ]);
 
         $msg = new AMQPMessage(
-            serialize($job->payload),
+            $this->signer->sign($job->payload),
             [
                 'delivery_mode'       => AMQPMessage::DELIVERY_MODE_PERSISTENT,
                 'application_headers' => $headers,
@@ -171,7 +181,7 @@ class RabbitMQQueue implements QueueInterface
         ]);
 
         $msg = new AMQPMessage(
-            serialize($job->payload),
+            $this->signer->sign($job->payload),
             [
                 'delivery_mode'       => AMQPMessage::DELIVERY_MODE_PERSISTENT,
                 'application_headers' => $headers,
@@ -231,6 +241,32 @@ class RabbitMQQueue implements QueueInterface
         }
 
         return $this->channel;
+    }
+
+
+    /**
+     * Move a rejected message to the failed queue as it is. It is never rebuilt, so it
+     * stays available for inspection without being able to run.
+     */
+    private function rejectMessage(AMQPMessage $message, int $attempts, int $maxAttempts, RuntimeException $e): void
+    {
+        $this->channel()->basic_nack($message->getDeliveryTag(), false, false);
+
+        $headers = new AMQPTable([
+            'attempts'     => $attempts + 1,
+            'max_attempts' => $maxAttempts,
+            'exception'    => substr($e->getMessage(), 0, 512),
+            'failed_at'    => time(),
+        ]);
+
+        $this->channel()->basic_publish(
+            new AMQPMessage($message->getBody(), [
+                'delivery_mode'       => AMQPMessage::DELIVERY_MODE_PERSISTENT,
+                'application_headers' => $headers,
+            ]),
+            '',
+            $this->queue . '.failed'
+        );
     }
 
 

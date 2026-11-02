@@ -1316,6 +1316,15 @@ Here is the architectural structure and list of some key classes involved:
 
       QUEUE_DRIVER=rabbitmq   # .env
 
+  The db and rabbitmq drivers also require a signing key in .env:
+
+      QUEUE_SIGNING_KEY=<generate with: php -r "echo bin2hex(random_bytes(32));">
+
+  Every queued job is signed with this key and checked before it is rebuilt. A job
+  that is unsigned, changed or signed with a different key is never run. It moves to
+  dgz_failed_jobs (db) or the <queue>.failed queue (rabbitmq). This includes jobs
+  queued before signing was added, so let those finish or re-queue them when upgrading.
+
   Three drivers ship with Dorguzen:
 
   Driver       | When to use
