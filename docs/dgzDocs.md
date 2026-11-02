@@ -3033,7 +3033,7 @@ SAPI stands for Server API. It is the layer that connects your web server (Apach
 Nginx, etc.) to PHP — in other words, it is the mechanism by which Apache hands an
 incoming HTTP request to PHP for processing.
 
-There are two SAPIs you will commonly encounter:
+There are three SAPIs you will commonly encounter:
 
   mod_php
     PHP is loaded directly inside Apache as a module. Apache and PHP are tightly
@@ -3050,6 +3050,11 @@ There are two SAPIs you will commonly encounter:
     Because PHP is a separate process with PHP-FPM, Apache's php_value directives
     in .htaccess have no effect — Apache cannot reach across into the PHP process
     to set configuration values. A different mechanism is needed.
+
+  LiteSpeed
+    PHP runs through LiteSpeed's own connection (LSAPI). This is common on cPanel
+    shared hosting, and your server may still report itself as "Apache" even though
+    PHP is running this way. Use .user.ini for PHP settings here too.
 
 The key question: which SAPI is my server using?
 
@@ -3072,8 +3077,8 @@ The .htaccess file in the project root has two jobs:
      mod_php and PHP-FPM. The SAPI does not affect URL rewriting at all.
 
   2. PHP settings (mod_php only) — set upload limits and memory using php_value
-     directives inside <IfModule mod_php8.c> blocks. These are silently ignored
-     when the server uses PHP-FPM.
+     directives inside an <IfModule mod_php.c> block. This block is silently
+     skipped when the server uses PHP-FPM or LiteSpeed.
 
 Dorguzen's .htaccess currently contains:
 
@@ -3082,58 +3087,58 @@ Dorguzen's .htaccess currently contains:
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule ^ index.php [L]
 
-  <IfModule mod_php7.c>
+  <IfModule mod_php.c>
      php_value upload_max_filesize 50M
      php_value post_max_size 50M
      php_value memory_limit 256M
-  </IfModule>
-  <IfModule mod_php8.c>
-     php_value upload_max_filesize 50M
-     php_value post_max_size 50M
-     php_value memory_limit 256M
+     php_flag session.upload_progress.enabled off
   </IfModule>
 
 The <IfModule> wrapper is important: it tells Apache to only apply those directives
 if the named module is loaded. Without it, Apache would throw a 500 error on any
 server that does not have mod_php installed. With it, the block is simply skipped
-on PHP-FPM servers — safely and silently.
+on PHP-FPM and LiteSpeed servers — safely and silently.
 
-Blocks for both mod_php7.c and mod_php8.c are included to cover PHP 7.x and 8.x
-mod_php installations respectively.
+The name matters: PHP 8's Apache module identifies itself as mod_php.c, not
+mod_php8.c, so a block using the older name never runs. The last line turns off
+session upload progress, for the reason explained in "PHP security settings".
 
 
-What .user.ini does (PHP-FPM only)
+What .user.ini does (PHP-FPM and LiteSpeed)
 
-PHP-FPM reads a special file called .user.ini from the document root of each
-project. Think of it as the PHP-FPM equivalent of the php_value directives in
-.htaccess. It uses standard PHP ini syntax — plain key = value pairs, no Apache
-directives, no module wrappers.
+When PHP is not running as an Apache module, it can read a special file called
+.user.ini from the document root of each project. Think of it as the equivalent
+of the php_value directives in .htaccess. It uses standard PHP ini syntax — plain
+key = value pairs, no Apache directives, no module wrappers.
 
-Dorguzen's .user.ini currently contains:
+Dorguzen does not ship this file. .user.ini is listed in .gitignore because its
+contents belong to each server, so you create it yourself on each site that needs
+it. This is what we recommend putting in it:
 
   upload_max_filesize = 50M
   post_max_size = 50M
   memory_limit = 256M
+  session.upload_progress.enabled = Off
 
-This file is read automatically by PHP-FPM on every request and requires no
-special setup. It also works on shared hosting running PHP-FPM where you do not
-have access to the server's main php.ini — making it the correct solution for
-the majority of modern hosting environments.
+PHP reads the file automatically, though it can take a few minutes to notice a
+change. It also works on shared hosting where you do not have access to the
+server's main php.ini. See "PHP security settings" for step-by-step instructions.
 
 
 Why both files exist
 
-Dorguzen ships both .htaccess and .user.ini so that the same upload limits apply
-regardless of which SAPI the server uses:
+Between them, these two files apply the same settings whichever SAPI your server
+uses:
 
-  Server uses mod_php  → .htaccess php_value blocks take effect
-                          .user.ini is ignored (PHP-FPM is not running)
+  Server uses mod_php              → the .htaccess php_value block takes effect
+                                     .user.ini is ignored
 
-  Server uses PHP-FPM  → .user.ini takes effect
-                          .htaccess php_value blocks are silently skipped
+  Server uses PHP-FPM or LiteSpeed → .user.ini takes effect
+                                     the .htaccess php_value block is skipped
 
-You do not need to choose one or delete the other. Keep both files in place and
-the correct one will be picked up automatically.
+Dorguzen ships .htaccess, so mod_php servers need no extra work. On PHP-FPM and
+LiteSpeed, nothing is applied until you create .user.ini. If you skip it, your
+server's default limits apply and session upload progress stays on.
 
 
 What happens when an upload exceeds the limit
@@ -3203,12 +3208,75 @@ PHP security settings
 
       session.upload_progress.enabled = 0
 
-  Where to set it:
+  How you set it depends on how your server runs PHP. If you are not sure, this
+  quick test will tell you:
 
-    - Apache with mod_php: the .htaccess file shipped with Dorguzen already does this.
-    - PHP-FPM: set it in php.ini or the FPM pool, where it is written as:
-          php_admin_value[session.upload_progress.enabled] = 0
-    - cPanel: use the MultiPHP INI Editor, or your host's equivalent.
+    1. In the document root (the folder containing index.php), create a file called
+       dgz-check.php containing only this line:
+
+          <?php echo PHP_SAPI, ' | upload_progress=', var_export(ini_get('session.upload_progress.enabled'), true);
+
+    2. Open https://yourdomain.com/dgz-check.php in your browser.
+
+    3. Read the first word of the result:
+
+          apache2handler   mod_php. The .htaccess file shipped with Dorguzen already
+                           does it for you.
+          litespeed        LiteSpeed. Use a .user.ini file.
+          fpm-fcgi         PHP-FPM. Use a .user.ini file, or php.ini or the FPM pool
+                           if you manage the server. In a pool it is written as:
+                             php_admin_value[session.upload_progress.enabled] = 0
+          cgi-fcgi         CGI / FastCGI. Use a .user.ini file.
+
+    4. Delete dgz-check.php once you have confirmed the setting below. Do not leave
+       test pages on a live site.
+
+  Creating the .user.ini file:
+
+    It goes in the document root, right next to index.php, and only needs this line:
+
+        session.upload_progress.enabled = Off
+
+    If the site already has a .user.ini file, add this line and keep everything else
+    that is already there.
+
+    With cPanel File Manager (the easiest way):
+      1. Open File Manager and go to the site's document root.
+      2. Click Settings (top right), tick Show Hidden Files, and click Save. The file
+         name starts with a dot, so it stays hidden otherwise.
+      3. If .user.ini is there, select it and click Edit. If not, click + File, name
+         it .user.ini, click Create New File, then select it and click Edit.
+      4. Add the line and save.
+
+    With FileZilla:
+      1. Choose Server -> Force showing hidden files.
+      2. On the server side, go to the site's document root.
+      3. If .user.ini is there, right-click it and choose View/Edit. If not, right-click
+         in the file list, choose Create new file, name it .user.ini, then right-click
+         it and choose View/Edit.
+      4. Add the line, save the file, and let FileZilla upload the change when it asks.
+
+    cPanel's MultiPHP INI Editor can also change this setting, but not every hosting
+    account has it, and the Options tab in Select PHP Version may not list it.
+
+  Confirming it worked:
+
+    Wait about five minutes, because PHP can take a little while to notice the change,
+    then refresh dgz-check.php:
+
+      upload_progress='' or '0'   It is off, and you are finished.
+      upload_progress='1'         It is still on. Wait a few more minutes and refresh.
+                                  If it does not change, check that the file is in the
+                                  document root and is named exactly .user.ini, or ask
+                                  your hosting provider.
+
+  Good to know:
+
+    - Do this once for each website, even when several share one hosting account.
+    - Your deployments will not carry this file. Dorguzen's .gitignore excludes it
+      because its contents belong to each server, so create it again on a new server.
+    - Visitors cannot read it. Dorguzen's .htaccess refuses web requests for files
+      whose names start with a dot.
 
   The .htaccess file only works if the host allows PHP settings there. A mod_php
   host without "AllowOverride Options" returns a 500 error for every page. If that
