@@ -27,7 +27,7 @@ RewriteEngine on
 # Real files are served directly by Apache (see above), so anything private has
 # to be refused first. .well-known stays open because SSL certificate checks use it.
 RewriteRule (^|/)\.(?!well-known(/|$)) - [F,L]
-RewriteRule ^storage(/|$) - [F,L]
+RewriteRule ^(storage|vendor)(/|$) - [F,L]
 RewriteRule ^(composer\.(json|lock)|phpunit\.xml)$ - [F,L]
 
 # ------------------------------- RULE: empty path → home
