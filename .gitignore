@@ -12,6 +12,9 @@ vendor
 # Server-specific config
 .user.ini
 
+# Log files
+storage/logs/*.log
+
 # Generated cache files
 bootstrap/cache/*.php
 bootstrap/cache/*.meta

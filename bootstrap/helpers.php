@@ -635,8 +635,10 @@ function setupErrorHandling($env): void
         ini_set('display_errors', '0');
         ini_set('display_startup_errors', '0');
         ini_set('log_errors', '1');
-        ini_set('error_log', __DIR__ . '/logs/php_errors.log');
-        error_reporting(0);
+        ini_set('error_log', dirname(__DIR__) . '/storage/logs/php_errors.log');
+        // Fatal errors such as memory exhaustion never reach set_error_handler() below.
+        // PHP only logs them if error_reporting includes them, so this must not be 0.
+        error_reporting(E_ALL & ~E_DEPRECATED);
     }
 
     set_error_handler(

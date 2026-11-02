@@ -35,13 +35,13 @@ RewriteRule ^ index.php [L]
 
 # ------------------------------- PHP upload limits
 #increase the PHP max file upload size and max post size to enable the uploading of bigger files
-<IfModule mod_php7.c>
+# PHP 8's Apache module identifies itself as mod_php.c, not mod_php8.c.
+# These only apply under mod_php. On PHP-FPM, set them in php.ini or the FPM pool.
+<IfModule mod_php.c>
    php_value upload_max_filesize 50M
    php_value post_max_size 50M
    php_value memory_limit 256M
-</IfModule>
-<IfModule mod_php8.c>
-   php_value upload_max_filesize 50M
-   php_value post_max_size 50M
-   php_value memory_limit 256M
+   # PHP2Shell (CVE-2026-109618, CVE-2026-109619): this feature runs before any
+   # application code, so it can only be turned off at this level. Dorguzen does not use it.
+   php_flag session.upload_progress.enabled off
 </IfModule>

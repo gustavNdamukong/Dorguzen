@@ -18,7 +18,7 @@ Out of the box you get routing, controllers, models, views, an ORM, migrations, 
 
 ## Requirements
 
-- PHP >= 8.0
+- PHP 8.2.35+, 8.3.36+, 8.4.27+ or 8.5.12+ (earlier versions are vulnerable to PHP2Shell). Installing the dev tools needs PHP 8.3+.
 - The **GD extension** (with PNG/JPEG/GIF/WebP support) — required by the bundled `DGZ_Uploader` for image thumbnails (Gallery, Portfolio, Blog image uploads). On cPanel: *Select PHP Version → Extensions → `gd`*.
 - Composer
 - MySQL / MariaDB (or PostgreSQL / SQLite for alternative drivers)

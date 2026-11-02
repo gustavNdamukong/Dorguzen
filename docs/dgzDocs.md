@@ -3177,11 +3177,37 @@ Requirements
 
 Before deploying, confirm the target server provides:
 
-  - PHP 8.0 or higher
+  - PHP 8.2.35+, 8.3.36+, 8.4.27+ or 8.5.12+ (see "PHP security settings" below)
   - One of: MySQL/MariaDB, PostgreSQL, or SQLite
   - Composer
   - PHP extensions: mysqli (for MySQL), pdo_mysql, pdo_pgsql, pdo_sqlite,
     mbstring, openssl, json
+
+PHP security settings
+
+  Earlier PHP versions are vulnerable to PHP2Shell (CVE-2026-109618 and
+  CVE-2026-109619), which can run code on the server without a login. Updating
+  PHP is the real fix, because the attack can happen before Dorguzen loads.
+
+  Also turn off session upload progress on the server. Dorguzen does not use it,
+  and ini_set() in application code is too late to turn it off:
+
+      session.upload_progress.enabled = 0
+
+  Where to set it:
+
+    - Apache with mod_php: the .htaccess file shipped with Dorguzen already does this.
+    - PHP-FPM: set it in php.ini or the FPM pool, where it is written as:
+          php_admin_value[session.upload_progress.enabled] = 0
+    - cPanel: use the MultiPHP INI Editor, or your host's equivalent.
+
+  This setting is also PHP's advised workaround for CVE-2026-115560, which the
+  versions above do not fix.
+
+  Fatal errors in production are logged to storage/logs/php_errors.log. A burst of
+  "Allowed memory size exhausted" errors can be a sign of an attack, though a crash
+  during upload handling happens before Dorguzen loads, so check the server's own
+  PHP error log as well.
 
 
 Environment Setup
@@ -15434,7 +15460,7 @@ Symptom: Scheduler runs ("Schedule run process complete") but emails stay
         MAIL_ENCRYPTION=tls
 
     If credentials are wrong the scheduler will mark the row as 'failed' and
-    log the error. Check bootstrap/logs/php_errors.log or the server error log.
+    log the error. Check storage/logs/php_errors.log or the server error log.
 
   Cause 4 — Template file missing
     If newsletters.newsletter_template references a file that does not exist
